@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Cache-Control" content="no-cache"> 
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Form</title>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  
+   <style>
+	body { font-size:12px; }
+	td   { font-size:12px; }
+	.title { font-size:16px; }
+	.head { background-color:#EFF7FC; padding: 3 3 0 5 }
+	.body { background-color:#FFFFFF; padding: 3 3 0 5  }
+	.nbody { background-color:#FFFFCC; padding: 3 3 0 5  }
+  </style>
+  
+</head>
+
+<body>
+	<div style="width:100%;margin:auto;">
+      <h2 style="text-align:center">MARU 취소 샘플페이지</h2>
+        <form action="#" id="refundForm">
+			<table border=0 cellpadding=0 cellspacing=1 align=center style="TABLE-LAYOUT: fixed; background-color:#606060; width:95%;">
+				<tr>
+					<td class="head">항목</td>
+					<td width="75%" class="body">입력 값</td>
+				</tr>
+				<tr>
+					<td class="body"><input type="hidden" id="trxType" name="trxType" value="ONTR" style="width:70%;"></td>
+				</tr>
+				<tr>
+					<td class="head">온라인 결제키</td>
+					<td class="body"><input type="text" id="publicKey" name="publicKey" value="pk_cada-78a4c1-98a-cd929" style="width:70%;"></td>
+				</tr>
+				<tr>
+					<td class="head">취소 시 가맹점 주문번호</td>
+					<td class="body"><input type="text" class="form-control" id="trackId" name="trackId" value="" style="width:70%;"></td>
+				</tr>
+				<tr>
+					<td class="head">취소금액(입력안할 시 전체취소)</td>
+					<td class="body"><input type="text" class="form-control" id="amount" name="amount"  value="" style="width:70%;"></td>
+				</tr>
+				<tr>
+					<td class="head">원거래 거래번호</td>
+					<td class="body"><input type="text" class="form-control" id="rootTrxId" name="rootTrxId" value="" style="width:70%;"></td>
+				</tr>
+			</table>
+		</form>
+		<div style="text-align:right; margin-top:10px;">
+             <button type="button" onclick="javascript:cancel();">취소하기</button>
+		</div>
+        </form>
+    </div>
+    
+	<script>
+		$(document).ready(function() {
+			var d = new Date();
+			$('#trackId').val('test-'+d.getTime());
+		});
+	
+		function cancel() {
+			var cancelData = {"refund":
+								{
+									"trxType": $('#trxType').val(),
+                				 	"trackId": $('#trackId').val(),
+                					"rootTrxId": $('#rootTrxId').val()
+                				}
+							};
+			var refundData = JSON.stringify(cancelData);
+			
+			$.ajax({
+	            type: "POST",
+	            url: "https://svcapidev.mtouch.com/api/refund",
+	            data : refundData,
+	            dataType : "json",
+	            contentType : "application/json; charset=utf-8",
+	            beforeSend: function (xhr) {
+	               xhr.setRequestHeader("Authorization",$('#publicKey').val());
+	            },
+	            success: function (res) {
+	            	alert(res.result.resultCd);
+	            	alert(res.result.advanceMsg);
+					console.log(res);
+	            },
+	            error: function () {
+	            	alert("error");
+		        }
+			});
+		}
+		
+		jQuery.fn.serializeObject = function() {
+		    var obj = null;
+		    try {
+		        if (this[0].tagName && this[0].tagName.toUpperCase() == "FORM") {
+		            var arr = this.serializeArray();
+		            if (arr) {
+		                obj = {};
+		                jQuery.each(arr, function() {
+		                    obj[this.name] = this.value;
+		                });
+		            }//if ( arr ) {
+		        }
+		    } catch (e) {
+		        alert(e.message);
+		    } finally {
+		    }
+		 
+		    return obj;
+		};
+  </script>
+</body>
+</html>

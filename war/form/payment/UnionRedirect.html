@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RedirectURL</title>
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+<script>
+ 	var urlParams = window.location.search;
+	var decoded = decodeURIComponent(urlParams);
+ 
+	 if(decoded.indexOf("승인실패") != -1){
+		var trim = decoded.replace('?result=','').replace(/\\/g, '').substring(1).slice(0,-1);
+	}else if(decoded.indexOf("승인")){
+		var trimer = decoded.replace('?result=','');
+			if(trimer.charAt(0) == '"'){
+				var trim = trimer.replace('?result=','').replace(/\\/g, '').substring(1).slice(0,-1);
+			}else{
+				var trim = decoded.replace('?result=','');
+			}
+	}
+	 
+		var obj = JSON.parse(trim);
+		
+		window.onload = function(){
+			document.writeln("<h3>Redirect Response</h3>");
+			document.writeln("resultMsg : " + obj.result.resultMsg + "<br>");
+			document.writeln("resultCd : " + obj.result.resultCd + "<br>");
+			document.writeln("advanceMsg : " + obj.result.advanceMsg + "<br><br>");				 
+			document.writeln("전문" + "<br>");
+			document.writeln(trim);
+		}
+</script>
+</body>
+</html>

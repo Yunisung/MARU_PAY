@@ -1,0 +1,16 @@
+@charset "utf-8";
+
+body {
+  font-size: 20px;
+  background:transparent;
+}
+#thepayone-page-wrap {
+  border-radius:4px;
+  position:fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  opacity:1;
+}

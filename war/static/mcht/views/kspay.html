@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Cache-Control" content="no-cache"> 
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Cyrexpay Payment Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <link rel="stylesheet" href="../public/style.css">
+  <!-- <link rel="stylesheet" type="text/css" href="../public/style.css"> -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://svcapi.mtouch.com/js/clientside.js"></script>
+</head>
+
+<body>
+  <link href="https://fonts.googleapis.com/css?family=Oleo+Script:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Teko:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/earlyaccess/nanumgothic.css" rel="stylesheet">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <section id="contact">
+    <div class="section-content">
+      <h1 class="section-header">Sandbox
+        <span class="content-header wow fadeIn " data-wow-delay="0.2s" data-wow-duration="2s"> Payment</span>
+      </h1>
+      <h3>MTouch payment test page</h3>
+    </div>
+    <div class="contact-section">
+      <div class="container">
+        <form>
+          <div class="col-md-6 form-line">
+            <div class="form-group">
+              <label for="exampleInputUsername">Public Key</label>
+              <input type="text" class="form-control" id="publicKey" value="pk_3637-760eec-19a-89a93">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail">Amount</label>
+              <input type="text" class="form-control" id="amount" value="1004">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail">Redirect URL</label>
+              <input type="text" class="form-control" id="redirect" value="http://cp.cyrexpay.com:8080/views/result.html">
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-12">
+            <div class="form-group">
+              <label for="description">Product</label>
+              <textarea class="form-control" id="product">
+{
+  "name": "T-Shirts",
+  "price": "900",
+  "qty": 1,
+  "desc": "description"
+}</textarea>
+            </div>
+            <div class="form-group">
+              <button type="button" onclick="javascript:pay();" class="btn btn-default submit" >
+                <i class="fa fa-check" aria-hidden="true"></i> Pay</button>
+            </div>
+          </div>
+        </form>
+      </div>
+  </section>
+  <script>
+    MARU.debug(true);
+    function eventFnc(data) {
+      console.log('eventFnc:', data);
+      console.log(JSON.stringify(data));
+      //$('#token').val(token);
+    }
+    console.log("MERCHNAT NATIVE LOG");
+    function pay() {
+      var products = [];
+      var product = $('#product').val().replace(/\n/gi, "");
+      products.push(JSON.parse(product));
+      MARU.pay({
+        payRoute: "3d",
+        amount: $('#amount').val(),
+        publicKey: $('#publicKey').val(),
+        products: products,
+        responseFunction: eventFnc,
+        redirectUrl: 'http://cp.cyrexpay.com:8080/static/mcht/views/kspay.html', // $('#redirect').val(),
+        webhookUrl: 'http://cp.cyrexpay.com:8080/static/mcht/views/kspay.html', // $('#redirect').val(),
+        udf1: 'TEST1',
+        udf2: 'TEST2',
+        //trackId: 'TE' + Math.floor((Math.random() * 10000) + 1),
+        payerName: '배윤환',
+        payerEmail: 'test@test.com',
+        payerTel: '010-4904-2281',
+        widgetLogoUrl: 'http://www.mtouch.com/images/about/logo.png',
+        mode: 'layer',
+        debugMode: 'live' // live / sandbox
+      });
+    }
+  </script>
+</body>
+
+</html>

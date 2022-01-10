@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <title>MTouch</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <!-- <link rel="stylesheet" type="text/css" href="../public/style.css"> -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://svcapi.mtouch.com/js/clientside.js"></script>
+  <style type="text/css">
+    /*Contact sectiom*/
+
+    .content-header {
+      font-family: 'Oleo Script', cursive, "Nanum Gothic";
+      color: #fcc500;
+      font-size: 45px;
+    }
+
+    .section-content {
+      text-align: center;
+    }
+
+    #contact {
+      font-family: 'Teko', "Nanum Gothic", sans-serif;
+      padding-top: 60px;
+      width: 100%;
+      width: 100vw;
+      height: 1100px;
+      background: #3a6186;
+      /* fallback for old browsers */
+      background: -webkit-linear-gradient(to left, #3a6186, #89253e);
+      /* Chrome 10-25, Safari 5.1-6 */
+      background: linear-gradient(to left, #3a6186, #89253e);
+      /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+      color: #fff;
+    }
+
+    .contact-section {
+      padding-top: 40px;
+    }
+
+    .form-line {
+      border-right: 1px solid #B29999;
+    }
+
+    .form-group {
+      margin-top: 10px;
+    }
+
+    label {
+      font-size: 1.3em;
+      line-height: 1em;
+      font-weight: normal;
+    }
+
+    .form-control {
+      font-size: 1.3em;
+      color: #080808;
+    }
+
+    textarea.form-control {
+      height: 135px;
+      /* margin-top: px;*/
+    }
+
+    .submit {
+      font-size: 1.1em;
+      float: right;
+      width: 150px;
+      background-color: transparent;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <link href="https://fonts.googleapis.com/css?family=Oleo+Script:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Teko:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/earlyaccess/nanumgothic.css" rel="stylesheet">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <section id="contact">
+    <div class="section-content">
+      <h1 class="section-header">Sandbox
+        <span class="content-header wow fadeIn " data-wow-delay="0.2s" data-wow-duration="2s"> Payment</span>
+      </h1>
+      <h3>Mtouch payment test page</h3>
+    </div>
+    <div class="contact-section">
+      <div class="container">
+        <form>
+          <div class="col-md-6 form-line">
+            <div class="form-group">
+              <label for="exampleInputUsername">Public Key</label>
+              <input type="text" class="form-control" id="publicKey" value="pk_108e-b1a019-583-00150">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail">Amount</label>
+              <input type="text" class="form-control" id="amount" value="1004">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail">Redirect URL</label>
+              <input type="text" class="form-control" id="redirect" value="">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail">Webhook URL</label>
+              <input type="text" class="form-control" id="webhook" value="http://svc.mtouch.com">
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-12">
+            <div class="form-group">
+              <label for="description">Product</label>
+              <textarea class="form-control" id="product">
+{
+  "name": "T-Shirts",
+  "price": "900",
+  "qty": 1,
+  "desc": "description"
+}
+              </textarea>
+            </div>
+            <div class="form-group">
+              <button type="button" onclick="javascript:pay();" class="btn btn-default submit" >
+                <i class="fa fa-check" aria-hidden="true"></i> Pay</button>
+            </div>
+          </div>
+        </form>
+      </div>
+  </section>
+  <script>
+    MARU.debug(true);
+    function eventFnc(data) {
+      console.log('eventFnc:', data);
+      //$('#token').val(token);
+    }
+
+    function pay() {
+      var products = [];
+      var product = $('#product').val().replace(/\n/gi, "");
+      products.push(JSON.parse(product));
+      MARU.pay({
+        amount: $('#amount').val(),
+        publicKey: $('#publicKey').val(),
+        products: products,
+        responseFunction: eventFnc,
+        redirectUrl: $('#redirect').val(),
+        webhookUrl: $('#webhook').val(),
+        udf1: '',
+        udf2: '',
+        payerName: '가맹점',
+        payerEmail: 'yhbae@test.com',
+        payerTel: '010-4904-0000',
+        widgetLogoUrl: 'https://svc.mtouch.com/assets/global/img/aynil-bright.png',
+        mode: 'layer',
+        debugMode: 'live' // live
+      });
+    }
+  </script>
+</body>
+
+</html>

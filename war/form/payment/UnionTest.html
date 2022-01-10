@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
+	<meta http-equiv="Cache-Control" content="no-cache"> 
+	<meta http-equiv="Pragma" content="no-cache">
+	
+    <title>통합 결제 테스트 페이지</title>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script> 
+    
+	<!-- Mtouch 결제 스크립트 [필수] -->
+	<script type="text/javascript" src="https://svcapi.mtouch.com/js/clientside.js"></script>
+
+	<style>
+		form { margin: 0 auto; width:250px; }
+	</style>
+</head>
+<body>
+
+<h3 class="text-center">통합 결제 테스트 페이지</h3>
+
+	<form name="form1" class="form-horizontal" style="width:50%;">
+		<br>
+		<div class="form-group">
+			<h4 class="text-center">필수 입력값</h4>
+		</div>
+		
+		<div class="form-group">
+			<label for="trxType" class="col-sm-2 control-label">결제타입</label>
+			<div class="col-sm-10">
+				<input type="text" name="trxType" id="trxType" value="ONTR" class="form-control" disabled>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="van" class="col-sm-2 control-label">VAN</label>
+			<div class="col-sm-10">
+				<select class="form-control" id="van">
+					<option value="KSPAY" data-val="KSPAY">KSPAY</option>
+					<option value="ALLAT" data-val="ALLAT">ALLAT</option>
+					<option value="KCP" data-val="KCP">KCP</option>
+					<option value="웰컴페이먼츠" data-val="웰컴페이먼츠">웰컴페이먼츠</option>
+					<option value="KG모빌리언스" data-val="KG모빌리언스">KG모빌리언스</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="publicKey" class="col-sm-2 control-label">온라인 결제키</label>
+			<div class="col-sm-10">
+				<input type="text" class="form-control" id="tempKey" name="tempKey" placeholder="publicKey" onblur="javascript:validPk();">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="amount" class="col-sm-2 control-label">결제금액</label>
+			<div class="col-sm-10">
+				<input type="text" name="amount" id="amount" value="1004" class="form-control" placeholder="amount">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="product" class="col-sm-2 control-label">구매상품정보</label>
+			<div class="col-sm-10">
+				<textarea class="form-control" id="product" style="width:100%;">{"name": "T-Shirts","price": "900","qty": 1,"desc": "description"}</textarea>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="trackId" class="col-sm-2 control-label">가맹점 주문번호</label>
+			<div class="col-sm-10">
+				<input type="text" name="trackId" id="trackId" value="test-1597208109196" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="webhook" class="col-sm-2 control-label">Webhook URL</label>
+			<div class="col-sm-10">
+				<input type="text" name="webhook" id="webhook" value="http://www.mtouch.com/" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="payerName" class="col-sm-2 control-label">구매자 이름</label>
+			<div class="col-sm-10">
+				<input type="text" name="payerName" id="payerName" value="테스트" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="payerTel" class="col-sm-2 control-label">구매자 전화번호</label>
+			<div class="col-sm-10">
+				<input type="text" name="payerTel" id="payerTel" value="010-1234-1234" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="payerEmail" class="col-sm-2 control-label">구매자 이메일</label>
+			<div class="col-sm-10">
+				<input type="text" name="payerEmail" id="payerEmail" value="dev@dev.com" class="form-control">
+			</div>
+		</div>
+
+		<div class="form-group" style="text-align:center;">
+			<div class="col-sm-offset-1 col-sm-10" id="btnPay">
+				<button type="button" class="btn btn-default" value='pk_cada-78a4c1-98a-cd929' id='regularBtn' name='regular' onclick="javascript:pay('regular',this);">수기결제</button>&nbsp;
+			    <button type="button" class="btn btn-default" value='pk_3637-760eec-19a-89a93' id='3dBtn' name='3d' onclick="javascript:pay('3d',this);">일반결제</button>&nbsp;
+			    <button type="button" class="btn btn-default" value='pk_cc30-a3622e-5a5-f05cc' id='w3dBtn' name='w3d' onclick="javascript:pay('w3d',this);">해외결제</button>
+			</div>
+	  	</div>
+	</form>
+
+	<script>
+	$("#van").on("change", function(){
+		if($("option:selected").attr("data-val") == "ALLAT"){
+			$("#tempKey").val('');
+			document.getElementById("regularBtn").value="pk_a3dd-985f08-0b1-8733f";
+			
+			$("#regularBtn").show();
+			$("#3dBtn").hide();
+			$("#w3dBtn").hide();
+		}else if($("option:selected").attr("data-val") == "KSPAY"){
+			$("#tempKey").val('');
+			document.getElementById("regularBtn").value="pk_7094-ac0642-351-f57b6";
+			document.getElementById("3dBtn").value="pk_072b-d229c7-541-18c44";
+			document.getElementById("w3dBtn").value="pk_cc30-a3622e-5a5-f05cc";
+			
+			$("#regularBtn").show();
+			$("#3dBtn").show();
+			$("#w3dBtn").show();
+		}else{
+			alert("현재 사용하실 수 없습니다.");
+			$("#tempKey").val('');
+			
+			$("#regularBtn").hide();
+			$("#3dBtn").hide();
+			$("#w3dBtn").hide();
+		}
+	});
+
+	function validPk(){
+		var getKey = $("#tempKey").val();
+
+		if(getKey.indexOf('pk_') == -1){
+			alert("온라인 결제키 재확인");
+			$("#tempKey").val('');
+		}
+	}
+
+	function onlineKeyChange(buttonId){
+		var getKey = $("#tempKey").val();
+
+		if(getKey != ""){
+			document.getElementById(buttonId).value=getKey;
+		}
+	}
+	</script>
+    <script>
+    //디버깅 텍스트 확인용(운영 적용시 제외)
+    MARU.debug(true);
+
+    //결과를 전달받을 Function 정의
+    function eventFnc(data){
+        console.log('eventFnc : ', data);
+        console.log(JSON.stringify(data));
+    }
+
+    function pay(route, obj) {
+		var products = [];
+		var product = $('#product').val().replace(/\n/gi, "");
+		products.push(JSON.parse(product));
+
+		var buttonId = obj.id;
+		onlineKeyChange(buttonId);
+
+		MARU.pay({
+			payRoute: route,
+			
+			amount : $('#amount').val(),
+			publicKey : document.getElementById(buttonId).value,  	// 온라인 인증키. 결제키. 가맹점 public key
+			products : products,                	// 상품정보 array
+			trackId: $('#trackId').val(),			// 가맹점 주문번호
+
+			responseFunction : eventFnc,        	// 결제 결과 리턴 function
+			redirectUrl : 'https://svcapidev.mtouch.com/form/payment/UnionRedirect.html',
+			webhookUrl : $('#webhook').val(),   	// 결제결과 리턴 url
+			payerName : $('#payerName').val(),
+			payerEmail : $('#payerEmail').val(),
+			payerTel : $('#payerTel').val(),
+
+			widgetLogoUrl : '',                 	// 결제창 상단에 표시될 로고 이미지 URL. 입력하지 않으면 기본 이미지 표시
+			debugMode : 'sandbox'               		// live / sandbox
+		});
+	}
+	</script>
+</body>
+</html>

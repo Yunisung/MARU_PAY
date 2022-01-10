@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+    <form id="payment-form" method="POST" action="https://merchant.com/charge-card">
+      <div class="frames-container">
+        <!-- form will be added here -->
+      </div>
+      <!-- add submit button -->
+      <button id="pay-now-button" type="submit" disabled>Pay now</button>
+    </form>
+    <!-- add frames script with async attribute -->
+    <script async src="https://cdn.checkout.com/js/frames.js"></script>
+    <script>
+      var paymentForm = document.getElementById('payment-form');
+      var payNowButton = document.getElementById("pay-now-button");
+  
+      window.CKOConfig = {
+        publicKey: 'pk_test_6ff46046-30af-41d9-bf58-929022d2cd14',
+        containerSelector: '.frames-container',
+        // change the namespace to Checkout
+        namespace: 'Checkout',
+        ready: function() {
+          // Frames is registered on the global namespace and safe to use
+          payNowButton.addEventListener('click', function() {
+            // Use the namespace in the settings instead of Frames
+            Checkout.submitCard();
+          });
+        },
+        cardValidationChanged: function() {
+          // if all fields contain valid information, the Pay now
+          // button will be enabled and the form can be submitted
+          payNowButton.disabled = !Checkout.isCardValid();
+        },
+        cardSubmitted: function() {
+          payNowButton.disabled = true;
+          // display loader
+        },
+        cardTokenised: function(event) {
+          // add card token to the form
+          Checkout.addCardToken(paymentForm, event.data.cardToken);
+          // submit the form
+          paymentForm.submit();
+        }
+      };
+    </script>
+  </body>
+
+</html>

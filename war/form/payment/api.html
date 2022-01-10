@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <title>Main</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+  </head>
+  <body>
+    API PAGE
+    <div id="display"></div>
+    <script>
+    document.getElementById('display').innerText = window.opener.postMessage
+    window.opener.postMessage('meaage', '*');
+    </script>
+  </body>
+</html>
