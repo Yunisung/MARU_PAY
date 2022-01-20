@@ -14,7 +14,7 @@
   "vertx": {
     //"host": "192.168.49.11",
     "host": "127.0.0.1",
-    "port": 443,
+    "port": 10002,
     "idleTimeout": 120000,
     "receiveBufferSize": 4096000,
     "routeClass": "com.pgmate.pay.main.Listener",
@@ -50,8 +50,8 @@
         "TLS_RSA_WITH_AES_128_CBC_SHA",
         "TLS_RSA_WITH_AES_256_CBC_SHA" 
       ],
-      //"keyStore": "D:\\Develop\\workspace\\AYNIL_PAYSHARP_PAY\\conf\\api.pay-sharp.com_2018042543YK.jks",
-      //"keyStorePassword": "633r10"
+      // "keyStore": "D:\\Develop\\workspace\\AYNIL_PAYSHARP_PAY\\conf\\api.pay-sharp.com_2018042543YK.jks",
+      // "keyStorePassword": "633r10"
       "keyStore": "",
       "keyStorePassword": ""
     }
