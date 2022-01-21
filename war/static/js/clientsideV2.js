@@ -14,8 +14,8 @@ var MARU = (function (win, doc) {
   
   /* GLOBAL */
   var routeUrls = {
-    sandbox: 'https://svcapidev.mtouch.com',
-    live: 'https://svcapi.mtouch.com'
+    sandbox: 'https://devapi.bkwinners.kr',
+    live: 'https://api.bkwinners.kr'
   }
   var routeDomain = routeUrls[c3Config.debugMode];
   var layerInited = false;            // 레이어 생성이 완료되었는지
