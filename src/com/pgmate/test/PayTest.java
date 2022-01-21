@@ -197,7 +197,7 @@ public class PayTest {
 	} 
 		
 	public static String test(String paymentUrl,String request){
-		paymentUrl = String.format("https://svcapi.mtouch.com/api/%s",paymentUrl);
+		paymentUrl = String.format("https://devapi.bkwinners.kr/api/%s",paymentUrl);
 		StringBuilder result = new StringBuilder();
 		URL url = null;
 		HttpURLConnection conn = null;

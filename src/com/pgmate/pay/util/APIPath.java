@@ -18,9 +18,9 @@ public class APIPath {
 	}
 	
 	public static void setPath(RoutingContext rc){
-		https://svcapi.mtouch.com
-		if(VertXUtil.getHost(rc).indexOf("svcapi.mtouch.com") > -1){
-			rc.put("API_HOST", "https://svcapi.mtouch.com");
+		//https://devapi.bkwinners.kr
+		if(VertXUtil.getHost(rc).indexOf("devapi.bkwinners.kr") > -1){
+			rc.put("API_HOST", "https://devapi.bkwinners.kr");
 		}else{	//DEV,SANDBOX CONFIG
 			rc.put("API_HOST", VertXUtil.getSchemeHost(rc));
 		}
