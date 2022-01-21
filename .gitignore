@@ -1,1 +1,7 @@
 classes/
+.settings/org.eclipse.jdt.core.prefs
+lib/
+logs/
+conf/service.json
+.classpath
+conf/logback.xml

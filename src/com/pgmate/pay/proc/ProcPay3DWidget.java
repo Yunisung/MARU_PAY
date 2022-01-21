@@ -159,12 +159,9 @@ public class ProcPay3DWidget extends Proc {
 					}
 				}
 				
-				System.out.println("res.widget : " + response.widget);
-				System.out.println("toJson res.widget : " + GsonUtil.toJson(response.widget));
 				ioMap.put("resJson", GsonUtil.toJson(response.widget) );
 				ioMap.put("resultCd", response.result.resultCd);
 				ioMap.put("resultMsg", response.result.resultMsg+":"+response.result.advanceMsg);
-				System.out.println("insertTrxIO3D resJson : " + ioMap.get("resJson"));
 				trxDAO.insertTrxIO3D(ioMap);
 			}
 		}else if(sharedMap.getString(PAYUNIT.METHOD).equalsIgnoreCase("GET")){
