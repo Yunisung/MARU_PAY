@@ -159,9 +159,12 @@ public class ProcPay3DWidget extends Proc {
 					}
 				}
 				
+				System.out.println("res.widget : " + response.widget);
+				System.out.println("toJson res.widget : " + GsonUtil.toJson(response.widget));
 				ioMap.put("resJson", GsonUtil.toJson(response.widget) );
 				ioMap.put("resultCd", response.result.resultCd);
 				ioMap.put("resultMsg", response.result.resultMsg+":"+response.result.advanceMsg);
+				System.out.println("insertTrxIO3D resJson : " + ioMap.get("resJson"));
 				trxDAO.insertTrxIO3D(ioMap);
 			}
 		}else if(sharedMap.getString(PAYUNIT.METHOD).equalsIgnoreCase("GET")){
@@ -234,7 +237,7 @@ public class ProcPay3DWidget extends Proc {
 		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
 			form.put("sndReply", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}else{
-			form.put("sndReply", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("sndReply", String.format("http://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 		if(request.widget.isEquals("3d", "ISP")){
 			form.put("sndShowcard", "I");		//카드사별 인증방식 설정 구분없으면 I,M 아니면 I,M,N,A,W
