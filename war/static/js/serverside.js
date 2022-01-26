@@ -181,7 +181,7 @@ var ServerUtil = {
     resizeWindow: function(config) {
         var additionHeight = 0;
         if (config.widget.semiAuth == 'Y') {
-            additionHeight += 50;
+            additionHeight += 90;
         }
 
         if (c3Config.mode == 'popup') {
