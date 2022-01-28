@@ -40,29 +40,27 @@ public class ProcPay3DWidget extends Proc {
 	@Override
 	public void valid() {
 		
+		//KJM : post 요청일 때
 		if(sharedMap.getString(PAYUNIT.METHOD).equalsIgnoreCase("POST")){
 			
 			if(request.widget == null){
 				response.result = ResultUtil.getResult("9999", "요청 정보 없음","요청 데이터가 없습니다.Widget  오류");return;
 			}else{
-				
-				//2021-11-16 구매자정보 길이체크
-				if(request.widget.getString("payerName").length() > 100) {
-					response.result = ResultUtil.getResult("9999", "입력값오류","구매자 성명은 25자 이하만 가능합니다.");
-					return;
-				}
-				if(request.widget.getString("payerEmail").length() > 100) {
-					response.result = ResultUtil.getResult("9999", "입력값오류","구매자 이메일은 100자리 이하만 가능합니다.");
-					return;
-				}
-				if(request.widget.getString("payerTel").length() > 20) {
-					response.result = ResultUtil.getResult("9999", "입력값오류","구매자 연락처는 20자리 이하만 가능합니다.");
-					return;
-				}
-				
+                //2021-11-16 구매자정보 길이체크
+                if(request.widget.getString("payerName").length() > 100) {
+                    response.result = ResultUtil.getResult("9999", "입력값오류","구매자 성명은 25자 이하만 가능합니다.");
+                    return;
+                }
+                if(request.widget.getString("payerEmail").length() > 100) {
+                    response.result = ResultUtil.getResult("9999", "입력값오류","구매자 이메일은 100자리 이하만 가능합니다.");
+                    return;
+                }
+                if(request.widget.getString("payerTel").length() > 20) {
+                    response.result = ResultUtil.getResult("9999", "입력값오류","구매자 연락처는 20자리 이하만 가능합니다.");
+                    return;
+                }
+                
 				widgetKey = "key_"+CommonUtil.toString(System.currentTimeMillis())+UUID.randomUUID().toString().substring(0, 7);
-				
-				
 				
 				SharedMap<String,Object> ioMap = new SharedMap<String,Object>();
 				ioMap.put("trxId", sharedMap.getString(PAYUNIT.TRX_ID));
@@ -72,16 +70,19 @@ public class ProcPay3DWidget extends Proc {
 				ioMap.put("trackId", request.widget.getString("trackId"));
 				ioMap.put("regDay", sharedMap.getString(PAYUNIT.REG_DATE).substring(0,8));
 				ioMap.put("regTime", sharedMap.getString(PAYUNIT.REG_DATE).substring(8,14));
+				// KBR : 현재 접근 디바이스 정보 확인
 				detectDevice();
 				ioMap.put("device", request.widget.getString("device"));
 				ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 				
+				//KJM : 가맹점에 대한 서비스 정보 가져옴
 				SharedMap<String,Object> mchtSvcMap = trxDAO.getMchtSvc(mchtMap.getString("mchtId"));
 				
+				//KJM : webPay, 신용카드 인증 사용 상태 일 때
 				if(mchtTmnMap.isEquals("webPay", "사용") && mchtSvcMap.isEquals("card3D", "사용")){
-					
-					
+					//KJM : van 정보 가져옴
 					SharedMap<String,Object> vanMap = trxDAO.getVanByVanIdx(mchtTmnMap.getString("vanIdx"));
+					//KJM : van 정보가 없거나, 사용상태가 아닐 때
 					if(vanMap == null || !vanMap.isEquals("status", "사용")){
 						response.result = ResultUtil.getResult("9999", "호출실패","카드사 정보가 설정되지 않았습니다. route 등록 오류");
 					}else{
@@ -92,16 +93,20 @@ public class ProcPay3DWidget extends Proc {
 						
 						response.widget.put("device", ioMap.getString("device"));
 						
-						
+						//KJM : kspay, daou van에 대해서만 사용가능
+						//KJM : kspay일 때
 						if(vanMap.startsWith("van", "KSPAY")){
 							response.widget.put("target", "KSPAY");
 							response.widget.put("routeUrl", "/form/payment/kspay/index.html?token=" + widgetKey);
+							//KJM : index로 보내 줄 값 세팅
 							setKspay(vanMap);
 							ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 							response.result = ResultUtil.getResult("0000", "정상","정상완료");
+						//KJM : daou일 때
 						}else if(vanMap.startsWith("van", "DAOU")){
 							response.widget.put("target", "DAOU");
 							response.widget.put("routeUrl", "/form/payment/daou/index.html?token=" + widgetKey);
+							//KJM : index로 보내 줄 값 세팅
 							setDaou(vanMap);
 							ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 							response.result = ResultUtil.getResult("0000", "정상","정상완료");
@@ -111,11 +116,8 @@ public class ProcPay3DWidget extends Proc {
 						
 					}
 				}else{
-					
 					response.result = ResultUtil.getResult("9999", "호출실패","온라인 결제를 사용하지 않거나 3D Secure가 등록되지 않은 가맹점입니다..관리자에 문의바랍니다.");
-					
 				}
-				
 				
 				//가맹점 한도 측정
 				if(mchtMngMap.getDouble("limitOnce") > 0 && mchtMngMap.getDouble("limitOnce") < request.widget.getLong("amount") ){
@@ -152,34 +154,36 @@ public class ProcPay3DWidget extends Proc {
 					}
 				}
 				
-				if(mchtSvcMap.isEquals("settle", "실시간정산")) {
-					if(mchtMngMap.getLong("tranMinAmt") > request.widget.getLong("amount")){
-						logger.info("가맹점 결제 최소금액 오류 : {},{}",mchtMngMap.getLong("tranMinAmt"),request.widget.getLong("amount"));
-						response.result = ResultUtil.getResult("9999", "결제최소금액오류","가맹점 결제 최소금액 오류");
-					}
-				}
-				
+                if(mchtSvcMap.isEquals("settle", "실시간정산")) {
+                    if(mchtMngMap.getLong("tranMinAmt") > request.widget.getLong("amount")){
+                        logger.info("가맹점 결제 최소금액 오류 : {},{}",mchtMngMap.getLong("tranMinAmt"),request.widget.getLong("amount"));
+                        response.result = ResultUtil.getResult("9999", "결제최소금액오류","가맹점 결제 최소금액 오류");
+                    }
+                }
+                
 				ioMap.put("resJson", GsonUtil.toJson(response.widget) );
 				ioMap.put("resultCd", response.result.resultCd);
 				ioMap.put("resultMsg", response.result.resultMsg+":"+response.result.advanceMsg);
 				trxDAO.insertTrxIO3D(ioMap);
 			}
+		//KJM : get 요청일 때
 		}else if(sharedMap.getString(PAYUNIT.METHOD).equalsIgnoreCase("GET")){
 			
 			String key = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_3D_WIDGET+"/", "");
 			logger.info("widget key : {}",key);
+			//KJM : key가 없을 때
 			if(!key.startsWith("key_")){
 				response.result = ResultUtil.getResult("9999", "요청 정보 없음","Widget 정보 요청 실패 Invalid Key");return;
 			}else{
+				//KJM : 캐시에 해당 key가 들어있으면 정상완료
 				if(PAYUNIT.cacheMap.containsKey(key)){
 					response.result = ResultUtil.getResult("0000", "정상","정상완료");
 					response.widget = PAYUNIT.cacheMap.get(key); return;
 				}else{
 					response.result = ResultUtil.getResult("9999", "거래시간이 초과하였습니다.");return;
 				}
-				//20분 이상 처리를 위하여 이 부분을 DB에서 조회하여 결과를 회신할 수 도 있다.
+				//20분 이상 처리를 위하여 이 부분을 DB에서 조회하여 결과를 회신할 수 도  있다.
 			}
-			
 		}else{
 			response.result = ResultUtil.getResult("9999", "호출실패","Invalid request method");return;
 		}

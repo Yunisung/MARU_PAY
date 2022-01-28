@@ -33,33 +33,30 @@ public class ProcPayW3DWidget extends Proc {
 		set(rc,request,sharedMap,sharedObject);
 		setResponse();
 		return;
-			
 	}
-
-
+	
 	@Override
 	public void valid() {
-		
+		//KJM : post 형식 일 때
 		if(sharedMap.getString(PAYUNIT.METHOD).equalsIgnoreCase("POST")){
 			
 			if(request.widget == null){
 				response.result = ResultUtil.getResult("9999", "요청 정보 없음","요청 데이터가 없습니다.Widget  오류");return;
 			}else{
-				
-				//2021-11-16 구매자정보 길이체크
-				if(request.widget.getString("payerName").length() > 100) {
-					response.result = ResultUtil.getResult("9999", "입력값오류","구매자 성명은 25자 이하만 가능합니다.");
-					return;
-				}
-				if(request.widget.getString("payerEmail").length() > 100) {
-					response.result = ResultUtil.getResult("9999", "입력값오류","구매자 이메일은 100자리 이하만 가능합니다.");
-					return;
-				}
-				if(request.widget.getString("payerTel").length() > 20) {
-					response.result = ResultUtil.getResult("9999", "입력값오류","구매자 연락처는 20자리 이하만 가능합니다.");
-					return;
-				}
-				
+                //2021-11-16 구매자정보 길이체크
+                if(request.widget.getString("payerName").length() > 100) {
+                    response.result = ResultUtil.getResult("9999", "입력값오류","구매자 성명은 25자 이하만 가능합니다.");
+                    return;
+                }
+                if(request.widget.getString("payerEmail").length() > 100) {
+                    response.result = ResultUtil.getResult("9999", "입력값오류","구매자 이메일은 100자리 이하만 가능합니다.");
+                    return;
+                }
+                if(request.widget.getString("payerTel").length() > 20) {
+                    response.result = ResultUtil.getResult("9999", "입력값오류","구매자 연락처는 20자리 이하만 가능합니다.");
+                    return;
+                }
+                
 				widgetKey = "key_"+CommonUtil.toString(System.currentTimeMillis())+UUID.randomUUID().toString().substring(0, 7);
 				
 				SharedMap<String,Object> ioMap = new SharedMap<String,Object>();
@@ -74,11 +71,11 @@ public class ProcPayW3DWidget extends Proc {
 				ioMap.put("device", request.widget.getString("device"));
 				ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 				
+				//KJM : 가맹점 서비스 정보
 				SharedMap<String,Object> mchtSvcMap = trxDAO.getMchtSvc(mchtMap.getString("mchtId"));
 				
 				if(mchtTmnMap.isEquals("webPay", "사용") && mchtSvcMap.isEquals("card3D", "사용")){
-					
-					
+					//KJM : van 정보
 					SharedMap<String,Object> vanMap = trxDAO.getVanByVanIdx(mchtTmnMap.getString("vanIdx"));
 					if(vanMap == null || !vanMap.isEquals("status", "사용")){
 						response.result = ResultUtil.getResult("9999", "호출실패","카드사 정보가 설정되지 않았습니다. route 등록 오류");
@@ -90,13 +87,14 @@ public class ProcPayW3DWidget extends Proc {
 						
 						response.widget.put("device", ioMap.getString("device"));
 						
-						
+						//KJM : van이 kspay이거나
 						if(vanMap.startsWith("van", "KSPAY")){
 							response.widget.put("target", "KSPAY");
 							response.widget.put("routeUrl", "/form/payment/kspay/w3d.html?token=" + widgetKey);
 							setKspay(vanMap);
 							ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 							response.result = ResultUtil.getResult("0000", "정상","정상완료");
+						//KJM : daou일 때
 						}else if(vanMap.startsWith("van", "DAOU")){
 							response.widget.put("target", "DAOU");
 							response.widget.put("routeUrl", "/form/payment/daou/index.html?token=" + widgetKey);
@@ -109,20 +107,15 @@ public class ProcPayW3DWidget extends Proc {
 						
 					}
 				}else{
-					
 					response.result = ResultUtil.getResult("9999", "호출실패","온라인 결제를 사용하지 않거나 3D Secure가 등록되지 않은 가맹점입니다..관리자에 문의바랍니다.");
-					
 				}
-				
 				
 				//가맹점 한도 측정
 				if(mchtMngMap.getDouble("limitOnce") > 0 && mchtMngMap.getDouble("limitOnce") < request.widget.getLong("amount") ){
 					logger.debug("가맹점 1회 한도초과 : {},{}",mchtMngMap.getDouble("limitOnce"),request.widget.getLong("amount"));
 					response.result = ResultUtil.getResult("9999", "한도초과","가맹점 1회 거래한도 초과");return;
 				}
-			
 				//가맹점/지사/총판 한도조회
-				
 				SharedMap<String,Object> mchtSumMap = null;
 				
 				//가맹점 한도 조회
@@ -150,19 +143,21 @@ public class ProcPayW3DWidget extends Proc {
 					}
 				}
 				
-				//실시간정산 가맹점의 경우 최소,최대 결제금액 체크
-				if(mchtSvcMap.isEquals("settle", "실시간정산")) {
-					if(mchtMngMap.getLong("tranMinAmt") > request.widget.getLong("amount")){
-						logger.info("가맹점 결제 최소금액 오류 : {},{}",mchtMngMap.getLong("tranMinAmt"),request.widget.getLong("amount"));
-						response.result = ResultUtil.getResult("9999", "결제최소금액오류","가맹점 결제 최소금액 오류");
-					}
-				}
-				
+                //실시간정산 가맹점의 경우 최소,최대 결제금액 체크
+                if(mchtSvcMap.isEquals("settle", "실시간정산")) {
+                    if(mchtMngMap.getLong("tranMinAmt") > request.widget.getLong("amount")){
+                        logger.info("가맹점 결제 최소금액 오류 : {},{}",mchtMngMap.getLong("tranMinAmt"),request.widget.getLong("amount"));
+                        response.result = ResultUtil.getResult("9999", "결제최소금액오류","가맹점 결제 최소금액 오류");
+                    }
+                }
+                
 				ioMap.put("resJson", GsonUtil.toJson(response.widget) );
 				ioMap.put("resultCd", response.result.resultCd);
 				ioMap.put("resultMsg", response.result.resultMsg+":"+response.result.advanceMsg);
+				//KJM : 3D 위젯 호출 기본 정보 저장
 				trxDAO.insertTrxIO3D(ioMap);
 			}
+		//KJM : get 요청일 때
 		}else if(sharedMap.getString(PAYUNIT.METHOD).equalsIgnoreCase("GET")){
 			
 			String key = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_W3D_WIDGET+"/", "");
@@ -178,7 +173,6 @@ public class ProcPayW3DWidget extends Proc {
 				}
 				//20분 이상 처리를 위하여 이 부분을 DB에서 조회하여 결과를 회신할 수 도 있다.
 			}
-			
 		}else{
 			response.result = ResultUtil.getResult("9999", "호출실패","Invalid request method");return;
 		}
@@ -198,7 +192,6 @@ public class ProcPayW3DWidget extends Proc {
 	 * @param vanMap
 	 */
 	public void setKspay(SharedMap<String,Object> vanMap){
-		
 		
 		request.widget.put("key", widgetKey);
 		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
@@ -240,14 +233,15 @@ public class ProcPayW3DWidget extends Proc {
 		form.put("cardno", "");	 	
 		form.put("expyear", "");	 	
 		form.put("expmon", "");	 	
-		form.put("bizNo", "4198800046");  //광원 사업자로 고정한다... (케이에스넷 발급 아이디의 사업자번호)	 
+		form.put("bizNo", "6758600152");  //(케이에스넷 발급 아이디의 사업자번호)	 
 
 //		String mchtName = mchtMap.getString("name");
 //		if(mchtName.length() > 20) {
 //			mchtName = mchtName.substring(0, 20);
 //		}
-		form.put("name", "MTouch"); // 광원 사업자 영문명으로 고정한다.
-		form.put("url", "https://www.mtouch.com");	// 광원 사업자 url로 고정한다.
+		form.put("name", "Creditop"); //영문명으로 고정한다.
+		// KBR : 광원 url 에서 bk url로 변경 
+		form.put("url", "https://api.bkwinners.kr");	// 부국 url 고정
 		
 		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
 			form.put("returnUrl", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_W3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
@@ -291,8 +285,6 @@ public class ProcPayW3DWidget extends Proc {
 		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
 	}
 	
-	
-	
 	public void setDaou(SharedMap<String,Object> vanMap){
 		
 		request.widget.put("key", widgetKey);
@@ -325,9 +317,6 @@ public class ProcPayW3DWidget extends Proc {
 		form.put("quotaopt", CommonUtil.zerofill(mchtTmnMap.getInt("apiMaxInstall"),2));
 		form.put("PRODUCTNAME", getProduct(request.widget.get("products")));
 		
-		
-		
-		
 		form.put("USERNAME", request.widget.getString("payerName"));
 		form.put("EMAIL", request.widget.getString("payerEmail"));
 		form.put("USERID", request.widget.getString("payerTel"));
@@ -344,8 +333,6 @@ public class ProcPayW3DWidget extends Proc {
 			form.put("RETURNURL", String.format("http://%s/%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 		
-		
-		
 		form.put("HOMEURL", "");
 		form.put("DIRECTRESULTFLAG", "");	//Y 입력시 키움페이 결제완료 창 없이 HOMEURL 로 이동한다.
 		form.put("used_card_YN", "");		//Y 일경우 카드사 노출 여부 
@@ -353,9 +340,6 @@ public class ProcPayW3DWidget extends Proc {
 		form.put("not_used_card", "");		// 카드사 표현하고 싶지 않은 것만
 		form.put("eng_flag", "");			// Y 일 경우 영문
 		form.put("kcp_site_logo", request.widget.getString("widgetLogoUrl"));
-		
-		
-		
 		
 		//form 처리
 		request.widget.put("form", GsonUtil.toJson(form));
@@ -366,8 +350,6 @@ public class ProcPayW3DWidget extends Proc {
 		
 		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
 	}
-	
-	
 	
 	public void detectDevice(){
 		String ua = sharedMap.getString(PAYUNIT.USERAGENT).toLowerCase();
@@ -388,9 +370,7 @@ public class ProcPayW3DWidget extends Proc {
 				request.widget.put("device","pc");
 			}
 		}
-		
 	}
-	
 	
 	public String getProduct(Object json){
 		logger.info("products : {}",json);
@@ -413,8 +393,6 @@ public class ProcPayW3DWidget extends Proc {
 		}
 		return prodName;
 	}
-
-
 }
 
 

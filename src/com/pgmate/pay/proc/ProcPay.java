@@ -42,30 +42,45 @@ public class ProcPay extends Proc {
 
 	@Override
 	public void exec(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap,SharedMap<String,SharedMap<String,Object>> sharedObject) {
+		//KJM : 가맹점, 결제 정보가 승인될 수 있는 정보 인지 확인
 		set(rc,request,sharedMap,sharedObject);
+		
 		response.pay = request.pay;
+		//KJM : 결제 요청내용 추가
+		// KBR : 결제 요청 내역 PG_TRX_REQ 테이블 insert 
 		trxDAO.insertTrxREQ(sharedMap, response);
+		//KJM : exec 처음 실행 시 res.result = null이다!
 		if(response.result != null){
+			//KJM : 결제 응답내역 추가
 			trxDAO.insertTrxRES(sharedMap, response);
+			//KJM : 결제결과 res에 세팅
 			setResponse();
-			return;
+			return;	
 		}
 		
+		// KBR : 가맹점,터미널 정보 
+		SharedMap<String,Object>  tmnVanMap = trxDAO.getMchtTmnByVanIdx(mchtTmnMap.getLong("vanIdx"));
 		
-		SharedMap<String,Object>  tmnVanMap 	= trxDAO.getMchtTmnByVanIdx(mchtTmnMap.getLong("vanIdx"));
 		logger.info("VAN: {}, VAN ID: {}", mchtTmnMap.getString("van"), tmnVanMap.getString("vanId"));
 		
+		//KJM : 카드번호가 4242...이면 van = default (데모) 설정
+		System.out.println("request.pay.card.number : " + request.pay.card.number);
+		System.out.println("mchtTmnMap.getString : " + mchtTmnMap.getString("van"));
 		if(request.pay.card.number.equals("4242424242424242")){
 			mchtTmnMap.put("van","DEFAULT");
 		}
+		
 		Van van = null;
+		
 		if(mchtTmnMap.isEquals("van", "DEFAULT")){
 			van = new DemoVan(tmnVanMap);
 		}else if(mchtTmnMap.isEquals("van", "DANAL")){
 			van = new Danal(tmnVanMap);
 		}else if(mchtTmnMap.isEquals("van", "DAOU")){
 			van = new Daou(tmnVanMap);
+			// KBR : 보통 ↓
 		}else if(mchtTmnMap.startsWith("van", "KSPAY")){
+			// KBR : TID,SECONDKEY,VAN 설정 
 			van = new Kspay(tmnVanMap);
 		}else if(mchtTmnMap.startsWith("van", "NICE")){
 			van = new Nice(tmnVanMap);
@@ -78,6 +93,8 @@ public class ProcPay extends Proc {
 			van = new DemoVan(tmnVanMap);
 		}
 		
+		//KJM : 해당 van에 맞는 정보세팅 후 승인요청, 승인결과값 세팅
+		// KBR : pg 통신
 		sharedMap = van.sales(trxDAO, sharedMap, response);
 		
 		// 20190910 KSNET 발급사, 매입사 코드 
@@ -86,20 +103,24 @@ public class ProcPay extends Proc {
 			response.pay.card.issuerCode = sharedMap.getString("issuerCode");
 		}
 		
-		// 20190705 recurring set : 빠른현장결제 SET거래
+        // 20190705 recurring set : 빠른현장결제 SET거래
+	
 		if(sharedMap.isEquals("recurring", "set")) {
 			response.pay.card.acquirer = sharedMap.getString("cardAcquirer");
 			response.pay.card.number = cardMask(response.pay.card.number);
 			trxDAO.insertKsnetCard(sharedMap,response.pay);
 		}
-
+		
+		//KJM : 결제응답내역 추가
+		// KBR : PG_TRX_RES 테이블 결제응답내역 insert 
 		trxDAO.insertTrxRES(sharedMap, response);
+		//KJM : 정상승인이면서 webhookUrl이 존재하면 webhook 쓰레드를 실행가능한 상태로 설정(대기 큐에 추가) ??
 		if(response.result.resultCd.equals("0000")){
 			if(!CommonUtil.isNullOrSpace(request.pay.webhookUrl)){
 				new ThreadWebHook(request.pay.webhookUrl,response).start();
 			}
 		}
-
+		
 //		// 20190906 결제내역 SMS 발송
 //		if(!CommonUtil.isNullOrSpace(response.pay.payerTel) && response.result.resultCd.equals("0000")) {
 //			SharedMap<String, Object> smsMap = new SharedMap<String, Object>();
@@ -127,73 +148,79 @@ public class ProcPay extends Proc {
 
 
 	@Override
+	// KBR : 결제 관련 유효성 체크 / 이력 추가
 	public void valid() {
-	
+		
+		//KJM : 필수 결제 정보값이 없거나 카드정보가 없을 때
 		if(request.pay == null || request.pay.card == null){
 			response.result = ResultUtil.getResult("9999", "필수값없음","결제정보 및 카드 정보가 없습니다.");return;
 		}
 		
-		request.pay.trxId = sharedMap.getString(PAYUNIT.TRX_ID);
-		
+        request.pay.trxId = sharedMap.getString(PAYUNIT.TRX_ID);
+        
+		//KJM : 결제하는 터미널아이디가 request 정보에 없을 때 세팅
 		if(CommonUtil.isNullOrSpace(request.pay.tmnId)){
 			request.pay.tmnId = sharedMap.getString("tmnId");
 		}
 		
+		//KJM : 결제 주문번호 없을 때
 		if(CommonUtil.isNullOrSpace(request.pay.trackId)){
 			response.result = ResultUtil.getResult("9999", "필수값없음","가맹점 주문번호가 입력되지 않았습니다.");return;
 		}
 		
-		if(request.pay.payerName.length() > 100){
-			request.pay.payerName = request.pay.payerName.substring(0, 100);
-			response.result = ResultUtil.getResult("9999", "입력값오류","구매자 성명은 25자리 이하만 가능합니다.");return;
-		}
-		if(request.pay.payerEmail.length() > 100){
-			request.pay.payerEmail = request.pay.payerEmail.substring(0, 100);
-			response.result = ResultUtil.getResult("9999", "입력값오류","구매자 이메일은 100자리 이하만 가능합니다.");return;
-		}
-		if(request.pay.payerTel.length() > 20){
-			request.pay.payerTel = request.pay.payerTel.substring(0, 20);
-			response.result = ResultUtil.getResult("9999", "입력값오류","구매자 연락처는 20자리 이하만 가능합니다.");return;
-		}
-		
-		if(request.pay.trackId.length() > 50){
-			response.result = ResultUtil.getResult("9999", "입력값오류","가맹점 주문번호는 50byte 이하만 가능합니다.");return;
-		}
-		
+        if(request.pay.payerName.length() > 100){
+            request.pay.payerName = request.pay.payerName.substring(0, 100);
+            response.result = ResultUtil.getResult("9999", "입력값오류","구매자 성명은 25자리 이하만 가능합니다.");return;
+        }
+        if(request.pay.payerEmail.length() > 100){
+            request.pay.payerEmail = request.pay.payerEmail.substring(0, 100);
+            response.result = ResultUtil.getResult("9999", "입력값오류","구매자 이메일은 100자리 이하만 가능합니다.");return;
+        }
+        if(request.pay.payerTel.length() > 20){
+            request.pay.payerTel = request.pay.payerTel.substring(0, 20);
+            response.result = ResultUtil.getResult("9999", "입력값오류","구매자 연락처는 20자리 이하만 가능합니다.");return;
+        }
+        
+        if(request.pay.trackId.length() > 50){
+            response.result = ResultUtil.getResult("9999", "입력값오류","가맹점 주문번호는 50byte 이하만 가능합니다.");return;
+        }
+        
+		//KJM : db에 이미 같은 거래번호가 있을 때
 		if(trxDAO.isDuplicatedTrackId(sharedMap.getString(PAYUNIT.MCHTID),request.pay.trackId)){
 			response.result = ResultUtil.getResult("9999", "중복된 거래번호입니다.","해당 거래번호로 승인/승인취소시는 재 사용할 수 없습니다.");return;
 		}
 		
-		/**
-		 * 2021-11-01 JYP
-		 * 터미널 설정으로 변경.
-		 */
-//		if(request.pay.amount < 1000){
-//			response.result = ResultUtil.getResult("9999", "결제 최소 금액 오류","1000원 미만은 결제를 허용하지 않습니다.");return;
-//		}
-		int minAmount = mchtTmnMap.getInt("minAmount");
-		logger.info("최소결제금액 : {}",minAmount);
-		if(minAmount > 0 && request.pay.amount < minAmount) {
-			response.result = ResultUtil.getResult("9999", "결제 최소 금액 오류","최소 결제 금액은 "+String.format("%,d원", minAmount)+"입니다.");
-			return;
+        /**
+         * 2021-11-01 JYP
+         * 터미널 설정으로 변경.
+         */
+//        if(request.pay.amount < 1000){
+//            response.result = ResultUtil.getResult("9999", "결제 최소 금액 오류","1000원 미만은 결제를 허용하지 않습니다.");return;
+//        }
+        int minAmount = mchtTmnMap.getInt("minAmount");
+        logger.info("최소결제금액 : {}",minAmount);
+        if(minAmount > 0 && request.pay.amount < minAmount) {
+            response.result = ResultUtil.getResult("9999", "결제 최소 금액 오류","최소 결제 금액은 "+String.format("%,d원", minAmount)+"입니다.");
+            return;
 		}
 		
-
+		request.pay.trxId = sharedMap.getString(PAYUNIT.TRX_ID);
 		
+		//KJM : 거래서버통신이력 추가
 		trxDAO.insertTrxIO(sharedMap, request.pay);
 		
-		// recurring pay : 빠른 현장 결제를 통한거래 20190603
+        // recurring pay : 빠른 현장 결제를 통한거래 20190603
 		if(request.pay.metadata != null && request.pay.metadata.isEquals("recurring", "pay")){
+			//KJM : 가맹점 서비스정보 조회
 			SharedMap<String,Object> mchtSvcMap = trxDAO.getMchtSvc(sharedMap.getString(PAYUNIT.MCHTID));
 		
 			if(!mchtSvcMap.isEquals("recurring", "사용")) {
-				response.result = ResultUtil.getResult("9999", "서비스오류","빠른현장 결제 사용 가맹점이 아닙니다.");return;
+                response.result = ResultUtil.getResult("9999", "서비스오류","빠른현장 결제 사용 가맹점이 아닙니다.");return;
 			}else {
-				
 				//cardId 로 거래정보를 가져온다.
 				SharedMap<String,Object> cardKspayMap = trxDAO.getByKsnetCardId(request.pay.card.cardId,sharedMap.getString(PAYUNIT.MCHTID));
 				if(cardKspayMap.isNullOrSpace("authKey")) {
-					response.result = ResultUtil.getResult("9999", "등록오류","등록된 카드정보를 찾을 수 없습니다.");return;
+                    response.result = ResultUtil.getResult("9999", "등록오류","등록된 카드정보를 찾을 수 없습니다.");return;
 				}else {
 					sharedMap.put("authKey",cardKspayMap.getString("authKey"));
 					sharedMap.put("recurring","pay");
@@ -208,11 +235,11 @@ public class ProcPay extends Proc {
 		}
 		
 		
-		// 20190705 recurring set : 빠른 현장결제 SET거래
+		// 20190705 recurring set : 정기과금SET거래
 		if(request.pay.metadata != null && request.pay.metadata.isEquals("recurring", "set")){
 			SharedMap<String,Object> mchtSvcMap = trxDAO.getMchtSvc(sharedMap.getString(PAYUNIT.MCHTID));
 			if(!mchtSvcMap.isEquals("recurring", "사용")) {
-				response.result = ResultUtil.getResult("9999", "서비스오류","빠른현장 결제 사용 가맹점이 아닙니다.");return;
+				response.result = ResultUtil.getResult("9999", "정기과금오류","정기과금서비스가 신청되지 않았습니다.");return;
 			}else {
 				/** 2019-07-12 recurring 시 인증 제외
 				if(request.pay.metadata.getString("authPw").length() !=2){
@@ -242,22 +269,22 @@ public class ProcPay extends Proc {
 		}
 		
 		
-
+		//KJM : 
 		sharedMap.put(PAYUNIT.KEY_PROD, GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
 		
+		//KJM : card.encTrackI가 빈값일 경우
 		if(request.pay.card.encTrackI.equals("")){
-			int cardLength =  request.pay.card.number.length();
+			int cardLength =  request.pay.card.number.length();	//KJM : 카드번호 길이 확인
 			if(cardLength < 14 || 16 < cardLength){
 				response.result = ResultUtil.getResult("9999", "카드번호가 잘못되었습니다.","카드번호는 14~16자리만 허용합니다.");return;
 			}
-			if(request.pay.card.expiry.length() != 4){	
+			if(request.pay.card.expiry.length() != 4){	//KJM : 카드 유효기간 확인
 				response.result = ResultUtil.getResult("9999", "유효기간이 잘못되었습니다.","YYMM 포맷이 아닙니다.");return;
 			}
-			
-			if(request.pay.card.installment > 12){	
+			if(request.pay.card.installment > 12){	//KJM : 할부기간 확인
 				response.result = ResultUtil.getResult("9999", "할부기간이 잘못되었습니다.","최대 12개월 초과입니다.");return;
 			}
-			
+			//KJM : 유효기간 년수, 월 현재 날짜 기준으로 확인
 			if(CommonUtil.parseInt(request.pay.card.expiry.substring(0,2)) < CommonUtil.parseInt(CommonUtil.getCurrentDate("yy"))){
 				response.result = ResultUtil.getResult("9999", "유효기간이 잘못되었습니다.","유효년수가 경과된 카드입니다.");return;
 			}
@@ -265,17 +292,19 @@ public class ProcPay extends Proc {
 				response.result = ResultUtil.getResult("9999", "유효기간이 잘못되었습니다.","유효월 입력이 잘못되었습니다.");return;
 			}
 			
+			//KJM : 카드 마지막4자리, bin
 			request.pay.card.last4 = request.pay.card.number.substring(cardLength-4, cardLength);
 			request.pay.card.bin   = request.pay.card.number.substring(0,6);
 			
-			SharedMap<String,Object> issuerMap = trxDAO.getDBIssuer(request.pay.card.bin);
+			SharedMap<String,Object> issuerMap = trxDAO.getDBIssuer(request.pay.card.bin);	//KJM : 카드회사 정보
 			if(issuerMap != null){
 				request.pay.card.cardType = issuerMap.getString("type") ;
-				request.pay.card.issuer = issuerMap.getString("issuer");
-				request.pay.card.acquirer = issuerMap.getString("acquirer");
+				request.pay.card.issuer = issuerMap.getString("issuer");	//카드회사
+				request.pay.card.acquirer = issuerMap.getString("acquirer");//카드회사
 			}
 			request.pay.card.cardId = sharedMap.getString(PAYUNIT.KEY_CARD);
 			
+			//KJM : 카드정보 암호화
 			String encrypted = Base64.encodeToString(SeedKisa.encrypt(GsonUtil.toJson(request.pay.card), ByteUtil.toBytes(PAYUNIT.ENCRYPT_KEY, 16)));
 			if(!sharedMap.isEquals("recurring", "pay")) {	//20190604 추가 저장하지 않도록 수정 
 				trxDAO.insertCard(sharedMap.getString(PAYUNIT.KEY_CARD),encrypted);
@@ -283,14 +312,14 @@ public class ProcPay extends Proc {
 			sharedMap.put("CARD_INSERTED",true);//카드정보가 이미 등록되었는지 여부
 		}
 		
-
+		//KJM : 결제주문내역 추가
 		if(request.pay.products != null){
 			trxDAO.insertProduct(sharedMap.getString(PAYUNIT.KEY_PROD), request.pay.products,sharedMap.getString(PAYUNIT.REG_DATE));
 		}
 		
 		//semiAuth 즉 생년월일/카드비번2자리 꼭 사용하는 가맹점 2017-08-01
 		if(mchtTmnMap.getString("semiAuth").equals("Y")){
-			logger.info("semiAuth 사용 가맹점 {}",mchtTmnMap.getString("semiAuth"));
+            logger.info("semiAuth 사용 가맹점 {}",mchtTmnMap.getString("semiAuth"));
 			if(request.pay.metadata != null){
 				if(request.pay.metadata.getString("authPw").length() !=2){
 					response.result = ResultUtil.getResult("9999", "인증결제","인증결제 필수값 없음 : authPw");return;
@@ -298,59 +327,58 @@ public class ProcPay extends Proc {
 				if(request.pay.metadata.getString("authDob").length() !=6 && request.pay.metadata.getString("authDob").length() !=10){
 					response.result = ResultUtil.getResult("9999", "인증결제","인증결제 필수값 없음 : authDob");return;
 				}
-				sharedMap.put("semiAuth", "Y");
-				
+                sharedMap.put("semiAuth", "Y");
 			}else{
 				response.result = ResultUtil.getResult("9999", "인증결제","인증결제 필수값 없음 : pay.metadata");return;
 			}
 		}else{
 			logger.info("semiAuth 미사용 가맹점 {}",mchtTmnMap.getString("semiAuth"));
-			sharedMap.put("semiAuth", "N");
-		}
-		
-	
-		
-		//210601
-		//영업시간제한, 금액제한추가. 코로나19 거리두기
-		int curTime = Integer.parseInt(CommonUtil.getCurrentDate("HHmmss"));
-		
-		logger.info("payLimit: {} , limitAmount: {} , limitStartTime: {} , limitEndTime: {} ",
-				mchtTmnMap.getString("payLimit"),
-				mchtTmnMap.getString("limitAmount"),
-				mchtTmnMap.getString("limitStartTime"),
-				mchtTmnMap.getString("limitEndTime"));
-		
-		if(mchtTmnMap.getString("payLimit").equals("Y")) {
-			String limitStartTime = mchtTmnMap.getString("limitStartTime");
-			String limitEndTime = mchtTmnMap.getString("limitEndTime");
-			
-			if(limitStartTime.length()==6 || limitEndTime.length()==6) {
-				int limitStart = Integer.parseInt(limitStartTime);
-				int limitEnd = Integer.parseInt(limitEndTime);
-				
-				if(limitEnd < limitStart) {
-					if(curTime > limitStart || curTime < limitEnd) {
-						response.result = ResultUtil.getResult("9999", "영업제한시간",limitStartTime.substring(0,2)+":"+limitStartTime.substring(2,4)+" ~ "+limitEndTime.substring(0,2)+":"+limitEndTime.substring(2,4)+"\n 영업제한시간에는 결제가 불가능합니다.");return;
-					
-					}
-				}else {
-					if(curTime > limitStart && curTime < limitEnd) {
-						response.result = ResultUtil.getResult("9999", "영업제한시간",limitStartTime.substring(0,2)+":"+limitStartTime.substring(2,4)+" ~ "+limitEndTime.substring(0,2)+":"+limitEndTime.substring(2,4)+"\n 영업제한시간에는 결제가 불가능합니다.");return;
-					}
-				}
-			}
-			
-			int limitAmount = mchtTmnMap.getInt("limitAmount");
-			if(limitAmount > 0 && request.pay.amount > limitAmount) {
-				response.result = ResultUtil.getResult("9999", "금액제한","금액제한 한도를 초과했습니다.");return;
-			}
+            sharedMap.put("semiAuth", "N");
+        }
+        
+        //210601
+        //영업시간제한, 금액제한추가. 코로나19 거리두기
+        int curTime = Integer.parseInt(CommonUtil.getCurrentDate("HHmmss"));
+        
+        logger.info("payLimit: {} , limitAmount: {} , limitStartTime: {} , limitEndTime: {} ",
+                mchtTmnMap.getString("payLimit"),
+                mchtTmnMap.getString("limitAmount"),
+                mchtTmnMap.getString("limitStartTime"),
+                mchtTmnMap.getString("limitEndTime"));
+        
+        if(mchtTmnMap.getString("payLimit").equals("Y")) {
+            String limitStartTime = mchtTmnMap.getString("limitStartTime");
+            String limitEndTime = mchtTmnMap.getString("limitEndTime");
+            
+            if(limitStartTime.length()==6 || limitEndTime.length()==6) {
+                int limitStart = Integer.parseInt(limitStartTime);
+                int limitEnd = Integer.parseInt(limitEndTime);
+                
+                if(limitEnd < limitStart) {
+                    if(curTime > limitStart || curTime < limitEnd) {
+                        response.result = ResultUtil.getResult("9999", "영업제한시간",limitStartTime.substring(0,2)+":"+limitStartTime.substring(2,4)+" ~ "+limitEndTime.substring(0,2)+":"+limitEndTime.substring(2,4)+"\n 영업제한시간에는 결제가 불가능합니다.");return;
+                    
+                    }
+                }else {
+                    if(curTime > limitStart && curTime < limitEnd) {
+                        response.result = ResultUtil.getResult("9999", "영업제한시간",limitStartTime.substring(0,2)+":"+limitStartTime.substring(2,4)+" ~ "+limitEndTime.substring(0,2)+":"+limitEndTime.substring(2,4)+"\n 영업제한시간에는 결제가 불가능합니다.");return;
+                    }
+                }
+            }
+            
+            int limitAmount = mchtTmnMap.getInt("limitAmount");
+            if(limitAmount > 0 && request.pay.amount > limitAmount) {
+                response.result = ResultUtil.getResult("9999", "금액제한","금액제한 한도를 초과했습니다.");return;
+            }
 		}
 		
 		//할부개월 적용 2018-04-10
 		logger.info("mcht install : {}, pay installment : {}",mchtTmnMap.getInt("apiMaxInstall"),request.pay.card.installment);
+		//KJM : 최대 할부개월수 초과 결제 시
 		if(mchtTmnMap.getInt("apiMaxInstall") < request.pay.card.installment){
 			logger.debug("가맹점 할부개월 초과 ");
 			String msg = "";
+			//KJM : 최대 할부개월이 0이거나 1일 때 (일시불)
 			if(mchtTmnMap.getInt("apiMaxInstall") ==0 || mchtTmnMap.getInt("apiMaxInstall") ==1){
 				msg ="일시불로만 ";
 			}else{
@@ -367,7 +395,6 @@ public class ProcPay extends Proc {
 		}
 	
 		//가맹점/지사/총판 한도조회
-		
 		SharedMap<String,Object> mchtSumMap = null;
 		
 		//가맹점 한도 조회
@@ -462,7 +489,6 @@ public class ProcPay extends Proc {
 			}
 		}
 		*/
-		
 		
 		request.pay.tmnId = mchtTmnMap.getString("tmnId");
 	}

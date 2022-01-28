@@ -35,8 +35,11 @@ import io.vertx.ext.web.RoutingContext;
  * @author Administrator
  *
  */
+// KBR : 온라인 결제 
 public class ProcPay3DHook extends Proc {
+	
 	private static Logger logger 				= LoggerFactory.getLogger( com.pgmate.pay.proc.ProcPay3DHook.class );
+	// KBR : 결제 요청 내역 데이터의 집합 
 	private SharedMap<String,Object> ioMap =  null;
 	private String trxId		= "";
 	public ProcPay3DHook() {
@@ -50,32 +53,48 @@ public class ProcPay3DHook extends Proc {
 		super.response		= new Response();
 		super.trxDAO		= new TrxDAO();
 		
+		//KJM : uri에서 3d/hook/까지의 문자열을 없앤다 => 기본적으로 van과 거래번호가 들어옴
 		String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_3D_HOOK+"/", "");
 		logger.info("3DHOOK : [{}]",search);
+		//KJM : uri의 파라미터들을 "/"를 기준으로 배열화한다.
 		String[] initial = CommonUtil.adjustArray(CommonUtil.split(search, "[/]", true),2);
+		// KBT : van, 생성된 거래 번호 
 		logger.info("VAN: [{}],TRX_ID: [{}]",initial[0],initial[1]);
+		// KBR : 생성된 거래번호 셋팅
 		trxId = initial[1];
 		
 		// 이중승인 방지
 		SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
+		
+		//KJM : 결제요청 내역 조회 후 데이터 조회되면 중복 거래
 		if(trxCheckMap !=null) {
 			logger.info("거래번호 중복 TRX_ID: [{}]",trxId);
 			return;
 		}
 		
+		//KJM : van이 kspay인 요청의 경우
 		if(initial[0].startsWith("KSPAY")){
+			// KBR: ioMap 값을 셋팅하는 구간(?)
 			kspay();
 		}
+		
 		String redirectUrl = null;
+		//KJM : redirectUrl : http://www.bkwinners.com/redirect/Redirect.html
 		try {
+			// KBR : 결제 승인 완료 후 뿌려줄 페이시 셋팅 
 			redirectUrl = PAYUNIT.cacheMap.get(ioMap.getString("widgetKey")).getString("redirectUrl");
 		}catch (Exception e) {
+			// KBR : 위젯 호출번호로 3D위젯정보조회
 			SharedMap<String, Object> map = trxDAO.getTrxIO3DByWidgetKey(ioMap.getString("widgetKey"));
 			String str = "{\"widget\":"+map.getString("reqJson")+"}";
 			Request req = (Request)GsonUtil.fromJson(str, Request.class);
 			redirectUrl = req.widget.getString("redirectUrl");
 		}
+		// KBR : 카드 정보를 셋팅하고 확인하는 구간..?
+		//KJM : 카드 정보 세팅 후 결제 내역 테이블에 추가
 		setTrx(ioMap);
+		
+		//KJM : 운영체제에 맞는 html 생성 후 파라미터 이용해 내용 세팅 (진행 중 팝업)
 		if(ioMap.getString("device").equalsIgnoreCase("mobile")) {
 			logger.debug("REDIRECT TO : {}", redirectUrl);
 			TemplateUtil.redirect3D(rc, redirectUrl, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
@@ -86,31 +105,40 @@ public class ProcPay3DHook extends Proc {
 			
 	}
 
-
-	
-	
-	
-	
-	
+	// KBR : ioMap 값을 셋팅하는 구간(?)
 	public void kspay(){
+		// KBR : reCommConId ~ reCnclType 까지 map 타입으로 가져옴  
 		SharedMap<String,Object> requestMap = parseQueryString(sharedMap.getString(PAYUNIT.PAYLOAD));
-		//a : trxId , b = widgetKey , c : tmnId 
 		
+		//a : trxId , b = widgetKey , c : tmnId 
 		String cid		= requestMap.getString("reCommConId");
-		logger.info("reCommType : [{}]",requestMap.getString("reCommType"));
+		
+		logger.info("reCommType : [{}]",requestMap.getString("reCommType"));	//[WH]
 		logger.info("reHash : [{}]",requestMap.getString("reHash"));
 		logger.info("trxId : [{}]",trxId);
 		
+		// KBR : 3D위젯 정보 거래번호로 조회
 		ioMap = trxDAO.getTrxIO3DByTrxId(trxId);		
-		logger.info("cid   : [{},{}]",cid,ioMap.getString("device"));
-
+		// KBR : cid(w217d2282a6e9adc << 이런식으 ID인데 뭐지)
+		logger.info("cid   : [{},{}]",cid,ioMap.getString("device")); //[w217d12c91bfb2a7,Chrome]
+		
+		// KBR : 모바일,웹 체크하여 uri 셋팅
 		Kspay3D kspay = new Kspay3D(cid,ioMap.getString("device"));
+		
+		// KBR : {"authyn","trno","trddt","trdtm","amt","authno","msg1","msg2","ordno","isscd","aqucd","result","halbu","cbtrno","cbauthno","cardno"}; 
+		// 		  해당 값 key :value 셋팅
+		//KJM : ksnet 서버에 통신 후 reuslt값 가져옴
 		SharedMap<String,String> resMap = kspay.getResult();
+		
+		// KBR : comm("3")
 		if(resMap.size() > 4){//정상응답 수신시 4개 이상의 파라미터 수신
 			kspay.confirm();
 		}
 		
+		// KBR : 할부....
 		logger.info("trxType : {}",resMap.getString("halbu"));
+		
+		//KJM : "O"일경우 정상승인 이외 승인실패
 		if(resMap.isEquals("authyn", "O")){
 			ioMap.put("vanTrxId", resMap.getString("trno"));
 			ioMap.put("vanResultCd","0000");
@@ -120,17 +148,24 @@ public class ProcPay3DHook extends Proc {
 			ioMap.put("acquirer",KspayUtil.getAcquirer(resMap.getString("aqucd")));
 			ioMap.put("issuer",resMap.getString("msg1"));
 			ioMap.put("installment",resMap.getString("halbu"));
+			//KJM : 카드번호 길이
 			int cardLen = resMap.getString("cardno").length();
+			
 			ioMap.put("card", resMap.getString("cardno"));
+			//KJM : 6자리 이상일 경우 bin 정보 세팅
 			if(cardLen > 6){
 				ioMap.put("bin", resMap.getString("cardno").substring(0, 6));
 			}
+			//KJM : 14자리 이상일 경우 last4 정보 세팅
 			if(cardLen > 14){
 				ioMap.put("last4", resMap.getString("cardno").substring(cardLen-4, cardLen));
 			}
+		//KJM : 승인실패의 경우 result 세팅
 		}else{
 			String vanMessage = (resMap.getString("msg1")+" "+resMap.getString("msg2")).replaceAll("^\\s+","").replaceAll("\\s+$","");
+			
 			ioMap.put("vanTrxId", resMap.getString("trno"));
+			
 			if(resMap.isNullOrSpace("authno")){
 				ioMap.put("vanResultCd","XXXX");
 				ioMap.put("vanResultMsg","거래정보 미확인");
@@ -146,7 +181,9 @@ public class ProcPay3DHook extends Proc {
 			ioMap.put("acquirer",KspayUtil.getAcquirer(resMap.getString("aqucd")));
 			ioMap.put("issuer","");
 			ioMap.put("installment",resMap.getString("halbu"));
+			
 			int cardLen = resMap.getString("cardno").length();
+			
 			ioMap.put("card", resMap.getString("cardno"));
 			if(cardLen > 6){
 				ioMap.put("bin", resMap.getString("cardno").substring(0, 6));
@@ -159,12 +196,16 @@ public class ProcPay3DHook extends Proc {
 		if(ioMap.isNullOrSpace("vanResultDate")){
 			ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		}
+		
 	}
 	
-	
+	// KBR: 카드 정보를 셋팅하고 확인하는 구간..?
+	//KJM : 카드 정보 세팅 후 결제 내역 테이블에 추가
 	private void setTrx(SharedMap<String,Object> ioMap){
 		
-		SharedMap<String,Object> widgetMap = new GsonBuilder().create().fromJson(ioMap.getString("reqJson"), new TypeToken<SharedMap<String, Object>>(){}.getType()); 
+		//KJM : widgetMap : 주문정보
+		// KBR : 온라인 결제창에서 받았던 모든 값들을 JOSN 형식으로 반환 
+		SharedMap<String,Object> widgetMap = new GsonBuilder().create().fromJson(ioMap.getString("reqJson"), new TypeToken<SharedMap<String, Object>>(){}.getType());
 		List<Product> products = null;
 		try {
 			products = new GsonBuilder().create().fromJson(GsonUtil.toJson(widgetMap.get("products")), new TypeToken<List<Product>>(){}.getType());
@@ -176,6 +217,7 @@ public class ProcPay3DHook extends Proc {
 		ioMap.put("prodId", GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
 //		ioMap.put("amount", widgetMap.getLong("amount"));
 		ioMap.put("amount", Long.parseLong(widgetMap.getString("amount").trim()));
+		
 		//카드 정보  SET
 		Card card = new Card();
 		card.cardId 	= ioMap.getString("cardId");
@@ -184,7 +226,9 @@ public class ProcPay3DHook extends Proc {
 		card.bin 		= ioMap.getString("bin");
 		card.last4		= ioMap.getString("last4");
 		
+		// KBR : 카드 회사 확인 및 정보 셋팅
 		SharedMap<String,Object> issuerMap = trxDAO.getDBIssuer(card.bin);
+		
 		if(issuerMap != null){
 			card.cardType = issuerMap.getString("type") ;
 			card.issuer = issuerMap.getString("issuer");
@@ -194,10 +238,13 @@ public class ProcPay3DHook extends Proc {
 			card.issuer = ioMap.getString("issuer");
 			card.acquirer = ioMap.getString("acquirer");
 		}
+		
 		ioMap.put("cardType",card.cardType);
 		ioMap.put("issuer",card.issuer);
 		ioMap.put("acquirer",card.acquirer);
 		
+		// KBR : 카드 정보 암호화 
+		//KJM : 암호화 한 카드 정보를 전용 테이블에 추가시킴 (카드아이디, 암호화된 카드정보)
 		trxDAO.insertCard(card.cardId,Base64.encodeToString(SeedKisa.encrypt(GsonUtil.toJson(card), ByteUtil.toBytes(PAYUNIT.ENCRYPT_KEY, 16))));
 		
 		
@@ -205,7 +252,9 @@ public class ProcPay3DHook extends Proc {
 		if(products != null){
 			trxDAO.insertProduct(ioMap.getString("prodId"), products, ioMap.getString("vanResultDate"));
 		}
+		
 		try {
+			// KBR : 결제 요청 내역 추가
 			trxDAO.insertTrx3D(ioMap,widgetMap);
 		}catch (Exception e) {
 			
@@ -220,11 +269,15 @@ public class ProcPay3DHook extends Proc {
 		}else{
 			response.result 	= ResultUtil.getResult(ioMap.getString("vanResultCd"),"승인실패",ioMap.getString("vanResultMsg"));
 		}
+		
+		// KBR: pay 생성하여 카드정보 제품정보 및 결제정보를 모두 셋팅
+		
 		response.pay = new Pay();
+		
 		response.pay.card 		= card;
 		response.pay.products 	= products;
 		response.pay.authCd		= ioMap.getString("authCd");
-		response.pay.webhookUrl	= widgetMap.getString("webhookUrl");
+		response.pay.webhookUrl	= widgetMap.getString("webhookurl");
 		response.pay.trxId		= ioMap.getString("trxId");
 		response.pay.trxType	= "3DTR";
 		response.pay.tmnId		= ioMap.getString("tmnId");
@@ -233,18 +286,22 @@ public class ProcPay3DHook extends Proc {
 		response.pay.udf1		= widgetMap.getString("udf1");
 		response.pay.udf2		= widgetMap.getString("udf2");
 		
+		
 		String res = GsonUtil.toJsonExcludeStrategies(response,true);
+		//KJM : 3D 위젯 호출 정보 변경
+		// KBR : 모든 response 값 update
 		trxDAO.updateTrxIO3D(ioMap,res);
 		
+		//KJM : webhooUrl이 있으면 쓰레드 실행
+		//start() 메소드가 새로운 스레드가 실행하는데 필요한 호출 스택 생성 후 run() 호출
 		if(!widgetMap.isNullOrSpace("webhookUrl")){
 			new ThreadWebHook(widgetMap.getString("webhookUrl"),response).start();
-		}
-		
+		} 
 	}
-
 	
 	private SharedMap<String,Object> parseQueryString(String str){
 		SharedMap<String,Object> requestMap = new SharedMap<String,Object>();
+		
 		String[] st = str.split("&");
 
 		for (int i = 0; i < st.length; i++) {
@@ -300,7 +357,7 @@ public class ProcPay3DHook extends Proc {
 	 
 	 
 	public static void main(String[] args){
-		SharedMap<String,Object> ioMap = new TrxDAO().getTrxIO3DByTrxId("T181122401406");
+        SharedMap<String,Object> ioMap = new TrxDAO().getTrxIO3DByTrxId("T181122401406");
 		logger.info(ioMap.getString("reqJson"));
 		new ProcPay3DHook().setTrx(ioMap);
 	}

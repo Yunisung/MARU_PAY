@@ -34,12 +34,17 @@ public class ProcInquery{
 
 	
 	public void exec(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap) {
+		
 		String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
 		
 		SharedMap<String,Object> reqMap = fromJsonToSharedMap(payload);
+		
 		logger.debug("RES: {}", reqMap.toJson());
+		
 		this.rc = rc;
+		
 		String authorization = VertXUtil.getHeader(rc, HttpHeaders.AUTHORIZATION);
+		
 		if(!authorization.equals(AUTH_PERMIT)){
 			resultMap.put("resultMsg", "인증 오류 authorization 값이 일치하지 않습니다");
 			resultMap.put("resultCd", "9999");

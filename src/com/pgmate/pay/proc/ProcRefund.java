@@ -39,24 +39,31 @@ public class ProcRefund extends Proc {
 	public ProcRefund() {
 	}
 
+	/**
+	 * PYS : 결제취소 할 때 여기로 온다
+	 */
 	@Override
 	public void exec(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap,SharedMap<String,SharedMap<String,Object>> sharedObject) {
+		//KJM : 결제 정보에 대한 유효성 검사 수행
+		// KBR : 넘어온 값 셋팅 후 valid()
 		set(rc,request,sharedMap,sharedObject);
+		// KBR : 취소 관련 정보 셋팅
 		response.refund = request.refund;
 		
 		if(response.result != null){
 			setResponse();
 			return;
 		}
-		
-		
+
+		//KJM : 결제취소 테이블에 취소할 결제 정보 추가
+		// KBR :  PG_TRX_RFD 테이블 결제취소원장 추가
 		trxDAO.insertTrxRFD(sharedMap, trxMap, response);
 		
-		SharedMap<String,Object>  vanMap = new SharedMap<String, Object>();
-
-		vanMap = trxDAO.getVanByVanId(trxMap.getString("van"), trxMap.getString("vanId"));
-
+		// KBR : VAN등록 정보 조회
+		SharedMap<String,Object>  vanMap = trxDAO.getVanByVanId(trxMap.getString("van"), trxMap.getString("vanId"));
+		
 		Van van = null;
+		
 		if(trxMap.isEquals("van", "DEFAULT")){
 			van = new DemoVan(vanMap);
 		}else if(trxMap.isEquals("van", "DANAL")){
@@ -65,43 +72,52 @@ public class ProcRefund extends Proc {
 			van = new Nice(vanMap);
 		}else if(trxMap.isEquals("van", "DAOU")){
 			van = new Daou(vanMap);
-		}else if(trxMap.startsWith("van", "KSPAY")){
-			van = new Kspay(vanMap);
-		}else if(trxMap.startsWith("van", "ALLAT")){
+		}else if(mchtTmnMap.startsWith("van", "KSPAY")){
+			// KBR : van 등록 정보 전달하여 필수값 셋팅
+			van = new Kspay(vanMap); 
+		}else if(mchtTmnMap.startsWith("van", "ALLAT")){
 			van = new Allat(vanMap);
-		}else if(trxMap.startsWith("van", "FIRST")){
+        }else if(trxMap.startsWith("van", "FIRST")){
 			van = new Firstpay(vanMap);
-//		}else if(trxMap.startsWith("van", "WELCOMEK")){
-//			van = new WelcomeK(vanMap);
-		}else if(trxMap.startsWith("van", "WELCOMEO")){
-			van = new WelcomeO(vanMap);
-		}else if(trxMap.startsWith("van", "KICC")){
-			van = new KICC(vanMap);
-		}else if(trxMap.startsWith("van", "SPC")){
-			van = new SPC(vanMap);
+        }else if(trxMap.startsWith("van", "WELCOMEO")){
+            van = new WelcomeO(vanMap);
+        }else if(trxMap.startsWith("van", "KICC")){
+            van = new KICC(vanMap);
+        }else if(trxMap.startsWith("van", "SPC")){
+            van = new SPC(vanMap);
 		}else{
-			trxMap.put("van","DEFAULT");
+            trxMap.put("van","DEFAULT");
 			van = new DemoVan(vanMap);
 		}
 		
+		//KJM : 해당 van에 맞는 refund 메서드 실행
+		// KBR : kspay 통신 취소 로직 실행
 		sharedMap = van.refund(trxDAO, sharedMap, trxMap, response);
-
+		
+		//KJM : 결제취소 테이블 수정
+		// KBR : PG_TRX_RFD 테이블 업데이트 
 		trxDAO.updateTrxRFD(sharedMap, response);
+		
+		//KJM : 결제취소 정상 승인 시
 		if(response.result.resultCd.equals("0000")){
 			
 			response.refund.rootTrackId = trxMap.getString("trackId");
 			response.refund.rootTrxId	= trxMap.getString("trxId");
 			response.refund.rootTrxDay 	= trxMap.getString("regDay");
 			
-			//당일 취소는 반드시 전액 취소만 가능하며 . 승인 취소로 업데이트 한다.
+			// 당일 취소는 반드시 전액 취소만 가능하며 . 승인 취소로 업데이트 한다.
 			if(trxMap.isEquals("regDay",sharedMap.getString(PAYUNIT.REG_DATE).substring(0,8))){
 				trxDAO.updateTrxPay(trxMap.getString("trxId"));
 			}
+			
+			//KJM : webhooUrl 쓰레드 start
+			// KBR : 취소 할 때 안씀 ; start 
 			if(!CommonUtil.isNullOrSpace(request.refund.webhookUrl)){
 				new ThreadWebHook(request.pay.webhookUrl,response).start();
 			}
 			
 			// 월렛 분리정산 추가
+			//PYS : WL_TRX_CAP테이블이 없어 의미없는코드
 			SharedMap<String, Object> rootTrxCapMap = trxDAO.getWalletTrxCap(trxMap.getString("trxId"));
 			if(rootTrxCapMap != null) {
 				SharedMap<String, Object> walletCapMap = new SharedMap<String, Object>();
@@ -224,6 +240,7 @@ public class ProcRefund extends Proc {
 					distTrxMap.put("regTime", walletCapMap.getString("regTime"));
 					trxDAO.insertWalletSettle(distTrxMap);
 				}
+			
 				
 				long stlShopAmount = stlAmount - walletCapMap.getLong("stlDealerAmount") - walletCapMap.getLong("stlDistAmount");
 				walletCapMap.put("stlShopAmount", stlShopAmount);
@@ -267,8 +284,11 @@ public class ProcRefund extends Proc {
 				walletCapMap.put("stlType", "정산완료");
 				trxDAO.insertWlTrxCap(walletCapMap);
 			}
+			// KBR :  ↑  취소 할 때 안씀 ; end
+			
 		}
 		
+		//KJM : 결제 결과 최종적으로 response에 담아서 처리
 		setResponse();
 		return;
 			
@@ -277,32 +297,34 @@ public class ProcRefund extends Proc {
 
 	@Override
 	public void valid() {
-
+		
 		if(request.refund == null){
 			response.result = ResultUtil.getResult("9999", "필수값없음","취소 요청 정보가 없습니다.");return;
 		}
-		
-	
-		
+		// KBR : 매입번호 셋팅
 		request.refund.trxId = sharedMap.getString(PAYUNIT.TRX_ID);
+		
+		// KBR : 터미널 아이디 없을 때 
 		if(CommonUtil.isNullOrSpace(request.refund.tmnId)){
 			request.refund.tmnId = sharedMap.getString("tmnId");
 		}
+		// KBR : 터미널 아이디 있으면 셋팅
 		request.refund.tmnId  = mchtTmnMap.getString("tmnId");
 		
+		// KBR : 추적번호 없을 때
 		if(CommonUtil.isNullOrSpace(request.refund.trackId)){
 			response.result = ResultUtil.getResult("9999", "필수값없음","가맹점 주문번호가 입력되지 않았습니다.");return;
 		}
 		
-		if(request.refund.trackId.length() > 50){
-			response.result = ResultUtil.getResult("9999", "입력값오류","가맹점 주문번호는 50byte 이하만 가능합니다.");return;
-		}
-		
+        if(request.refund.trackId.length() > 50){
+            response.result = ResultUtil.getResult("9999", "입력값오류","가맹점 주문번호는 50byte 이하만 가능합니다.");return;
+        }
+        
+		// KBR : 원거래번호가 없을 떄
 		if(CommonUtil.isNullOrSpace(request.refund.rootTrxId)){
 			logger.info("TRACK_ID     : {}",request.refund.trackId);
 			logger.info("ROOT_TRACK_ID: {}",request.refund.rootTrackId);
 			logger.info("ROOT_TRX_DAY : {}",request.refund.rootTrxDay);
-			
 			
 			if(CommonUtil.isNullOrSpace(request.refund.rootTrackId)){
 				response.result = ResultUtil.getResult("9999", "필수값없음","원거래 주문번호가 없습니다.");return;
@@ -310,7 +332,6 @@ public class ProcRefund extends Proc {
 			if(CommonUtil.isNullOrSpace(request.refund.rootTrxDay)){
 				response.result = ResultUtil.getResult("9999", "필수값없음","원거래 거래일자가 없습니다.");return;
 			}
-			
 			if(request.refund.amount ==0){
 				response.result = ResultUtil.getResult("9999", "필수값없음","원거래 금액이 없습니다.");return;
 			}
@@ -318,50 +339,51 @@ public class ProcRefund extends Proc {
 			trxMap = trxDAO.getTrxPayByTrackId(request.refund.tmnId, request.refund.rootTrackId, request.refund.rootTrxDay,request.refund.amount);
 		}else{
 			logger.info("ROOT_TRX_ID  : {},{}",request.refund.tmnId,request.refund.rootTrxId);
+			// KBR : 승인거래 원장 테이블 조회
 			trxMap = trxDAO.getTrxPayByTrxId(request.refund.tmnId, request.refund.rootTrxId);
-		}
-		
-		
-		
-		/**
-		 * 2021-01-29 취소시 원거래를 못찾는경우 null이 아닌 빈값으로 반환됨.
-		 * isEmpty() 추가.
-		 */
-		if(trxMap == null || trxMap.isEmpty()){
-			response.result = ResultUtil.getResult("9999", "원거래없음","원거래를 찾을 수 없습니다.");
-			return;
-		}
-		
-		request.refund.rootTrackId = trxMap.getString("trackId");
-		
-		logger.info("================================================");
-		logger.info("취소권한 : " + request.refund.udf1);
-		
-		// 실시간 정산 취소 불가 처리 - 20210112
-		if(!request.refund.udf1.equals("ADMINWEB")) {
-			SharedMap<String, Object> realtimeTrx = trxDAO.getRealtimeTrx(trxMap.getString("trxId"));
-			if(realtimeTrx != null) {
-				response.result = ResultUtil.getResult("9999", "취소불가","실시간 정산 거래건은 취소가 불가합니다.");return;
-			}
 			
-			/* 2021-09-23 A+1도 취소 가능하도록 수정
-			 * SharedMap<String, Object> settleAuto =
-			 * trxDAO.getSettleAuto(trxMap.getString("trxId")); if(settleAuto != null &&
-			 * "A+1".equals(settleAuto.getString("stlType"))) {
-			 * logger.info("A+1 실시간 정산 취소불가 : " + trxMap.getString("trxId"));
-			 * response.result = ResultUtil.getResult("9999",
-			 * "취소불가","실시간 정산 거래건은 취소가 불가합니다.");return; }
-			 */
+			
+		}
+		
+        /**
+         * 2021-01-29 취소시 원거래를 못찾는경우 null이 아닌 빈값으로 반환됨.
+         * isEmpty() 추가.
+         */
+        if(trxMap == null || trxMap.isEmpty()){
+            response.result = ResultUtil.getResult("9999", "원거래없음","원거래를 찾을 수 없습니다.");
+            return;
+        }
+        
+        request.refund.rootTrackId = trxMap.getString("trackId");
+        
+        logger.info("================================================");
+        logger.info("취소권한 : " + request.refund.udf1);
+        
+        // 실시간 정산 취소 불가 처리 - 20210112
+        if(!request.refund.udf1.equals("ADMINWEB")) {
+            SharedMap<String, Object> realtimeTrx = trxDAO.getRealtimeTrx(trxMap.getString("trxId"));
+            if(realtimeTrx != null) {
+                response.result = ResultUtil.getResult("9999", "취소불가","실시간 정산 거래건은 취소가 불가합니다.");return;
+            }
+            
+            /* 2021-09-23 A+1도 취소 가능하도록 수정
+             * SharedMap<String, Object> settleAuto =
+             * trxDAO.getSettleAuto(trxMap.getString("trxId")); if(settleAuto != null &&
+             * "A+1".equals(settleAuto.getString("stlType"))) {
+             * logger.info("A+1 실시간 정산 취소불가 : " + trxMap.getString("trxId"));
+             * response.result = ResultUtil.getResult("9999",
+             * "취소불가","실시간 정산 거래건은 취소가 불가합니다.");return; }
+             */
 		}
 		
 		if(request.refund.amount == 0){
 			request.refund.amount =  trxMap.getLong("amount");
 		}
 		
-		if(request.refund.amount != trxMap.getLong("amount")) {
-			response.result = ResultUtil.getResult("9999", "취소불가","전액취소만 가능합니다.");return;
-		}
-		
+        if(request.refund.amount != trxMap.getLong("amount")) {
+            response.result = ResultUtil.getResult("9999", "취소불가","전액취소만 가능합니다.");return;
+        }
+        
 		logger.info("ROOT_TRX_ID: {}",trxMap.getString("trxId"));
 		logger.info("ROOT_AMOUNT: {}",trxMap.getLong("amount"));
 		logger.info("ROOT_TRX_DAY: {}",trxMap.getString("regDay"));
@@ -374,7 +396,7 @@ public class ProcRefund extends Proc {
 			request.refund.amount = trxMap.getLong("amount");
 		}else{
 			//당일 거래가 아닌 경우 
-			if(!request.refund.udf1.equals("ADMINWEB") && !request.refund.udf1.equals("DISTWEB")){	//관리자에서 요청이 온 거래가 아닌 경우
+	        if(!request.refund.udf1.equals("ADMINWEB") && !request.refund.udf1.equals("DISTWEB")){    //관리자에서 요청이 온 거래가 아닌 경우
 				if(mchtTmnMap.isEquals("refundType","불가")){
 					long stlDay = trxDAO.getStlDay(trxMap.getString("trxId"));
 					long curDay = CommonUtil.parseLong(CommonUtil.getCurrentDate("yyyyMMdd"));
@@ -399,10 +421,10 @@ public class ProcRefund extends Proc {
 				response.result = ResultUtil.getResult("9999", "기취소오류","이미 취소된 거래입니다.");return;
 			}
 		}
-		
+		// KBR : 취소금액 전체조회
 		long refundedAmount = trxDAO.getTrxRefundSumByTrxId(trxMap.getString("trxId"));
-		logger.info("REFUNDED_AMT: {}",refundedAmount);
 		
+		logger.info("REFUNDED_AMT: {}",refundedAmount);
 		
 		
 		if(trxMap.getLong("amount") == -refundedAmount){
