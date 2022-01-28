@@ -17,13 +17,15 @@ public class APIPath {
 		// TODO Auto-generated constructor stub
 	}
 	
+	// KBR : 접근 도메인 값 rc셋팅 
 	public static void setPath(RoutingContext rc){
-		https://svcapi.mtouch.com
-		if(VertXUtil.getHost(rc).indexOf("svcapi.mtouch.com") > -1){
-			rc.put("API_HOST", "https://svcapi.mtouch.com");
+		//https://api.bkwinners.kr
+		if(VertXUtil.getHost(rc).indexOf("api.bkwinners.kr") > -1){	//KJM : 라이브서버
+			rc.put("API_HOST", "https://api.bkwinners.kr");
 		}else{	//DEV,SANDBOX CONFIG
-			rc.put("API_HOST", VertXUtil.getSchemeHost(rc));
+			// getSchemeHost 메소드 : 스키마 + 호스트 리턴 해줌 
+			// [ return : http(scheme) 127.0.0.1:10002(host) ]
+			rc.put("API_HOST", VertXUtil.getSchemeHost(rc));	//KJM : 로컬서버
 		}
 	}
-
 }

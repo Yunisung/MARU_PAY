@@ -30,7 +30,10 @@ public class VactCache {
 	};
 	
 	
-	 
+	/**
+	 * PYS : RemovalListner - 캐시에 있는 만료된 데이터를 자동으로 정리 
+	 * @param expireInMinutes
+	 */
 	private void init(int expireInMinutes) {
 		RemovalListener<String, List<String>> removalListener = new RemovalListener<String, List<String>>() {
 			public void onRemoval(RemovalNotification<String, List<String>> removal) {
@@ -55,6 +58,11 @@ public class VactCache {
 
 	}
 	
+	/**
+	 * PYS : https://ijbgo.tistory.com/10
+	 * @param key
+	 * @return
+	 */
 	public List<String> getUnchecked(String key){
 		List<String> val = null;
 		try{
