@@ -99,6 +99,7 @@ public class Kspay implements Van {
                 }
                 response.pay.metadata = null;
 		}
+        }
 		
 		credit.setIsBatch("0");				//배치사용구분 = 0:미사용,1:사용
 		credit.setCurrency("0");			//통화구분 = 0:원화,1:미화

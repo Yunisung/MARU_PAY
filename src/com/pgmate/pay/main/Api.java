@@ -16,27 +16,40 @@ import com.pgmate.pay.bean.Request;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.proc.Proc;
 import com.pgmate.pay.proc.ProcAuth;
+import com.pgmate.pay.proc.ProcCheck;
 import com.pgmate.pay.proc.ProcEcho;
 import com.pgmate.pay.proc.ProcGet;
 import com.pgmate.pay.proc.ProcInquery;
 import com.pgmate.pay.proc.ProcPay;
 import com.pgmate.pay.proc.ProcPay3DHook;
 import com.pgmate.pay.proc.ProcPay3DHookMobile;
+import com.pgmate.pay.proc.ProcPay3DV2Hook;
+import com.pgmate.pay.proc.ProcPay3DV2Widget;
 import com.pgmate.pay.proc.ProcPay3DWidget;
 import com.pgmate.pay.proc.ProcPay3DWidgetMobile;
+import com.pgmate.pay.proc.ProcPayPhoneHook;
 import com.pgmate.pay.proc.ProcPayW3DHook;
 import com.pgmate.pay.proc.ProcPayW3DWidget;
+import com.pgmate.pay.proc.ProcPhoneRefund;
 import com.pgmate.pay.proc.ProcRefund;
+import com.pgmate.pay.proc.ProcSettleAccnt;
+import com.pgmate.pay.proc.ProcSettleBalance;
+import com.pgmate.pay.proc.ProcSettleTransfer;
 import com.pgmate.pay.proc.ProcWebHook;
 import com.pgmate.pay.proc.ProcWebHookAllatTmn;
 import com.pgmate.pay.proc.ProcWebHookDaou;
+import com.pgmate.pay.proc.ProcWebHookKICC;
 import com.pgmate.pay.proc.ProcWebHookNice;
+import com.pgmate.pay.proc.ProcWebHookSPC;
+import com.pgmate.pay.proc.ProcWebHookWelcome;
 import com.pgmate.pay.proc.ProcWidget;
 import com.pgmate.pay.proc.VactClose;
 import com.pgmate.pay.proc.VactGet;
 import com.pgmate.pay.proc.VactOpen;
 import com.pgmate.pay.proc.VactPatch;
+import com.pgmate.pay.proc.VactReg;
 import com.pgmate.pay.proc.VactStatus;
+import com.pgmate.pay.proc.VactWithdrawGet;
 import com.pgmate.pay.util.PAYUNIT;
 
 import io.vertx.core.http.HttpMethod;
@@ -251,7 +264,7 @@ public class Api {
 			if(!sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SETTLE_BALANCE)) {
 				try {
 					//KJM : pay 정보 sharedMap에 저장
-					syntax(); // 
+                    syntax(uri);
 				} catch (Exception e) {
 					VertXMessage.set400(rc);
 					return false;
@@ -275,6 +288,7 @@ public class Api {
 				VertXMessage.set400(rc);
 				return false;
 			}
+		}
 		}
 
 		// Authorization
@@ -409,7 +423,6 @@ public class Api {
 		sharedObject.put("mchtMng", mchtMng);
 		
 		return true;
-		}
     }
 
 	private boolean uriMethodFilter(RoutingContext rc) {

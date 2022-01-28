@@ -102,6 +102,41 @@ public class TemplateUtil {
 		.write(sb.toString()).end();
 	}
 	
+	public static void popupToParentKspayV14(RoutingContext rc,String resData) {
+		String sb = String.join("\n", 
+				"<html><head>",
+				" <meta charset=\"UTF-8\">",
+				" <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+				" <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">",
+				" <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/index.css\">",
+				" <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/spinner.css\">",
+				"<head><body>",
+				" <form action=\"javascript:void(0);\" name=\"frm\">",
+				"   <textarea name=\"data\">"+resData+"</textarea>",
+				" </form>",
+				" <div id=\"c3-loading\" style=\"display: block;\">",
+				"   <div class=\"spinner\">",
+				"     <div class=\"rect1\"></div>",
+				"     <div class=\"rect2\"></div>",
+				"     <div class=\"rect3\"></div>",
+				"     <div class=\"rect4\"></div>",
+				"   </div>",
+				"   <div class=\"de-msg loading-tag\">결제가 진행중입니다.</div>",
+				" </div>",
+				"<script src=\"/static/js/kspayV14.js\"></script>",
+				"<script>setTimeout(function() { kspayToParent(); },200);</script>",
+				"</body></html>");
+
+
+		rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "text/html")		
+		.putHeader(HttpHeaders.CONTENT_LENGTH, ""+sb.toString().getBytes().length)
+		.putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+		.putHeader(HttpHeaders.EXPIRES, "-1")
+		.putHeader(HttpHeaders.CONNECTION, "close")
+		.putHeader(HttpHeaders.SERVER, "MTouch")
+		.write(sb.toString()).end();
+	}
+	
 	//KJM : 모바일 온라인 결제 결과(ProcPay3DHook)
 	public static void redirect3D(RoutingContext rc, String url,String resData) {
 		String sb = String.join("\n", 
