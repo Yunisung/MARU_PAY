@@ -43,6 +43,7 @@ public class KspayW3d{
 	public SharedMap<String, Object> sales(SharedMap<String, Object> ioMap, SharedMap<String, Object> requestMap) {
 		
 		SharedMap<String, Object> sharedMap = new SharedMap<String,Object>();
+		//KJM : 서버 통신 헤더 세팅
 		KspayHead ksHeader = new KspayHead();
 		
 		ksHeader.setCrypto("0");	
@@ -57,6 +58,7 @@ public class KspayW3d{
 		//ksHeader.setPayTel(tBean.getPayTelNo());
 		ksHeader.setPayCount("0");
 		
+		//KJM : 서버 통신 카드 정보 세팅
 		KspayCredit credit = new KspayCredit();
 		
 		SharedMap<String,Object> widgetMap = new GsonBuilder().create().fromJson(ioMap.getString("reqJson"), new TypeToken<SharedMap<String, Object>>(){}.getType()); 
@@ -94,10 +96,10 @@ public class KspayW3d{
 		//logger.info(GsonUtil.toJson(ksHeader, true, ""));
 		//logger.info(GsonUtil.toJson(credit, true, ""));
 		
+		//KJM : 서버 통신, 데이터 송수신
 		KspayResponse res = comm(ksHeader,credit);
 		
-				
-		
+		//KJM : 정상승인의 경우
 		if(res.getResponseCode().equals("O")){
 
 			sharedMap.put("vanTrxId",res.getKsnetTrnId());
@@ -111,8 +113,9 @@ public class KspayW3d{
 			logger.debug("acquirerCode [{}]",sharedMap.getString("acquirerCode"));
 			sharedMap.put("issuerCode", res.getIssuerCode());
 			logger.debug("issuerCode [{}]",sharedMap.getString("issuerCode"));
-			
-		}else if(res.getResponseCode().equals("X")){	
+		//KJM : 승인실패
+		}else if(res.getResponseCode().equals("X")){
+			//KJM : 에러 메시지 세팅
 			String vanMessage = (res.getMessage1()+" "+res.getMessage2()).replaceAll("^\\s+","").replaceAll("\\s+$","");
 			sharedMap.put("vanTrxId",res.getKsnetTrnId());
 			sharedMap.put("vanResultCd",res.getApprovalNo());
@@ -126,17 +129,17 @@ public class KspayW3d{
 		
 		logger.info("vanTrxId : {},{}",sharedMap.getString("vanTrxId"),sharedMap.getString("vanDate"));
 		
-		
 		return sharedMap;
 	}
 	
-	
+	//KJM : 서버와 데이터 송수신
 	public KspayResponse comm(KspayHead head,KspayCredit credit){
 		
 		TcpSocket tcp = new TcpSocket();
 		KspayResponse res = new KspayResponse();
 		byte[] response = null;
 		try{
+			//KJM : 소캣 통신을 이용 해 서버와 데이터 송수신
 			byte[] request = head.getHeader(credit.getKSNETCredit()).getBytes();
 			tcp.setSocketProperty(KSNET_HOST_PROD, port, timeout);
 			logger.info("KSNET >> [{}],{}",CommonUtil.toString(request),request.length);
@@ -163,6 +166,7 @@ public class KspayW3d{
 			logger.info("KSNET << [{}]",convert(response,"ksc5601"));
 		}
 		
+		//KJM : 통신을 통해 수신받은 데이터 넘겨줌
 		return res;
 		
 	}
