@@ -196,6 +196,7 @@ public class Api {
             }else if (uri.startsWith(PAYUNIT.API_SETTLE_TRANSFER)) {
                 process = new ProcSettleTransfer();
 			} else {
+				
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
 					sharedMap.put("van", "DANAL");
 					ProcWebHook webHook = new ProcWebHook();
@@ -213,19 +214,22 @@ public class Api {
 //					ProcWebHookAllat webHook = new ProcWebHookAllat();
 					ProcWebHookAllatTmn webHook = new ProcWebHookAllatTmn();
 					webHook.exec(rc, sharedMap);
-                } else if (uri.startsWith(PAYUNIT.API_WEBHOOK_WELCOME)) {
-                    sharedMap.put("van", "WELCOMEO");
-                    ProcWebHookWelcome webHook = new ProcWebHookWelcome();
-                    webHook.exec(rc, sharedMap);
-                } else if (uri.startsWith(PAYUNIT.API_WEBHOOK_KICC)) {
-                    sharedMap.put("van", "KICC");
-                    ProcWebHookKICC webHook = new ProcWebHookKICC();
-                    webHook.exec(rc, sharedMap);
-                } else if (uri.startsWith(PAYUNIT.API_WEBHOOK_SPC)) {
-                    sharedMap.put("van", "SPC");
-                    ProcWebHookSPC webHook = new ProcWebHookSPC();
-                    webHook.exec(rc, sharedMap);
-				} else {
+				} else if (uri.startsWith(PAYUNIT.API_WEBHOOK_WELCOME)) {
+					sharedMap.put("van", "WELCOMEO");
+					ProcWebHookWelcome webHook = new ProcWebHookWelcome();
+					webHook.exec(rc, sharedMap);
+				} else if (uri.startsWith(PAYUNIT.API_WEBHOOK_KICC)) {
+					sharedMap.put("van", "KICC");
+					ProcWebHookKICC webHook = new ProcWebHookKICC();
+					webHook.exec(rc, sharedMap);
+				} else if (uri.startsWith(PAYUNIT.API_WEBHOOK_SPC)) {
+					sharedMap.put("van", "SPC");
+					ProcWebHookSPC webHook = new ProcWebHookSPC();
+					webHook.exec(rc, sharedMap);
+				} else if (uri.startsWith(PAYUNIT.API_REDIRECT)) {
+					VertXMessage.set200(rc, "redirect : [ " + sharedMap + " ]");
+				}
+				else {
 					logger.info("process not found : {}", CommonUtil.toString(sharedMap.get(PAYUNIT.URI)));
 					VertXMessage.set404(rc);
 				}
