@@ -183,6 +183,7 @@ public class Api {
 			}else if (uri.startsWith(PAYUNIT.API_SETTLE_TRANSFER)) {
 				process = new ProcSettleTransfer();
 			} else {
+				
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
 					sharedMap.put("van", "DANAL");
 					ProcWebHook webHook = new ProcWebHook();
@@ -212,7 +213,10 @@ public class Api {
 					sharedMap.put("van", "SPC");
 					ProcWebHookSPC webHook = new ProcWebHookSPC();
 					webHook.exec(rc, sharedMap);
-				} else {
+				} else if (uri.startsWith(PAYUNIT.API_REDIRECT)) {
+					VertXMessage.set200(rc, "redirect : [ " + sharedMap + " ]");
+				}
+				else {
 					logger.info("process not found : {}", CommonUtil.toString(sharedMap.get(PAYUNIT.URI)));
 					VertXMessage.set404(rc);
 				}
