@@ -34,6 +34,7 @@ public class Kspay implements Van {
 	
 	private String TID 					= "";
 	private String SECONDKEY			= "";
+	private String tmnId				= "";
 	private String VAN					= "";
     private String payCondition			= "1";
 	
@@ -41,6 +42,7 @@ public class Kspay implements Van {
 		TID =  tmnVanMap.getString("vanId").trim();
 		SECONDKEY	= tmnVanMap.getString("secondKey").trim();
 		VAN = tmnVanMap.getString("van");
+		tmnId = tmnVanMap.getString("tmnId");
 		
 		// 상점부담 무이자 적용
 		if(tmnVanMap.getString("vanId").equals("2006500009")) payCondition = "2";
@@ -57,6 +59,7 @@ public class Kspay implements Van {
 		ksHeader.setRetry("0");
 		ksHeader.setTrnDate(CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		ksHeader.setMerchantId(TID);
+		ksHeader.setPayName(tmnId);
 		ksHeader.setTrnsNo(response.pay.trxId);
 		ksHeader.setTrxType("K");
 		ksHeader.setTrnAccess("0");
