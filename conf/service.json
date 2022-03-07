@@ -13,7 +13,7 @@
   },
   "vertx": {
     //"host": "192.168.49.11",
-    "host": "127.0.0.1",
+    "host": "10.100.200.10",
     "port": 10002,
     "idleTimeout": 120000,
     "receiveBufferSize": 4096000,
