@@ -201,6 +201,7 @@ public class Galaxia implements Van{
 		String taxFreeAmount ="";															//면세금액
 		//-----------고정 값 수정 불가------------
 		String certType	= "0002";															//수기특약
+		String dealType = "0011";															//수기특약 상세타입
 		String usingType = "0000";															//국내카드
 		String currency	= "0000";															//승인통화(원화)
 		String opcode = "0000";																//언어구분(한글)
@@ -227,6 +228,7 @@ public class Galaxia implements Van{
 		salesMap.put("taxAmount", taxAmount);
 		salesMap.put("taxFreeAmount", taxFreeAmount);
 		salesMap.put("certType", certType);
+		salesMap.put("dealType", dealType);
 		salesMap.put("usingType", usingType);
 		salesMap.put("currency", currency);
 		salesMap.put("opcode", opcode);
