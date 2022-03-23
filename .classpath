@@ -33,5 +33,6 @@
 	<classpathentry kind="lib" path="lib/MARU_lib.jar"/>
 	<classpathentry kind="lib" path="lib/json-simple-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/easypay_java_client18(utf-8).jar"/>
+	<classpathentry kind="lib" path="lib/billgateAPI.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
