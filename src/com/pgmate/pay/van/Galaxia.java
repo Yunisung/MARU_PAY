@@ -52,10 +52,7 @@ public class Galaxia implements Van{
 			ConfigInfo config = new ConfigInfo(configLoad, ServiceCode.CREDIT_CARD);
 			key = config.getKey();
 			iv = config.getIv();
-			
-			System.out.println(key);
-			System.out.println(iv);
-			
+
 			cipher = new Seed();
 			cipher.setKey(key.getBytes());
 			cipher.setIV(iv.getBytes());
