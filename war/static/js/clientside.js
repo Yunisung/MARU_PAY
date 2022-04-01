@@ -11,7 +11,7 @@ var MARU = (function (win, doc) {
     mode: 'layer',
     debugMode: 'live'
   }
-  
+
   /* GLOBAL */
   var routeUrls = {
     //sandbox: 'https://svcapidev.mtouch.com',
@@ -189,7 +189,10 @@ var MARU = (function (win, doc) {
     payClose: function () {
       var obj = { type: 'PAY_CLOSE' };
       util.sendMessageToFrame(obj);
-    }
+    },
+	galPayOpen: function () {
+		var obj = { type : 'PAU_OPEN', config : config}
+	}
   }
   // 레이어 팝업을 띄우기 위한 Element 생성 및 초기화. (로딩시)
   function layerInit() {
@@ -321,6 +324,23 @@ var MARU = (function (win, doc) {
     // }
     requestOpen();
   }
+
+  /*function galPay(config) {
+	console.log('갤럭시아 pay');
+	
+	routeDomain = routeUrls[config.debugMode];
+	console.log('routurl', routeDomain);
+	
+	if(!config.orderId) {
+      config.orderId = "TS" + (new Date().getTime() * (Math.floor(Math.random() * 10) +1));
+    }
+	if (!util.validation(config)) {
+      alert('입력값이 올바르지 않아 결제를 진행할 수 없습니다.\n\n' + error.message + "(" + error.code + ")");
+      return;
+    }
+
+	requestOpen();
+  }*/
 
   function requestOpen() {
     c3pop();
