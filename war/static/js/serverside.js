@@ -268,6 +268,8 @@ function openPayment(config) {
         if (res.result.resultCd == '0000') {
             var url = window.location.protocol + "//" + window.location.host + res.widget.routeUrl;
             ServerUtil.resizeWindow(res);
+			console.log("mod :: " + config.c3Config.mode);
+			console.log("target :: " + res.widget.target);
             if (config.c3Config.mode == 'popup') {
                 popup(url);
             } else {

@@ -1,5 +1,6 @@
 package com.pgmate.pay.main;
 
+import java.awt.image.RescaleOp;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import com.pgmate.lib.vertx.main.VertXUtil;
 import com.pgmate.pay.util.APIPath;
 import com.pgmate.pay.util.PAYUNIT;
 
+import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.templ.HandlebarsTemplateEngine;
@@ -50,14 +52,13 @@ public class Form {
 		
 		//접속 URI 확인
 		String uri 	= CommonUtil.nToB(rc.request().uri());	//KJM : null이면 빈칸으로 받음
-		
         //KJM : 전달할 url의 파라미터 값 있을 경우 (http://example?param=test)
         if(uri.indexOf("?") > -1){    
             if(uri.indexOf("=") > -1){
                 if(uri.length() > uri.indexOf("?")+1){
                     // 쿼리스트링 담기
                     /*    KJM
-                     *     parseQueryString : "&"와 "="이 포함 된 문자열을 hashmap을호 변환 후 반환
+                     *     parseQueryString : "&"와 "="이 포함 된 문자열을 hashmap으로 변환 후 반환
                      *     uri의 "?" 위치 다음부터 끝까지의 문자열을 매개변수로 보내줌  "token=key_1635755350124d8b9587"
                      *     return : map => token, key_... 
                      */
@@ -74,8 +75,19 @@ public class Form {
 			}
 			uri = uri.substring(0,uri.indexOf("?"));
 			
-		} // end 
-		
+		} // end
+        
+        else if (uri.indexOf("galaxia/return") > -1) {
+        	String params = VertXUtil.getBodyAsString(rc);
+        	System.out.println("params ::" + params);
+        	if(params.indexOf("&") > -1 || params.indexOf("=") > -1){
+				Map<String,String> map = CommonUtil.parseQueryString(params, "euc-kr");
+				for(String s : map.keySet()){
+					rc.put(s,CommonUtil.nToB(map.get(s)));
+				}
+			}
+        }
+        
 		// isMethod : GET인지 POST인지 체크 메소드
 		// HTTPMathod 란 클라이언트와 서버 사이에 이루어지는 요청(Request)과 응답(Response) 데이터를 전송하는 방식.(GET,POST,PUT 등등..)
         //KJM : /form/payment/layout uri 요청의 경우 GET 메소드 요청
@@ -87,6 +99,7 @@ public class Form {
 					rc.put(s,CommonUtil.nToB(map.get(s)));
 				}
 			}else{
+				System.out.println("payLoad ::" + payLoad);
 				rc.put("param", payLoad);
 			}
 		}
@@ -104,7 +117,7 @@ public class Form {
         //KJM : directory+uri => C:\git\maru_pay\war/form/payment/regular/index (유동적...)
 		engine.render(rc, directory+uri,  res -> {
 		    if (res.succeeded()) {
-                //KJM : 상태코드(200:정상) 설정 후 응답 => index.html (유동적,ㅜㅜㅜ,,)		   
+                //KJM : 상태코드(200:정상) 설정 후 응답 => index.html (유동적,ㅜㅜㅜ,,)	
 		    	rc.response().setStatusCode(200).end(res.result());
 		    }else {
 		    	logger.info("api uri : {}, method : {}, ip : {},{}",CommonUtil.nToB(rc.request().uri()),VertXUtil.getMethod(rc),VertXUtil.getRemoteIp(rc),directory);

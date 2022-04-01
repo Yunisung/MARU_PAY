@@ -1,4 +1,4 @@
-console.log('IMPORT KSPAY.JS FILE!');
+console.log('IMPORT GALPAY.JS FILE!');
 var c3_Config = {
     debug: true
 };
@@ -270,8 +270,11 @@ var C3MOD = (function (win, doc) {
         	}else{
         		f.setAttribute("target", "_top");
         	}
-            
         }
+		
+		//인코딩 euc-kr 처리
+		f.acceptCharset = "euc-kr";
+		
         f.submit();
     }
 
