@@ -93,7 +93,6 @@ public class ProcPay3DWidget extends Proc {
 						
 						response.widget.put("device", ioMap.getString("device"));
 						
-						System.out.println("van :: " + vanMap.getString("van"));
 						//KJM : kspay, daou van에 대해서만 사용가능
 						//KJM : kspay일 때
 						if(vanMap.startsWith("van", "KSPAY")){
@@ -109,14 +108,6 @@ public class ProcPay3DWidget extends Proc {
 							response.widget.put("routeUrl", "/form/payment/daou/index.html?token=" + widgetKey);
 							//KJM : index로 보내 줄 값 세팅
 							setDaou(vanMap);
-							ioMap.put("reqJson", GsonUtil.toJson(request.widget));
-							response.result = ResultUtil.getResult("0000", "정상","정상완료");
-						//KJM : 갤럭시아일 때 22.03.29
-						}else if(vanMap.startsWith("van", "GALAXIA")) {
-							response.widget.put("target", "GALAXIA");
-							response.widget.put("routeUrl", "/form/payment/galaxia/index.html?token=" + widgetKey);
-							
-							setGalaxia(vanMap);
 							ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 							response.result = ResultUtil.getResult("0000", "정상","정상완료");
 						}else{
@@ -213,7 +204,7 @@ public class ProcPay3DWidget extends Proc {
 	 */
 	public void setKspay(SharedMap<String,Object> vanMap){
 		
-		System.out.println("widgetkey : " + widgetKey);
+		
 		request.widget.put("key", widgetKey);
 		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
 		
@@ -273,11 +264,14 @@ public class ProcPay3DWidget extends Proc {
 		installment += mchtTmnMap.getInt("apiMaxInstall")+")";
 		form.put("sndInstallmenttype", installment);
 		
+		
 		form.put("sndInteresttype", "NONE");	//무이자 적용여부 !나중에 하자
 		
 		form.put("reWHCid", "");				//승인 후 수취 필드
 		form.put("reWHCtype", "");				//승인 후 수취 필드
 		form.put("reWHHash", "");				//승인 후 수취 필드
+		
+		
 		
 		//REDIRECT FIELD	거래번호하고 위젯 키 
 		
@@ -330,6 +324,9 @@ public class ProcPay3DWidget extends Proc {
 		form.put("quotaopt", CommonUtil.zerofill(mchtTmnMap.getInt("apiMaxInstall"),2));
 		form.put("PRODUCTNAME", getProduct(request.widget.get("products")));
 		
+		
+		
+		
 		form.put("USERNAME", request.widget.getString("payerName"));
 		form.put("EMAIL", request.widget.getString("payerEmail"));
 		form.put("USERID", request.widget.getString("payerTel"));
@@ -346,6 +343,8 @@ public class ProcPay3DWidget extends Proc {
 			form.put("RETURNURL", String.format("http://%s/%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 		
+		
+		
 		form.put("HOMEURL", "");
 		form.put("DIRECTRESULTFLAG", "");	//Y 입력시 키움페이 결제완료 창 없이 HOMEURL 로 이동한다.
 		form.put("used_card_YN", "");		//Y 일경우 카드사 노출 여부 
@@ -353,6 +352,9 @@ public class ProcPay3DWidget extends Proc {
 		form.put("not_used_card", "");		// 카드사 표현하고 싶지 않은 것만
 		form.put("eng_flag", "");			// Y 일 경우 영문
 		form.put("kcp_site_logo", request.widget.getString("widgetLogoUrl"));
+		
+		
+		
 		
 		//form 처리
 		request.widget.put("form", GsonUtil.toJson(form));
@@ -364,58 +366,7 @@ public class ProcPay3DWidget extends Proc {
 		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
 	}
 	
-	public void setGalaxia(SharedMap<String,Object> vanMap) {
-		
-		request.widget.put("key", widgetKey);
-		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
-		
-		request.widget.put("target", "GALAXIA");
-		request.widget.put("targetMethod", "POPUP");
-		if(request.widget.isEquals("device", "mobile")){
-			request.widget.put("targetUrl", "http://tpay.billgate.net/credit/smartphone/certify.jsp");
-		}else{
-			request.widget.put("targetUrl", "http://tpay.billgate.net/credit/certify.jsp");
-		}
-		
-		if(request.widget.isEquals("device", "MSIE")){
-			request.widget.put("width", 500);
-			request.widget.put("height", 477);
-		}else{
-			request.widget.put("height", 518);
-		}
-		
-		SharedMap<String,Object> form = new SharedMap<String,Object>();
-		form.put("SERVICE_ID", request.widget.getString("serviceId"));
-		form.put("ORDER_ID", request.widget.getString("trackId"));
-		form.put("ORDER_DATE", request.widget.getString("orderDate"));
-		form.put("USER_ID", request.widget.getString("userId"));
-		form.put("ITEM_CODE", request.widget.getString("itmeCode"));
-		form.put("AMOUNT", request.widget.getString("amount"));
-		form.put("INSTALLMENT_PERIOD", request.widget.getString("installmentPeriod"));
-		form.put("USING_TYPE", request.widget.getString("usingType"));
-		form.put("CURRENCY", request.widget.getString("usingType"));
-		form.put("ITEM_NAME", request.widget.getString("itemName"));
-		form.put("RESERVED1", request.widget.getString("publicKey"));
-		form.put("RESERVED2", request.widget.getString("amount"));
-		form.put("RESERVED3", request.widget.getString("installmentPeriod"));
-		
-		//api/3d/hook(결제 정보 저장)으로 들어가는 url 세팅
-		//https://127.0.0.1:10002/api/3d/hook/{van}/{trxId}
-		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
-			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-		}else{
-			form.put("RETURN_URL", String.format("http://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-		}
-		
-		//form 처리
-		request.widget.put("form", GsonUtil.toJson(form));
-		
-		//요청 값 임시 저장
-		logger.info("save as key : {}",request.widget.getString("key"));
-		PAYUNIT.cacheMap.put(request.widget.getString("key"), request.widget);
-		
-		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
-	}
+	
 	
 	public void detectDevice(){
 		String ua = sharedMap.getString(PAYUNIT.USERAGENT).toLowerCase();

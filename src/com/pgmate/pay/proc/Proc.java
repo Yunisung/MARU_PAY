@@ -36,7 +36,7 @@ public abstract class Proc {
 	protected RoutingContext rc							= null;
 	
 	
-	public abstract void exec(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap,SharedMap<String,SharedMap<String,Object>> sharedObject) throws Exception;
+	public abstract void exec(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap,SharedMap<String,SharedMap<String,Object>> sharedObject);
 	public abstract void valid();
 	
 	

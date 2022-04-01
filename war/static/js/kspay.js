@@ -218,7 +218,6 @@ var C3MOD = (function (win, doc) {
             if (fadeTarget.style.opacity < 0.1) {
                 clearInterval(fadeEffect);
                 document.getElementById(id).style.display = 'none';
-
             } else {
                 fadeTarget.style.opacity -= 0.1;
             }
