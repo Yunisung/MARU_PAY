@@ -35,6 +35,7 @@ public class Kspay implements Van {
 	
 	private String TID 					= "";
 	private String SECONDKEY			= "";
+	private String tmnId				= "";
 	private String VAN					= "";
     private String payCondition			= "1";
 	
@@ -44,7 +45,8 @@ public class Kspay implements Van {
 		// KBR : secondKey(케이에스넷은 DPT 번호 기재)
 		SECONDKEY	= tmnVanMap.getString("secondKey").trim();
 		VAN = tmnVanMap.getString("van");
-		System.out.println("tid :: " + TID + ", secondkey :: " + SECONDKEY + ", van :: " + VAN);
+		tmnId = tmnVanMap.getString("tmnId");
+		
 		// 상점부담 무이자 적용
 		if(tmnVanMap.getString("vanId").equals("2006500009")) payCondition = "2";
 	}
@@ -67,7 +69,7 @@ public class Kspay implements Van {
 		ksHeader.setRetry("0");
 		ksHeader.setTrnDate(CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		ksHeader.setMerchantId(TID);
-		// 주문번호
+		ksHeader.setPayName(tmnId);
 		ksHeader.setTrnsNo(response.pay.trxId);
 		// KEYIN여부  S:SWAP, K:KEYIN
 		ksHeader.setTrxType("K");

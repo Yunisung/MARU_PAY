@@ -19,6 +19,7 @@ import com.pgmate.pay.van.Danal;
 import com.pgmate.pay.van.Daou;
 import com.pgmate.pay.van.DemoVan;
 import com.pgmate.pay.van.Firstpay;
+import com.pgmate.pay.van.Galaxia;
 import com.pgmate.pay.van.Kspay;
 import com.pgmate.pay.van.Nice;
 import com.pgmate.pay.van.Van;
@@ -88,6 +89,8 @@ public class ProcPay extends Proc {
 			van = new Allat(tmnVanMap);
 		}else if(mchtTmnMap.startsWith("van", "FIRST")){
 			van = new Firstpay(tmnVanMap);
+		}else if(mchtTmnMap.startsWith("van", "GALAXIA")){
+			van = new Galaxia(tmnVanMap);
 		}else{
 			mchtTmnMap.put("van","DEFAULT");
 			van = new DemoVan(tmnVanMap);

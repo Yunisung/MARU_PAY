@@ -70,44 +70,43 @@ public class Allat implements Van{
 		//KJM : 송신 데이터 세팅
 		HashMap<String, Object> reqHm = new HashMap<String, Object>();
 		reqHm.put("allat_card_no"           , response.pay.card.number  );											//카드 번호(최대 16자)
-		reqHm.put("allat_cardvalid_ym"      , response.pay.card.expiry  );											//카드 유효기간(최대  4자) : 년월
-		reqHm.put("allat_cardcert_yn"       , "N" );																//카드인증여부(최대 1자) : 인증(Y),인증사용않음(N),인증만사용(X)
+	    reqHm.put("allat_cardvalid_ym"      , response.pay.card.expiry  );											//카드 유효기간(최대  4자) : 년월
+	    reqHm.put("allat_cardcert_yn"       , "N"   );																//카드인증여부(최대 1자) : 인증(Y),인증사용않음(N),인증만사용(X)
+	    
+//	    reqHm.put("allat_passwd_no"         , szPasswordNo   );
+	    reqHm.put("allat_sell_mm"           , CommonUtil.zerofill(response.pay.card.installment,2));				//할부개월값(최대  2자)
+	    reqHm.put("allat_amt"               , CommonUtil.toString(response.pay.amount));							//금액(최대 10자)
+	    
+	    reqHm.put("allat_shop_id"           , sShopId );															//상점ID(최대 20자)
+	    reqHm.put("allat_shop_member_id"    , sShopId );															//회원ID(최대 20자) : 쇼핑몰회원ID
+	    reqHm.put("allat_order_no"          , response.pay.trxId );													//주문번호(최대 80자) : 쇼핑몰 고유 주문번호
+	    reqHm.put("allat_product_cd"        , "");																	//상품코드(최대 1000자) : 여러 상품의 경우 구분자 이용, 구분자('||':파이프 2개)
+	    reqHm.put("allat_product_nm"        , CommonUtil.nToB(item,"테스트"));											//상품명(최대 1000자) : 여러 상품의 경우 구분자 이용, 구분자('||':파이프 2개)
+	    reqHm.put("allat_zerofee_yn"        , "N");																	//일반/무이자 할부 사용 여부(최대 1자) : 일반(N), 무이자 할부(Y)
+	    reqHm.put("allat_buyer_nm"          , CommonUtil.nToB(response.pay.payerName,"구매자"));						//결제자성명(최대 20자)
+	    reqHm.put("allat_recp_name"         , CommonUtil.nToB(response.pay.payerName,"수취인"));						//수취인성명(최대 20자)
+	    reqHm.put("allat_recp_addr"         , ""     );																//수취인주소(최대 120자)
+	    reqHm.put("allat_user_ip"           , "Unknown"      );														//결제자 IP(최대15자):BuyerIp를 넣을수 없다면 "Unknown"으로 세팅
+	    reqHm.put("allat_email_addr"        , CommonUtil.nToB(response.pay.payerEmail,"bukook@bkwinners.com"));		//결제자 이메일 주소(50자)	
+	   
+	    reqHm.put("allat_pay_type"          , "NOR"          );  //수정금지(결제방식 정의)
+//	    reqHm.put("allat_test_yn"           , "Y"            );  //테스트 :Y, 서비스 :N
+	    reqHm.put("allat_opt_pin"           , "NOUSE"        );  //수정금지(올앳 참조 필드)
+	    reqHm.put("allat_opt_mod"           , "APP"          );  //수정금지(올앳 참조 필드)
+	    
+	    String szAllatEncData = "";
+	    String szReqMsg = "";
+	    
+	    szAllatEncData=setValue(reqHm);
+	    szReqMsg  = "allat_shop_id="   + sShopId
+	              + "&allat_amt="      + CommonUtil.toString(response.pay.amount)
+	              + "&allat_enc_data=" + szAllatEncData
+	              + "&allat_cross_key="+ sCrossKey;
 
-		//	    reqHm.put("allat_passwd_no"         , szPasswordNo   );
-		reqHm.put("allat_sell_mm"           , CommonUtil.zerofill(response.pay.card.installment,2));				//할부개월값(최대  2자)
-		reqHm.put("allat_amt"               , CommonUtil.toString(response.pay.amount));							//금액(최대 10자)
-
-		reqHm.put("allat_shop_id"           , sShopId );															//상점ID(최대 20자)
-		reqHm.put("allat_shop_member_id"    , sShopId );															//회원ID(최대 20자) : 쇼핑몰회원ID
-		reqHm.put("allat_order_no"          , response.pay.trxId );													//주문번호(최대 80자) : 쇼핑몰 고유 주문번호
-		reqHm.put("allat_product_cd"        , "");																	//상품코드(최대 1000자) : 여러 상품의 경우 구분자 이용, 구분자('||':파이프 2개)
-		reqHm.put("allat_product_nm"        , CommonUtil.nToB(item,"테스트"));										//상품명(최대 1000자) : 여러 상품의 경우 구분자 이용, 구분자('||':파이프 2개)
-		reqHm.put("allat_zerofee_yn"        , "N");																	//일반/무이자 할부 사용 여부(최대 1자) : 일반(N), 무이자 할부(Y)
-		reqHm.put("allat_buyer_nm"          , CommonUtil.nToB(response.pay.payerName,"구매자"));						//결제자성명(최대 20자)
-		reqHm.put("allat_recp_name"         , CommonUtil.nToB(response.pay.payerName,"수취인"));						//수취인성명(최대 20자)
-		reqHm.put("allat_recp_addr"         , ""     );																//수취인주소(최대 120자)
-		reqHm.put("allat_user_ip"           , "Unknown"      );														//결제자 IP(최대15자):BuyerIp를 넣을수 없다면 "Unknown"으로 세팅
-		reqHm.put("allat_email_addr"        , CommonUtil.nToB(response.pay.payerEmail,"bukook@bkwinners.com"));		//결제자 이메일 주소(50자)	
-
-		reqHm.put("allat_pay_type"          , "NOR"          );  //수정금지(결제방식 정의)
-		//	    reqHm.put("allat_test_yn"           , "Y"            );  //테스트 :Y, 서비스 :N
-		reqHm.put("allat_opt_pin"           , "NOUSE"        );  //수정금지(올앳 참조 필드)
-		reqHm.put("allat_opt_mod"           , "APP"          );  //수정금지(올앳 참조 필드)
-
-		String szAllatEncData = "";
-		String szReqMsg = "";
-
-		szAllatEncData=setValue(reqHm);
-		szReqMsg  = "allat_shop_id="   + sShopId
-				+ "&allat_amt="      + CommonUtil.toString(response.pay.amount)
-				+ "&allat_enc_data=" + szAllatEncData
-				+ "allat_cross_key="+ sCrossKey;
-
-		//KJM : 서버와 통신하여 데이터 송수신한다.
-		HashMap<String, Object> resHm = approvalReq(szReqMsg, "SSL");
-
-		String sReplyCd   = (String)resHm.get("reply_cd");
-		String sReplyMsg  = (String)resHm.get("reply_msg");
+	    HashMap<String, Object> resHm = approvalReq(szReqMsg, "SSL");
+	    
+	    String sReplyCd   = (String)resHm.get("reply_cd");
+	    String sReplyMsg  = (String)resHm.get("reply_msg");
 
 		/* 결과값 처리
 		--------------------------------------------------------------------------

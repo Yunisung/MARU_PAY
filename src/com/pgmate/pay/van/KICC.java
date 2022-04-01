@@ -28,10 +28,10 @@ public class KICC implements Van{
      ****************************************************************************/
 	static final String TRAN_CD_NOR_MGR        = "00201000";   					// 처리구분 취소(일반, 에스크로)
 	
-    static final String CERT_FILE              = "/home/MARU/MARU_PAY/cert";	//운영
+    static final String CERT_FILE              = "/home/bkwinners/MARU/MARU_PAY/cert";	//운영
 	//static final String CERT_FILE              = "/home/MARU/MARU_PAY/cert";	//테스트
 	
-	static final String LOG_DIR              = "/home/MARU/MARU_PAY/logs/KICC"; 				//운영
+	static final String LOG_DIR              = "/home/bkwinners/MARU/MARU_PAY/logs/KICC"; 				//운영
 	//static final String LOG_DIR                = "/home/MARU/MARU_PAY/logs/KICC"; 				//테스트
 	static final int LOG_LEVEL                 = 99;						//1:INFO모드 99:DEBUG모드
 	

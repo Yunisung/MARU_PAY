@@ -9,15 +9,13 @@ var MARU = (function (win, doc) {
     webhookUrl: '',
     widgetLogoUrl: '',
     mode: 'layer',
-    debugMode: 'live'
+    debugMode: 'sandbox'
   }
 
   /* GLOBAL */
   var routeUrls = {
-    //sandbox: 'https://svcapidev.mtouch.com',
-    //live: 'https://svcapi.mtouch.com'
-    sandbox: 'http://127.0.0.1:10002',
-    live: 'http://127.0.0.1:10002'
+    sandbox: 'https://devapi.bkwinners.kr',
+	live: 'https://api.bkwinners.kr'
   }
   var routeDomain = routeUrls[c3Config.debugMode];
   var layerInited = false;            // 레이어 생성이 완료되었는지

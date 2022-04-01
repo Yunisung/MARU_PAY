@@ -264,8 +264,9 @@ function openPayment(config) {
     util.postAjax(widgetUri, JSON.stringify({
         'widget': config.c3Config
     }), function(res) {
-        console.log(res);
+        console.log('openPayment res : ', res);
         if (res.result.resultCd == '0000') {
+			console.log('url : ', window.location.protocol + "//" + window.location.host + res.widget.routeUrl);
             var url = window.location.protocol + "//" + window.location.host + res.widget.routeUrl;
             ServerUtil.resizeWindow(res);
 			console.log("mod :: " + config.c3Config.mode);

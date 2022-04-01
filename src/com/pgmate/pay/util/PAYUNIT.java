@@ -9,8 +9,8 @@ import com.pgmate.lib.util.map.SharedCacheMap;
 public class PAYUNIT {
 
 	
-	public static final String PAY_HOST_LIVE 		= "api.bkwinners.kr";		// 운영서버 도메인주소 기입
-	public static final String PAY_HOST_DEV 		= "127.0.0.1:10002";	// 개발서버 도메인주소 기입
+	public static final String PAY_HOST_LIVE 		= "api.bkwinners.kr";
+	public static final String PAY_HOST_DEV 		= "devapi.bkwinners.kr.";
 	
 	public static final String PAY_DATE 			= "yyyyMMddHHmmss";
 	

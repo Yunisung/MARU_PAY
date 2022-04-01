@@ -465,7 +465,7 @@ var MARU = (function(win, doc) {
         var token = window.location.search.split('=')[1];
         getConfigByToken(token, function(res) {
             MARUConfig = JSON.parse(res.target.responseText).widget;
-            //console.log('TOKEN RESULT  ', MARUConfig);
+            console.log('TOKEN RESULT  ', MARUConfig);
             setForm(MARUConfig);
             util.loadImg('c3-logo-img', MARUConfig.widgetLogoUrl, MARUConfig.nick);
             document.getElementById('card').focus();
