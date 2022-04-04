@@ -15,6 +15,7 @@ import com.pgmate.pay.van.Danal;
 import com.pgmate.pay.van.Daou;
 import com.pgmate.pay.van.DemoVan;
 import com.pgmate.pay.van.Firstpay;
+import com.pgmate.pay.van.Galaxia;
 import com.pgmate.pay.van.KICC;
 import com.pgmate.pay.van.Kspay;
 import com.pgmate.pay.van.Nice;
@@ -79,6 +80,8 @@ public class ProcRefund extends Proc {
 			van = new KICC(vanMap);
 		}else if(trxMap.startsWith("van", "SPC")){
 			van = new SPC(vanMap);
+		}else if(trxMap.startsWith("van", "GALAXIA")){
+			van = new Galaxia(vanMap);
 		}else{
 			trxMap.put("van","DEFAULT");
 			van = new DemoVan(vanMap);
