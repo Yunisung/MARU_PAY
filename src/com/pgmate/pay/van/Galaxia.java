@@ -123,6 +123,8 @@ public class Galaxia implements Van{
 		if(taxAmount != null)			requestMsg.put("5304", taxAmount);
 		if(taxFreeAmount != null)		requestMsg.put("5305", taxFreeAmount);
 		
+		logger.info("Galaxia requestMsg : {}",requestMsg);
+		
 		ServiceBroker sb = new ServiceBroker(configLoad , ServiceCode.CREDIT_CARD);
 		responseMsg = sb.invoke(requestMsg);
 		
