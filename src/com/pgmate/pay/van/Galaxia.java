@@ -31,10 +31,10 @@ public class Galaxia implements Van{
 	public static final String MAIN_SERVER_IP = "222.122.229.247";
 	public static final String TEST_SERVER_IP = "222.122.28.70";
 	public static final String configLoad = PropertyUtil.getCyrexConf()+File.separator+"galaxiaconfig.ini";
-	
+
 	private String VAN = "";
 	private String VANID = "";
-	
+
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		//GalaxiaCipher cipher = getCipher("ssss");
@@ -184,7 +184,7 @@ public class Galaxia implements Van{
 		if(today.get(Calendar.MINUTE) < 10) minute = "0" + minute ;	
 		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;
 		
-		String serviceId = "S1600881"; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
+		String serviceId = VANID; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
 		String orderDate = year + month + date + hour + minute + second ; 					//[필수]주문일시
 		String orderId = "test_" + orderDate ;  											//[필수] 주문번호
 		String userId = sharedMap.getString(PAYUNIT.MCHTID); 								//고객아이디
@@ -314,7 +314,7 @@ public class Galaxia implements Van{
 		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;
 		
 		//취소 요청 파라메터
-		String serviceId = "S1600881" ; 									//수기결제용 테스트 아이디 
+		String serviceId = VANID; 									//수기결제용 테스트 아이디 S1600881
 		String orderDate = year + month + date + hour + minute + second ; 	//취소 요청일시
 		String orderId = "cancel_" + orderDate ;  							//취소 요청번호
 		String rootTransactionId = payMap.getString("vanTrxId");			// 취소 대상건의 거래번호
