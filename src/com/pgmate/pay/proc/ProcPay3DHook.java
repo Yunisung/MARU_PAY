@@ -10,9 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.galaxia.api.MessageTag;
-import com.galaxia.api.ServiceCode;
-import com.galaxia.api.cashreceipt.ServiceBroker;
-import com.galaxia.api.crypto.GalaxiaCipher;
 import com.galaxia.api.merchant.Message;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -33,7 +30,7 @@ import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.util.KspayUtil;
 import com.pgmate.pay.util.PAYUNIT;
 import com.pgmate.pay.util.TemplateUtil;
-import com.pgmate.pay.van.GalProcess;
+import com.pgmate.pay.van.Galaxia;
 import com.pgmate.pay.van.Kspay3D;
 
 import io.vertx.ext.web.RoutingContext;
@@ -223,10 +220,8 @@ public class ProcPay3DHook extends Proc {
 		// galpqy 통신 후 결제 정보 값 넣어줌  
 		SharedMap<String,Object> requestMap = parseQueryString(sharedMap.getString(PAYUNIT.PAYLOAD));
 		
+		//갤럭시아 모듈 사용하여 승인정보 가져와 requestMap에 세팅
 		setGalMessage(requestMap);
-		
-		//a : trxId , b = widgetKey , c : tmnId 
-		String cid		= requestMap.getString("reCommConId");
 		
 		logger.info("reCommType : [{}]",requestMap.getString("reCommType"));	//[WH]
 		logger.info("reHash : [{}]",requestMap.getString("reHash"));
@@ -257,7 +252,8 @@ public class ProcPay3DHook extends Proc {
 			if(cardLen > 14){
 				ioMap.put("last4", requestMap.getString("pinNum").substring(cardLen-4, cardLen));
 			}
-			
+		
+		//인증 실패 시
 		} else {
 			ioMap.put("vanResultCd","XXXX");
 			ioMap.put("vanResultMsg","거래정보 미확인");
@@ -272,6 +268,7 @@ public class ProcPay3DHook extends Proc {
 			int cardLen = requestMap.getString("pinNum").length();
 			
 			ioMap.put("card", requestMap.getString("pinNum"));
+			
 			//KJM : 6자리 이상일 경우 bin 정보 세팅
 			if(cardLen > 6){
 				ioMap.put("bin", requestMap.getString("pinNum").substring(0, 6));
@@ -282,16 +279,21 @@ public class ProcPay3DHook extends Proc {
 			}
 		}
 		
+		//승인일자
 		if(ioMap.isNullOrSpace("vanResultDate")){
 			ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		}
 	}
 	
+	//갤럭시아 결제 승인정보 사용하여 map 세팅 22.04.01
 	private void setGalMessage(SharedMap<String,Object> requestMap) throws Exception {
-		GalProcess gp = new GalProcess();
+		Galaxia gp = new Galaxia();
+		
+		//req, res 정보는 갤럭시아 통신 시 쌓이는 로그에서 확인 가능
 		Message resMsg = gp.linkAuthProcess(requestMap);
 		Message reqMsg = gp.getReqMsg(requestMap);
 		
+		//가져온 정보를 map에 세팅
 		requestMap.put("pinNum", reqMsg.get(MessageTag.PIN_NUMBER));
 		requestMap.put("authNum", resMsg.get(MessageTag.AUTH_NUMBER));
 		requestMap.put("vanTrxId", resMsg.get(MessageTag.TRANSACTION_ID));
@@ -400,6 +402,7 @@ public class ProcPay3DHook extends Proc {
 		} 
 	}
 	
+	//갤럭시아 결제 시 카드 정보 세팅 후 결제 내역 테이블에 추가 22.04.01
 	private void setGalTrx(SharedMap<String,Object> ioMap) {
 		
 		//pg_trx_io_3d 테이블에 있던 reqJson(결제요청 정보) 가져옴 

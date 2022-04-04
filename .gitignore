@@ -6,3 +6,4 @@ conf/service.json
 .classpath
 conf/logback.xml
 
+conf/config.ini

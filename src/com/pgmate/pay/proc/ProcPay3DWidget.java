@@ -371,6 +371,8 @@ public class ProcPay3DWidget extends Proc {
 		
 		request.widget.put("target", "GALAXIA");
 		request.widget.put("targetMethod", "POPUP");
+		
+		//van의 결제모듈 url 설정
 		if(request.widget.isEquals("device", "mobile")){
 			request.widget.put("targetUrl", "http://tpay.billgate.net/credit/smartphone/certify.jsp");
 		}else{
