@@ -65,8 +65,6 @@ public class ProcPay extends Proc {
 		logger.info("VAN: {}, VAN ID: {}", mchtTmnMap.getString("van"), tmnVanMap.getString("vanId"));
 		
 		//KJM : 카드번호가 4242...이면 van = default (데모) 설정
-		System.out.println("request.pay.card.number : " + request.pay.card.number);
-		System.out.println("mchtTmnMap.getString : " + mchtTmnMap.getString("van"));
 		if(request.pay.card.number.equals("4242424242424242")){
 			mchtTmnMap.put("van","DEFAULT");
 		}
@@ -274,8 +272,6 @@ public class ProcPay extends Proc {
 			sharedMap.put(PAYUNIT.KEY_CARD, GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 		
-		
-		//KJM : 
 		sharedMap.put(PAYUNIT.KEY_PROD, GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
 		
 		//KJM : card.encTrackI가 빈값일 경우

@@ -83,7 +83,7 @@ public class ProcPay3DHook extends Proc {
 		//van이 galaxia인 요청의 경우 22.03.31
 		} else if(initial[0].startsWith("GALAXIA")) {
 			//db에 저장할 정보 설정
-			galpay();
+			galaxiaPay();
 		}
 		
 		String redirectUrl = null;
@@ -107,7 +107,7 @@ public class ProcPay3DHook extends Proc {
 			
 		//van이 galaxia인 요청의 경우 22.03.31
 		} else if(initial[0].startsWith("GALAXIA")) {
-			setGalTrx(ioMap);
+			setGalaxiaTrx(ioMap);
 		}
 		
 		//KJM : 운영체제에 맞는 html 생성 후 파라미터 이용해 내용 세팅 (진행 중 팝업)
@@ -216,12 +216,12 @@ public class ProcPay3DHook extends Proc {
 	}
 	
 	//galpay 결제 승인 정보 세팅 22.03.31
-	public void galpay() throws Exception {
+	public void galaxiaPay() throws Exception {
 		// galpqy 통신 후 결제 정보 값 넣어줌  
 		SharedMap<String,Object> requestMap = parseQueryString(sharedMap.getString(PAYUNIT.PAYLOAD));
 		
 		//갤럭시아 모듈 사용하여 승인정보 가져와 requestMap에 세팅
-		setGalMessage(requestMap);
+		setGalaxiaMessage(requestMap);
 		
 		logger.info("reCommType : [{}]",requestMap.getString("reCommType"));	//[WH]
 		logger.info("reHash : [{}]",requestMap.getString("reHash"));
@@ -286,7 +286,7 @@ public class ProcPay3DHook extends Proc {
 	}
 	
 	//갤럭시아 결제 승인정보 사용하여 map 세팅 22.04.01
-	private void setGalMessage(SharedMap<String,Object> requestMap) throws Exception {
+	private void setGalaxiaMessage(SharedMap<String,Object> requestMap) throws Exception {
 		Galaxia gp = new Galaxia();
 		
 		//req, res 정보는 갤럭시아 통신 시 쌓이는 로그에서 확인 가능
@@ -403,7 +403,7 @@ public class ProcPay3DHook extends Proc {
 	}
 	
 	//갤럭시아 결제 시 카드 정보 세팅 후 결제 내역 테이블에 추가 22.04.01
-	private void setGalTrx(SharedMap<String,Object> ioMap) {
+	private void setGalaxiaTrx(SharedMap<String,Object> ioMap) {
 		
 		//pg_trx_io_3d 테이블에 있던 reqJson(결제요청 정보) 가져옴 
 		SharedMap<String,Object> widgetMap = new GsonBuilder().create().fromJson(ioMap.getString("reqJson"), new TypeToken<SharedMap<String, Object>>(){}.getType());

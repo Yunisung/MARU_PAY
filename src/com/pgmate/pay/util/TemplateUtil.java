@@ -35,7 +35,7 @@ public class TemplateUtil {
 		.putHeader(HttpHeaders.CACHE_CONTROL, "no-store")	//아무것도 캐싱하지 않음
 		.putHeader(HttpHeaders.EXPIRES, "-1")				//응답 컨텐츠 만료시간
 		.putHeader(HttpHeaders.CONNECTION, "close")			//연결 종료
-		.putHeader(HttpHeaders.SERVER, "MTouch")
+		.putHeader(HttpHeaders.SERVER, "CREDITOP")
 		.write(sb.toString()).end();
 	}
 	
@@ -98,7 +98,7 @@ public class TemplateUtil {
 		.putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
 		.putHeader(HttpHeaders.EXPIRES, "-1")
 		.putHeader(HttpHeaders.CONNECTION, "close")
-		.putHeader(HttpHeaders.SERVER, "MTouch")
+		.putHeader(HttpHeaders.SERVER, "CREDITOP")
 		.write(sb.toString()).end();
 	}
 	
@@ -133,7 +133,7 @@ public class TemplateUtil {
 		.putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
 		.putHeader(HttpHeaders.EXPIRES, "-1")
 		.putHeader(HttpHeaders.CONNECTION, "close")
-		.putHeader(HttpHeaders.SERVER, "MTouch")
+		.putHeader(HttpHeaders.SERVER, "CREDITOP")
 		.write(sb.toString()).end();
 	}
 	
@@ -168,7 +168,7 @@ public class TemplateUtil {
 		.putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
 		.putHeader(HttpHeaders.EXPIRES, "-1")
 		.putHeader(HttpHeaders.CONNECTION, "close")
-		.putHeader(HttpHeaders.SERVER, "MTouch")
+		.putHeader(HttpHeaders.SERVER, "CREDITOP")
 		.write(sb.toString()).end();
 	}
 
@@ -202,7 +202,7 @@ public class TemplateUtil {
 		.putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
 		.putHeader(HttpHeaders.EXPIRES, "-1")
 		.putHeader(HttpHeaders.CONNECTION, "close")
-		.putHeader(HttpHeaders.SERVER, "MTouch")
+		.putHeader(HttpHeaders.SERVER, "CREDITOP")
 		.write(sb.toString()).end();
 	}
 	  
@@ -237,7 +237,7 @@ public class TemplateUtil {
 		.putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
 		.putHeader(HttpHeaders.EXPIRES, "-1")
 		.putHeader(HttpHeaders.CONNECTION, "close")
-		.putHeader(HttpHeaders.SERVER, "MTouch")
+		.putHeader(HttpHeaders.SERVER, "CREDITOP")
 		.write(sb.toString()).end();
 	}
 }

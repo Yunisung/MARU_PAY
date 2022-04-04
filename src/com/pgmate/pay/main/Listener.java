@@ -99,10 +99,6 @@ public class Listener extends RouteWorker {
 		//11. HANDLER 
 		// PYS : /js/* 로 접근했을경우 jsHandler에서 처리한다
 		router.route(PAYUNIT.ROUTE_JS).handler(this::jsHandler).failureHandler(fc -> {
-			
-			System.out.println("[fc.request().uri()]  : " + fc.request().uri());
-			System.out.println("[fc] : " + fc);
-			
 			if (fc.statusCode() == 404) {
 				logger.debug("{} not found ", fc.request().uri());
 			} else {
@@ -131,20 +127,17 @@ public class Listener extends RouteWorker {
 	
 	//KJM : /api/* 요청 기능 수행
 	private void apiHandler(RoutingContext rc) {
-		System.out.println("apiHandler : " + rc.request().uri() );
 		log(rc);
 		new Api().apiHandler(rc);
 	}
 
 	private void formHandler(RoutingContext rc) {
-		System.out.println("formHandler : " + rc.request().uri() );
 		log(rc);
 		new Form().formHandler(rc);
 	}
 	
 	// KBR : 수기결제 form화면 로드 시 이쪽으로 맵핑
 	private void jsHandler(RoutingContext rc) {
-		System.out.println("jsHandler : " + rc.request().uri() );
 		log(rc);
 		new Js().jsHandler(rc);
 	}

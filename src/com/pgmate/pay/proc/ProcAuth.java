@@ -36,11 +36,7 @@ public class ProcAuth extends Proc {
 		set(rc,request,sharedMap,sharedObject);
 		
 		response.auth = request.auth;
-		
-		String req = GsonUtil.toJsonExcludeStrategies(request,true);
-		
-		VertXMessage.set200(rc, req);
-		
+
 		// KBR : 결과 값 없을 때
 		if(response.result != null){
 			if(response.auth.card != null) {	

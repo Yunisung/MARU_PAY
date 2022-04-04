@@ -48,8 +48,6 @@ public class Js {
 	
 	// KBR : 수기결제 화면 요청 시 맵핑
 	public void jsHandler(RoutingContext rc){
-		System.out.println("[getMethod] :" + VertXUtil.getMethod(rc));
-		
 		// 널 체크 ( 널이면 "" 처리)
 		String uri = CommonUtil.nToB(rc.request().uri()); // KBR : /js/clientside.js
 		// 쿼리스트링이 있을 경우 
