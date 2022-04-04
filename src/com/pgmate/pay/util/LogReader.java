@@ -17,6 +17,7 @@ import com.pgmate.lib.util.lang.CommonUtil;
  * @author Administrator
  *
  */
+//KJM : 호출하는 곳이 없음...
 public class LogReader {
 
 	/**
@@ -26,7 +27,11 @@ public class LogReader {
 		// TODO Auto-generated constructor stub
 	}
 	
-	
+	/**
+	 * PYS : 로그파일 읽어와서 DB에 저장
+	 * @param filePath
+	 */
+	//KJM : 로그파일 추출
 	public void getLog(String filePath){
 		
 		List<String> list = new ArrayList<String>();
@@ -43,14 +48,11 @@ public class LogReader {
 							System.out.println(start+","+end);
 							System.out.println(str.substring(start,end));
 							list.add(str.substring(start,end));
-							
 						}
-						
 					}
 				}
 			}
 			in.close();
-			
 			
 			insertLog(list);
 		}catch (IOException e) {
@@ -64,7 +66,7 @@ public class LogReader {
 		
 	}
 	
-	
+	//KJM : 추출한 로그파일 db insert
 	public int insertLog(List<String> insertLog){
 		int inserted = 0;
 	

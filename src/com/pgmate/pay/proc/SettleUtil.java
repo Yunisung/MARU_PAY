@@ -2,7 +2,6 @@ package com.pgmate.pay.proc;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.GregorianCalendar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,7 +184,7 @@ public class SettleUtil {
 	
 	public static String getSettleDay(String settleType,String today){
 		String currentDay = CommonUtil.getCurrentDate("yyyyMMdd");
-
+	
 		int term = 1;
 		if(settleType.startsWith("D")){
 			term = CommonUtil.parseInt(settleType.replaceAll("D[+]", ""));

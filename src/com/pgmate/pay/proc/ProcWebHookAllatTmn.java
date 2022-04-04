@@ -1,5 +1,7 @@
 package com.pgmate.pay.proc;
 
+import io.vertx.ext.web.RoutingContext;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
@@ -20,11 +22,10 @@ import com.pgmate.lib.util.regex.Validator;
 import com.pgmate.lib.vertx.main.VertXMessage;
 import com.pgmate.pay.bean.Card;
 import com.pgmate.pay.dao.TrxDAO;
+import com.pgmate.pay.proc.subpg.PGWebHook;
 import com.pgmate.pay.util.AllatUtil;
 import com.pgmate.pay.util.PAYUNIT;
 import com.pgmate.pay.util.SmsGw;
-
-import io.vertx.ext.web.RoutingContext;
 
 /**
  * @author Administrator
@@ -40,14 +41,15 @@ public class ProcWebHookAllatTmn {
 	private SharedMap<String, Object> mchtTmnMap = null;
 	private SharedMap<String, Object> mchtMap = null;
 	private SharedMap<String, Object> trxMap  = null;
-	private SharedMap<String, Object> vanMap  = null;
+    private SharedMap<String, Object> vanMap  = null;
 	private SharedMap<String, Object> whMap = new SharedMap<String, Object>();
 
 	private String response = "Fail";
 	private String resMsg = "";
 	private TrxDAO trxDAO = new TrxDAO();
 	private boolean retry = false;
-	private SmsGw smsGw = null;
+    private SmsGw smsGw = null;
+	
 
 	public ProcWebHookAllatTmn() {
 	}
@@ -56,17 +58,17 @@ public class ProcWebHookAllatTmn {
 		try {
 			this.rc = rc;
 			this.sharedMap = sharedMap;
-			smsGw = new SmsGw();
-			
+            smsGw = new SmsGw();
+
 			if(sharedMap.getString(PAYUNIT.URI).indexOf("/retry") > -1) {
 				retry = true;
 				logger.info("===== 거래 재실행");
 			}
-			
+
 			whMap.put("orgData", sharedMap.getString(PAYUNIT.PAYLOAD));
-//			whMap.put("van", sharedMap.getString("van"));
+			//		whMap.put("van", sharedMap.getString("van"));
 			parseAllat();
-			
+
 			whMap.put("trxId", sharedMap.getString("trxId"));
 
 			// sign이 - 이면  취소
@@ -75,16 +77,16 @@ public class ProcWebHookAllatTmn {
 			} else {
 				requestMap.put("REQ_TYPE", "PAY");
 			}
-			
+
 			logger.debug("REQ_TYPE: "+requestMap.getString("REQ_TYPE"));
-			
+
 			whMap.put("trxType", requestMap.getString("REQ_TYPE"));
 			whMap.put("reqData", requestMap.toJson());
 			whMap.put("vanId", requestMap.getString("shop_id"));
 			whMap.put("vanTrxId", requestMap.getString("tx_seq_no"));
-			
+
 			vanMap = trxDAO.getVanByVanId2("ALLAT", requestMap.getString("shop_id"));
-			
+
 			if(vanMap==null){
 				whMap.put("van", "ALLAT");
 				logger.info("VAN 설정되지 않은 터미널ID | TERMINALID : {}", requestMap.getString("product_cd"));
@@ -93,29 +95,30 @@ public class ProcWebHookAllatTmn {
 				setResponse();
 				return;
 			}
-			
+
 			if(!valid()) {
 				response = "Fail|" + resMsg;
 				setResponse();
 				return;
 			}
+
 			response = "OK";
 			whMap.put("tmnId", mchtTmnMap.getString("tmnId"));
-			
+
 			// 공통 사항
-			
+
 			sharedMap.put("trxType"			, "WHTR");
 			sharedMap.put("tmnId"			, mchtTmnMap.getString("tmnId"));
 			sharedMap.put(PAYUNIT.MCHTID	, mchtTmnMap.getString(PAYUNIT.MCHTID));
 			sharedMap.put("trackId" 		, requestMap.getString("order_no"));
-			
+
 			sharedMap.put("van", whMap.getString("van"));
 			sharedMap.put("vanId", requestMap.getString("shop_id"));        
 			sharedMap.put("vanTrxId", requestMap.getString("tx_seq_no"));     
 			sharedMap.put("vanResultCd", "0000");  
 			sharedMap.put("vanResultMsg", "정상");
 			sharedMap.put("amount", requestMap.getString("amt"));
-			
+
 			if(requestMap.getString("REQ_TYPE").equals("REFUND")) { // valid 에서 만든 값
 				SharedMap<String, Object> adminRfd = trxDAO.getAdminRfdByVanTrxId(requestMap.getString("tx_seq_no"));
 				boolean isAdminRfd = false;
@@ -124,35 +127,33 @@ public class ProcWebHookAllatTmn {
 					trxDAO.updateAdminRfd(adminRfd.getString("idx"), sharedMap.getString("trxId"), CommonUtil.nToB(requestMap.getString("RETURNCODE")));
 					isAdminRfd = false;
 				}
-				
+
 				if(CommonUtil.isNullOrSpace(requestMap.getString("cancel_ymdhms"))) {
 					logger.debug("CANCEL_TRN_DATE OR TIME IS NULL");
 					sharedMap.put(PAYUNIT.REG_DATE, CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 				} else {
 					sharedMap.put(PAYUNIT.REG_DATE, requestMap.getString("cancel_ymdhms"));
 				}
-				
+
 				refund(isAdminRfd);
 			} else {
 				sharedMap.put(PAYUNIT.REG_DATE, requestMap.getString("approval_ymdhms"));
-				
+
 				pay();
 			}
-			
+
 			setResponse();
+
 		} catch(Exception ex) {
-			//String msgBody = "[TEST]ALLAT 거래번호 [" + requestMap.getString("tx_seq_no") + "], " + "ALLAT 상점아이디 [" + requestMap.getString("shop_id") + "], " + "광원 거래번호 [" + sharedMap.getString("trxId") + "] " + "기준정보 확인요망";
-			
 			String msgBody = "ALLAT 거래번호 [" + requestMap.getString("tx_seq_no") + "], " + "ALLAT 상점아이디 [" + requestMap.getString("shop_id") + "], " + "광원 거래번호 [" + sharedMap.getString("trxId") + "] " + "기준정보 확인요망";
-			
+
 			logger.info("ProcWebHookAllatTmn exception : {}, {}", msgBody, ex.getMessage());
-			
+
 			smsGw.sendMessage("0", "1", msgBody);
-			
+
 			setResponse();
 			return;
 		}
-		
 		return;
 	}
 	
@@ -241,10 +242,10 @@ public class ProcWebHookAllatTmn {
 				resMsg = "VAN 설정되지 않은 터미널ID | TERMINALID :" +requestMap.getString("product_cd");
 				return false;
 			}
-			whMap.put("van", vanMap.getString("van"));
+            whMap.put("van", vanMap.getString("van"));
 			
-			if (trxDAO.isDuplicatedPAYVanTrxIdByVanId(requestMap.getString("shop_id"),requestMap.getString("tx_seq_no"))) {
-				logger.info("중복된 VAN 거래번호 TRX_PAY => {}", requestMap.getString("tx_seq_no"));
+            if (trxDAO.isDuplicatedPAYVanTrxIdByVanId(requestMap.getString("shop_id"),requestMap.getString("tx_seq_no"))) {
+				logger.info("중복된 VAN 거래번호 TRX_RES => {}", requestMap.getString("tx_seq_no"));
 				resMsg = "중복된 VAN 거래번호 =>" +requestMap.getString("tx_seq_no");
 				return false;
 			}
@@ -263,6 +264,7 @@ public class ProcWebHookAllatTmn {
 			}
 
 			mchtTmnMap = trxDAO.getMchtTmnByTmnId(trxMap.getString("tmnId"));
+			
 
 			if (mchtTmnMap == null || mchtTmnMap.isEmpty()) {
 				whMap.put("van", "ALLAT");
@@ -271,9 +273,9 @@ public class ProcWebHookAllatTmn {
 				return false;
 			}
 
-			whMap.put("van", vanMap.getString("van"));
+            whMap.put("van", vanMap.getString("van"));
 			
-			if (trxDAO.isDuplicatedRFDVanTrxIdByVanId(requestMap.getString("shop_id"),requestMap.getString("tx_seq_no"))) {
+	        if (trxDAO.isDuplicatedRFDVanTrxIdByVanId(requestMap.getString("shop_id"),requestMap.getString("tx_seq_no"))) {
 				logger.info("중복된 VAN 거래번호 TRX_RFD=> {}", requestMap.getString("tx_seq_no"));
 				resMsg = "중복된 VAN 거래번호 =>" +requestMap.getString("tx_seq_no");
 				return false;
@@ -306,10 +308,10 @@ public class ProcWebHookAllatTmn {
 			
 			sharedMap.put("rootTrxId", trxMap.getString("trxId"));
 			
-			//부분취소금액
-			sharedMap.put("rfdAmount", requestMap.getLong("amt") - requestMap.getLong("remain_amt"));
-			logger.info("REFUND_AMOUNT: {}",sharedMap.getLong("rfdAmount"));
-			
+            //부분취소금액
+            sharedMap.put("rfdAmount", requestMap.getLong("amt") - requestMap.getLong("remain_amt"));
+            logger.info("REFUND_AMOUNT: {}",sharedMap.getLong("rfdAmount"));
+            
 			//원거래 취소 확인
 			SharedMap<String,Object> rfdMap = trxDAO.getTrxRfdByTrxId(trxMap.getString("trxId"));
 			if(rfdMap != null && !trxMap.isEmpty()){
@@ -329,13 +331,13 @@ public class ProcWebHookAllatTmn {
 				return false;
 			}
 			
-			if(-refundedAmount+ sharedMap.getLong("rfdAmount") > trxMap.getLong("amount") ){
+	        if(-refundedAmount+ sharedMap.getLong("rfdAmount") > trxMap.getLong("amount") ){
 				logger.info("취소요청금액이 원거래금액보다 큽니다.");
 				resMsg = "취소요청금액이 원거래금액보다 큽니다.";
 				return false;
 			}
 			
-			if(sharedMap.getLong("rfdAmount") == trxMap.getLong("amount")){
+            if(sharedMap.getLong("rfdAmount") == trxMap.getLong("amount")){
 				sharedMap.put("rfdAll", "전액");
 			}else{
 				sharedMap.put("rfdAll", "부분");
@@ -350,15 +352,15 @@ public class ProcWebHookAllatTmn {
 			sharedMap.put(PAYUNIT.KEY_CARD, GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
 			sharedMap.put(PAYUNIT.KEY_PROD, GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
 			
-			// noti 전문에 card_no 값이 있을경우 - 20200818
-			if(!requestMap.isNullOrSpace("card_no")) {
-				requestMap.put("card_no", requestMap.getString("card_no").replace("-", ""));
-			}else {
-				// 올앳 영수증조회로 카드번호 가져오기 - 20181219
-				AllatUtil allatUtil = new AllatUtil();
-				SharedMap<String, Object> vanIdMap = trxDAO.getVanByVanId(mchtTmnMap.getString("van"), requestMap.getString("shop_id"));
-				requestMap.put("card_no",allatUtil.getCard(vanIdMap.getString("vanId"), vanIdMap.getString("cryptoKey"), requestMap.getString("order_no"), requestMap.getString("amt")));
-			}
+            // noti 전문에 card_no 값이 있을경우 - 20200818
+            if(!requestMap.isNullOrSpace("card_no")) {
+                requestMap.put("card_no", requestMap.getString("card_no").replace("-", ""));
+            }else {
+	            // 올앳 영수증조회로 카드번호 가져오기 - 20181219
+	            AllatUtil allatUtil = new AllatUtil();
+	            SharedMap<String, Object> vanIdMap = trxDAO.getVanByVanId(mchtTmnMap.getString("van"), requestMap.getString("shop_id"));
+	            requestMap.put("card_no",allatUtil.getCard(vanIdMap.getString("vanId"), vanIdMap.getString("cryptoKey"), requestMap.getString("order_no"), requestMap.getString("amt")));
+            }
 			logger.info("card_no  : {}",requestMap.getString("card_no"));
 			
 			if (!CommonUtil.isNullOrSpace(requestMap.getString("card_no"))) {
@@ -470,22 +472,22 @@ public class ProcWebHookAllatTmn {
 		return issuer;
 	}
 	
-	
-	
+	//KJM : data map에 노티에 있는 값들을 넣어준다
 	public HashMap<String,String> parseQueryString(String str){
 		HashMap<String,String> data = new HashMap<String,String>();
+		//KJM : 노티값에 &을 기준으로 자른다
 		String[] st = str.split("&");
-
+		
 		for (int i = 0; i < st.length; i++) {
+			//KJM : "="이 있으면 값이 있는것. ex_ http://url.com&data=1
 			int index = st[i].indexOf('=');
+			//KJM : 값들을 data에 넣어준다
 			if (index > 0)
 				data.put(st[i].substring(0, index), changeCharset(urlDecode(st[i].substring(index + 1)),"utf-8"));
 		}
 		return data;
-
 	}
 	
-
 	private void parseAllat() {
 		
 		String noti = changeCharset(sharedMap.getString(PAYUNIT.PAYLOAD),"EUC-KR");
@@ -497,7 +499,6 @@ public class ProcWebHookAllatTmn {
 			logger.debug("{},{}",elem.getKey(),changeCharset(elem.getValue(),"EUC-KR"));
         }
 	}
-
 	
 	 public String changeCharset(String str, String charset) {
 	        try {
@@ -507,9 +508,6 @@ public class ProcWebHookAllatTmn {
 	        return "";
 	    }
 	
-	
-	
-
 	/*
 	 *  urlDecode
 	 */

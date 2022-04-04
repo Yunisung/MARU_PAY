@@ -36,11 +36,12 @@ public abstract class Proc {
 	protected RoutingContext rc							= null;
 	
 	
-	public abstract void exec(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap,SharedMap<String,SharedMap<String,Object>> sharedObject);
+	public abstract void exec(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap,SharedMap<String,SharedMap<String,Object>> sharedObject) throws Exception;
 	public abstract void valid();
 	
 	
 	protected void set(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap,SharedMap<String,SharedMap<String,Object>> sharedObject){
+		
 		this.rc					= rc;
 		this.request			= request;
 		this.sharedMap          = sharedMap;
@@ -52,9 +53,7 @@ public abstract class Proc {
 		
 		logger.info("MCHT_NAME : {}",mchtMap.getString("name"));
 		
-		
-		
-		
+		//PYS : 가맹점 수수료가 0.1% 미만이면 정산정보 미설정으로 처리
 		if(mchtMngMap.getDouble("rate") < 0.001){
 			logger.info("mcht mng not set rate : {}",mchtMngMap.getDouble("rate"));
 			response.result = ResultUtil.getResult("9999","설정오류","가맹점 정산 정보 미설정 오류");
@@ -64,7 +63,7 @@ public abstract class Proc {
 		//2018.03.16 WIDGET 반영과 함께 적용 
 		if(sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_GET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_WIDGET )
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_ECHO ) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3D_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_W3D_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3D_MOBILE_WIDGET)
-				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_STATUS) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3DV2_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_SETTLE_BALANCE)){			
+                || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_STATUS) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3DV2_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_SETTLE_BALANCE)){            
 		}else{
 			if(request == null){
 				logger.info("request is null , payLoad : {}",sharedMap.getString(PAYUNIT.PAYLOAD));
@@ -73,28 +72,38 @@ public abstract class Proc {
 			}
 		}
 		
+		//KJM: 사용 상태가 아닐 경우
 		if(!mchtTmnMap.isEquals("status", "사용")){
 			logger.info("mcht tmn is not  : {}",mchtTmnMap.getString("status"));
 			response.result = ResultUtil.getResult("9999","설정오류","사용가능한 터미널이 아닙니다.");
 		}
 		
+		System.out.println("vanIdx :: " + mchtTmnMap.getLong("vanIdx"));
 		if(mchtTmnMap.getLong("vanIdx") == 0){
 			logger.info("mcht tmn vanIdx is not set : {}",mchtTmnMap.getString("vanIdx"));
 			response.result = ResultUtil.getResult("9999","설정오류","라우팅을 찾을 수 없습니다.");
 		}
 		
-
+		// PYS : Proc 클래스를 상속받은 자식클래스에 있는 valid() 실행
 		valid();
 		
 	}
 	
+	/**
+	 * PYS : 카드사 결제결과를 response에 담아서 처리하는 부분
+	 */
 	protected void setResponse(){
 		String res = GsonUtil.toJsonExcludeStrategies(response,true);
+		
+		//KJM : 결제 관련 기능 수행 시에만 서버 통신 이력 추가
 		if(sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_PAY) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_OPEN) 
-				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_PATCH) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH)){
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_PATCH) 
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH)){
+					
 			trxDAO.updateTrxIO(sharedMap,res);
 		}
 		VertXMessage.set200(rc, res);
+		
 		logger.info("estimatedTime : {}",TimeUnit.MILLISECONDS.convert(System.nanoTime()- startTime, TimeUnit.NANOSECONDS));
 		sharedMap 		= null;	
 		mchtTmnMap 		= null;
@@ -104,8 +113,6 @@ public abstract class Proc {
 		response		= null;
 		request			= null;	
 	}
-	
-	
 	
 	public Proc() {
 

@@ -52,28 +52,37 @@ public class ProcWebHook {
 	}
 
 	public void exec(RoutingContext rc,SharedMap<String,Object> sharedMap) {
+		
 		this.rc = rc;
 		this.sharedMap = sharedMap;
 		
+		// KBR : 거래 재시도 
 		if(sharedMap.getString(PAYUNIT.URI).indexOf("/retry/") > -1) {
 			retry = true;
 			logger.info("===== 거래 재실행");
 		}
+		
 		whMap.put("orgData", sharedMap.getString(PAYUNIT.PAYLOAD));
 		whMap.put("van", sharedMap.getString("van"));
+		// KBR : DB에 있는 van 정보 인지 확인 및 정보 값 들고옴 
 		parseDanal();
 		
 		whMap.put("trxId", sharedMap.getString("trxId"));
 		whMap.put("tmnId", requestMap.getString("CATID"));
+		
 		// O_TID 가 있으면 취소 거래로 간주
 		if(!CommonUtil.isNullOrSpace(requestMap.getString("O_TID"))){
 			requestMap.put("REQ_TYPE", "REFUND");
 		} else {
 			requestMap.put("REQ_TYPE", "PAY");
 		}
+		
+		// KBR : 거래유형 
 		whMap.put("trxType", requestMap.getString("REQ_TYPE"));
+		// KBR : Json으로 변환된 form에서 넘어온 데이터
 		whMap.put("reqData", requestMap.toJson());
 		whMap.put("vanId", requestMap.getString("CPID"));
+		// KBR : van 사 거래번호
 		whMap.put("vanTrxId", requestMap.getString("TID"));
 		
 		// 마이너스 값으로 들어온 것 보정
@@ -83,6 +92,7 @@ public class ProcWebHook {
 			}
 		}
 		
+		// KBR : 유효성 검사
 		if(!valid()) {
 			response = "Fail|" + resMsg;
 			setResponse();
@@ -100,11 +110,14 @@ public class ProcWebHook {
 		
 		sharedMap.put("van", "DANAL");
 		sharedMap.put("vanId", requestMap.getString("CPID"));        
-		sharedMap.put("vanTrxId", requestMap.getString("TID"));     
-		sharedMap.put("vanResultCd", CommonUtil.nToB(requestMap.getString("RETURNCODE")));  
+		sharedMap.put("vanTrxId", requestMap.getString("TID"));
+		// KBR : van 사 응답코드
+		sharedMap.put("vanResultCd", CommonUtil.nToB(requestMap.getString("RETURNCODE")));
+		// KBR : van 사 응답메세지
 		sharedMap.put("vanResultMsg", CommonUtil.nToB(requestMap.getString("RETURNMSG")));
 		sharedMap.put("amount", requestMap.getString("AMOUNT"));
 		
+		// KBR : 취소
 		if(requestMap.getString("REQ_TYPE").equals("REFUND")) { // valid 에서 만든 값
 			SharedMap<String, Object> adminRfd = trxDAO.getAdminRfdByVanTrxId(requestMap.getString("TID"));
 			boolean isAdminRfd = false;
@@ -122,13 +135,15 @@ public class ProcWebHook {
 			}
 			
 			refund(isAdminRfd);
+		// KBR : 결제 
 		} else {
 			sharedMap.put(PAYUNIT.REG_DATE, requestMap.getString("TRANDATE") + requestMap.getString("TRANTIME"));
-			
+			// KBR : 결제,실패 체크 후 insert 
 			pay();
 		}
 		
 		setResponse();
+		
 		//20181023 신규 추가 코비네트워크
 		if(whMap.isEquals("vanId","9010036807")){
 			new PGWebHook(requestMap.getString("REQ_TYPE"),sharedMap,trxDAO).start();
@@ -143,14 +158,22 @@ public class ProcWebHook {
 	}
 	
 	private void parseDanal() {
+		
+		// KBR : van사 발급 아이디 
 		String CPID = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_WEBHOOK_DANAL+"/", "");
+		// KBR : van조회 
 		SharedMap<String,Object> vanMap = trxDAO.getVanByVanId("DANAL", CPID);
+		// KBR : vanId , cryptoKey 셋팅
 		Danal danal = new Danal(vanMap);
+		// KBR : 한글 인코딩
 		String urlDecoded = danal.urlDecode(sharedMap.getString(PAYUNIT.PAYLOAD).split("=")[1]);
+		// KBR : 복호화 
 		String decrypted = danal.toDecrypt(danal.urlDecode(urlDecoded));
 		logger.debug("DANAL : [{}]",decrypted);
+		// KBR : 복호화 된 값 key : value 값으로 셋팅
 		HashMap<String,String> danalRequest = danal.parseQueryString(decrypted);
 		
+		// KBR : key : value 인코딩하여 값 셋팅
 		for( HashMap.Entry<String, String> elem : danalRequest.entrySet()){
 			requestMap.put(elem.getKey(), danal.urlDecode(elem.getValue()));
 			logger.debug("{},{}",elem.getKey(),danal.urlDecode(elem.getValue()));
@@ -158,7 +181,9 @@ public class ProcWebHook {
 	}
 	
 	private void pay() {
+		
 		sharedMap.put("installment", requestMap.getString("QUOTA"));
+		// KBR : 결제요청내역 insert
 		trxDAO.insertTrxREQ(sharedMap);
 		
 		sharedMap.put("authCd", CommonUtil.nToB(requestMap.getString("CARDAUTHNO")));
@@ -190,7 +215,10 @@ public class ProcWebHook {
 	}
 	
 	private void refund(boolean isAdminRfd) {
+		
+		// KBR : 결제취소원장 추가
 		trxDAO.insertTrxRFD(sharedMap, trxMap);
+		// KBR : 결제취소원장 수정
 		trxDAO.updateTrxRFD(sharedMap);
 		
 		if (requestMap.getString("RETURNCODE").equals("0000")) {
@@ -234,26 +262,30 @@ public class ProcWebHook {
 		}
 		
 		if(requestMap.getString("REQ_TYPE").equals("PAY")){
+			// KBR :  결재응답내역 조회
 			if (trxDAO.isDuplicatedVanTrxId(sharedMap.getString("van"),requestMap.getString("TID"))) {
 				logger.info("중복된 VAN 거래번호 => {}", requestMap.getString("TID"));
 				resMsg = "중복된 VAN 거래번호 =>" + requestMap.getString("TID");
 				return false;
 			}
 		}else{
+			// KBR : 결제취소내역 조회 
 			if (trxDAO.isDuplicatedRFDVanTrxId(sharedMap.getString("van"),requestMap.getString("TID"))) {
 				logger.info("중복된 VAN 거래번호 => {}", requestMap.getString("TID"));
 				resMsg = "중복된 VAN 거래번호 =>" + requestMap.getString("TID");
 				return false;
 			}
 		}
-		
+		// KBR : 터미널 ID null 이면 
 		if(CommonUtil.isNullOrSpace(requestMap.getString("CATID"))) {
 			logger.debug("터미널 ID 정보 없음");
 			resMsg = "터미널 ID 정보 없음";
 			return false;
 		}
 		
+		// KBR : 터미널 ID로 터미널조회
 		mchtTmnMap = trxDAO.getMchtTmnByTmnId(requestMap.getString("CATID"));
+		
 		if (mchtTmnMap == null || mchtTmnMap.isEmpty()) {
 			logger.debug("등록되지 않은 터미널ID | CATID : {}", CommonUtil.nToB(requestMap.getString("CATID")));
 			resMsg = "등록되지 않은 터미널ID | CATID : "+ CommonUtil.nToB(requestMap.getString("CATID"));
@@ -329,6 +361,7 @@ public class ProcWebHook {
 			
 			logger.info("RFD_ALL   : {}",sharedMap.getString("rfdAll"));
 			logger.info("RFD_TYPE  : {}",sharedMap.getString("rfdType"));
+			
 		// 승인거래의 경우 다음을 확인한다.
 		} else {
 			sharedMap.put(PAYUNIT.KEY_CARD, GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
@@ -339,6 +372,7 @@ public class ProcWebHook {
 			if (!CommonUtil.isNullOrSpace(requestMap.getString("CARDNO"))) {
 				int cardLength = requestMap.getString("CARDNO").length();
 				
+				// KBR : 카드사 정보 확인 
 				String[] issuer = getIssuer(); 
 				sharedMap.put("last4", requestMap.getString("CARDNO").substring(cardLength - 4, cardLength));
 				sharedMap.put("issuer", issuer[0]);
@@ -346,6 +380,7 @@ public class ProcWebHook {
 				sharedMap.put("cardId", sharedMap.getString(PAYUNIT.KEY_CARD));
 				sharedMap.put("cardType", issuer[1]);
 				
+				// KBR : 카드 정보 셋팅
 				Card card = new Card();
 				card.number = requestMap.getString("CARDNO");
 				card.last4 = sharedMap.getString("last4");
@@ -356,6 +391,7 @@ public class ProcWebHook {
 				card.acquirer= sharedMap.getString("acquirer");
 				card.cardType = sharedMap.getString("cardType");
 				String encrypted = Base64.encodeToString(SeedKisa.encrypt(GsonUtil.toJson(card), ByteUtil.toBytes(PAYUNIT.ENCRYPT_KEY, 16)));
+				// KBR : 카드 정보 암호화하여 저장
 				trxDAO.insertCard(sharedMap.getString(PAYUNIT.KEY_CARD), encrypted);
 				sharedMap.put("CARD_INSERTED", true); //카드정보가 이미 등록되었는지 여부
 			}

@@ -37,10 +37,11 @@ public class VactGet extends Proc {
 
 	@Override
 	public void valid() {
-		SharedMap<String,Object> mchtSvcMap = trxDAO.getMchtSvc(mchtMap.getString("mchtId"));
-		if(!mchtSvcMap.isEquals("virAccount", "사용")){
-			response.result = ResultUtil.getResult("9999", "호출실패","가상계좌서비스가 등록되지 않은 가맹점입니다.관리자에 문의바랍니다.");return;
-		}
+		
+        SharedMap<String,Object> mchtSvcMap = trxDAO.getMchtSvc(mchtMap.getString("mchtId"));
+        if(!mchtSvcMap.isEquals("virAccount", "사용")){
+            response.result = ResultUtil.getResult("9999", "호출실패","가상계좌서비스가 등록되지 않은 가맹점입니다.관리자에 문의바랍니다.");return;
+        }
 
 		if(request.vact != null){
 			if(request.vact.banks != null && request.vact.banks.size() !=0){

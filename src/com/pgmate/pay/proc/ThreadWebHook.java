@@ -33,26 +33,25 @@ public class ThreadWebHook extends Thread {
 	private TrxDAO trxDAO 	= null;
 	private String webhookUrl			= "";
 	
-	
+	//KJM : 생성자 정보
 	public ThreadWebHook(String webhookUrl,Response response) {
 		this.webhookUrl = webhookUrl;
 		this.response 	= response;
 		this.trxDAO 	= new TrxDAO();
-		
 	}
 	
-	
+	//KJM : 쓰레드 실행
 	public void run(){
-		
 		logger.info("WebHook   : {}",webhookUrl);
-	
+		
+		//KJM : 결제정보와 응답정보등을 담는 그릇 > 최종적으로 결제거래내역 테이블에 들어가는 데이터가 됨
 		SharedMap<String,Object> ntsMap = new SharedMap<String,Object>();	
+		//KJM : pay정보가 있으면 결제승인, 없으면 결제취소
 		if(response.pay != null){
 			ntsMap.put("trxId"		, response.pay.trxId);
 			ntsMap.put("trxType"	, "pay");
 			ntsMap.put("tmnId"		, response.pay.tmnId);
 			ntsMap.put("trackId"	, response.pay.trackId);
-			
 		}else{
 			ntsMap.put("trxId"		, response.refund.trxId);
 			ntsMap.put("trxType"	, "refund");
@@ -74,21 +73,26 @@ public class ThreadWebHook extends Thread {
 			
 			String contentType = "application/x-www-form-urlencoded";
 			
-			
+			//KJM : MARU_APP > c.p.l.u.c > UrlClient 생성자 생성
+			//생성자 생성 시 host, method, contentType 파라미터로 넣어줌
 			UrlClient client = new UrlClient(ntsMap.getString("webHookUrl"), "POST", contentType);
+			//URL 로의 connect Timeout, 및 readTimeout 을 설정
 			client.setTimeout(30000,30000);
+			//GET을 제외한 INPUT, OUTPUT 여부 설정
 			client.setDoInputOutput(true, true);
 			String payload = "response="+URLEncoder.encode(ntsMap.getString("payLoad"),"UTF-8");
+			//request(=payload)를 querystring 형태로 전달 / webhookUrl 통신
 			ntsMap.put("resData", CommonUtil.cut(client.connect(payload),512));
+			//HTTP 접속에 대한 최종 HTTP_RESPONSE_CODE(응답코드) 를 반환
 			ntsMap.put("code", client.getHttpCode());
 		
 			ntsMap.put("sentDate", CommonUtil.getCurrentTimestamp());
+			//반환된 응답코드를 가지고 status 설정
 			if(ntsMap.getString("resData").indexOf("OK") > -1 || ntsMap.getString("resData").indexOf("result=0000") > -1 || client.getHttpCode() == 200){
 				ntsMap.put("status"		, "전송완료");
 			}else{
 				ntsMap.put("status"		, "전송실패");
 			}
-			
 		} catch(Exception e) {
 			logger.info("WH MERCHANT URL REQUEST ERROR =["+e.getMessage()+"]");
 			ntsMap.put("status","전송실패");
@@ -96,12 +100,10 @@ public class ThreadWebHook extends Thread {
 		}finally{
 			logger.info("WH MERCHANT THREAD MERCHANT RESPONSE : [{}]"+CommonUtil.cut(ntsMap.getString("resData"),100)+"]");
 			logger.info("WH MERCHANT THREAD Elasped Time : [{}]",(System.currentTimeMillis()-time)/1000);
+			//KJM : 결제거래내역 전송내역 추가
 			trxDAO.insertTrxNTS(ntsMap);
 		}	
 	}
-	
-	
-	
 
 	/**
 	 * @param args
