@@ -40,8 +40,9 @@ public class Galaxia implements Van{
 		//GalaxiaCipher cipher = getCipher("ssss");
 	}
 	
-	public Galaxia(SharedMap<String, Object> tmnVanMap) {
-		SERVICE_ID =  tmnVanMap.getString("vanId").trim();
+	public Galaxia(SharedMap<String, Object> vanMap) {
+		VANID =  vanMap.getString("vanId").trim();
+		VAN = vanMap.getString("van");
 	}
 	
 	private GalaxiaCipher getCipher(String serviceId) throws Exception {
@@ -181,7 +182,7 @@ public class Galaxia implements Van{
 		if(today.get(Calendar.DATE) < 10) date = "0" + date ;
 		if(today.get(Calendar.HOUR) < 10) hour = "0" + hour ;	
 		if(today.get(Calendar.MINUTE) < 10) minute = "0" + minute ;	
-		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;	
+		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;
 		
 		String serviceId = VANID; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
 		String orderDate = year + month + date + hour + minute + second ; 					//[필수]주문일시
@@ -248,6 +249,9 @@ public class Galaxia implements Van{
 			String detailResponseCode = respMsg.get(MessageTag.DETAIL_RESPONSE_CODE);
 			String detailResponseMessage = respMsg.get(MessageTag.DETAIL_RESPONSE_MESSAGE);
 			String transactionId = respMsg.get(MessageTag.TRANSACTION_ID);
+			
+			sharedMap.put("van",VAN);
+			sharedMap.put("vanId",VANID);
 			
 			//승인 성공인 경우 승인번호/승인일시 처리
 	 		if(responseCode.equals("0000")) {
