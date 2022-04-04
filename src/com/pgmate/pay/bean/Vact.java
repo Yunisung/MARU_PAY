@@ -34,16 +34,16 @@ public class Vact {
 	//STATUS issueId 에 따른 PG_VACT_TRX 리스트 
 	public List<VactHookBean> datas		= null;
 	
-	//가상계좌 출금정보 등록 추가 영역
-	public String mchtId			= null;
-	public String trxType			= null;
-	public String withdrawBankCd	= null;	
-	public String withdrawAccount	= null;
-	public String name				= null;
-	public String regType			= null;	
-	public String identity			= null;
-	public String phoneNo			= null;
-	
+    //가상계좌 출금정보 등록 추가 영역
+    public String mchtId            = null;
+    public String trxType            = null;
+    public String withdrawBankCd    = null;    
+    public String withdrawAccount    = null;
+    public String name                = null;
+    public String regType            = null;    
+    public String identity            = null;
+    public String phoneNo            = null;
+    
 	public Vact() {
 	}
 

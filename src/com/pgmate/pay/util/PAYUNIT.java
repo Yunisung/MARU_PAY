@@ -44,31 +44,31 @@ public class PAYUNIT {
 	public static String API_WEBHOOK_NICE			= "/api/webhooks/nice";
 	public static String API_WEBHOOK_DAOU			= "/api/webhooks/daou";
 	public static String API_WEBHOOK_ALLAT		    = "/api/webhooks/allat";
-	public static String API_WEBHOOK_WELCOME		= "/api/webhooks/welcome";
-	public static String API_WEBHOOK_KICC			= "/api/webhooks/kicc";
-	public static String API_WEBHOOK_SPC			= "/api/webhooks/spc";
+    public static String API_WEBHOOK_WELCOME        = "/api/webhooks/welcome";
+    public static String API_WEBHOOK_KICC            = "/api/webhooks/kicc";
+    public static String API_WEBHOOK_SPC            = "/api/webhooks/spc";
 	public static String API_INQUERY				= "/api/inquery/trx";
 	public static String API_VACT_GET				= "/api/vact/get";
 	public static String API_VACT_OPEN				= "/api/vact/open";
 	public static String API_VACT_CLOSE				= "/api/vact/close";
 	public static String API_VACT_STATUS			= "/api/vact/status";
 	public static String API_VACT_PATCH				= "/api/vact/patch";
-	public static String API_VACT_WITHDRAW_GET		= "/api/vact/withdrawGet";
-	public static String API_VACT_REG				= "/api/vact/reg";
-	public static String API_CHECK					= "/api/check";
-	public static String API_3DV2_WIDGET			= "/api/3dV2/widget";
-	public static String API_3DV2_HOOK				= "/api/3dV2/hook";
-	public static String API_PHONE_HOOK				= "/api/phone/hook";
-	public static String API_PHONE_REFUND			= "/api/phone/refund";
-	public static String API_KAKAO_HOOK				= "/api/kakao/hook";
-	public static String API_KAKAO_REFUND			= "/api/kakao/refund";
-	public static String API_SETTLE_ACCNT		    = "/api/settle/accnt";
-	public static String API_SETTLE_BALANCE		    = "/api/settle/balance";
-	public static String API_SETTLE_TRANSFER		= "/api/settle/transfer";
+    public static String API_VACT_WITHDRAW_GET        = "/api/vact/withdrawGet";
+    public static String API_VACT_REG                = "/api/vact/reg";
+    public static String API_CHECK                    = "/api/check";
+    public static String API_3DV2_WIDGET            = "/api/3dV2/widget";
+    public static String API_3DV2_HOOK                = "/api/3dV2/hook";
+    public static String API_PHONE_HOOK                = "/api/phone/hook";
+    public static String API_PHONE_REFUND            = "/api/phone/refund";
+    public static String API_KAKAO_HOOK                = "/api/kakao/hook";
+    public static String API_KAKAO_REFUND            = "/api/kakao/refund";
+    public static String API_SETTLE_ACCNT            = "/api/settle/accnt";
+    public static String API_SETTLE_BALANCE            = "/api/settle/balance";
+    public static String API_SETTLE_TRANSFER        = "/api/settle/transfer";
+//	public static String API_CHECK					= "/api/check";
 	
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
-	public static String[] IGNORE_AUTHRORISATION	= {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook",};	
-	
+    public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook",};    
 	
 	public static String ROUTE_ROOT					= "/";
 	public static String ROUTE_CROSSDOMAIN 			= "/crossdomain.xml";
@@ -89,7 +89,7 @@ public class PAYUNIT {
 	public static String METHOD						= "method";           
 	public static String REMOTEIP					= "remoteIp";         
 	public static String CONTENTTYPE				= "contentType";      
-	public static String PAYLOAD					= "payLoad";          
+	public static String PAYLOAD					= "payLoad";     	// 승인요청 내용과 name내용 리스트 배열값으로 들어감      
 	public static String USERAGENT					= "userAgent";        
 	public static String ACCEPTLANGUAGE				= "acceptLanguage";   
 	public static String HTTPHEADER					= "header";           
@@ -126,7 +126,7 @@ public class PAYUNIT {
 	public static double VAT						= 0.1;
 	  
 	public static SharedCacheMap cacheMap			= new SharedCacheMap(10);
-	public static SharedCacheMap cacheWithdrawMap	= new SharedCacheMap(10);
+    public static SharedCacheMap cacheWithdrawMap    = new SharedCacheMap(10);
 	public static VactCache vactCacheMap			= new VactCache(5);
-	public static VactCache vactWithdrawCacheMap	= new VactCache(1);
+    public static VactCache vactWithdrawCacheMap    = new VactCache(1);
 }

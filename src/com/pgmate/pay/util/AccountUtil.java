@@ -7,12 +7,22 @@ package com.pgmate.pay.util;
 public class AccountUtil {
 
 
+	/**
+	 * PYS : 가상계좌 계좌번호 재배치
+	 * @param bankCd : 은행코드
+	 * @param account : 계좌번호
+	 * @return
+	 */
+	
+	//KJM : 은행별로 계좌번호 정규식 패턴에 맞게 변경
 	public static String pretty(String bankCd,String account){
 		account = account.replaceAll("[-]","").trim();
 		int len = account.length();
 		
 		if(bankCd.equals("002")){
 			if(len == 11){
+				//KJM : d{0} : 자릿수 / $1-... : capture된 순서대로 번호 부여
+				//account가 11122333334이면 -> 111-22-33333-4로 바꾼다
 				return account.replaceAll("(\\d{3})(\\d{2})(\\d{5})(\\d{1})","$1-$2-$3-$4");
 			}else if(len == 14){
 				if(account.startsWith("013")){

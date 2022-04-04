@@ -269,6 +269,7 @@ function openPayment(config) {
 			console.log('url : ', window.location.protocol + "//" + window.location.host + res.widget.routeUrl);
             var url = window.location.protocol + "//" + window.location.host + res.widget.routeUrl;
             ServerUtil.resizeWindow(res);
+			
             if (config.c3Config.mode == 'popup') {
                 popup(url);
             } else {

@@ -12,9 +12,9 @@ public class Request {
 	public Vact vact		= null;
 	public SharedMap<String,Object> widget = null;
 	public Auth auth		= null;
-	public Phone phone		= null;
-	public Accnt accnt		= null;
-	public Transfer transfer = null;
+    public Phone phone        = null;
+    public Accnt accnt        = null;
+    public Transfer transfer = null;
 	public Request() {
 	}
 

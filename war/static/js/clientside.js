@@ -11,7 +11,7 @@ var MARU = (function (win, doc) {
     mode: 'layer',
     debugMode: 'live'
   }
-  
+
   /* GLOBAL */
   var routeUrls = {
     sandbox: 'https://devapi.bkwinners.kr',
