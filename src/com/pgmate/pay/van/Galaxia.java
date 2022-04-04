@@ -31,15 +31,15 @@ public class Galaxia implements Van{
 	public static final String MAIN_SERVER_IP = "222.122.229.247";
 	public static final String TEST_SERVER_IP = "222.122.28.70";
 	public static final String configLoad = PropertyUtil.getCyrexConf()+File.separator+"galaxiaconfig.ini";
-	
+	private String SERVICE_ID 	= "";
 	
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		//GalaxiaCipher cipher = getCipher("ssss");
 	}
 	
-	public Galaxia(SharedMap<String, Object> vanMap) {
-
+	public Galaxia(SharedMap<String, Object> tmnVanMap) {
+		SERVICE_ID =  tmnVanMap.getString("vanId").trim();
 	}
 	
 	private GalaxiaCipher getCipher(String serviceId) throws Exception {
@@ -181,7 +181,7 @@ public class Galaxia implements Van{
 		if(today.get(Calendar.MINUTE) < 10) minute = "0" + minute ;	
 		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;	
 		
-		String serviceId = "S1600881"; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
+		String serviceId = SERVICE_ID; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
 		String orderDate = year + month + date + hour + minute + second ; 					//[필수]주문일시
 		String orderId = "test_" + orderDate ;  											//[필수] 주문번호
 		String userId = sharedMap.getString(PAYUNIT.MCHTID); 								//고객아이디
