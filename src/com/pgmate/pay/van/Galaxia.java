@@ -34,15 +34,17 @@ public class Galaxia implements Van{
 
 	private String VAN = "";
 	private String VANID = "";
+	private String tmnID = "";
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		//GalaxiaCipher cipher = getCipher("ssss");
 	}
 	
-	public Galaxia(SharedMap<String, Object> vanMap) {
-		VANID =  vanMap.getString("vanId").trim();
-		VAN = vanMap.getString("van");
+	public Galaxia(SharedMap<String, Object> tmnVanMap) {
+		VANID =  tmnVanMap.getString("vanId").trim();
+		VAN = tmnVanMap.getString("van");
+		tmnID = tmnVanMap.getString("tmnId");
 	}
 	
 	private GalaxiaCipher getCipher(String serviceId) throws Exception {
@@ -187,7 +189,7 @@ public class Galaxia implements Van{
 		String serviceId = VANID; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
 		String orderDate = year + month + date + hour + minute + second ; 					//[필수]주문일시
 		String orderId = "test_" + orderDate ;  											//[필수] 주문번호
-		String userId = sharedMap.getString(PAYUNIT.MCHTID); 								//고객아이디
+		String userId = tmnID; 																//고객아이디
 		String userName = CommonUtil.nToB(response.pay.payerName,"구매자");					//고객명
 		String itemName = CommonUtil.nToB(item,"테스트");										//상품명
 		String itemCode = "offline";														//[필수] 상품코드
