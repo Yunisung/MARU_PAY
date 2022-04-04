@@ -45,7 +45,9 @@ public class Js {
 	}
 	
 	public void jsHandler(RoutingContext rc){
-		String uri = CommonUtil.nToB(rc.request().uri());
+		// 널 체크 ( 널이면 "" 처리)
+		String uri = CommonUtil.nToB(rc.request().uri()); // KBR : /js/clientside.js
+		// 쿼리스트링이 있을 경우 
 		if(uri.indexOf("?") > -1){
 			if(uri.length() > uri.indexOf("?")+1){
 				rc.put("param", uri.substring(uri.indexOf("?")+1));

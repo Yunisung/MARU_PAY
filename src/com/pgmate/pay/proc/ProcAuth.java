@@ -33,7 +33,8 @@ public class ProcAuth extends Proc {
 	public void exec(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap,SharedMap<String,SharedMap<String,Object>> sharedObject) {
 		set(rc,request,sharedMap,sharedObject);
 		response.auth = request.auth;
-	
+
+		// KBR : 결과 값 없을 때
 		if(response.result != null){
 			if(response.auth.card != null) {	
 				response.auth.card.cardId = "";
