@@ -351,6 +351,42 @@ public class ProcPay3DWidget extends Proc {
 		
 		
 		
+		//van의 결제모듈 url 설정
+		if(request.widget.isEquals("device", "mobile")){
+			request.widget.put("targetUrl", "http://pay.billgate.net/credit/smartphone/certify.jsp");
+		}else{
+			request.widget.put("targetUrl", "http://pay.billgate.net/credit/certify.jsp");
+		}
+		
+		if(request.widget.isEquals("device", "MSIE")){
+			request.widget.put("width", 500);
+			request.widget.put("height", 477);
+		}else{
+			request.widget.put("height", 518);
+		}
+		
+		SharedMap<String,Object> form = new SharedMap<String,Object>();
+		form.put("SERVICE_ID", request.widget.getString("serviceId"));
+		form.put("ORDER_ID", request.widget.getString("trackId"));
+		form.put("ORDER_DATE", request.widget.getString("orderDate"));
+		form.put("USER_ID", request.widget.getString("userId"));
+		form.put("ITEM_CODE", request.widget.getString("itmeCode"));
+		form.put("AMOUNT", request.widget.getString("amount"));
+		form.put("INSTALLMENT_PERIOD", request.widget.getString("installmentPeriod"));
+		form.put("USING_TYPE", request.widget.getString("usingType"));
+		form.put("CURRENCY", request.widget.getString("usingType"));
+		form.put("ITEM_NAME", request.widget.getString("itemName"));
+		form.put("RESERVED1", request.widget.getString("publicKey"));
+		form.put("RESERVED2", request.widget.getString("amount"));
+		form.put("RESERVED3", request.widget.getString("installmentPeriod"));
+		
+		//api/3d/hook(결제 정보 저장)으로 들어가는 url 세팅
+		//https://127.0.0.1:10002/api/3d/hook/{van}/{trxId}
+		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
+			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+		}else{
+			form.put("RETURN_URL", String.format("http://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+		}
 		
 		//form 처리
 		request.widget.put("form", GsonUtil.toJson(form));

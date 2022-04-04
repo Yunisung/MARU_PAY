@@ -56,6 +56,7 @@ public class ProcPay extends Proc {
 		SharedMap<String,Object>  tmnVanMap 	= trxDAO.getMchtTmnByVanIdx(mchtTmnMap.getLong("vanIdx"));
 		logger.info("VAN: {}, VAN ID: {}", mchtTmnMap.getString("van"), tmnVanMap.getString("vanId"));
 		
+		//KJM : 카드번호가 4242...이면 van = default (데모) 설정
 		if(request.pay.card.number.equals("4242424242424242")){
 			mchtTmnMap.put("van","DEFAULT");
 		}
@@ -248,8 +249,6 @@ public class ProcPay extends Proc {
 			sharedMap.put(PAYUNIT.KEY_CARD, GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 		
-		
-
 		sharedMap.put(PAYUNIT.KEY_PROD, GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
 		
 		if(request.pay.card.encTrackI.equals("")){
