@@ -59,6 +59,10 @@ public class ProcPay extends Proc {
 		if(request.pay.card.number.equals("4242424242424242")){
 			mchtTmnMap.put("van","DEFAULT");
 		}
+		
+		//PYS : 정확한 터미널ID를 가져오기위해서 tmnVanMap에 mchtTmnMap을 덮어씌움
+		tmnVanMap.put("tmnId", mchtTmnMap.getString("tmnId"));
+		
 		Van van = null;
 		if(mchtTmnMap.isEquals("van", "DEFAULT")){
 			van = new DemoVan(tmnVanMap);
