@@ -23,6 +23,7 @@ import com.galaxia.api.util.*;
 import com.galaxia.api.merchant.*;
 import com.galaxia.api.crypto.*;
 import com.galaxia.api.*;
+import com.galaxia.api.cashreceipt.ServiceBroker;
 
 public class Galaxia implements Van{
 
@@ -41,6 +42,10 @@ public class Galaxia implements Van{
 		//GalaxiaCipher cipher = getCipher("ssss");
 	}
 	
+	public Galaxia() {
+		
+	}
+
 	public Galaxia(SharedMap<String, Object> tmnVanMap) {
 		VANID =  tmnVanMap.getString("vanId").trim();
 		VAN = tmnVanMap.getString("van");
@@ -366,8 +371,42 @@ public class Galaxia implements Van{
 			e.printStackTrace();
 		}
 		
-		
 		return sharedMap;
+	}
+	
+	//온라인 결제 (결제 요청 내용 조회)
+	public Message getReqMsg(SharedMap<String,Object> requestMap) throws Exception {
+		String serviceId = requestMap.getString("SERVICE_ID");
+		String msg = requestMap.getString("MESSAGE");
+
+		//메시지 Length 제거
+		byte[] b = new byte[msg.getBytes().length - 4] ;
+		System.arraycopy(msg.getBytes(), 4, b, 0, b.length);
+
+		Message requestMsg = new Message(b, getCipher(serviceId)) ;
+
+		return requestMsg;
+	}
+	
+	//온라인 결제 (결제 승인 내용 조회)
+	public Message linkAuthProcess(SharedMap<String,Object> requestMap) throws Exception {
+		String serviceId = requestMap.getString("SERVICE_ID");
+		String msg = requestMap.getString("MESSAGE");
+
+		//메시지 Length 제거
+		byte[] b = new byte[msg.getBytes().length - 4] ;
+		System.arraycopy(msg.getBytes(), 4, b, 0, b.length);
+
+		Message requestMsg = new Message(b, getCipher(serviceId)) ;
+
+		Message responseMsg = null ;
+
+
+		ServiceBroker sb = new ServiceBroker(configLoad, ServiceCode.CREDIT_CARD);
+
+		responseMsg = sb.invoke(requestMsg);
+
+		return responseMsg;
 	}
 
 }

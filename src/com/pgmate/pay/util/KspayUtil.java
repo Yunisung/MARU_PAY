@@ -13,6 +13,11 @@ public class KspayUtil {
 		// TODO Auto-generated constructor stub
 	}
 	
+	/**
+	 * 매입사 조회
+	 * @param acq
+	 * @return
+	 */
 	public static String getAcquirer(String acq){
 		if(acq.equals("01")){
 			return "비씨";

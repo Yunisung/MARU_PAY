@@ -8,6 +8,7 @@ import com.pgmate.pay.dao.TrxDAO;
  * @author Administrator
  *
  */
+// KBR : 승인 , 취소 
 public interface Van {
 
 	public SharedMap<String,Object> sales(TrxDAO trxDAO,SharedMap<String,Object> sharedMap,Response response);

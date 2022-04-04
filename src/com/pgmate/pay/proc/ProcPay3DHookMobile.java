@@ -64,8 +64,11 @@ public class ProcPay3DHookMobile extends Proc {
 		}
 		
 		if(initial[0].startsWith("KSPAY")){
+			// KBR : 승인여부에 따른 ioMap값 셋팅 
 			kspay();
 		}
+		
+		// KBR : 리다이렉트 URI 설정
 		String redirectUrl = null;
 		try {
 			redirectUrl = PAYUNIT.cacheMap.get(ioMap.getString("widgetKey")).getString("redirectUrl");
@@ -75,25 +78,23 @@ public class ProcPay3DHookMobile extends Proc {
 			Request req = (Request)GsonUtil.fromJson(str, Request.class);
 			redirectUrl = req.widget.getString("redirectUrl");
 		}
+		// KBR : 카드 정보 저장 및 거래 내역 저장
 		setTrx(ioMap);
+		
+		// KBR : 모바일일 경우  
 		if(ioMap.getString("device").equalsIgnoreCase("mobile")) {
 			logger.debug("REDIRECT TO : {}", redirectUrl);
 			Response redirectResponse = response;
 			redirectResponse.pay.products = null;
+			// KBR : html 값 전송 
 			TemplateUtil.redirect3Dmobile(rc, redirectUrl, URLEncode(GsonUtil.toJsonExcludeStrategies(redirectResponse)));
+			
 		} else {
 			TemplateUtil.popupToParent3D(rc, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 		}
 		return;
-			
 	}
 
-
-	
-	
-	
-	
-	
 	public void kspay(){
 		SharedMap<String,Object> requestMap = parseQueryString(sharedMap.getString(PAYUNIT.PAYLOAD));
 		//a : trxId , b = widgetKey , c : tmnId 
@@ -103,16 +104,24 @@ public class ProcPay3DHookMobile extends Proc {
 		logger.info("reHash : [{}]",requestMap.getString("reHash"));
 		logger.info("trxId : [{}]",trxId);
 		
+		// KBR : 3D위젯 정보 거래번호로 조회한 데이터 값 ioMap 셋팅
 		ioMap = trxDAO.getTrxIO3DByTrxId(trxId);		
 		logger.info("cid   : [{},{}]",cid,ioMap.getString("device"));
 
+		// KBR : 모바일인지 웹인지 체크 
 		Kspay3D kspay = new Kspay3D(cid,ioMap.getString("device"));
+		
 		SharedMap<String,String> resMap = kspay.getResult();
+		
 		if(resMap.size() > 4){//정상응답 수신시 4개 이상의 파라미터 수신
 			kspay.confirm();
 		}
 		
+		// KBR : 할부 여부 
 		logger.info("trxType : {}",resMap.getString("halbu"));
+		
+		
+		// KBR : 승인 성공 시
 		if(resMap.isEquals("authyn", "O")){
 			ioMap.put("vanTrxId", resMap.getString("trno"));
 			ioMap.put("vanResultCd","0000");
@@ -122,7 +131,11 @@ public class ProcPay3DHookMobile extends Proc {
 			ioMap.put("acquirer",KspayUtil.getAcquirer(resMap.getString("aqucd")));
 			ioMap.put("issuer",resMap.getString("msg1"));
 			ioMap.put("installment",resMap.getString("halbu"));
+			
+			// KBR : 카드 번호 
 			int cardLen = resMap.getString("cardno").length();
+			
+			// KBR : 카드 정보 나누어 담기
 			ioMap.put("card", resMap.getString("cardno"));
 			if(cardLen > 6){
 				ioMap.put("bin", resMap.getString("cardno").substring(0, 6));
@@ -130,9 +143,12 @@ public class ProcPay3DHookMobile extends Proc {
 			if(cardLen > 14){
 				ioMap.put("last4", resMap.getString("cardno").substring(cardLen-4, cardLen));
 			}
+			// KBR : 실패 시 
 		}else{
 			String vanMessage = (resMap.getString("msg1")+" "+resMap.getString("msg2")).replaceAll("^\\s+","").replaceAll("\\s+$","");
+			
 			ioMap.put("vanTrxId", resMap.getString("trno"));
+			
 			if(resMap.isNullOrSpace("authno")){
 				ioMap.put("vanResultCd","XXXX");
 				ioMap.put("vanResultMsg","거래정보 미확인");
@@ -157,10 +173,11 @@ public class ProcPay3DHookMobile extends Proc {
 				ioMap.put("last4", resMap.getString("cardno").substring(cardLen-4, cardLen));
 			}
 		}
-		
+		// KBR : 날짜 없을 시 현재 시간 넣어주기 
 		if(ioMap.isNullOrSpace("vanResultDate")){
 			ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		}
+		
 	}
 	
 	
@@ -187,6 +204,7 @@ public class ProcPay3DHookMobile extends Proc {
 		card.last4		= ioMap.getString("last4");
 		
 		SharedMap<String,Object> issuerMap = trxDAO.getDBIssuer(card.bin);
+		
 		if(issuerMap != null){
 			card.cardType = issuerMap.getString("type") ;
 			card.issuer = issuerMap.getString("issuer");
@@ -200,6 +218,7 @@ public class ProcPay3DHookMobile extends Proc {
 		ioMap.put("issuer",card.issuer);
 		ioMap.put("acquirer",card.acquirer);
 		
+		// KBR : 카드 정보 저장 
 		trxDAO.insertCard(card.cardId,Base64.encodeToString(SeedKisa.encrypt(GsonUtil.toJson(card), ByteUtil.toBytes(PAYUNIT.ENCRYPT_KEY, 16))));
 		
 		
