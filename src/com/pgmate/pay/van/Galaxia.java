@@ -31,10 +31,8 @@ public class Galaxia implements Van{
 	public static final String MAIN_SERVER_IP = "222.122.229.247";
 	public static final String TEST_SERVER_IP = "222.122.28.70";
 	public static final String configLoad = PropertyUtil.getCyrexConf()+File.separator+"galaxiaconfig.ini";
-
-	private String VAN = "";
-	private String VANID = "";
-
+	private String SERVICE_ID 	= "";
+	
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		//GalaxiaCipher cipher = getCipher("ssss");
@@ -183,7 +181,7 @@ public class Galaxia implements Van{
 		if(today.get(Calendar.MINUTE) < 10) minute = "0" + minute ;	
 		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;	
 		
-		String serviceId = VANID; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
+		String serviceId = SERVICE_ID; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
 		String orderDate = year + month + date + hour + minute + second ; 					//[필수]주문일시
 		String orderId = "test_" + orderDate ;  											//[필수] 주문번호
 		String userId = sharedMap.getString(PAYUNIT.MCHTID); 								//고객아이디
@@ -295,73 +293,7 @@ public class Galaxia implements Van{
 	public SharedMap<String, Object> refund(TrxDAO trxDAO, SharedMap<String, Object> sharedMap,
 			SharedMap<String, Object> payMap, Response response) {
 		// TODO Auto-generated method stub
-		Calendar today = Calendar.getInstance();
-		String year = Integer.toString(today.get(Calendar.YEAR));
-		String month = Integer.toString(today.get(Calendar.MONTH) + 1);
-		String date = Integer.toString(today.get(Calendar.DATE));
-		String hour = Integer.toString(today.get(Calendar.HOUR_OF_DAY));
-		String minute = Integer.toString(today.get(Calendar.MINUTE));
-		String second = Integer.toString(today.get(Calendar.SECOND));
-		
-		if(today.get(Calendar.MONTH)+1 < 10) month = "0" + month ;	
-		if(today.get(Calendar.DATE) < 10) date = "0" + date ;
-		if(today.get(Calendar.HOUR) < 10) hour = "0" + hour ;	
-		if(today.get(Calendar.MINUTE) < 10) minute = "0" + minute ;	
-		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;
-		
-		//취소 요청 파라메터
-		String serviceId = VANID; 									//수기결제용 테스트 아이디 S1600881
-		String orderDate = year + month + date + hour + minute + second ; 	//취소 요청일시
-		String orderId = "cancel_" + orderDate ;  							//취소 요청번호
-		String rootTransactionId = payMap.getString("vanTrxId");			// 취소 대상건의 거래번호
-		
-		SharedMap<String, Object> refundMap = new SharedMap<String, Object>();
-		refundMap.put("serviceId", serviceId);
-		refundMap.put("orderDate", orderDate);
-		refundMap.put("orderId", orderId);
-		refundMap.put("transactionId", rootTransactionId);
-		
-		sharedMap.put("van",VAN);
-		sharedMap.put("vanId",VANID);
-		sharedMap.put("vanDate",orderDate);	
-		try {
-			Message respMsg = cancelProcess(refundMap);
-			
-			//취소요청에 대한 응답 결과 설정
-			String responseCode = respMsg.get(MessageTag.RESPONSE_CODE);
-			String responseMessage = respMsg.get(MessageTag.RESPONSE_MESSAGE);
-			String detailResponseCode = respMsg.get(MessageTag.DETAIL_RESPONSE_CODE);
-			String detailResponseMessage = respMsg.get(MessageTag.DETAIL_RESPONSE_MESSAGE);
-			String transactionId = respMsg.get(MessageTag.TRANSACTION_ID);
-			String partCancelSequenceNumber = respMsg.get("5049");
-			String resTaxAmount = respMsg.get("5304");
-			String resTaxFreeAmount = respMsg.get("5305");
-			
-			if(responseCode.equals("0000")) {
-				//취소 성공
-				response.result 	= ResultUtil.getResult("0000","정상","정상취소");
-				response.refund.authCd = transactionId;
-				response.refund.transactionDate = orderDate;
-				sharedMap.put("vanTrxId", rootTransactionId);
-				sharedMap.put("vanResultCd",responseCode);
-				sharedMap.put("vanResultMsg",responseMessage);
-				sharedMap.put("authCd",transactionId);
-				sharedMap.put("vanRegDate", orderDate);
-			} else {
-				//취소 실패
-				response.result 	= ResultUtil.getResult("XXXX","실패", responseMessage);
-				sharedMap.put("vanTrxId",rootTransactionId);
-				sharedMap.put("vanResultCd",responseCode);
-				sharedMap.put("vanResultMsg",responseMessage);
-			}
-			
-			
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-		
-		
-		return sharedMap;
+		return null;
 	}
 
 }
