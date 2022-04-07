@@ -3,6 +3,7 @@ package com.pgmate.pay.proc;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -374,9 +375,9 @@ public class ProcPay3DWidget extends Proc {
 		
 		//van의 결제모듈 url 설정
 		if(request.widget.isEquals("device", "mobile")){
-			request.widget.put("targetUrl", "http://tpay.billgate.net/credit/smartphone/certify.jsp");
+			request.widget.put("targetUrl", "http://pay.billgate.net/credit/smartphone/certify.jsp");
 		}else{
-			request.widget.put("targetUrl", "http://tpay.billgate.net/credit/certify.jsp");
+			request.widget.put("targetUrl", "https://pay.billgate.net/credit/certify.jsp");
 		}
 		
 		if(request.widget.isEquals("device", "MSIE")){
@@ -387,19 +388,19 @@ public class ProcPay3DWidget extends Proc {
 		}
 		
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
+		
 		form.put("SERVICE_ID", request.widget.getString("serviceId"));
 		form.put("ORDER_ID", request.widget.getString("trackId"));
 		form.put("ORDER_DATE", request.widget.getString("orderDate"));
 		form.put("USER_ID", request.widget.getString("userId"));
 		form.put("ITEM_CODE", request.widget.getString("itmeCode"));
+		form.put("USER_NAME", request.widget.getString("userName"));
 		form.put("AMOUNT", request.widget.getString("amount"));
 		form.put("INSTALLMENT_PERIOD", request.widget.getString("installmentPeriod"));
 		form.put("USING_TYPE", request.widget.getString("usingType"));
 		form.put("CURRENCY", request.widget.getString("usingType"));
 		form.put("ITEM_NAME", request.widget.getString("itemName"));
 		form.put("RESERVED1", request.widget.getString("publicKey"));
-		form.put("RESERVED2", request.widget.getString("amount"));
-		form.put("RESERVED3", request.widget.getString("installmentPeriod"));
 		
 		//api/3d/hook(결제 정보 저장)으로 들어가는 url 세팅
 		//https://127.0.0.1:10002/api/3d/hook/{van}/{trxId}
@@ -408,6 +409,7 @@ public class ProcPay3DWidget extends Proc {
 		}else{
 			form.put("RETURN_URL", String.format("http://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
+		System.out.println("url : " + form.getString("RETURN_URL"));
 		
 		//form 처리
 		request.widget.put("form", GsonUtil.toJson(form));
@@ -417,6 +419,7 @@ public class ProcPay3DWidget extends Proc {
 		PAYUNIT.cacheMap.put(request.widget.getString("key"), request.widget);
 		
 		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
+		
 	}
 	
 	public void detectDevice(){

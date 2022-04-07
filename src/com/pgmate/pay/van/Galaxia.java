@@ -1,6 +1,7 @@
 package com.pgmate.pay.van;
 
 import java.io.File;
+import java.net.URLDecoder;
 import java.util.Calendar;
 
 import javax.servlet.ServletConfig;
@@ -388,19 +389,22 @@ public class Galaxia implements Van{
 	public Message linkAuthProcess(SharedMap<String,Object> requestMap) throws Exception {
 		String serviceId = requestMap.getString("SERVICE_ID");
 		String msg = requestMap.getString("MESSAGE");
-
+		System.out.println("msg : " + msg);
+		
 		//메시지 Length 제거
 		byte[] b = new byte[msg.getBytes().length - 4] ;
 		System.arraycopy(msg.getBytes(), 4, b, 0, b.length);
 
-		Message requestMsg = new Message(b, getCipher(serviceId)) ;
-
+		Message requestMsg = new Message(b, getCipher(serviceId), "euc-kr") ;
+		
 		Message responseMsg = null ;
 
+		com.galaxia.api.ServiceBroker sb = new com.galaxia.api.ServiceBroker(configLoad, ServiceCode.CREDIT_CARD);
+//		ServiceBroker sb = new ServiceBroker(configLoad, ServiceCode.CREDIT_CARD);
+		
+		System.out.println("req name : " + requestMsg.get(MessageTag.USER_NAME));
 
-		ServiceBroker sb = new ServiceBroker(configLoad, ServiceCode.CREDIT_CARD);
-
-		responseMsg = sb.invoke(requestMsg);
+		responseMsg = sb.invoke(requestMsg, "euc-kr");
 
 		return responseMsg;
 	}
