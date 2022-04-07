@@ -33,10 +33,11 @@ public class Galaxia implements Van{
 	public static final String MAIN_SERVER_IP = "222.122.229.247";
 	public static final String TEST_SERVER_IP = "222.122.28.70";
 	public static final String configLoad = PropertyUtil.getCyrexConf()+File.separator+"galaxiaconfig.ini";
-	
+
 	private String VAN = "";
 	private String VANID = "";
-	
+	private String tmnID = "";
+
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		//GalaxiaCipher cipher = getCipher("ssss");
@@ -45,10 +46,11 @@ public class Galaxia implements Van{
 	public Galaxia() {
 		
 	}
-	
-	public Galaxia(SharedMap<String, Object> vanMap) {
-		VANID =  vanMap.getString("vanId").trim();
-		VAN = vanMap.getString("van");
+
+	public Galaxia(SharedMap<String, Object> tmnVanMap) {
+		VANID =  tmnVanMap.getString("vanId").trim();
+		VAN = tmnVanMap.getString("van");
+		tmnID = tmnVanMap.getString("tmnId");
 	}
 	
 	private GalaxiaCipher getCipher(String serviceId) throws Exception {
@@ -132,6 +134,8 @@ public class Galaxia implements Van{
 		if(taxAmount != null)			requestMsg.put("5304", taxAmount);
 		if(taxFreeAmount != null)		requestMsg.put("5305", taxFreeAmount);
 		
+		logger.info("Galaxia requestMsg : {}",requestMsg);
+		
 		ServiceBroker sb = new ServiceBroker(configLoad , ServiceCode.CREDIT_CARD);
 		responseMsg = sb.invoke(requestMsg);
 		
@@ -188,10 +192,10 @@ public class Galaxia implements Van{
 		if(today.get(Calendar.MINUTE) < 10) minute = "0" + minute ;	
 		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;
 		
-		String serviceId = "S1600881"; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
+		String serviceId = VANID; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
 		String orderDate = year + month + date + hour + minute + second ; 					//[필수]주문일시
 		String orderId = "test_" + orderDate ;  											//[필수] 주문번호
-		String userId = sharedMap.getString(PAYUNIT.MCHTID); 								//고객아이디
+		String userId = tmnID; 																//고객아이디
 		String userName = CommonUtil.nToB(response.pay.payerName,"구매자");					//고객명
 		String itemName = CommonUtil.nToB(item,"테스트");										//상품명
 		String itemCode = "offline";														//[필수] 상품코드
@@ -318,7 +322,7 @@ public class Galaxia implements Van{
 		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;
 		
 		//취소 요청 파라메터
-		String serviceId = "S1600881" ; 									//수기결제용 테스트 아이디 
+		String serviceId = VANID; 									//수기결제용 테스트 아이디 S1600881
 		String orderDate = year + month + date + hour + minute + second ; 	//취소 요청일시
 		String orderId = "cancel_" + orderDate ;  							//취소 요청번호
 		String rootTransactionId = payMap.getString("vanTrxId");			// 취소 대상건의 거래번호

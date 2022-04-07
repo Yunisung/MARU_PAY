@@ -78,7 +78,6 @@ public abstract class Proc {
 			response.result = ResultUtil.getResult("9999","설정오류","사용가능한 터미널이 아닙니다.");
 		}
 		
-		System.out.println("vanIdx :: " + mchtTmnMap.getLong("vanIdx"));
 		if(mchtTmnMap.getLong("vanIdx") == 0){
 			logger.info("mcht tmn vanIdx is not set : {}",mchtTmnMap.getString("vanIdx"));
 			response.result = ResultUtil.getResult("9999","설정오류","라우팅을 찾을 수 없습니다.");

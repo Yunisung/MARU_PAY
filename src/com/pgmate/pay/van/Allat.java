@@ -120,11 +120,7 @@ public class Allat implements Van{
 		}else{
 			response.result 	= ResultUtil.getResult(sReplyCd,"승인실패",sReplyMsg);
 		}
-
-		System.out.println("##############");
-		System.out.println(resHm.toString());
-		System.out.println("##############");
-
+		
 		response.pay.authCd = (String)resHm.get("approval_no");
 		sharedMap.put("van",VAN);
 		sharedMap.put("vanId",sShopId);

@@ -36,14 +36,12 @@ public class ProcGet extends Proc {
 		//KJM : uri에서 "api/get/" 까지의 문자열을 없애줌
 		String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_GET+"/", "");
 		
-		System.out.println("search : " + search);
-		
 		logger.info("GET : [{},{}]",sharedMap.getString("tmnId"),search);		
 		
 		//KJM : 거래서버통신이력 가져옴
 		// KBR : 승인여부 결과값 json 타입으로 반환
 		String res = trxDAO.getTrxIO(sharedMap.getString("tmnId"), search);
-		System.out.println("res :: " + res.toString());
+		
 		//KJM : 거래이력이 없으면 
 		if(CommonUtil.isNullOrSpace(res)){
 			res = trxDAO.getTrxIO3D(sharedMap.getString("tmnId"), search);

@@ -77,17 +77,6 @@ public class Form {
 			
 		} // end
         
-        else if (uri.indexOf("galaxia/return") > -1) {
-        	String params = VertXUtil.getBodyAsString(rc);
-        	System.out.println("params ::" + params);
-        	if(params.indexOf("&") > -1 || params.indexOf("=") > -1){
-				Map<String,String> map = CommonUtil.parseQueryString(params, "euc-kr");
-				for(String s : map.keySet()){
-					rc.put(s,CommonUtil.nToB(map.get(s)));
-				}
-			}
-        }
-        
 		// isMethod : GET인지 POST인지 체크 메소드
 		// HTTPMathod 란 클라이언트와 서버 사이에 이루어지는 요청(Request)과 응답(Response) 데이터를 전송하는 방식.(GET,POST,PUT 등등..)
         //KJM : /form/payment/layout uri 요청의 경우 GET 메소드 요청
@@ -110,8 +99,6 @@ public class Form {
 		//KJM : 이동 될 주소 세팅
         //KJM : 로컬경우 -> http://127.0.0.1:10002
 		APIPath.setPath(rc);
-		
-		System.out.println("[directory+uri] : "+ directory+uri);
 		
 		// KBR : 성공 또는 실패 시 값 셋팅
         //KJM : directory+uri => C:\git\maru_pay\war/form/payment/regular/index (유동적...)
