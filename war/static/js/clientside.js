@@ -14,7 +14,7 @@ var MARU = (function (win, doc) {
 
   /* GLOBAL */
   var routeUrls = {
-    sandbox: 'https://devapi.bkwinners.kr',
+    sandbox: 'http://127.0.0.1:10002',
 	live: 'https://api.bkwinners.kr'
   }
   var routeDomain = routeUrls[c3Config.debugMode];
