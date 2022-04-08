@@ -25,6 +25,15 @@ public class CodeDAO extends DAO{
 		return search();
 	}
 	
+	public String getCodeName(String bin) {
+		String codeName = "";
+		addWhere("code", bin, eq);
+		SharedMap<String, Object> map = super.search().getRowFirst();
+		codeName = map.getString("codeName");
+		super.initRecord();
+		return codeName;
+	}
+	
 	public String getInfoBankSmsKey() {
 		String smsKey = "";
 		super.setTable("PG_SMS_TOKEN");
