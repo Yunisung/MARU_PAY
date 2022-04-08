@@ -193,7 +193,7 @@ public class Galaxia implements Van{
 		
 		String serviceId = VANID; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
 		String orderDate = year + month + date + hour + minute + second ; 					//[필수]주문일시
-		String orderId = "test_" + orderDate ;  											//[필수] 주문번호
+		String orderId = response.pay.trxId;  											//[필수] 주문번호
 		String userId = tmnID; 																//고객아이디
 		String userName = CommonUtil.nToB(response.pay.payerName,"구매자");					//고객명
 		String itemName = CommonUtil.nToB(item,"테스트");										//상품명
@@ -323,7 +323,7 @@ public class Galaxia implements Van{
 		//취소 요청 파라메터
 		String serviceId = VANID; 									//수기결제용 테스트 아이디 S1600881
 		String orderDate = year + month + date + hour + minute + second ; 	//취소 요청일시
-		String orderId = "cancel_" + orderDate ;  							//취소 요청번호
+		String orderId = response.refund.trxId;  							//취소 요청번호
 		String rootTransactionId = payMap.getString("vanTrxId");			// 취소 대상건의 거래번호
 		
 		SharedMap<String, Object> refundMap = new SharedMap<String, Object>();
