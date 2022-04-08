@@ -14,6 +14,7 @@ import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.lib.util.prop.PropertyUtil;
 import com.pgmate.pay.bean.Product;
 import com.pgmate.pay.bean.Response;
+import com.pgmate.pay.dao.CodeDAO;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.proc.ResultUtil;
 import com.pgmate.pay.util.GalaxiaUtil;
@@ -32,6 +33,7 @@ public class Galaxia implements Van{
 	public static final String MAIN_SERVER_IP = "222.122.229.247";
 	public static final String TEST_SERVER_IP = "222.122.28.70";
 	public static final String configLoad = PropertyUtil.getCyrexConf()+File.separator+"galaxiaconfig.ini";
+	private CodeDAO codeDAO = new CodeDAO();
 
 	private String VAN = "";
 	private String VANID = "";
@@ -202,8 +204,6 @@ public class Galaxia implements Van{
 		String userIp = sharedMap.getString(PAYUNIT.REMOTEIP);								//고객 아이피	
 		String pinNumber = response.pay.card.number;										//[필수] 카드번호(16자리)
 		String expireDate = response.pay.card.expiry;										//[필수] 유효기간(YYMM)
-		String password = "";																//비밀번호(삼성카드 경우 필수)
-		String socialNumber = "";															//주민번호 앞 6자리, 법인번호 10자리(삼성카드 경우 필수)
 		String cvc2 = "";																	//CVC2
 		String quota = CommonUtil.zerofill(response.pay.card.installment,2);				//할부개월수(무인증)
 		String vat="";																		//부가세
@@ -213,7 +213,26 @@ public class Galaxia implements Van{
 		String taxFreeAmount ="";															//면세금액
 		//-----------고정 값 수정 불가------------
 		String certType	= "0002";															//수기특약
-		String dealType = "0011";															//수기특약 상세타입
+		String dealType = "0011";															//수기특약 상세타입 0011비인증 / 0014구인증
+		String password = "";																//비밀번호(삼성카드 경우 필수)
+		String socialNumber = "";															//주민번호 앞 6자리, 법인번호 10자리(삼성카드 경우 필수)
+		String codeName = codeDAO.getCodeName(response.pay.card.bin);
+		if(codeName.equals("삼성")) {
+			dealType = "0014";
+		}
+		
+		// 구인증일때
+		if(sharedMap.isEquals("semiAuth", "Y")) {
+            if(response.pay.metadata != null) {
+                if(response.pay.metadata.isEquals("cardAuth", "true")) {
+                	dealType = "0014";
+                    password = response.pay.metadata.getString("authPw");
+                    socialNumber = response.pay.metadata.getString("authDob");
+                }
+                response.pay.metadata = null;
+            }
+		}
+		
 		String usingType = "0000";															//국내카드
 		String currency	= "0000";															//승인통화(원화)
 		String opcode = "0000";																//언어구분(한글)
