@@ -304,7 +304,7 @@ public class Galaxia implements Van{
 				sharedMap.put("issuerCode", resBuyCompanyCode);
 			} else {
 				//승인실패시
-				response.result 	= ResultUtil.getResult(responseCode,"승인실패",responseMessage);
+				response.result 	= ResultUtil.getResult(responseCode, responseMessage ,detailResponseMessage);
 				sharedMap.put("vanTrxId",transactionId);
 				sharedMap.put("vanResultCd",detailResponseCode);
 				sharedMap.put("vanResultMsg",detailResponseMessage);
@@ -379,7 +379,7 @@ public class Galaxia implements Van{
 				sharedMap.put("vanRegDate", orderDate);
 			} else {
 				//취소 실패
-				response.result 	= ResultUtil.getResult("XXXX","실패", responseMessage);
+				response.result 	= ResultUtil.getResult("XXXX",responseMessage, detailResponseMessage);
 				sharedMap.put("vanTrxId",rootTransactionId);
 				sharedMap.put("vanResultCd",responseCode);
 				sharedMap.put("vanResultMsg",responseMessage);
