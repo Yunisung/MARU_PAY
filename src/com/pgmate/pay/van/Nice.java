@@ -72,7 +72,7 @@ public class Nice implements Van {
 		request.addParameter("GoodsName"	, CommonUtil.nToB(item,"테스트"));							//상품명
 		request.addParameter("Amt"			, CommonUtil.toString(response.pay.amount));			//금액		
 		request.addParameter("BuyerName"	, CommonUtil.nToB(response.pay.payerName,"구매자"));		//구매자명
-		request.addParameter("BuyerTel"		, CommonUtil.nToB(response.pay.payerTel,"0215446872"));	//구매자전화번호 - 제외
+		request.addParameter("BuyerTel"		, CommonUtil.nToB(response.pay.payerTel,"16441109"));	//구매자전화번호 - 제외
 		request.addParameter("UserIP"		, sharedMap.getString(PAYUNIT.REMOTEIP));				//구매자 IP
 		request.addParameter("MallIP"		, "220.73.174.215");									//상점 서버 IP
 		request.addParameter("EncodeParameter", "Amt,CardNo,CardExpire,CardPwd");					//암호화대상항목

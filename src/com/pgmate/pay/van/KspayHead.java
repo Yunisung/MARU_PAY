@@ -37,6 +37,7 @@ public class KspayHead {
 
 	
 	public KspayHead(){	
+		
 	}
 	
 	public KspayHead(String transaction){

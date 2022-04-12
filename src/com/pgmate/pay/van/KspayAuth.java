@@ -45,6 +45,7 @@ public class KspayAuth {
 
 	public SharedMap<String, Object> regist(TrxDAO trxDAO, SharedMap<String, Object> sharedMap,Response response) {
 		
+		// KBR : 공통 전송 정보 
 		KspayHead ksHeader = new KspayHead();
 		
 		ksHeader.setCrypto("0");	
@@ -59,7 +60,9 @@ public class KspayAuth {
 		//ksHeader.setPayTel(tBean.getPayTelNo());
 		ksHeader.setPayCount("0");
 		
+		// KBR : 거래 정보 
 		KspayCredit credit = new KspayCredit();
+		
 		credit.setReqType("1400");			//승인구분
 		credit.setPayCondition("1");		//1:일반,2:무이자
 		credit.setCardTrack(response.auth.card.number+"="+response.auth.card.expiry);	//카드번호=유효기간 or 거래번호
@@ -82,7 +85,7 @@ public class KspayAuth {
 		
 		//logger.info(GsonUtil.toJson(ksHeader, true, ""));
 		//logger.info(GsonUtil.toJson(credit, true, ""));
-		
+		// KBR : 데이터 소켓 통신을 위한 바이터 단위 변환
 		KspayResponse res = comm(ksHeader,credit);
 		
 		sharedMap.put("van",VAN);
@@ -128,6 +131,7 @@ public class KspayAuth {
 		
 		TcpSocket tcp = new TcpSocket();
 		KspayResponse res = new KspayResponse();
+		
 		byte[] response = null;
 		try{
 			byte[] request = head.getHeader(credit.getKSNETCredit()).getBytes();

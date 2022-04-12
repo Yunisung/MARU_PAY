@@ -91,27 +91,45 @@ public class TrxDAO extends DAO {
 		return "VI" + getFunction("FN_NEXTVAL2", "VACT_ISSUE");
 	}
 	//WH
+	
+	/**
+	 * PYS : 터미널 ID로 터미널조회
+	 * @param tmnId
+	 * @return
+	 */
 	public SharedMap<String, Object> getMchtTmnByTmnId(String tmnId) {
 		String key = "PG_MCHT_TMN_" + tmnId;
-		if (PAYUNIT.cacheMap.containsKey(key)) {
+		//KJM : 키 값이 있으면
+		if (PAYUNIT.cacheMap.containsKey(key)) {	
 			logger.debug("get key : {}", key);
-			return PAYUNIT.cacheMap.getUnchecked(key);
+			//KJM : 캐시에 키값 저장 후 가져옴
+			return PAYUNIT.cacheMap.getUnchecked(key);	
 		} else {
+			//KJM : 테이블에서 키값 가져옴
 			super.setTable("PG_MCHT_TMN");
 			super.setColumns("*");
 			super.addWhere("tmnId", tmnId, eq);
 			RecordSet rset = super.search();
 			super.initRecord();
 			logger.debug("load key : {}", key);
+			
 			return PAYUNIT.cacheMap.put(key, rset.getRow(0));
 		}
 	}
 
+	/**
+	 * PYS : paykey로 터미널 조회
+	 * @param payKey
+	 * @return
+	 */
 	public SharedMap<String, Object> getMchtTmnByPayKey(String payKey) {
 		String key = "PG_MCHT_TMN_" + payKey;
+		//KJM : 캐시에 일치하는 key값 존재 할 때
 		if (PAYUNIT.cacheMap.containsKey(key)) {
 			logger.debug("get key : {}", key);
+			//KJM : 캐시에서 key 값을 가져온다
 			return PAYUNIT.cacheMap.getUnchecked(key);
+		//KJM : 캐시에 값이 없을 경우 db에서 값을 가져와 캐시에 넣어 줌
 		} else {
 			super.setTable("PG_MCHT_TMN");
 			super.setColumns("*");
@@ -123,11 +141,18 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	/**
+	 * PYS : 가맹점 ID로 가맹점 조회
+	 * @param mchtId
+	 * @return
+	 */
 	public SharedMap<String, Object> getMchtByMchtId(String mchtId) {
 		String key = "PG_MCHT_" + mchtId;
+		//KJM : 캐시에 key 있으면 가져옴
 		if (PAYUNIT.cacheMap.containsKey(key)) {
 			logger.debug("get key : {}", key);
 			return PAYUNIT.cacheMap.getUnchecked(key);
+		//KJM : 캐시에 key 없으면 db에서 가져와 캐시에 넣어줌
 		} else {
 			super.setTable("PG_MCHT");
 			super.setColumns("*");
@@ -139,6 +164,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	/**
+	 * PYS : 가맹점 ID로 가맹점 정산 정보 조회
+	 * @param mchtId
+	 * @return
+	 */
 	public SharedMap<String, Object> getMchtMngByMchtId(String mchtId) {
 		String key = "PG_MCHT_MNG_" + mchtId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -155,6 +185,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	/** 
+	 * PYS : 에이전시ID로 에이전시 정산정보 조회
+	 * @param agencyId
+	 * @return
+	 */
 	public SharedMap<String, Object> getAgencyMngById(String agencyId) {
 		String key = "PG_MAM_AGENCY_MNG_" + agencyId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -171,6 +206,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	/**
+	 * PYS : 대행사 ID로 대행사 정산정보 조회
+	 * @param distId
+	 * @return
+	 */
 	public SharedMap<String, Object> getDistMngById(String distId) {
 		String key = "PG_MAM_DIST_MNG_" + distId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -187,6 +227,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	/**
+	 * PYS : 지사ID로 지사 정산정보 조회
+	 * @param salesId
+	 * @return
+	 */
 	public SharedMap<String, Object> getSalesMngById(String salesId) {
 		String key = "PG_MAM_SALES_MNG_" + salesId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -203,7 +248,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
-	
+	/**
+	 * PYS : PG_LOAN_MNG 테이블이 없음. 사용안함
+	 * @param salesId
+	 * @return
+	 */
 	public SharedMap<String, Object> getLoanMngById(String salesId) {
 		String key = "PG_LOAN_MNG_" + salesId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -220,7 +269,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
-	
+	/**
+	 * PYS : VAN사 입금 수수료율 조회
+	 * @param van
+	 * @return
+	 */
 	public SharedMap<String, Object> getOrgFee(String van) {
 		String key = "PG_ORG_FEE_" + van;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -237,6 +290,16 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	/**
+	 * PYS : 가맹점 매입금액합계 조회
+	 * <pre>
+	 * SQL문 실행해본 결과
+	 * 가맹점 하루 매입금액, 가맹점 한달 매입금액, 가맹점 1년 매입금액, 에이전시 하루 매입금액, 에이전시 한달 매입금액, 대행사 하루 매입금액, 대행사 한달 매입금액 조회됨.
+	 * (mchtDailySum, mchtMonthlySum, mchtYearSum, agencyDailySum, agentMonthlySum, distDailySum, distMonthlySum)
+	 * </pre>
+	 * @param mchtMap
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxSum(SharedMap<String, Object> mchtMap) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("SELECT ");
@@ -255,6 +318,11 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 	
+	/**
+	 * PYS : 가맹점 매입금액합계 조회 (하루)
+	 * @param mchtMap
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxMchtDailySum(SharedMap<String, Object> mchtMap) {
 		String q = "SELECT ifnull(sum(amount),0) as mchtDailySum FROM PG_TRX_CAP WHERE mchtId   ='" + mchtMap.getString("mchtId") + "'   and regDay =DATE_FORMAT(now(),'%Y%m%d')  ";
 		RecordSet rset = super.query(q);
@@ -262,6 +330,11 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 	
+	/** 
+	 * PYS : 가맹점 매입금액합계 조회 (한달, 1일부터 현재까지) 
+	 * @param mchtMap
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxMchtMonthlySum(SharedMap<String, Object> mchtMap) {
 //		String q = "SELECT ifnull(sum(amount),0) as mchtMonthlySum FROM PG_TRX_CAP WHERE mchtId   ='" + mchtMap.getString("mchtId") + "'   and substr(regDay,1,6) =DATE_FORMAT(now(),'%Y%m')  ";
 		String q = "SELECT ifnull(sum(amount),0) as mchtMonthlySum FROM PG_TRX_CAP WHERE mchtId   ='" + mchtMap.getString("mchtId") + "' AND regDay BETWEEN DATE_FORMAT(now(),'%Y%m01') AND DATE_FORMAT(now(),'%Y%m%d') ";
@@ -270,6 +343,11 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 	
+	/**
+	 * PYS : 가맹점 매입금액합계 조회 (1년, 1월1일부터 현재까지)
+	 * @param mchtMap
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxMchtYearlySum(SharedMap<String, Object> mchtMap) {
 		String q = "SELECT ifnull(sum(amount),0) as mchtYearlySum FROM PG_TRX_CAP WHERE mchtId ='" + mchtMap.getString("mchtId") + "' AND regDay BETWEEN DATE_FORMAT(now(),'%Y0101') AND DATE_FORMAT(now(),'%Y%m%d') ";
 		RecordSet rset = super.query(q);
@@ -278,7 +356,12 @@ public class TrxDAO extends DAO {
 	}
 	
 
-
+	/**
+	 * PYS : 승인거래조회
+	 * @param mchtId
+	 * @param trackId
+	 * @return
+	 */
 	public boolean isDuplicatedTrackId(String mchtId, String trackId) {
 		super.setTable("PG_TRX_PAY");
 		super.setColumns("*");
@@ -293,7 +376,12 @@ public class TrxDAO extends DAO {
 		}
 	}
 
-	
+	/**
+	 * PYS : 결재응답내역 조회
+	 * @param van
+	 * @param vanTrxId
+	 * @return
+	 */
 	public boolean isDuplicatedVanTrxId(String van,String vanTrxId) {
 		super.setTable("PG_TRX_RES");
 		super.setColumns("*");
@@ -308,22 +396,26 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
-	
-	
-	public boolean isDuplicatedVanTrxIdByVanId(String vanId,String vanTrxId) {
-		super.setTable("PG_TRX_RES");
-		super.setColumns("*");
-		super.addWhere("vanId", vanId);
-		super.addWhere("vanTrxId", vanTrxId);
-		RecordSet rset = super.search();
-		super.initRecord();
-		if (rset.size() == 0) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-	
+    public boolean isDuplicatedVanTrxIdByVanId(String vanId,String vanTrxId) {
+        super.setTable("PG_TRX_RES");
+        super.setColumns("*");
+        super.addWhere("vanId", vanId);
+        super.addWhere("vanTrxId", vanTrxId);
+        RecordSet rset = super.search();
+        super.initRecord();
+        if (rset.size() == 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
+	/** 
+	 * PYS : 결제취소내역 조회
+	 * @param van
+	 * @param vanTrxId
+	 * @return
+	 */
 	public boolean isDuplicatedRFDVanTrxId(String van,String vanTrxId) {
 		super.setTable("PG_TRX_RFD");
 		super.setColumns("*");
@@ -337,43 +429,49 @@ public class TrxDAO extends DAO {
 			return true;
 		}
 	}
-	
-	public boolean isDuplicatedPAYVanTrxIdByVanId(String vanId,String vanTrxId) {
-		super.setTable("PG_TRX_PAY");
-		super.setColumns("*");
-		super.addWhere("vanId", vanId);
-		super.addWhere("vanTrxId", vanTrxId);
-		RecordSet rset = super.search();
-		super.initRecord();
-		if (rset.size() == 0) {
-			return false;
-		} else {
-			if(rset.getRowFirst().isNullOrSpace("trxId")){
-				return false;
-			} else {
-				return true;
-			}
-		}
-	}
-	
-	public boolean isDuplicatedRFDVanTrxIdByVanId(String vanId,String vanTrxId) {
-		super.setTable("PG_TRX_RFD");
-		super.setColumns("*");
-		super.addWhere("vanId", vanId);
-		super.addWhere("vanTrxId", vanTrxId);
-		RecordSet rset = super.search();
-		super.initRecord();
-		if (rset.size() == 0) {
-			return false;
-		} else {
-			if(rset.getRowFirst().isNullOrSpace("trxId")){
-				return false;
-			} else {
-				return true;
-			}
-		}
-	}
 
+    public boolean isDuplicatedPAYVanTrxIdByVanId(String vanId,String vanTrxId) {
+        super.setTable("PG_TRX_PAY");
+        super.setColumns("*");
+        super.addWhere("vanId", vanId);
+        super.addWhere("vanTrxId", vanTrxId);
+        RecordSet rset = super.search();
+        super.initRecord();
+        if (rset.size() == 0) {
+            return false;
+        } else {
+            if(rset.getRowFirst().isNullOrSpace("trxId")){
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+    
+    public boolean isDuplicatedRFDVanTrxIdByVanId(String vanId,String vanTrxId) {
+        super.setTable("PG_TRX_RFD");
+        super.setColumns("*");
+        super.addWhere("vanId", vanId);
+        super.addWhere("vanTrxId", vanTrxId);
+        RecordSet rset = super.search();
+        super.initRecord();
+        if (rset.size() == 0) {
+            return false;
+        } else {
+            if(rset.getRowFirst().isNullOrSpace("trxId")){
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+    
+	/**
+	 * PYS : 결제주문상품 등록
+	 * @param prodId
+	 * @param products
+	 * @param regDate
+	 */
 	public void insertProduct(String prodId, List<Product> products, String regDate) {
 
 		int i = 1;
@@ -421,6 +519,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
+	/**
+	 * PYS : 카드번호 앞6자리로 카드회사 조회
+	 * @param bin
+	 * @return
+	 */
 	public SharedMap<String,Object> getDBIssuer(String bin){
 		SharedMap<String,Object> issuerMap = new SharedMap<String,Object>();
 		if(CommonUtil.isNullOrSpace(bin)){
@@ -428,6 +531,7 @@ public class TrxDAO extends DAO {
 		}
 		
 		String key = "PG_CODE_BIN_" + bin;
+		
 		if (PAYUNIT.cacheMap.containsKey(key)) {
 			return PAYUNIT.cacheMap.getUnchecked(key);
 		} else {
@@ -436,19 +540,29 @@ public class TrxDAO extends DAO {
 			super.addWhere("bin", bin, eq);
 			RecordSet rset = super.search();
 			super.initRecord();
+			
 			logger.debug("load key : {}", key);
+			
 			if(rset.size() == 0){
 				issuerMap.put("bin", bin);
+				// KBR : 발행사 
 				issuerMap.put("issuer", "기타");
+				// KBR : 신용 or 체크
 				issuerMap.put("type", "신용");
 				return issuerMap;
 			}else{
+				// KBR : DB에 존재하면
 				return PAYUNIT.cacheMap.put(key, rset.getRow(0));
 			}
 		}
 		
 	}
 
+	/**
+	 * PYS : 카드정보 암호화
+	 * @param cardId
+	 * @param value
+	 */
 	public void insertCard(String cardId, String value) {
 
 		super.setTable("PG_TRX_BOX");
@@ -461,13 +575,23 @@ public class TrxDAO extends DAO {
 
 	}
 	
-	
+	/** 
+	 * PYS : 카드정보 조회
+	 * @param cardId
+	 * @return
+	 */
 	public SharedMap<String,Object> getByCardId(String cardId) {
 		RecordSet rset = super.query("SELECT `value` FROM PG_TRX_BOX WHERE cardId ='"+cardId+"'");
 		super.initRecord();
 		return rset.getRow(0);
 	}
 	
+	/**
+	 * PYS : 빠른현장결제 카드 등록내역 조회, 안쓰는듯
+	 * @param cardId
+	 * @param mchtId
+	 * @return
+	 */
 	public SharedMap<String,Object> getByKsnetCardId(String cardId,String mchtId) {
 		RecordSet rset = super.query("SELECT * FROM PG_TRX_AUTH WHERE cardId ='"+cardId+"' AND mchtId ='"+mchtId+"' AND resultCd ='0000'");
 		super.initRecord();
@@ -521,6 +645,11 @@ public class TrxDAO extends DAO {
 	}
 
 
+	/**
+	 * PYS : 결제요청내역 등록
+	 * @param sharedMap
+	 * @param response
+	 */
 	public void insertTrxREQ(SharedMap<String, Object> sharedMap, Response response) {
 
 		super.setTable("PG_TRX_REQ");
@@ -534,25 +663,31 @@ public class TrxDAO extends DAO {
 		super.setRecord("payerEmail", response.pay.payerEmail);
 		super.setRecord("payerTel", response.pay.payerTel);
 		super.setRecord("amount", response.pay.amount);
-		
 		super.setRecord("cardId", sharedMap.getString(PAYUNIT.KEY_CARD));
+		
 		if (response.pay.card != null) {
-			super.setRecord("issuer", response.pay.card.issuer);
-			super.setRecord("last4", response.pay.card.last4);
-			super.setRecord("cardType", response.pay.card.cardType); 
-			super.setRecord("bin", response.pay.card.bin);
-			super.setRecord("installment", CommonUtil.zerofill(response.pay.card.installment,2));
-			super.setRecord("acquirer", response.pay.card.acquirer);
+			super.setRecord("issuer", response.pay.card.issuer); //발급사
+			super.setRecord("last4", response.pay.card.last4); //카드뒤 4자리
+			super.setRecord("cardType", response.pay.card.cardType); //카드유형(신용,체크)
+			super.setRecord("bin", response.pay.card.bin); //카드앞 6자리
+			super.setRecord("installment", CommonUtil.zerofill(response.pay.card.installment,2)); //할부개월
+			super.setRecord("acquirer", response.pay.card.acquirer); //매입사
 		}
+		
 		super.setRecord("prodId", sharedMap.getString(PAYUNIT.KEY_PROD));
 		super.setRecord("regDay", sharedMap.getString(PAYUNIT.REG_DATE).substring(0, 8));
 		super.setRecord("regTime", sharedMap.getString(PAYUNIT.REG_DATE).substring(8));
 		super.setRecord("regDate", sharedMap.getString(PAYUNIT.REG_DATE));
+		
 		logger.info("set TRX_REQ : {}", super.insert());
 		super.initRecord();
 
 	}
 
+	/**
+	 * PYS : 결제요청내역 등록
+	 * @param sharedMap
+	 */
 	public void insertTrxREQ(SharedMap<String, Object> sharedMap) {
 
 		super.setTable("PG_TRX_REQ");
@@ -584,6 +719,11 @@ public class TrxDAO extends DAO {
 
 	}
 
+	/** 
+	 * PYS : 결제응답내역 추가
+	 * @param sharedMap
+	 * @param response
+	 */
 	public void insertTrxRES(SharedMap<String, Object> sharedMap, Response response) {
 
 		super.setTable("PG_TRX_RES");
@@ -617,6 +757,10 @@ public class TrxDAO extends DAO {
 
 	}
 
+	/**
+	 * PYS : 결제응답내역 추가
+	 * @param sharedMap
+	 */
 	public void insertTrxRES(SharedMap<String, Object> sharedMap) {
 
 		super.setTable("PG_TRX_RES");
@@ -645,6 +789,10 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 
+	/**
+	 * PYS : 승인실패내역 추가
+	 * @param trxId
+	 */
 	public void insertTrxERR(String trxId) {
 
 		String q = "INSERT INTO PG_TRX_ERR  " + " SELECT A.trxId,trxType,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,issuer,acquirer,prodId,"
@@ -654,6 +802,10 @@ public class TrxDAO extends DAO {
 
 	}
 
+	/**
+	 * PYS : 승인거래원장 추가
+	 * @param trxId
+	 */
 	public void insertTrxPAY(String trxId) {
 
 		String q = "INSERT INTO PG_TRX_PAY  " + " SELECT A.trxId,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,issuer,acquirer,"
@@ -735,6 +887,14 @@ public class TrxDAO extends DAO {
 	}
 */
 	
+	/** 
+	 * PYS : 승인거래원장 조회
+	 * @param tmnId
+	 * @param trackId
+	 * @param trxDay
+	 * @param amount
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxPayByTrackId(String tmnId, String trackId, String trxDay, long amount) {
 
 		super.setTable("PG_TRX_PAY");
@@ -746,9 +906,14 @@ public class TrxDAO extends DAO {
 		RecordSet rset = super.search();
 		super.initRecord();
 		return rset.getRow(0);
-
 	}
 	
+	/**
+	 * PYS : 승인거래원장 조회
+	 * @param tmnId
+	 * @param trxId
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxPayByTrxId(String tmnId, String trxId) {
 
 		super.setTable("PG_TRX_PAY");
@@ -761,7 +926,14 @@ public class TrxDAO extends DAO {
 
 	}
 	
-	
+	/** 
+	 * PYS : 매입내역조회
+	 * @param tmnId : 단말기ID
+	 * @param trackId : 주문번호
+	 * @param trxDay : 거래일자
+	 * @param amount : 금액
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxCapByTrackId(String tmnId, String trackId, String trxDay, long amount) {
 
 		super.setTable("PG_TRX_CAP");
@@ -777,6 +949,12 @@ public class TrxDAO extends DAO {
 
 	}
 
+	/**
+	 * PYS : 매입내역조회
+	 * @param tmnId : 단말기ID
+	 * @param trxId : 거래번호
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxCapByTrxId(String tmnId, String trxId) {
 
 		super.setTable("PG_TRX_CAP");
@@ -790,6 +968,11 @@ public class TrxDAO extends DAO {
 
 	} 
 
+	/**
+	 * PYS : 취소금액 전체조회
+	 * @param trxId : 거래번호
+	 * @return
+	 */
 	public long getTrxRefundSumByTrxId(String trxId) {
 
 		super.setTable("PG_TRX_CAP");
@@ -802,7 +985,11 @@ public class TrxDAO extends DAO {
 
 	}
 	
-	
+	/**
+	 * PYS : 정산예정일자 조회
+	 * @param trxId
+	 * @return
+	 */
 	public long getStlDay(String trxId) {
 
 		RecordSet rset = super.query("SELECT stlDay FROM PG_TRX_CAP_DTL WHERE capId = (SELECT capId FROM PG_TRX_CAP WHERE trxId ='"+trxId+"')");
@@ -810,6 +997,11 @@ public class TrxDAO extends DAO {
 
 	}
 
+	/**
+	 * PYS : 결제취소원장 조회
+	 * @param trxId : 거래번호
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxRfdByTrxId(String trxId) {
 
 		super.setTable("PG_TRX_RFD");
@@ -820,6 +1012,11 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 
+	/**
+	 * PYS : 매입내역 상세 조회
+	 * @param capId : 매입거래번호
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxCapDtlByCapId(String capId) {
 
 		super.setTable("PG_TRX_CAP_DTL");
@@ -832,6 +1029,11 @@ public class TrxDAO extends DAO {
 
 	}
 
+	/**
+	 * PYS : 승인거래원장 조회
+	 * @param trxId : 거래번호
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxPayByTrxId(String trxId) {
 
 		super.setTable("PG_TRX_PAY");
@@ -843,6 +1045,11 @@ public class TrxDAO extends DAO {
 
 	}
 	
+	/**
+	 * PYS : 결제요청내역 조회
+	 * @param trxId : 거래번호
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxReqByTrxId(String trxId) {
 		
 		super.setTable("PG_TRX_REQ");
@@ -857,6 +1064,12 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	/**
+	 * PYS : 승인거래원장 조회
+	 * @param van : 거래처리사
+	 * @param vanTrxId : 처리사 거래번호
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxByVanTrxId(String van,String vanTrxId) {
 		super.setDebug(false);
 		super.setTable("PG_TRX_PAY");
@@ -869,6 +1082,11 @@ public class TrxDAO extends DAO {
 
 	}
 
+	/**
+	 * PYS : 매입내역 조회
+	 * @param trxId : 거래번호 
+	 * @return
+	 */
 	public SharedMap<String, Object> getCapByTrxId(String trxId) {
 
 		super.setTable("PG_TRX_CAP");
@@ -881,6 +1099,12 @@ public class TrxDAO extends DAO {
 
 	}
 
+	/**
+	 * PYS : 결제취소원장 추가
+	 * @param sharedMap
+	 * @param payMap
+	 * @param response
+	 */
 	public void insertTrxRFD(SharedMap<String, Object> sharedMap, SharedMap<String, Object> payMap, Response response) {
 		String curDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
 		super.setTable("PG_TRX_RFD");
@@ -917,6 +1141,11 @@ public class TrxDAO extends DAO {
 	}
 
 	//WH
+	/**
+	 * PYS : 결제취소원장 추가
+	 * @param sharedMap
+	 * @param trxMap
+	 */
 	public void insertTrxRFD(SharedMap<String, Object> sharedMap, SharedMap<String, Object> trxMap) {
 		super.setTable("PG_TRX_RFD");
 		long vat = new Double(sharedMap.getLong("amount") *10 /110).longValue();
@@ -931,7 +1160,7 @@ public class TrxDAO extends DAO {
 		super.setRecord("status", "접수");
 		super.setRecord("rfdType", sharedMap.getString("rfdType"));
 		super.setRecord("rfdAll", sharedMap.getString("rfdAll"));
-		super.setRecord("rfdAmount", -sharedMap.getLong("rfdAmount"));
+		super.setRecord("rfdAmount", -sharedMap.getLong("amount"));
 		super.setRecord("rfdVat", -vat);
 		super.setRecord("cardId", trxMap.getString("cardId"));
 		super.setRecord("bin", trxMap.getString("bin"));
@@ -954,6 +1183,11 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 
+	/**
+	 * PYS : 결제취소원장 수정
+	 * @param sharedMap
+	 * @param response
+	 */
 	public void updateTrxRFD(SharedMap<String, Object> sharedMap, Response response) {
 		String curDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
 		super.setTable("PG_TRX_RFD");
@@ -978,6 +1212,10 @@ public class TrxDAO extends DAO {
 	}
 
 	//WH
+	/**
+	 * PYS : 결제취소원장 수정
+	 * @param sharedMap
+	 */
 	public void updateTrxRFD(SharedMap<String, Object> sharedMap) {
 		super.setTable("PG_TRX_RFD");
 		if (sharedMap.getString("vanResultCd").equals("0000")) {
@@ -1013,6 +1251,10 @@ public class TrxDAO extends DAO {
 		return res;
 	}**/
 
+	/**
+	 * PYS : 승인거래 승인취소 할때 
+	 * @param trxId
+	 */
 	public void updateTrxPay(String trxId) {
 
 		super.setTable("PG_TRX_PAY");
@@ -1023,6 +1265,10 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 
+	/**
+	 * PYS : 무선단말거래 이력 추가
+	 * @param sharedMap
+	 */
 	public void insertTrxWH(SharedMap<String, Object> sharedMap) {
 
 		super.setTable("PG_TRX_WH");
@@ -1040,6 +1286,10 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 	
+	/**
+	 * PYS : 무선단말거래 이력 수정
+	 * @param sharedMap
+	 */
 	public void updateTrxWH(SharedMap<String, Object> sharedMap) {
 		super.setTable("PG_TRX_WH");
 		super.setRecord("trxId", sharedMap.getString("trxId"));
@@ -1052,6 +1302,11 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 
+	/**
+	 * PYS : 가맹점 TAX정보 수정
+	 * @param taxId
+	 * @return
+	 */
 	public SharedMap<String, Object> getMchtTaxByTaxId(String taxId) {
 		String key = "PG_MCHT_TAX_" + taxId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -1068,6 +1323,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
+	/**
+	 * PYS : 가맹점 상태가 예정이거나 사용일때 TAX정보 조회
+	 * @param mchtId
+	 * @return
+	 */
 	public SharedMap<String, Object> getMchtReadyTaxByMchtId(String mchtId) {
 		super.setTable("PG_MCHT_TAX");
 		super.setColumns("*");
@@ -1079,11 +1339,16 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 	
+	/**
+	 * PYS : 정산금액 조회
+	 * @param taxId
+	 * @return
+	 */
 	public long getTaxUsedLimit(String taxId) {
 		super.setTable("PG_TRX_CAP_DTL A, PG_TRX_CAP B");
 		super.setColumns("IFNULL(SUM(A.stlAmount), 0) as amt");
 		super.setWhere("A.capId = B.capId");
-		super.addWhere(" SUBSTR(A.stlDay, 1, 4) = SUBSTR(CURDATE(), 1, 4) ");
+		super.addWhere(" SUBSTR(A.stlDay, 1, 4) = SUBSTR(CURDATE(), 1, 4) "); //현재연도랑 정산예정연도가 같을떄
 		super.addWhere("taxId", taxId, eq);
 		
 		RecordSet rset = super.search();
@@ -1098,6 +1363,11 @@ public class TrxDAO extends DAO {
 		
 	}
 
+	/**
+	 * PYS : 가맹점 TAX정보 수정
+	 * @param taxId
+	 * @param taxStatus : 사용상태
+	 */
 	public void updateTaxStatus(String taxId, String taxStatus) {
 		super.setTable("PG_MCHT_TAX");
 		super.setRecord("taxStatus", taxStatus);
@@ -1106,6 +1376,11 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 	
+	/**
+	 * PYS : 가맹점 터미널 taxID 변경
+	 * @param tmnId
+	 * @param taxId
+	 */
 	public void updateMchtTmnTaxId(String tmnId, String taxId) {
 		super.setTable("PG_MCHT_TMN");
 		
@@ -1115,6 +1390,10 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 	
+	/**
+	 * PYS : 가맹점 터미널 단말기ID cache에서 삭제
+	 * @param tmnId : 단말기ID
+	 */
 	public void deleteMchtTmnByTmnId(String tmnId) {
 		String key = "PG_MCHT_TMN_" + tmnId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -1123,6 +1402,10 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
+	/**
+	 * PYS : 가맹점 터미널 온라인결제Key cache에서 삭제
+	 * @param payKey : 온라인결제key
+	 */
 	public void deleteMchtTmnByPayKey(String payKey) {
 		String key = "PG_MCHT_TMN_" + payKey;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -1131,6 +1414,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
+	/**
+	 * PYS : MARU_APP에서 거래취소 요청한 정보 받아오기
+	 * @param vanTrxId : van사 거래번호
+	 * @return
+	 */
 	public SharedMap<String, Object> getAdminRfdByVanTrxId(String vanTrxId) {
 		super.setTable("PG_TRX_ADMIN_RFD");
 		super.setColumns("idx");
@@ -1140,6 +1428,12 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 	
+	/**
+	 * PYS : MARU_APP에서 거래취소 요청한 정보 수정
+	 * @param idx
+	 * @param trxId : 거래번호
+	 * @param resultCd : 결과코드
+	 */
 	public void updateAdminRfd(String idx, String trxId, String resultCd) {
 		super.setTable("PG_TRX_ADMIN_RFD");
 		super.setRecord("trxId", trxId);
@@ -1150,6 +1444,11 @@ public class TrxDAO extends DAO {
 	}
 	
 	//NICE
+	/**
+	 * PYS : 사용중인 가맹점 터미널정보 불러오기
+	 * @param vanId
+	 * @return
+	 */
 	public SharedMap<String, Object> getMchtTmnByVanId(String vanId) {
 		String key = "VW_MCHT_TMN_" + vanId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -1167,6 +1466,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
+	/**
+	 * PYS : 가맹점 터미널정보 불러오기
+	 * @param idx
+	 * @return
+	 */
 	public SharedMap<String, Object> getMchtTmnByVanIdx(long idx) {
 		String key = "VW_MCHT_TMN_IDX_" + idx;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -1183,7 +1487,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
-	
+	/**
+	 * PYS : 가맹점 터미널 추가정보 불러오기
+	 * @param tmnId
+	 * @return
+	 */
 	public SharedMap<String, Object> getMchtTmnDtlByTmnId(String tmnId) {
 		String key = "PG_MCHT_TMN_DTL_" + tmnId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -1200,7 +1508,15 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
-	
+	/**
+	 * PYS : 휴일정보 불러오기
+	 * <pre>
+	 * PG_CODE_HOLIDAY에 데이터 추가해야할듯 (2018년도까지만 있음)
+	 * </pre>
+	 * @param today
+	 * @param term
+	 * @return
+	 */
 	public String getSettleDay(String today,int term) {	
 		String q = "SELECT days FROM PG_CODE_HOLIDAY WHERE days > '"+today+"' AND status ='no' limit "+(term-1)+",1";
 		RecordSet rset = super.query(q);
@@ -1208,6 +1524,14 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0).getString("days");
 	}
 	
+	/**
+	 * PYS : 휴일정보 불러오기
+	 * <pre>
+	 * PG_CODE_HOLIDAY에 데이터 추가해야할듯 (2018년도까지만 있음)
+	 * </pre>
+	 * @param today
+	 * @return
+	 */
 	public String getSettleDay(String today) {	
 		String q = "SELECT days FROM PG_CODE_HOLIDAY WHERE days >= '"+today+"' AND status ='no' limit 1";
 		RecordSet rset = super.query(q);
@@ -1216,7 +1540,11 @@ public class TrxDAO extends DAO {
 	}
 	
 	
-	
+	/**
+	 * PYS : 대표가맹점 하위터미널 매입내역 추가
+	 * @param capId
+	 * @param map
+	 */
 	public void insertTrxCAPSub(String capId,SharedMap<String,Object> map) {
 		
 		String q = "INSERT INTO PG_TRX_CAP_SUB  " + " SELECT capId,trxId,mchtId,tmnId,capType,rfdType,rootTrxId,amount,"
@@ -1227,7 +1555,11 @@ public class TrxDAO extends DAO {
 		
 	}
 	
-	
+	/**
+	 * PYS : 결제취소원장 추가
+	 * @param capId
+	 * @param map
+	 */
 	public void insertTrxRefundSub(String capId,SharedMap<String,Object> map) {
 		
 		String q = "INSERT INTO PG_TRX_CAP_SUB  " + " SELECT '"+capId+"',A.trxId,A.mchtId,A.tmnId,B.capType,A.rfdType,A.rootTrxId,A.rfdAmount,"
@@ -1238,7 +1570,11 @@ public class TrxDAO extends DAO {
 		
 	}
 	
-	
+	/**
+	 * PYS : 거래서버통신이력 추가
+	 * @param sharedMap
+	 * @param pay
+	 */
 	public void insertTrxIO(SharedMap<String, Object> sharedMap,Pay pay) {
 
 		super.setTable("PG_TRX_IO");
@@ -1252,13 +1588,18 @@ public class TrxDAO extends DAO {
 		super.setRecord("message", sharedMap.getString("수신"));
 		super.setRecord("regDay", sharedMap.getString(PAYUNIT.REG_DATE).substring(0, 8));
 		super.setRecord("regTime", sharedMap.getString(PAYUNIT.REG_DATE).substring(8));
-		super.setRecord("regData", sharedMap.getString(PAYUNIT.PAYLOAD));
-		super.setRecord("regDate", sharedMap.getString(PAYUNIT.REG_DATE));
+		super.setRecord("regData", sharedMap.getString(PAYUNIT.PAYLOAD).toString());
+		super.setRecord("regDate", sharedMap.getString(PAYUNIT.REG_DATE).toString());
 		logger.info("set TRX_IO : {}", super.insert());
 		super.initRecord();
 
 	}
 	
+	/**
+	 * PYS : 거래서버통신이력 추가
+	 * @param sharedMap
+	 * @param auth
+	 */
 	public void insertTrxIO(SharedMap<String, Object> sharedMap,Auth auth) {
 
 		super.setTable("PG_TRX_IO");
@@ -1279,8 +1620,12 @@ public class TrxDAO extends DAO {
 
 	}
 	
+	/**
+	 * PYS : 거래서버통신이력 추가
+	 * @param sharedMap
+	 * @param vact
+	 */
 	public void insertTrxIO(SharedMap<String, Object> sharedMap,Vact vact) {
-
 		super.setTable("PG_TRX_IO");
 
 		super.setRecord("trxId", sharedMap.getString("trxId"));
@@ -1299,6 +1644,11 @@ public class TrxDAO extends DAO {
 
 	}
 	
+	/**
+	 * PYS : 거래서버통신이력 수정
+	 * @param sharedMap
+	 * @param payLoad
+	 */
 	public void updateTrxIO(SharedMap<String, Object> sharedMap,String payLoad) {
 
 		super.setTable("PG_TRX_IO");
@@ -1312,18 +1662,31 @@ public class TrxDAO extends DAO {
 
 	}
 	
-	
+	/**
+	 * PYS : 거래서버통신이력 가져오기
+	 * @param tmnId
+	 * @param search
+	 * @return
+	 */
 	public String getTrxIO(String tmnId,String search) {
+		
 		super.setTable("PG_TRX_IO");
 		super.setColumns("resData");
 		super.addWhere("tmnId", tmnId, eq);
+		
+		// KBR : 거래번호
 		if(search.startsWith("T") && search.length() == 13){
 			super.addWhere("trxId",search);
+		// KBR : 주문번호 
 		}else{
 			super.addWhere("trackId",search);
 		}
+		
+		// KBR : 거래 일자 들고오기 
 		RecordSet rset = super.search();
+		
 		super.initRecord();
+		
 		if(rset.size() == 0){
 			return "";
 		}else{
@@ -1331,6 +1694,12 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
+	/**
+	 * 3D 위젯 호출정보 조회
+	 * @param tmnId
+	 * @param search
+	 * @return
+	 */
 	public String getTrxIO3D(String tmnId,String search) {
 		super.setTable("PG_TRX_IO_3D");
 		super.setColumns("resData");
@@ -1351,7 +1720,12 @@ public class TrxDAO extends DAO {
 		
 	}
 	
-	
+	/**
+	 * PYS : VAN등록정보 조회
+	 * @param van
+	 * @param vanId
+	 * @return
+	 */
 	public SharedMap<String, Object> getVanByVanId(String van, String vanId) {
 		String key = "PG_VAN_" +van+ vanId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -1395,6 +1769,10 @@ public class TrxDAO extends DAO {
 		
 	}
 	
+	/**
+	 * PYS : 결제거래내역 전송내역 추가
+	 * @param sharedMap
+	 */
 	public void insertTrxNTS(SharedMap<String, Object> sharedMap) {
 
 		super.setTable("PG_TRX_NTS");
@@ -1418,6 +1796,10 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 	
+	/**
+	 * PYS : 거래내역 noti전송 내역 추가
+	 * @param ntsMap
+	 */
 	public void insertTrxNTSPG(SharedMap<String, Object> ntsMap) {
 
 		super.setTable("PG_TRX_NTS_PG");
@@ -1445,7 +1827,10 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 	
-	
+	/**
+	 * PYS : PG_VACT_BANK테이블 없음
+	 * @return
+	 */
 	public List<String> getBanks(){
 		String key = "PG_VACT_BANK";
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -1466,7 +1851,12 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
-	
+	/**
+	 * PYS : 가상계좌 은행,계좌번호, 발급기관 조회 (계좌번호가 여러개일때)
+	 * @param bankCd
+	 * @param accounts
+	 * @return
+	 */
 	public SharedMap<String,Object> getNotIssueAccount(String bankCd,List<String> accounts){
 		
 		String account = "";
@@ -1476,6 +1866,7 @@ public class TrxDAO extends DAO {
 			}
 			account = account.substring(0,account.length()-1);
 		}
+		
 		
 		super.setTable("PG_VACT A LEFT JOIN PG_VACT_DTL B  ON A.account = B.account ");
 		super.setColumns(" A.bankCd,MAX(A.account) account,A.issuerBank");
@@ -1488,37 +1879,27 @@ public class TrxDAO extends DAO {
 		
 		RecordSet rset = super.search();
 		super.initRecord();
-		if(rset.getRowFirst().isNullOrSpace("account")){
+		if(rset.size() == 0){
 			rset = getUsingAccount(bankCd,account);
 		}
 		return rset.getRow(0);
 	}
 	
-	
+	/**
+	 * PYS : 가상계좌 은행,계좌번호, 발급기관 조회 (계좌번호가 1개일때)
+	 * @param bankCd
+	 * @param account
+	 * @return
+	 */
 	private RecordSet getUsingAccount(String bankCd,String account){
-		logger.info("Using Account:"+bankCd);
-		// 우리은행 발급 제외처리 - 계약종료
-		if("020".equals(bankCd)) {
-			RecordSet rset = new RecordSet();
-			return rset;
-		}
-		int interval = 3;
-		StringBuilder sb = new StringBuilder();
-		sb.append("PG_VACT A LEFT JOIN PG_VACT_DTL B  ON A.account = B.account");
-		sb.append(" LEFT JOIN PG_VACT_DTL C ON A.account = C.account AND C.regDay >= date_format(DATE_ADD(NOW(), interval -"+interval+" DAY),'%Y%m%d')");
-		sb.append(" LEFT JOIN (SELECT SUM(IF(`status`='발행',1,0)) AS cnt, account FROM PG_VACT_DTL GROUP BY account) D ON A.account = D.account");
-		super.setTable(sb.toString());
-		super.setColumns(" A.bankCd,A.account,A.issuerBank");
-		super.setWhere("B.vactType != '영구' and A.pisp ='N'");
-		super.addWhere("B.regDay < date_format(DATE_ADD(NOW(), interval -"+interval+" DAY),'%Y%m%d')");
-		super.addWhere("C.account IS null");
-		super.addWhere("D.cnt = 0");
+		super.setTable("PG_VACT A LEFT JOIN PG_VACT_DTL B  ON A.account = B.account ");
+		super.setColumns(" A.bankCd,MAX(A.account) account ,A.issuerBank");
+		super.setWhere("B.account is null and A.pisp ='N'");
 		super.addWhere("A.bankCd", bankCd, eq);
 		if(!account.equals("")){
 			super.addWhere("A.account", account, ni);
 		}
-		super.setOrderBy("B.regDate ASC");
-		super.setLimit(1);
+		super.setOrderBy("A.regDate DESC");
 		
 		RecordSet rset = super.search();
 		super.initRecord();
@@ -1527,7 +1908,11 @@ public class TrxDAO extends DAO {
 	
 	
 	
-	
+	/**
+	 * PYS : 가맹점 가상계좌 조회
+	 * @param mchtId
+	 * @return
+	 */
 	public SharedMap<String,Object> getMchtMngVact(String mchtId){
 		
 		String key = "PG_MCHT_MNG_VACT_" + mchtId;
@@ -1545,7 +1930,12 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
-	
+	/**
+	 * PYS : 가상계좌발급번호 조회
+	 * @param mchtId : 가맹점ID
+	 * @param trackId : 주문번호
+	 * @return
+	 */
 	public String isDuplicatedVactTrackId(String mchtId, String trackId) {
 		super.setTable("PG_VACT_DTL");
 		super.setColumns("issueId");
@@ -1560,7 +1950,12 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
-	
+	/**
+	 * PYS : 가상계좌정보 조회 (상태 == 대기, 발행용도 == 영구)
+	 * @param account : 계좌번호
+	 * @param mchtId : 가맹점ID
+	 * @return
+	 */
 	public SharedMap<String,Object> getReadyVactDtl(String account,String mchtId) {
 		
 		super.setTable("PG_VACT A LEFT OUTER JOIN PG_VACT_DTL B ON A.account = B.account ");
@@ -1575,7 +1970,12 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 	
-	
+	/**
+	 * PYS : 가상계좌정보 조회 (상태 == 발행, 발행용도 == 영구) 
+	 * @param account : 계좌번호
+	 * @param mchtId : 가맹점 ID
+	 * @return
+	 */
 	public SharedMap<String,Object> getNotIssueVactDtl(String account,String mchtId) {
 		
 		super.setTable("PG_VACT A LEFT OUTER JOIN PG_VACT_DTL B ON A.account = B.account ");
@@ -1590,14 +1990,15 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 	
+	
 	/**
-	 * PG_VACT_DTL테이블에 저장
+	 * PYS : 가상계좌 정보추가
 	 * @param vact
 	 * @return
 	 */
 	public boolean insertVactDtl(SharedMap<String,Object> vact){
 		super.setTable("PG_VACT_DTL");
-		
+		//issueId,account,vactType,status,mchtId,holderName,amount,oper,trackId,expireAt,expireDate,udf1,udf2,reason,regId,regDay
 		super.setRecord("issueId", 	vact.getString("issueId"));
 		super.setRecord("account", 	vact.getString("account"));
 		super.setRecord("vactType", vact.getString("vactType"));
@@ -1619,12 +2020,16 @@ public class TrxDAO extends DAO {
 		return insert;
 	}
 	
-	
+	/**
+	 * PYS : 가상계좌 정보수정
+	 * @param vact
+	 * @return
+	 */
 	public boolean updateVactDtl(SharedMap<String,Object> vact){
 		super.setTable("PG_VACT_DTL");
 		//issueId,account,vactType,status,mchtId,holderName,amount,oper,trackId,expireAt,expireDate,udf1,udf2,reason,regId,regDay
 		
-		super.setRecord("status", vact.getString("status"));
+		super.setRecord("`status`", vact.getString("status"));
 		super.setRecord("holderName", vact.getString("holderName"));
 		super.setRecord("amount", 	CommonUtil.parseLong(vact.getString("amount")));
 		super.setRecord("oper", 	vact.getString("oper"));
@@ -1641,7 +2046,13 @@ public class TrxDAO extends DAO {
 		return update;
 	}
 	
-	
+	/**
+	 * PYS : 가상계좌 정보 조회
+	 * @param mchtId
+	 * @param issueId
+	 * @param trackId
+	 * @return
+	 */
 	public SharedMap<String,Object> getVactDtl(String mchtId, String issueId,String trackId) {
 		
 		super.setTable("PG_VACT_DTL A, PG_VACT B");
@@ -1660,7 +2071,11 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 	
-	
+	/**
+	 * PYS : 가상계좌 상태 변경(만료)
+	 * @param vact
+	 * @return
+	 */
 	public boolean updateVactDtlClose(SharedMap<String,Object> vact){
 		super.setTable("PG_VACT_DTL");
 		
@@ -1676,10 +2091,15 @@ public class TrxDAO extends DAO {
 		return update;
 	}
 	
+	/**
+	 * PYS : 가상계좌 거래내역 조회
+	 * @param issueId
+	 * @return
+	 */
 	public List<VactHookBean> getVactHistory(String issueId){
 		List<VactHookBean> result = null;
 		
-		String query = " SELECT vactId,mchtId,issueId,bankCd,account,sender,amount,trxType,rootVactId,trxDay,trxTime,trackId,udf1,udf2,stlDay,stlAmount,stlFee,stlFeeVat,hookRetry FROM PG_VACT_TRX WHERE issueId = ? ORDER BY vactId asc";
+		String query = " SELECT vactId,retry,mchtId,issueId,bankCd,account,sender,amount,trxType,rootVactId,trxDay,trxTime,trackId,udf1,udf2,stlDay,stlAmount,stlFee,stlFeeVat FROM PG_VACT_TRX WHERE issueId = ? ORDER BY vactId asc";
 		
 		
 		DBManager db 	= null;
@@ -1703,7 +2123,7 @@ public class TrxDAO extends DAO {
 				}
 				VactHookBean bean = new VactHookBean();
 				bean.vactId 	= CommonUtil.nToB(rset.getString("vactId"));
-				bean.retry 		= rset.getInt("hookRetry");
+				bean.retry 		= rset.getInt("retry");
 				bean.mchtId 	= CommonUtil.nToB(rset.getString("mchtId"));
 				bean.issueId 	= CommonUtil.nToB(rset.getString("issueId"));
 				bean.bankCd 	= CommonUtil.nToB(rset.getString("bankCd"));
@@ -1740,7 +2160,12 @@ public class TrxDAO extends DAO {
 	}
 	
 	
-	
+	/**
+	 * PYS : 가상계좌 정보 수정
+	 * @param patchMap
+	 * @param issueId
+	 * @return
+	 */
 	public boolean patchVactDtl(SharedMap<String,Object> patchMap,String issueId){
 		super.setTable("PG_VACT_DTL");
 		for( String key : patchMap.keySet() ){
@@ -1759,6 +2184,11 @@ public class TrxDAO extends DAO {
 		return update;
 	}
 
+	/**
+	 * PYS : 가맹점 서비스정보 조회
+	 * @param mchtId
+	 * @return
+	 */
 	public SharedMap<String,Object> getMchtSvc(String mchtId){
 		
 		String key = "PG_MCHT_SVC_" + mchtId;
@@ -1776,6 +2206,11 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	/**
+	 * PYS : VAN 등록정보 조회
+	 * @param vanIdx
+	 * @return
+	 */
 	public SharedMap<String, Object> getVanByVanIdx(String vanIdx) {
 		String key = "PG_VAN_" + vanIdx;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
@@ -1792,6 +2227,10 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	/**
+	 * PYS : 3D위젯 등록
+	 * @param ioMap
+	 */
 	public void insertTrxIO3D(SharedMap<String, Object> ioMap) {
 
 		super.setTable("PG_TRX_IO_3D");
@@ -1816,7 +2255,11 @@ public class TrxDAO extends DAO {
 	}
 	
 	
-	
+	/**
+	 * PYS : 3D위젯 정보 거래번호로 조회
+	 * @param trxId : 거래번호
+	 * @return
+	 */
 	public SharedMap<String,Object> getTrxIO3DByTrxId(String trxId){
 		super.setTable("PG_TRX_IO_3D");
 		super.setColumns("*");
@@ -1826,6 +2269,11 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 	
+	/**
+	 * PYS : 위젯 호출번호로 3D위젯정보조회
+	 * @param widgetKey : 위젯호출번호
+	 * @return
+	 */
 	public SharedMap<String,Object> getTrxIO3DByWidgetKey(String widgetKey){
 		super.setTable("PG_TRX_IO_3D");
 		super.setColumns("*");
@@ -1836,7 +2284,11 @@ public class TrxDAO extends DAO {
 	}
 	
 	
-	
+	/**
+	 * PYS : 3D위젯 정보 변경
+	 * @param ioMap
+	 * @param resData
+	 */
 	public void updateTrxIO3D(SharedMap<String,Object> ioMap,String resData){
 		super.setTable("PG_TRX_IO_3D");
 		super.setRecord("vanTrxId", 	ioMap.getString("vanTrxId"));
@@ -1853,9 +2305,13 @@ public class TrxDAO extends DAO {
 	}
 	
 	
-	
+	/**
+	 * PYS : 3D위젯 정보추가
+	 * @param ioMap
+	 * @param widgetMap
+	 */
 	public void insertTrx3D(SharedMap<String, Object> ioMap,SharedMap<String, Object> widgetMap) {
-
+		//KJM : 결제 요청 내역
 		super.setTable("PG_TRX_REQ");
 
 		super.setRecord("trxId", ioMap.getString("trxId"));
@@ -1882,7 +2338,7 @@ public class TrxDAO extends DAO {
 		logger.info("set TRX_REQ : {}", super.insert());
 		super.initRecord();
 		
-		
+		//KJM : 결제 응답 내역
 		super.setTable("PG_TRX_RES");
 		super.setRecord("trxId", ioMap.getString("trxId"));
 		super.setRecord("authCd", ioMap.getString("authCd"));
@@ -1898,7 +2354,8 @@ public class TrxDAO extends DAO {
 		super.setRecord("regDate", ioMap.getString("vanResultDate"));
 
 		logger.info("set TRX_RES : {}", super.insert());
-
+		
+		//KJM : 정상 승인일 경우 거래 원장 테이블에 추가
 		if (ioMap.isEquals("vanResultCd","0000")) {
 			insertTrxPAY(ioMap.getString("trxId"));
 		} else {
@@ -1908,6 +2365,11 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 	
+	/**
+	 * PYS : 3D위젯 정보변경
+	 * @param ioMap
+	 * @param widgetMap
+	 */
 	public void updateTrx3D(SharedMap<String, Object> ioMap,SharedMap<String, Object> widgetMap) {
 		
 		super.setTable("PG_TRX_REQ");
@@ -1967,6 +2429,11 @@ public class TrxDAO extends DAO {
 		
 	}
 
+	/**
+	 * PYS : 올앳 전문 조회
+	 * @param card_id
+	 * @return
+	 */
 	public SharedMap<String, Object> getAllatIssuer(String card_id) {
 		super.setTable("PG_CODE_ALLAT");
 		super.setColumns("name, acquirer");
@@ -2006,7 +2473,13 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRow(0);
 	}
-	
+
+	/**
+	 * PYS : 결제요청 조회
+	 * @param trxId : 거래번호
+	 * @param trxType : 거래유형
+	 * @return
+	 */
 	public boolean isTrxType(String trxId, String trxType) {
 		super.setTable("PG_TRX_REQ");
 		super.setColumns("*");
@@ -2021,6 +2494,14 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	/**
+	 * PYS : 오프라인 단말기 거래내역조회
+	 * @param mid : PG_VAN의 vanID
+	 * @param authCd : 승인번호
+	 * @param rootTrxDay 
+	 * @param amt
+	 * @return
+	 */
 	public String getOffPgTmnIdByMid(String mid, String authCd, String rootTrxDay, long amt) {
 		super.setTable("PG_TMS_OFFPG A left join VW_MCHT_TMN B on A.tmnId = B.tmnId");
 		super.setColumns("A.tmnId AS tmnId");
@@ -2036,6 +2517,14 @@ public class TrxDAO extends DAO {
 		return rset.getRowFirst().getString("tmnId");
 	}
 
+	/**
+	 * PYS : 오프라인단말기 거래내역조회
+	 * @param tid : 단말기ID
+	 * @param authCd
+	 * @param rootTrxDay
+	 * @param amt
+	 * @return
+	 */
 	public String getOffPgTmnIdByTid(String tid, String authCd, String rootTrxDay, long amt) {
 		super.setTable("PG_TMS_OFFPG");
 		super.setColumns("tmnId");
@@ -2051,7 +2540,11 @@ public class TrxDAO extends DAO {
 		return rset.getRowFirst().getString("tmnId");
 	}
 
-	
+	/**
+	 * PYS : 승인 거래내역 조회
+	 * @param vanTrxId : 처리사 거래번호
+	 * @return
+	 */
 	public SharedMap<String, Object> getTrxByAllatTrxId(String vanTrxId) {
 		super.setDebug(false);
 		super.setTable("PG_TRX_PAY");
@@ -2062,7 +2555,7 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRow(0);
 	}
-	
+
 	public SharedMap<String, Object> getTrxByWelcomeTrxId(String vanTrxId) {
 		super.setDebug(false);
 		super.setTable("PG_TRX_PAY");
@@ -2096,6 +2589,11 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 	
+	/**
+	 * PYS : 고유거래번호 조회
+	 * @param trxId : 거래번호
+	 * @return
+	 */
 	public String getFirstVanUniqueId(String trxId) {
 		super.setTable("PG_TRX_LOAD_FIRSTPAY");
 		super.setColumns("vanUniqueId");
@@ -2105,6 +2603,11 @@ public class TrxDAO extends DAO {
 		return rset.getRowFirst().getString("vanUniqueId");
 	}
 	
+	/**
+	 * PYS : 사용안함
+	 * @param trxId
+	 * @return
+	 */
 	public SharedMap<String, Object> getWalletTrxCap(String trxId) {
 		super.setTable("WL_TRX_CAP");
 		super.setColumns("*");
@@ -2118,6 +2621,13 @@ public class TrxDAO extends DAO {
 		}
 	}
 	
+	/**
+	 * PYS : 사용안함
+	 * @param refId
+	 * @param walletId
+	 * @param trxType
+	 * @return
+	 */
 	public String getWalletTrxSettle(String refId, String walletId,String trxType) {
 		super.setTable("WL_TRX_SETTLE");
 		super.setColumns("trxId");
@@ -2129,6 +2639,10 @@ public class TrxDAO extends DAO {
 		return rset.getRowFirst().getString("trxId");
 	}
 	
+	/**
+	 * PYS : 사용안함
+	 * @param sharedMap
+	 */
 	public void insertWalletSettle(SharedMap<String, Object> sharedMap) {
 		super.setTable("WL_TRX_SETTLE");
 		super.setRecord("trxId", sharedMap.getString("trxId"));
@@ -2163,6 +2677,10 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 	
+	/**
+	 * 사용안함
+	 * @param walletCapMap
+	 */
 	public void insertWlTrxCap(SharedMap<String, Object> walletCapMap) {
 		super.setTable("WL_TRX_CAP");
 		super.setRecord("trxId", walletCapMap.getString("trxId"));
@@ -3107,4 +3625,5 @@ public class TrxDAO extends DAO {
 			return true;
 		}
 	}
+	
 }

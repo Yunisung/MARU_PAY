@@ -54,6 +54,8 @@ public class ProcPayW3DHook extends Proc {
 		super.response		= new Response();
 		super.trxDAO		= new TrxDAO();
 		
+		//KJM : 파라미터들 추출
+		//search : KSPAY5/(거래번호)T211118001666/(카드번호)4619540013996970/(유효기간)2607/(?????)[object%20HTMLSelectElement]
 		String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_W3D_HOOK+"/", "");
 		logger.info("W3DHOOK : [{}]",search);
 		String[] initial = CommonUtil.adjustArray(CommonUtil.split(search, "[/]", true),5);
@@ -73,7 +75,10 @@ public class ProcPayW3DHook extends Proc {
 		
 		if(initial[0].startsWith("KSPAY")){
 			kspay();
+			
 		}
+		
+		
 		/*
 		String redirectUrl = null;
 		try {
@@ -84,24 +89,26 @@ public class ProcPayW3DHook extends Proc {
 			Request req = (Request)GsonUtil.fromJson(str, Request.class);
 			redirectUrl = req.widget.getString("redirectUrl");
 		}*/
+		
 		setTrx(ioMap);
+		
 		TemplateUtil.popupToParentW3D(rc, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+		
 		return;
-			
 	}
 
-
-	
-	
-	
-	
-	
 	public void kspay(){
+		/* KJM : requestMap
+		 * cavv:AAABACiEgCAhERgUGYSAAAAANxc=
+			xid:MDFBQjIwMzcyMTI3MTY3ODMwNjA=
+			proceed:true
+			errCode:000
+			eci:05
+		 */
 		SharedMap<String,Object> requestMap = parseQueryString(sharedMap.getString(PAYUNIT.PAYLOAD));
 		
 		requestMap.put("cardNo", cardNo);
 		requestMap.put("expdt", expdt);
-		
 		
 		//a : trxId , b = widgetKey , c : tmnId 
 		
@@ -112,6 +119,7 @@ public class ProcPayW3DHook extends Proc {
 		logger.info("errCode : [{}]",requestMap.getString("errCode"));
 		logger.info("trxId : [{}]",trxId);
 		
+		//KJM : 3D위젯 정보 거래번호로 조회
 		ioMap = trxDAO.getTrxIO3DByTrxId(trxId);	
 		ioMap.put("installment", installment);
 		
@@ -127,6 +135,7 @@ public class ProcPayW3DHook extends Proc {
 		}
 		
 		KspayW3d kspay = new KspayW3d();
+		//KJM : 데이터 가공 후 서버와 통신하여 데이터 송수신
 		SharedMap<String,Object> resMap = kspay.sales(ioMap,requestMap);
 
 		if(resMap.isEquals("vanResultCd", "0000")){
@@ -137,7 +146,7 @@ public class ProcPayW3DHook extends Proc {
 			ioMap.put("vanResultDate",resMap.getString("vanDate"));
 			ioMap.put("acquirer",resMap.getString("cardAcquirer"));
 			ioMap.put("issuer","");
-
+			
 			int cardLen = cardNo.length();
 			ioMap.put("card", cardNo);
 			if(cardLen > 6){
@@ -178,7 +187,6 @@ public class ProcPayW3DHook extends Proc {
 			ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		}
 	}
-	
 	
 	private void setTrx(SharedMap<String,Object> ioMap){
 		
@@ -225,6 +233,7 @@ public class ProcPayW3DHook extends Proc {
 		if(products != null){
 			trxDAO.insertProduct(ioMap.getString("prodId"), products, ioMap.getString("vanResultDate"));
 		}
+		
 		try {
 			trxDAO.insertTrx3D(ioMap,widgetMap);
 		}catch (Exception e) {
@@ -261,12 +270,11 @@ public class ProcPayW3DHook extends Proc {
 		}
 		
 	}
-
 	
 	private SharedMap<String,Object> parseQueryString(String str){
 		SharedMap<String,Object> requestMap = new SharedMap<String,Object>();
 		String[] st = str.split("&");
-
+		
 		for (int i = 0; i < st.length; i++) {
 			int index = st[i].indexOf('=');
 			if (index > 0){
@@ -279,7 +287,6 @@ public class ProcPayW3DHook extends Proc {
 
 	}
 	
-	
 	 private String changeCharset(String str, String charset) {
 	        try {
 	            byte[] bytes = str.getBytes(charset);
@@ -288,9 +295,6 @@ public class ProcPayW3DHook extends Proc {
 	        return "";
 	    }
 	
-	
-	
-
 	/*
 	 *  urlDecode
 	 */
@@ -317,13 +321,10 @@ public class ProcPayW3DHook extends Proc {
 		public void valid() {
 		}
 		 
-	 
-	 
 	public static void main(String[] args){
+		//KJM : 이 터미널 주인 누구..
 		SharedMap<String,Object> ioMap = new TrxDAO().getTrxIO3DByTrxId("T181122401406");
 		logger.info(ioMap.getString("reqJson"));
 		new ProcPayW3DHook().setTrx(ioMap);
 	}
-
-
 }

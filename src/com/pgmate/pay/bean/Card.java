@@ -7,14 +7,14 @@ import com.pgmate.lib.util.gson.UserExclude;
  *
  */
 public class Card {
-
-	public String cardId	= "";
-	@UserExclude public String number	= "";
-	@UserExclude public String expiry	= "";
-	@UserExclude public String cvv		= "";
-	@UserExclude public String encTrackI	= "";
+													//KJM
+	public String cardId	= "";						
+	@UserExclude public String number	= "";		//카드번호	
+	@UserExclude public String expiry	= "";		//유효기간
+	@UserExclude public String cvv		= "";		//cvv
+	@UserExclude public String encTrackI	= "";	//
 	@UserExclude public String encTrackII= "";
-	public int installment	= 0; 
+	public int installment	= 0; 					//할부기간
 	public String bin		= "";
 	public String last4		= "";
 	public String issuer	= "";
