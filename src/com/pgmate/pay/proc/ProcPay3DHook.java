@@ -31,6 +31,7 @@ import com.pgmate.pay.util.KspayUtil;
 import com.pgmate.pay.util.PAYUNIT;
 import com.pgmate.pay.util.TemplateUtil;
 import com.pgmate.pay.van.Galaxia;
+import com.pgmate.pay.van.Galaxia3D;
 import com.pgmate.pay.van.Kspay3D;
 
 import io.vertx.ext.web.RoutingContext;
@@ -221,7 +222,8 @@ public class ProcPay3DHook extends Proc {
 		SharedMap<String,Object> requestMap = parseQueryString(sharedMap.getString(PAYUNIT.PAYLOAD));
 		
 		//갤럭시아 모듈 사용하여 승인정보 가져와 requestMap에 세팅
-		setGalaxiaMessage(requestMap);
+		Galaxia3D galaxia3d = new Galaxia3D();
+		galaxia3d.comm(requestMap);
 		
 		logger.info("reCommType : [{}]",requestMap.getString("reCommType"));	//[WH]
 		logger.info("reHash : [{}]",requestMap.getString("reHash"));
