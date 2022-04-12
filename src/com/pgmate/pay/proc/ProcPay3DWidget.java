@@ -392,14 +392,14 @@ public class ProcPay3DWidget extends Proc {
 		form.put("ORDER_DATE", request.widget.getString("orderDate"));
 		form.put("USER_ID", request.widget.getString("userId"));
 		form.put("ITEM_CODE", request.widget.getString("itmeCode"));
+		form.put("USER_NAME", request.widget.getString("userName")); //고객명
 		form.put("AMOUNT", request.widget.getString("amount"));
 		form.put("INSTALLMENT_PERIOD", request.widget.getString("installmentPeriod"));
 		form.put("USING_TYPE", request.widget.getString("usingType"));
 		form.put("CURRENCY", request.widget.getString("usingType"));
-		form.put("ITEM_NAME", request.widget.getString("itemName"));
+		form.put("ITEM_NAME", request.widget.getString("itemName")); //상품명
 		form.put("RESERVED1", request.widget.getString("publicKey"));
-		form.put("RESERVED2", request.widget.getString("amount"));
-		form.put("RESERVED3", request.widget.getString("installmentPeriod"));
+		form.put("WEBAPI_FLAG", "Y");	//인증 응답시 pay_message 전달 여부(y:전달/n:미전달) web-api 방식 사용 시 y 필수
 		
 		//api/3d/hook(결제 정보 저장)으로 들어가는 url 세팅
 		//https://127.0.0.1:10002/api/3d/hook/{van}/{trxId}
