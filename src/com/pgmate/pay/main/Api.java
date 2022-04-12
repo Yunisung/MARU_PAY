@@ -1,5 +1,6 @@
 package com.pgmate.pay.main;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +73,7 @@ public class Api {
 	}
 	
 	// KBR : 기본 값 셋팅
-	public void apiHandler(RoutingContext rc) {
+	public void apiHandler(RoutingContext rc ) {
 		
 		System.out.println("[getMethod] :" + VertXUtil.getMethod(rc));
 		
@@ -113,7 +114,8 @@ public class Api {
 			} else {
 				sharedMap.put(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_DEMO); 				// DEMO 환경
 			}
-
+			
+			
 			// 인증에 대한 필터링 및 URI 및 METHOD 필터링 // 실패시 바로 응답 후 종료 처리
 			// uriMethodFilter : POST,GET,PUT 아닐경우 false
             if (!uri.startsWith(PAYUNIT.API_CHECK)) {
@@ -122,6 +124,7 @@ public class Api {
                     return;
                 }
 			}
+            
 		//KJM : 정보 저장과 인증에서 오류가 있을 경우
 		} catch (Exception e) {
 			logger.info("error : {},{}", trxId, CommonUtil.getExceptionMessage(e));
@@ -335,8 +338,6 @@ public class Api {
 			}
 		}
 		
-		
-			
 		//KJM : 인증토큰(온라인 결제키) null이거나 빈값일 때
 		// 온라인 결제키가 아닐경우 
 		if (CommonUtil.isNullOrSpace(authorization)) {
