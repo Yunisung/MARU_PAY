@@ -392,7 +392,7 @@ public class ProcPay3DWidget extends Proc {
 		form.put("ORDER_ID", request.widget.getString("trackId"));
 		form.put("ORDER_DATE", request.widget.getString("orderDate"));
 		form.put("USER_ID", request.widget.getString("userId"));
-		form.put("ITEM_CODE", request.widget.getString("itmeCode"));
+		form.put("ITEM_CODE", request.widget.getString("itemCode"));
 		form.put("USER_NAME", request.widget.getString("userName"));
 		form.put("AMOUNT", request.widget.getString("amount"));
 		form.put("INSTALLMENT_PERIOD", request.widget.getString("installmentPeriod"));

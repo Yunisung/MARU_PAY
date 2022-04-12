@@ -13,7 +13,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pgmate.lib.sms.SmsUtil;
+//import com.pgmate.lib.sms.SmsUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.dao.CodeDAO;
 
@@ -63,7 +63,7 @@ public class SmsGw{
 			
 	        for(int i = 0; i < smsnum.length; i++) {
 	        	//220126 박윤성 : SMS 통합
-	        	SmsUtil.sendSms(SmsUtil.SMS_URL, smsnum[i].replaceAll("\\[^0-9]+", ""), msg);
+	        	//SmsUtil.sendSms(SmsUtil.SMS_URL, smsnum[i].replaceAll("\\[^0-9]+", ""), msg);
 	        }
 		}catch (Exception e) {
 			logger.info(e.getMessage(), e);
