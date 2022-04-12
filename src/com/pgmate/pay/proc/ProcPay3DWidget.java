@@ -1,9 +1,9 @@
 package com.pgmate.pay.proc;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -365,7 +365,7 @@ public class ProcPay3DWidget extends Proc {
 		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
 	}
 	
-	public void setGalaxia(SharedMap<String,Object> vanMap) {
+	public void setGalaxia(SharedMap<String,Object> vanMap){
 		
 		request.widget.put("key", widgetKey);
 		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
@@ -375,7 +375,7 @@ public class ProcPay3DWidget extends Proc {
 		
 		//van의 결제모듈 url 설정
 		if(request.widget.isEquals("device", "mobile")){
-			request.widget.put("targetUrl", "http://pay.billgate.net/credit/smartphone/certify.jsp");
+			request.widget.put("targetUrl", "https://pay.billgate.net/credit/smartphone/certify.jsp");
 		}else{
 			request.widget.put("targetUrl", "https://pay.billgate.net/credit/certify.jsp");
 		}
@@ -388,7 +388,6 @@ public class ProcPay3DWidget extends Proc {
 		}
 		
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
-		
 		form.put("SERVICE_ID", request.widget.getString("serviceId"));
 		form.put("ORDER_ID", request.widget.getString("trackId"));
 		form.put("ORDER_DATE", request.widget.getString("orderDate"));
@@ -409,7 +408,6 @@ public class ProcPay3DWidget extends Proc {
 		}else{
 			form.put("RETURN_URL", String.format("http://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
-		System.out.println("url : " + form.getString("RETURN_URL"));
 		
 		//form 처리
 		request.widget.put("form", GsonUtil.toJson(form));
@@ -419,7 +417,6 @@ public class ProcPay3DWidget extends Proc {
 		PAYUNIT.cacheMap.put(request.widget.getString("key"), request.widget);
 		
 		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
-		
 	}
 	
 	public void detectDevice(){

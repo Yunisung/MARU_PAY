@@ -403,13 +403,14 @@ public class Galaxia implements Van{
 		
 		Message responseMsg = null ;
 
-		com.galaxia.api.ServiceBroker sb = new com.galaxia.api.ServiceBroker(configLoad, ServiceCode.CREDIT_CARD);
-//		ServiceBroker sb = new ServiceBroker(configLoad, ServiceCode.CREDIT_CARD);
+		ServiceBroker sb = new ServiceBroker(configLoad, ServiceCode.CREDIT_CARD);
 		
 		System.out.println("req name : " + requestMsg.get(MessageTag.USER_NAME));
 
 		responseMsg = sb.invoke(requestMsg, "euc-kr");
 
+		System.out.println("res msg : " + responseMsg);
+		
 		return responseMsg;
 	}
 

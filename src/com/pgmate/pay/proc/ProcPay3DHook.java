@@ -83,7 +83,7 @@ public class ProcPay3DHook extends Proc {
 		//van이 galaxia인 요청의 경우 22.03.31
 		} else if(initial[0].startsWith("GALAXIA")) {
 			//db에 저장할 정보 설정
-			galaxiapay();
+			galaxiaPay();
 		}
 		
 		String redirectUrl = null;
@@ -216,9 +216,10 @@ public class ProcPay3DHook extends Proc {
 	}
 	
 	//galpay 결제 승인 정보 세팅 22.03.31
-	public void galaxiapay() throws Exception {
+	public void galaxiaPay() throws Exception {
 		// galpqy 통신 후 결제 정보 값 넣어줌  
 		SharedMap<String,Object> requestMap = parseQueryString(sharedMap.getString(PAYUNIT.PAYLOAD));
+		
 		//갤럭시아 모듈 사용하여 승인정보 가져와 requestMap에 세팅
 		setGalaxiaMessage(requestMap);
 		
@@ -230,12 +231,12 @@ public class ProcPay3DHook extends Proc {
 		ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
 		
 		//인증 성공 시
-		if(requestMap.isEquals("DETAIL_RESPONSE_CODE", "00")) {
+		if(requestMap.isEquals("resCode", "0000")) {
 			ioMap.put("vanResultCd","0000");
 			ioMap.put("vanResultMsg","정상승인");
 			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
 			ioMap.put("issuer","기타");
-			ioMap.put("installment",requestMap.getString("RESERVED3"));
+			ioMap.put("installment",requestMap.getString("installment"));
 			ioMap.put("authCd",requestMap.getString("authNum"));
 			ioMap.put("vanTrxId",requestMap.getString("vanTrxId"));
 			
@@ -255,14 +256,14 @@ public class ProcPay3DHook extends Proc {
 		//인증 실패 시
 		} else {
 			ioMap.put("vanResultCd","XXXX");
-			ioMap.put("vanResultMsg","거래정보 미확인");
+			ioMap.put("vanResultMsg",requestMap.getString("dtlMsg"));
 			ioMap.put("resultCd", "XXXX");
-			ioMap.put("resultMsg", "거래정보 미확인");
+			ioMap.put("resultMsg", requestMap.getString("dtlMsg"));
 			ioMap.put("vanTrxId",requestMap.getString("vanTrxId"));
 			ioMap.put("authCd","");
 			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
 			ioMap.put("issuer","");
-			ioMap.put("installment",requestMap.getString("RESERVED3"));
+			ioMap.put("installment",requestMap.getString("installment"));
 			
 			int cardLen = requestMap.getString("pinNum").length();
 			
@@ -289,14 +290,17 @@ public class ProcPay3DHook extends Proc {
 		Galaxia galaxia = new Galaxia();
 		
 		//req, res 정보는 갤럭시아 통신 시 쌓이는 로그에서 확인 가능
-		Message resMsg = galaxia.linkAuthProcess(requestMap);
-		Message reqMsg = galaxia.getReqMsg(requestMap);
+        Message resMsg = galaxia.linkAuthProcess(requestMap);
+        //Message reqMsg = galaxia.getReqMsg(requestMap);
 		
 		//가져온 정보를 map에 세팅
-		requestMap.put("pinNum", reqMsg.get(MessageTag.PIN_NUMBER));
+		requestMap.put("pinNum", resMsg.get(MessageTag.PIN_NUMBER));
 		requestMap.put("authNum", resMsg.get(MessageTag.AUTH_NUMBER));
 		requestMap.put("vanTrxId", resMsg.get(MessageTag.TRANSACTION_ID));
-		requestMap.put("payerName", reqMsg.get(MessageTag.USER_NAME));
+		//requestMap.put("payerName", reqMsg.get(MessageTag.USER_NAME));
+		requestMap.put("resCode", resMsg.get(MessageTag.RESPONSE_CODE));
+		requestMap.put("installment", resMsg.get(MessageTag.QUOTA));
+		requestMap.put("dtlMsg", resMsg.get(MessageTag.DETAIL_RESPONSE_MESSAGE));
 		
 	}
 	
@@ -500,12 +504,12 @@ public class ProcPay3DHook extends Proc {
 		SharedMap<String,Object> requestMap = new SharedMap<String,Object>();
 		
 		String[] st = str.split("&");
-		System.out.println("st : " + str);
+
 		for (int i = 0; i < st.length; i++) {
 			int index = st[i].indexOf('=');
 			if (index > 0){
 				String key = st[i].substring(0, index);
-				requestMap.put(key, changeCharset(URLDecode(st[i].substring(index + 1)),"utf-8"));
+				requestMap.put(key, changeCharset(URLDecode(st[i].substring(index + 1)),"euc-kr"));
 				logger.info("DATAS : {},[{}]",key,requestMap.getString(key));
 			}
 		}
@@ -515,13 +519,15 @@ public class ProcPay3DHook extends Proc {
 	}
 	
 	
-	private String changeCharset(String str, String charset) {
-		try {
-			byte[] bytes = str.getBytes(charset);
-			return new String(bytes, charset);
-		} catch(UnsupportedEncodingException e) { }//Exception
-		return "";
-	}
+	 private String changeCharset(String str, String charset) {
+	        try {
+	            byte[] bytes = str.getBytes(charset);
+	            return new String(bytes, charset);
+	        } catch(UnsupportedEncodingException e) { }//Exception
+	        return "";
+	    }
+	
+	
 	
 
 	/*
