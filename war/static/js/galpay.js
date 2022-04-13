@@ -242,7 +242,7 @@ var C3MOD = (function (win, doc) {
             elem.setAttribute("value", val);
             f.appendChild(elem);
         }
-      f.setAttribute("target", "payment");
+      	f.setAttribute("target", "payment");
    
         if(config.device != 'mobile') {
             var agent = navigator.userAgent;
@@ -256,8 +256,8 @@ var C3MOD = (function (win, doc) {
 
             left_ = left_ / 2 - (width_ / 2);
             top_ = top_ / 2 - (height_ / 2);
-         
-         var option = "width=500,height=477,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,left=150,top=150";
+            //op = window.open('about:blank', 'AuthFrmUp', 'height=' + height_ + ',width=' + width_ + ',status=yes,scrollbars=no,resizable=no,left=' + left_ + ',top=' + top_ + '');
+         	var option = "width=" + width_ + ",height="+height_+",toolbar=no,location=no,status=yes,menubar=no,scrollbars=no,resizable=no,left="+ left_+",top="+top_+"";
             op = window.open("", "payment", option);
 
             if (op == null) {
@@ -275,17 +275,17 @@ var C3MOD = (function (win, doc) {
            }
         }
       
-      //인코딩 euc-kr 처리
-      //f.acceptCharset = "euc-kr";
-      if (/edge/.test(navigator.userAgent.toLowerCase()) || /MSIE/.test(navigator.userAgent) || /Trident.*rv[ :]*11\./.test(navigator.userAgent) ) {
-         var befCharset = document.charset;
-         f.charset = "euc-kr";
-         f.submit();
-         document.charset = befCharset;
-      } else {
-         f.acceptCharset = "euc-kr";
-         f.submit();
-      }
+	      //인코딩 euc-kr 처리
+	      //f.acceptCharset = "euc-kr";
+	      if (/edge/.test(navigator.userAgent.toLowerCase()) || /MSIE/.test(navigator.userAgent) || /Trident.*rv[ :]*11\./.test(navigator.userAgent) ) {
+	         var befCharset = document.charset;
+	         f.charset = "euc-kr";
+	         f.submit();
+	         document.charset = befCharset;
+	      } else {
+	         f.acceptCharset = "euc-kr";
+	         f.submit();
+	      }
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
