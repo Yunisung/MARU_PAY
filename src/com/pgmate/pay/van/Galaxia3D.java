@@ -68,7 +68,7 @@ public class Galaxia3D {
                 sb.append(line);
             }
             
-            logger.debug("sb : [{}]", sb.toString() );
+            logger.info("sb : [{}]", sb.toString() );
             
             Object jsonobject = JSONValue.parse(sb.toString());
             JSONObject jsonobj = (JSONObject)jsonobject;
