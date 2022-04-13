@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import com.galaxia.api.MessageTag;
 import com.pgmate.lib.util.map.SharedMap;
 
+import javax.net.ssl.HttpsURLConnection;
+
 public class Galaxia3D {
 
 	private static Logger logger 	= LoggerFactory.getLogger( com.pgmate.pay.van.Galaxia3D.class ); 
@@ -34,12 +36,14 @@ public class Galaxia3D {
 		reqData.append("&ORDER_DATE=").append(requestMap.getString("ORDER_DATE"));
 		reqData.append("&PAY_MESSAGE=").append(requestMap.getString("PAY_MESSAGE"));
 		
+		
 		URL url = null;
-		HttpURLConnection conn = null;
+//		HttpURLConnection conn = null;
+		HttpsURLConnection conn = null;
 		
 		try {
 			url = new URL(GALAXIA_WEB_URL);
-			conn = (HttpURLConnection) url.openConnection();
+			conn = (HttpsURLConnection) url.openConnection();
 			
 			conn.setRequestMethod("POST");
 			conn.setUseCaches(false);
