@@ -68,7 +68,7 @@ public class Galaxia3D {
                 sb.append(line);
             }
             
-            System.out.println("sb : " + sb.toString());
+            logger.debug("sb : [{}]", sb.toString() );
             
             Object jsonobject = JSONValue.parse(sb.toString());
             JSONObject jsonobj = (JSONObject)jsonobject;
@@ -78,6 +78,7 @@ public class Galaxia3D {
     		requestMap.put("vanTrxId", jsonobj.get("TRANSACTION_ID"));
     		requestMap.put("resCode", jsonobj.get("RESPONSE_CODE"));
     		requestMap.put("installment", jsonobj.get("QUOTA"));
+    		requestMap.put("dtlCode", jsonobj.get("DETAIL_RESPONSE_CODE"));
     		requestMap.put("dtlMsg", jsonobj.get("DETAIL_RESPONSE_MESSAGE"));
 			
 		} catch(Exception e) {

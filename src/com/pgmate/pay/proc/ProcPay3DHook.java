@@ -233,7 +233,7 @@ public class ProcPay3DHook extends Proc {
 		ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
 		
 		//인증 성공 시
-		if(requestMap.isEquals("DETAIL_RESPONSE_CODE", "00")) {
+		if(requestMap.isEquals("dtlCode", "00")) {
 			ioMap.put("vanResultCd","0000");
 			ioMap.put("vanResultMsg","정상승인");
 			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
