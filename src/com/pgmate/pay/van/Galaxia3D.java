@@ -34,6 +34,7 @@ public class Galaxia3D {
 		reqData.append("&ORDER_DATE=").append(requestMap.getString("ORDER_DATE"));
 		reqData.append("&PAY_MESSAGE=").append(requestMap.getString("PAY_MESSAGE"));
 		
+		logger.info("DDDDDDDDDDDDDDDD");
 		URL url = null;
 		HttpURLConnection conn = null;
 		
@@ -67,9 +68,9 @@ public class Galaxia3D {
             while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
-            
-            logger.info("sb : [{}]", sb.toString() );
-            
+            logger.info("##############################");
+            logger.info(sb.toString());
+            logger.info("##############################");
             Object jsonobject = JSONValue.parse(sb.toString());
             JSONObject jsonobj = (JSONObject)jsonobject;
             
