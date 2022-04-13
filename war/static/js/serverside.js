@@ -131,7 +131,7 @@ var util = {
         xhr.setRequestHeader("Accept", "application/json");
         xhr.setRequestHeader("Accept-Language", "ko_KR");
         xhr.setRequestHeader("Authorization", c3Config.publicKey);
-        xhr.setRequestHeader("Content-Type", "application/json;charset=euc-kr");
+        xhr.setRequestHeader("Content-Type", "application/json");
         xhr.send(data);
         return xhr;
     },
