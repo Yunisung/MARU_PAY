@@ -55,7 +55,7 @@ public class Galaxia3D {
 				}
 			});
 			
-			SSLContext context = SSLContext.getInstance("TLSv1.2");
+			SSLContext context = SSLContext.getInstance("TLS");
 			context.init(null, null, null);
 			conn.setSSLSocketFactory(context.getSocketFactory());
 			
