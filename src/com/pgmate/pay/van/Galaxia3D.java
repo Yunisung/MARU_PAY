@@ -9,6 +9,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.slf4j.Logger;
@@ -45,6 +50,15 @@ public class Galaxia3D {
 			url = new URL(GALAXIA_WEB_URL);
 			conn = (HttpsURLConnection) url.openConnection();
 			
+			conn.setHostnameVerifier(new HostnameVerifier() {
+				
+				@Override
+				public boolean verify(String hostname, SSLSession session) {
+					// TODO Auto-generated method stub
+					return false;
+				}
+			});
+			
 			conn.setRequestMethod("POST");
 			conn.setUseCaches(false);
 			conn.setDoInput(true);	//서버로 부터 메시지 받을 수 있게 함
@@ -55,6 +69,10 @@ public class Galaxia3D {
 			conn.setRequestProperty("Accept", "application/x-www-form-urlencoded xml");
 			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=euc-kr");
 			conn.setRequestProperty("Accept-language", "gx");
+			
+			SSLContext context = SSLContext.getInstance("TLS");
+			context.init(null, null, null);
+			conn.setSSLSocketFactory(context.getSocketFactory());
 			
 			OutputStream os = conn.getOutputStream();
 			// KBR : 버퍼에 작성
