@@ -59,6 +59,10 @@ public class Galaxia3D {
 				}
 			});
 			
+			SSLContext context = SSLContext.getInstance("TLSv1.2");
+			context.init(null, null, null);
+			conn.setSSLSocketFactory(context.getSocketFactory());
+			
 			conn.setRequestMethod("POST");
 			conn.setUseCaches(false);
 			conn.setDoInput(true);	//서버로 부터 메시지 받을 수 있게 함
@@ -70,9 +74,8 @@ public class Galaxia3D {
 			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=euc-kr");
 			conn.setRequestProperty("Accept-language", "gx");
 			
-			SSLContext context = SSLContext.getInstance("TLS");
-			context.init(null, null, null);
-			conn.setSSLSocketFactory(context.getSocketFactory());
+			conn.connect();
+			conn.setInstanceFollowRedirects(true);
 			
 			OutputStream os = conn.getOutputStream();
 			// KBR : 버퍼에 작성
