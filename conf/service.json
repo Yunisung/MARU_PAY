@@ -4,9 +4,9 @@
     "poolName": "MARU_PAY",
     "driver": "org.mariadb.jdbc.Driver",
     //"jdbcUrl": "jdbc:mariadb://203.245.13.52:5021/CP_MARU",
-    "jdbcUrl": "jdbc:mariadb://pgdb1:3306/CP_MARU",
+    "jdbcUrl": "jdbc:mariadb://pgdbvip:3306/CP_MARU",
     "userName": "bkwinners",
-    "passWord": "2021bk05&*(db2",
+    "passWord": "2021bk06&*(db2",
     "maxConnection": 20,
     "minConnection": 10,
     "partitionCount": 1
