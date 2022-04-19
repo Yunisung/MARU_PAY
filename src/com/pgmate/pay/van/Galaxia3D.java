@@ -40,11 +40,11 @@ public class Galaxia3D {
 		reqData.append("&PAY_MESSAGE=").append(requestMap.getString("PAY_MESSAGE"));
 		
 		URL url = null;
-		HttpURLConnection conn = null;
+		HttpsURLConnection conn = null;
 		
 		try {
 			url = new URL(GALAXIA_WEB_URL);
-			conn = (HttpURLConnection) url.openConnection();
+			conn = (HttpsURLConnection) url.openConnection();
 			
 			conn.setHostnameVerifier(new HostnameVerifier() {
 				
