@@ -62,12 +62,9 @@ public class ProcWidget extends Proc {
 					String widgetKey = "key_"+CommonUtil.toString(System.currentTimeMillis())+UUID.randomUUID().toString().substring(0, 7);
 					
 					response.widget = new SharedMap<String,Object>();
-					
-					// KBR : 중복
-//					response.widget.put("apiMaxInstall", mchtTmnMap.getInt("apiMaxInstall") );
-//					response.widget.put("nick", mchtMap.getString("nick"));
-//					response.widget.put("semiAuth",  mchtTmnMap.getString("semiAuth"));
-					
+					response.widget.put("apiMaxInstall", mchtTmnMap.getInt("apiMaxInstall") );
+					response.widget.put("nick", mchtMap.getString("nick"));
+					response.widget.put("semiAuth",  mchtTmnMap.getString("semiAuth"));
 					response.widget.put("key", widgetKey);
 					response.widget.put("tmnId", mchtTmnMap.getString("tmnId"));
 					response.widget.put("target", "REGULAR");
