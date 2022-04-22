@@ -193,12 +193,13 @@ var ServerUtil = {
         	var innerWidth = window.innerWidth;
         	if(c3Config.payRoute == 'w3d'){
         		console.log('w3d!!!!')
-        		console.log('heigth',ServerUtil.layerHeigth)
         		ServerUtil.layerHeigth += additionHeight -180;
+        		console.log('heigth : ',ServerUtil.layerHeigth)
+        	// 비생결제의 경우
         	}else{
         		console.log('w3d!!!! else')
-        		console.log('heigth',ServerUtil.layerHeigth)
         		ServerUtil.layerHeigth += additionHeight;
+        		console.log('heigth : ',ServerUtil.layerHeigth)
         	}
         }
     }
