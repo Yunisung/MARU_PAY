@@ -181,16 +181,23 @@ var ServerUtil = {
     resizeWindow: function(config) {
         var additionHeight = 0;
         if (config.widget.semiAuth == 'Y') {
+        	console.log('비생인증입니다');
             additionHeight += 90;
         }
 
         if (c3Config.mode == 'popup') {
+        	console.log('popup!!!')
             ServerUtil.popupHeigth += additionHeight;
+        	console.log('heigth',ServerUtil.layerHeigth)
         } else {
         	var innerWidth = window.innerWidth;
         	if(c3Config.payRoute == 'w3d'){
+        		console.log('w3d!!!!')
+        		console.log('heigth',ServerUtil.layerHeigth)
         		ServerUtil.layerHeigth += additionHeight -180;
         	}else{
+        		console.log('w3d!!!! else')
+        		console.log('heigth',ServerUtil.layerHeigth)
         		ServerUtil.layerHeigth += additionHeight;
         	}
         }
