@@ -22,7 +22,7 @@
     "soLinger": 0,
     "module": "MARU_PAY",
     //"webroot": "D:/Develop/workspace/MARU_PAY/war",
-    "webroot": "../war",
+    "webroot": "/home/bkwinners/MARU/MARU_PAY/war",
     "disableCaching":true,
     "ssl": {
       "ssl": false,
