@@ -17,7 +17,7 @@
     "port": 10002,
     "idleTimeout": 120000,
     "receiveBufferSize": 4096000,
-    "routeClass": "com.pgmate.pay.main.Listener",
+    "routeClass": "com.pgmate.pay.main.ListenerNew",
     "tcpKeepAlive": false,
     "soLinger": 0,
     "module": "MARU_PAY",
@@ -50,10 +50,8 @@
         "TLS_RSA_WITH_AES_128_CBC_SHA",
         "TLS_RSA_WITH_AES_256_CBC_SHA" 
       ],
-      // "keyStore": "D:\\Develop\\workspace\\AYNIL_PAYSHARP_PAY\\conf\\api.pay-sharp.com_2018042543YK.jks",
-      // "keyStorePassword": "633r10"
       "keyStore": "",
-      "keyStorePassword": ""
+      "keyStorePassword": "633r10"
     }
   }
   

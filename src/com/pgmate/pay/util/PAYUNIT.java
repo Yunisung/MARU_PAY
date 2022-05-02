@@ -67,6 +67,9 @@ public class PAYUNIT {
     public static String API_SETTLE_TRANSFER        = "/api/settle/transfer";
 //	public static String API_CHECK					= "/api/check";
 	
+    public static String API_ARS_AUTH_ASYNC			= "/api/ars/auth/async";
+	public static String API_ARS_AUTH_CHECK			= "/api/ars/auth/check";
+	
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
     public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook",};    
 	

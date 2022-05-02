@@ -12,13 +12,13 @@ public class Response {
 	public Refund refund	= null;
 	public Vact vact		= null;
 	public Auth auth		= null;
-    public Phone phone        = null;
-    public Accnt accnt        = null;
-    public Balance balance    = null;
-    public Transfer transfer = null;
+	public Phone phone		= null;
+	public Accnt accnt		= null;
+	public Balance balance	= null;
+	public Transfer transfer = null;
 	public SharedMap<String,Object> widget = null;
+	public ARS ars			= null;
 	
 	public Response() {
 	}
-
 }
