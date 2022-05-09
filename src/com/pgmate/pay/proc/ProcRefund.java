@@ -50,7 +50,6 @@ public class ProcRefund extends Proc {
 		// 단말기 결제 후 크레디탑에서 취소 시 이중 노티 차단위해 분기처리 
 		this.trxDAO = new TrxDAO();
 		SharedMap<String, Object> list = trxDAO.getTrxRfdByTrxId(request.refund.rootTrxId);
-		System.out.println("String : " + list.get("trackId").toString().substring(0,2));
 		if(list != null && "TX".equals(list.get("trackId").toString().substring(0,2))){
 			this.response = new Response();
 			response.result 	= ResultUtil.getResult("0000","정상","정상취소");
