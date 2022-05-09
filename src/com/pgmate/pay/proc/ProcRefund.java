@@ -8,8 +8,9 @@ import org.slf4j.LoggerFactory;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.bean.Request;
+import com.pgmate.pay.bean.Response;
+import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.util.PAYUNIT;
-import com.pgmate.pay.util.WalletUtil;
 import com.pgmate.pay.van.Allat;
 import com.pgmate.pay.van.Danal;
 import com.pgmate.pay.van.Daou;
@@ -35,18 +36,28 @@ public class ProcRefund extends Proc {
 	private SharedMap<String,Object> trxMap 	=	null;
 	//private SharedMap<String,Object> capDtlMap 	=	null;
 	
-
-
 	public ProcRefund() {
 	}
 
 	/**
 	 * PYS : 결제취소 할 때 여기로 온다
+	KJM : 결제 정보에 대한 유효성 검사 수행
+	KBR : 넘어온 값 셋팅 후 valid()
 	 */
 	@Override
 	public void exec(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap,SharedMap<String,SharedMap<String,Object>> sharedObject) {
-		//KJM : 결제 정보에 대한 유효성 검사 수행
-		// KBR : 넘어온 값 셋팅 후 valid()
+		
+		// 단말기 결제 후 크레디탑에서 취소 시 이중 노티 차단위해 분기처리 
+		this.trxDAO = new TrxDAO();
+		SharedMap<String, Object> list = trxDAO.getTrxRfdByTrxId(request.refund.rootTrxId);
+		System.out.println("String : " + list.get("trackId").toString().substring(0,2));
+		if(list != null && "TX".equals(list.get("trackId").toString().substring(0,2))){
+			this.response = new Response();
+			response.result 	= ResultUtil.getResult("0000","정상","정상취소");
+			setResponse();
+			return ;
+		}
+		
 		set(rc,request,sharedMap,sharedObject);
 		// KBR : 취소 관련 정보 셋팅
 		response.refund = request.refund;
