@@ -134,172 +134,172 @@ public class ProcRefund extends Proc {
 			
 			// 월렛 분리정산 추가
 			//PYS : WL_TRX_CAP테이블이 없어 의미없는코드
-			SharedMap<String, Object> rootTrxCapMap = trxDAO.getWalletTrxCap(trxMap.getString("trxId"));
-			if(rootTrxCapMap != null) {
-				SharedMap<String, Object> walletCapMap = new SharedMap<String, Object>();
-				walletCapMap.put("trxId", response.refund.trxId);
-				walletCapMap.put("tmnId", response.refund.tmnId);
-				walletCapMap.put("ptnId", rootTrxCapMap.getString("ptnId"));
-				walletCapMap.put("shopWalletId", rootTrxCapMap.getString("shopWalletId"));
-				walletCapMap.put("shopUserId", rootTrxCapMap.getString("shopUserId"));
-				walletCapMap.put("dealerWalletId", rootTrxCapMap.getString("dealerWalletId"));
-				walletCapMap.put("dealerUserId", rootTrxCapMap.getString("dealerUserId"));
-				walletCapMap.put("distWalletId", rootTrxCapMap.getString("distWalletId"));
-				walletCapMap.put("distUserId", rootTrxCapMap.getString("distUserId"));
-				walletCapMap.put("trxType", "취소");
-				walletCapMap.put("cardType", rootTrxCapMap.getString("cardType"));
-				walletCapMap.put("authCd", trxMap.getString("authCd"));
-				walletCapMap.put("installment", rootTrxCapMap.getString("installment"));
-				walletCapMap.put("bin", rootTrxCapMap.getString("bin"));
-				walletCapMap.put("last4", rootTrxCapMap.getString("last4"));
-				walletCapMap.put("issuer", rootTrxCapMap.getString("issuer"));
-				walletCapMap.put("acquirer", rootTrxCapMap.getString("acquirer"));
-				walletCapMap.put("trackId", response.refund.trackId);
-				walletCapMap.put("rootTrxId", rootTrxCapMap.getString("trxId"));
-				walletCapMap.put("rfdType", sharedMap.getString("rfdAll"));
-				String curDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
-				walletCapMap.put("regDay", curDate.substring(0, 8));
-				walletCapMap.put("regTime", curDate.substring(8));
-				
-				long amount = response.refund.amount * -1;
-				double stlRate = rootTrxCapMap.getDouble("stlRate");
-				long stlFee =  calcFee(amount,stlRate);
-				long stlFeeVat =  calcVat(stlFee);
-				long stlAmount = amount - stlFee - stlFeeVat;
-				
-				walletCapMap.put("amount", amount);
-				walletCapMap.put("stlRate", stlRate);
-				walletCapMap.put("stlFee", stlFee);
-				walletCapMap.put("stlFeeVat", stlFeeVat);
-				walletCapMap.put("stlAmount", stlAmount);
-				
-				if(!CommonUtil.isNullOrSpace(rootTrxCapMap.getString("dealerWalletId"))){
-					long stlDealerAmount = calcFee(stlAmount,rootTrxCapMap.getDouble("stlDealerRate"));
-					
-					walletCapMap.put("stlDealerRate", rootTrxCapMap.getDouble("stlDealerRate"));
-					walletCapMap.put("stlDealerAmount", stlDealerAmount);
-					
-					// 딜러 지급액의 공급가액, 부가세 계산
-					long stlWalletVat = calcRootVat(walletCapMap.getLong("stlDealerAmount"));
-					long stlWalletSupplyAmt = walletCapMap.getLong("stlDealerAmount") - stlWalletVat;
-					
-					
-					SharedMap<String, Object> dealerTrxMap = new SharedMap<String, Object>();
-					dealerTrxMap.put("trxId", WalletUtil.getTrxId());
-					dealerTrxMap.put("tmnId", response.refund.tmnId);
-					dealerTrxMap.put("walletId", walletCapMap.getString("dealerWalletId"));
-					dealerTrxMap.put("ptnId", walletCapMap.getString("ptnId"));
-					dealerTrxMap.put("userId", walletCapMap.getString("dealerUserId"));
-					dealerTrxMap.put("trxType", walletCapMap.getString("trxType"));
-					dealerTrxMap.put("cardType", walletCapMap.getString("cardType"));
-					dealerTrxMap.put("authCd", walletCapMap.getString("authCd"));
-					dealerTrxMap.put("installment", walletCapMap.getString("installment"));
-					dealerTrxMap.put("bin", walletCapMap.getString("bin"));
-					dealerTrxMap.put("last4", walletCapMap.getString("last4"));
-					dealerTrxMap.put("issuer", walletCapMap.getString("issuer"));
-					dealerTrxMap.put("acquirer", walletCapMap.getString("acquirer"));
-					dealerTrxMap.put("amount", walletCapMap.getLong("amount"));
-					dealerTrxMap.put("stlFee", 0);
-					dealerTrxMap.put("stlFeeVat", 0);
-					dealerTrxMap.put("stlRate", walletCapMap.getDouble("stlRate"));
-					dealerTrxMap.put("stlAmount", walletCapMap.getLong("stlAmount"));
-					dealerTrxMap.put("stlWalletRate", walletCapMap.getDouble("stlDealerRate"));
-					dealerTrxMap.put("stlWalletAmount", walletCapMap.getLong("stlDealerAmount"));
-					dealerTrxMap.put("stlWalletSupplyAmt", stlWalletSupplyAmt);
-					dealerTrxMap.put("stlWalletVat", stlWalletVat);
-					dealerTrxMap.put("trackId", walletCapMap.getString("trackId"));
-					dealerTrxMap.put("refId", walletCapMap.getString("trxId"));
-					dealerTrxMap.put("rootTrxId", trxDAO.getWalletTrxSettle(walletCapMap.getString("rootTrxId"),dealerTrxMap.getString("walletId"),"승인"));
-					dealerTrxMap.put("rfdType", walletCapMap.getString("rfdType"));
-					dealerTrxMap.put("regDay", walletCapMap.getString("regDay"));
-					dealerTrxMap.put("regTime", walletCapMap.getString("regTime"));
-					trxDAO.insertWalletSettle(dealerTrxMap);
-				}
-				
-				if(!CommonUtil.isNullOrSpace(rootTrxCapMap.getString("distWalletId"))) {
-					long stlDistAmount = calcFee(stlAmount,rootTrxCapMap.getDouble("stlDistRate"));
-					walletCapMap.put("stlDistRate", rootTrxCapMap.getDouble("stlDistRate"));
-					walletCapMap.put("stlDistAmount", stlDistAmount);
-					
-					// 총판 지급액의 공급가액, 부가세 계산
-					long stlWalletVat = calcRootVat(walletCapMap.getLong("stlDistAmount"));
-					long stlWalletSupplyAmt = walletCapMap.getLong("stlDistAmount") - stlWalletVat;
-					
-					SharedMap<String, Object> distTrxMap = new SharedMap<String, Object>();
-					distTrxMap.put("trxId", WalletUtil.getTrxId());
-					distTrxMap.put("tmnId", response.refund.tmnId);
-					distTrxMap.put("walletId", walletCapMap.getString("distWalletId"));
-					distTrxMap.put("ptnId", walletCapMap.getString("ptnId"));
-					distTrxMap.put("userId", walletCapMap.getString("distUserId"));
-					distTrxMap.put("trxType", walletCapMap.getString("trxType"));
-					distTrxMap.put("cardType", walletCapMap.getString("cardType"));
-					distTrxMap.put("authCd", walletCapMap.getString("authCd"));
-					distTrxMap.put("installment", walletCapMap.getString("installment"));
-					distTrxMap.put("bin", walletCapMap.getString("bin"));
-					distTrxMap.put("last4", walletCapMap.getString("last4"));
-					distTrxMap.put("issuer", walletCapMap.getString("issuer"));
-					distTrxMap.put("acquirer", walletCapMap.getString("acquirer"));
-					distTrxMap.put("amount", walletCapMap.getLong("amount"));
-					distTrxMap.put("stlFee", 0);
-					distTrxMap.put("stlFeeVat", 0);
-					distTrxMap.put("stlRate", walletCapMap.getDouble("stlRate"));
-					distTrxMap.put("stlAmount", walletCapMap.getLong("stlAmount"));
-					distTrxMap.put("stlWalletRate", walletCapMap.getDouble("stlDistRate"));
-					distTrxMap.put("stlWalletAmount", walletCapMap.getLong("stlDistAmount"));
-					distTrxMap.put("stlWalletSupplyAmt", stlWalletSupplyAmt);
-					distTrxMap.put("stlWalletVat", stlWalletVat);
-					distTrxMap.put("trackId", walletCapMap.getString("trackId"));
-					distTrxMap.put("refId", walletCapMap.getString("trxId"));
-					distTrxMap.put("rootTrxId", trxDAO.getWalletTrxSettle(walletCapMap.getString("rootTrxId"),distTrxMap.getString("walletId"),"승인"));
-					distTrxMap.put("rfdType", walletCapMap.getString("rfdType"));
-					distTrxMap.put("regDay", walletCapMap.getString("regDay"));
-					distTrxMap.put("regTime", walletCapMap.getString("regTime"));
-					trxDAO.insertWalletSettle(distTrxMap);
-				}
-			
-				
-				long stlShopAmount = stlAmount - walletCapMap.getLong("stlDealerAmount") - walletCapMap.getLong("stlDistAmount");
-				walletCapMap.put("stlShopAmount", stlShopAmount);
-				walletCapMap.put("stlShopRate", rootTrxCapMap.getDouble("stlShopRate"));
-				
-				// 가맹점 지급액의 공급가액, 부가세 계산
-				long stlWalletVat = calcRootVat(walletCapMap.getLong("stlShopAmount"));
-				long stlWalletSupplyAmt = walletCapMap.getLong("stlShopAmount") - stlWalletVat;
-				
-				SharedMap<String, Object> shopTrxMap = new SharedMap<String, Object>();
-				shopTrxMap.put("trxId", WalletUtil.getTrxId());
-				shopTrxMap.put("tmnId", response.refund.tmnId);
-				shopTrxMap.put("walletId", walletCapMap.getString("shopWalletId"));
-				shopTrxMap.put("ptnId", walletCapMap.getString("ptnId"));
-				shopTrxMap.put("userId", walletCapMap.getString("shopUserId"));
-				shopTrxMap.put("trxType", walletCapMap.getString("trxType"));
-				shopTrxMap.put("cardType", walletCapMap.getString("cardType"));
-				shopTrxMap.put("authCd", walletCapMap.getString("authCd"));
-				shopTrxMap.put("installment", walletCapMap.getString("installment"));
-				shopTrxMap.put("bin", walletCapMap.getString("bin"));
-				shopTrxMap.put("last4", walletCapMap.getString("last4"));
-				shopTrxMap.put("issuer", walletCapMap.getString("issuer"));
-				shopTrxMap.put("acquirer", walletCapMap.getString("acquirer"));
-				shopTrxMap.put("amount", walletCapMap.getLong("amount"));
-				shopTrxMap.put("stlFee", walletCapMap.getLong("stlFee"));
-				shopTrxMap.put("stlFeeVat", walletCapMap.getLong("stlFeeVat"));
-				shopTrxMap.put("stlRate", walletCapMap.getDouble("stlRate"));
-				shopTrxMap.put("stlAmount", walletCapMap.getLong("stlAmount"));
-				shopTrxMap.put("stlWalletRate", walletCapMap.getDouble("stlShopRate"));
-				shopTrxMap.put("stlWalletAmount", walletCapMap.getLong("stlShopAmount"));
-				shopTrxMap.put("stlWalletAmount", walletCapMap.getLong("stlShopAmount"));
-				shopTrxMap.put("stlWalletSupplyAmt", stlWalletSupplyAmt);
-				shopTrxMap.put("trackId", walletCapMap.getString("trackId"));
-				shopTrxMap.put("refId", walletCapMap.getString("trxId"));
-				shopTrxMap.put("rootTrxId", trxDAO.getWalletTrxSettle(walletCapMap.getString("rootTrxId"),shopTrxMap.getString("walletId"),"승인"));
-				shopTrxMap.put("rfdType", walletCapMap.getString("rfdType"));
-				shopTrxMap.put("regDay", walletCapMap.getString("regDay"));
-				shopTrxMap.put("regTime", walletCapMap.getString("regTime"));
-				trxDAO.insertWalletSettle(shopTrxMap);
-				
-				walletCapMap.put("stlType", "정산완료");
-				trxDAO.insertWlTrxCap(walletCapMap);
-			}
+//			SharedMap<String, Object> rootTrxCapMap = trxDAO.getWalletTrxCap(trxMap.getString("trxId"));
+//			if(rootTrxCapMap != null) {
+//				SharedMap<String, Object> walletCapMap = new SharedMap<String, Object>();
+//				walletCapMap.put("trxId", response.refund.trxId);
+//				walletCapMap.put("tmnId", response.refund.tmnId);
+//				walletCapMap.put("ptnId", rootTrxCapMap.getString("ptnId"));
+//				walletCapMap.put("shopWalletId", rootTrxCapMap.getString("shopWalletId"));
+//				walletCapMap.put("shopUserId", rootTrxCapMap.getString("shopUserId"));
+//				walletCapMap.put("dealerWalletId", rootTrxCapMap.getString("dealerWalletId"));
+//				walletCapMap.put("dealerUserId", rootTrxCapMap.getString("dealerUserId"));
+//				walletCapMap.put("distWalletId", rootTrxCapMap.getString("distWalletId"));
+//				walletCapMap.put("distUserId", rootTrxCapMap.getString("distUserId"));
+//				walletCapMap.put("trxType", "취소");
+//				walletCapMap.put("cardType", rootTrxCapMap.getString("cardType"));
+//				walletCapMap.put("authCd", trxMap.getString("authCd"));
+//				walletCapMap.put("installment", rootTrxCapMap.getString("installment"));
+//				walletCapMap.put("bin", rootTrxCapMap.getString("bin"));
+//				walletCapMap.put("last4", rootTrxCapMap.getString("last4"));
+//				walletCapMap.put("issuer", rootTrxCapMap.getString("issuer"));
+//				walletCapMap.put("acquirer", rootTrxCapMap.getString("acquirer"));
+//				walletCapMap.put("trackId", response.refund.trackId);
+//				walletCapMap.put("rootTrxId", rootTrxCapMap.getString("trxId"));
+//				walletCapMap.put("rfdType", sharedMap.getString("rfdAll"));
+//				String curDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
+//				walletCapMap.put("regDay", curDate.substring(0, 8));
+//				walletCapMap.put("regTime", curDate.substring(8));
+//				
+//				long amount = response.refund.amount * -1;
+//				double stlRate = rootTrxCapMap.getDouble("stlRate");
+//				long stlFee =  calcFee(amount,stlRate);
+//				long stlFeeVat =  calcVat(stlFee);
+//				long stlAmount = amount - stlFee - stlFeeVat;
+//				
+//				walletCapMap.put("amount", amount);
+//				walletCapMap.put("stlRate", stlRate);
+//				walletCapMap.put("stlFee", stlFee);
+//				walletCapMap.put("stlFeeVat", stlFeeVat);
+//				walletCapMap.put("stlAmount", stlAmount);
+//				
+//				if(!CommonUtil.isNullOrSpace(rootTrxCapMap.getString("dealerWalletId"))){
+//					long stlDealerAmount = calcFee(stlAmount,rootTrxCapMap.getDouble("stlDealerRate"));
+//					
+//					walletCapMap.put("stlDealerRate", rootTrxCapMap.getDouble("stlDealerRate"));
+//					walletCapMap.put("stlDealerAmount", stlDealerAmount);
+//					
+//					// 딜러 지급액의 공급가액, 부가세 계산
+//					long stlWalletVat = calcRootVat(walletCapMap.getLong("stlDealerAmount"));
+//					long stlWalletSupplyAmt = walletCapMap.getLong("stlDealerAmount") - stlWalletVat;
+//					
+//					
+//					SharedMap<String, Object> dealerTrxMap = new SharedMap<String, Object>();
+//					dealerTrxMap.put("trxId", WalletUtil.getTrxId());
+//					dealerTrxMap.put("tmnId", response.refund.tmnId);
+//					dealerTrxMap.put("walletId", walletCapMap.getString("dealerWalletId"));
+//					dealerTrxMap.put("ptnId", walletCapMap.getString("ptnId"));
+//					dealerTrxMap.put("userId", walletCapMap.getString("dealerUserId"));
+//					dealerTrxMap.put("trxType", walletCapMap.getString("trxType"));
+//					dealerTrxMap.put("cardType", walletCapMap.getString("cardType"));
+//					dealerTrxMap.put("authCd", walletCapMap.getString("authCd"));
+//					dealerTrxMap.put("installment", walletCapMap.getString("installment"));
+//					dealerTrxMap.put("bin", walletCapMap.getString("bin"));
+//					dealerTrxMap.put("last4", walletCapMap.getString("last4"));
+//					dealerTrxMap.put("issuer", walletCapMap.getString("issuer"));
+//					dealerTrxMap.put("acquirer", walletCapMap.getString("acquirer"));
+//					dealerTrxMap.put("amount", walletCapMap.getLong("amount"));
+//					dealerTrxMap.put("stlFee", 0);
+//					dealerTrxMap.put("stlFeeVat", 0);
+//					dealerTrxMap.put("stlRate", walletCapMap.getDouble("stlRate"));
+//					dealerTrxMap.put("stlAmount", walletCapMap.getLong("stlAmount"));
+//					dealerTrxMap.put("stlWalletRate", walletCapMap.getDouble("stlDealerRate"));
+//					dealerTrxMap.put("stlWalletAmount", walletCapMap.getLong("stlDealerAmount"));
+//					dealerTrxMap.put("stlWalletSupplyAmt", stlWalletSupplyAmt);
+//					dealerTrxMap.put("stlWalletVat", stlWalletVat);
+//					dealerTrxMap.put("trackId", walletCapMap.getString("trackId"));
+//					dealerTrxMap.put("refId", walletCapMap.getString("trxId"));
+//					dealerTrxMap.put("rootTrxId", trxDAO.getWalletTrxSettle(walletCapMap.getString("rootTrxId"),dealerTrxMap.getString("walletId"),"승인"));
+//					dealerTrxMap.put("rfdType", walletCapMap.getString("rfdType"));
+//					dealerTrxMap.put("regDay", walletCapMap.getString("regDay"));
+//					dealerTrxMap.put("regTime", walletCapMap.getString("regTime"));
+//					trxDAO.insertWalletSettle(dealerTrxMap);
+//				}
+//				
+//				if(!CommonUtil.isNullOrSpace(rootTrxCapMap.getString("distWalletId"))) {
+//					long stlDistAmount = calcFee(stlAmount,rootTrxCapMap.getDouble("stlDistRate"));
+//					walletCapMap.put("stlDistRate", rootTrxCapMap.getDouble("stlDistRate"));
+//					walletCapMap.put("stlDistAmount", stlDistAmount);
+//					
+//					// 총판 지급액의 공급가액, 부가세 계산
+//					long stlWalletVat = calcRootVat(walletCapMap.getLong("stlDistAmount"));
+//					long stlWalletSupplyAmt = walletCapMap.getLong("stlDistAmount") - stlWalletVat;
+//					
+//					SharedMap<String, Object> distTrxMap = new SharedMap<String, Object>();
+//					distTrxMap.put("trxId", WalletUtil.getTrxId());
+//					distTrxMap.put("tmnId", response.refund.tmnId);
+//					distTrxMap.put("walletId", walletCapMap.getString("distWalletId"));
+//					distTrxMap.put("ptnId", walletCapMap.getString("ptnId"));
+//					distTrxMap.put("userId", walletCapMap.getString("distUserId"));
+//					distTrxMap.put("trxType", walletCapMap.getString("trxType"));
+//					distTrxMap.put("cardType", walletCapMap.getString("cardType"));
+//					distTrxMap.put("authCd", walletCapMap.getString("authCd"));
+//					distTrxMap.put("installment", walletCapMap.getString("installment"));
+//					distTrxMap.put("bin", walletCapMap.getString("bin"));
+//					distTrxMap.put("last4", walletCapMap.getString("last4"));
+//					distTrxMap.put("issuer", walletCapMap.getString("issuer"));
+//					distTrxMap.put("acquirer", walletCapMap.getString("acquirer"));
+//					distTrxMap.put("amount", walletCapMap.getLong("amount"));
+//					distTrxMap.put("stlFee", 0);
+//					distTrxMap.put("stlFeeVat", 0);
+//					distTrxMap.put("stlRate", walletCapMap.getDouble("stlRate"));
+//					distTrxMap.put("stlAmount", walletCapMap.getLong("stlAmount"));
+//					distTrxMap.put("stlWalletRate", walletCapMap.getDouble("stlDistRate"));
+//					distTrxMap.put("stlWalletAmount", walletCapMap.getLong("stlDistAmount"));
+//					distTrxMap.put("stlWalletSupplyAmt", stlWalletSupplyAmt);
+//					distTrxMap.put("stlWalletVat", stlWalletVat);
+//					distTrxMap.put("trackId", walletCapMap.getString("trackId"));
+//					distTrxMap.put("refId", walletCapMap.getString("trxId"));
+//					distTrxMap.put("rootTrxId", trxDAO.getWalletTrxSettle(walletCapMap.getString("rootTrxId"),distTrxMap.getString("walletId"),"승인"));
+//					distTrxMap.put("rfdType", walletCapMap.getString("rfdType"));
+//					distTrxMap.put("regDay", walletCapMap.getString("regDay"));
+//					distTrxMap.put("regTime", walletCapMap.getString("regTime"));
+//					trxDAO.insertWalletSettle(distTrxMap);
+//				}
+//			
+//				
+//				long stlShopAmount = stlAmount - walletCapMap.getLong("stlDealerAmount") - walletCapMap.getLong("stlDistAmount");
+//				walletCapMap.put("stlShopAmount", stlShopAmount);
+//				walletCapMap.put("stlShopRate", rootTrxCapMap.getDouble("stlShopRate"));
+//				
+//				// 가맹점 지급액의 공급가액, 부가세 계산
+//				long stlWalletVat = calcRootVat(walletCapMap.getLong("stlShopAmount"));
+//				long stlWalletSupplyAmt = walletCapMap.getLong("stlShopAmount") - stlWalletVat;
+//				
+//				SharedMap<String, Object> shopTrxMap = new SharedMap<String, Object>();
+//				shopTrxMap.put("trxId", WalletUtil.getTrxId());
+//				shopTrxMap.put("tmnId", response.refund.tmnId);
+//				shopTrxMap.put("walletId", walletCapMap.getString("shopWalletId"));
+//				shopTrxMap.put("ptnId", walletCapMap.getString("ptnId"));
+//				shopTrxMap.put("userId", walletCapMap.getString("shopUserId"));
+//				shopTrxMap.put("trxType", walletCapMap.getString("trxType"));
+//				shopTrxMap.put("cardType", walletCapMap.getString("cardType"));
+//				shopTrxMap.put("authCd", walletCapMap.getString("authCd"));
+//				shopTrxMap.put("installment", walletCapMap.getString("installment"));
+//				shopTrxMap.put("bin", walletCapMap.getString("bin"));
+//				shopTrxMap.put("last4", walletCapMap.getString("last4"));
+//				shopTrxMap.put("issuer", walletCapMap.getString("issuer"));
+//				shopTrxMap.put("acquirer", walletCapMap.getString("acquirer"));
+//				shopTrxMap.put("amount", walletCapMap.getLong("amount"));
+//				shopTrxMap.put("stlFee", walletCapMap.getLong("stlFee"));
+//				shopTrxMap.put("stlFeeVat", walletCapMap.getLong("stlFeeVat"));
+//				shopTrxMap.put("stlRate", walletCapMap.getDouble("stlRate"));
+//				shopTrxMap.put("stlAmount", walletCapMap.getLong("stlAmount"));
+//				shopTrxMap.put("stlWalletRate", walletCapMap.getDouble("stlShopRate"));
+//				shopTrxMap.put("stlWalletAmount", walletCapMap.getLong("stlShopAmount"));
+//				shopTrxMap.put("stlWalletAmount", walletCapMap.getLong("stlShopAmount"));
+//				shopTrxMap.put("stlWalletSupplyAmt", stlWalletSupplyAmt);
+//				shopTrxMap.put("trackId", walletCapMap.getString("trackId"));
+//				shopTrxMap.put("refId", walletCapMap.getString("trxId"));
+//				shopTrxMap.put("rootTrxId", trxDAO.getWalletTrxSettle(walletCapMap.getString("rootTrxId"),shopTrxMap.getString("walletId"),"승인"));
+//				shopTrxMap.put("rfdType", walletCapMap.getString("rfdType"));
+//				shopTrxMap.put("regDay", walletCapMap.getString("regDay"));
+//				shopTrxMap.put("regTime", walletCapMap.getString("regTime"));
+//				trxDAO.insertWalletSettle(shopTrxMap);
+//				
+//				walletCapMap.put("stlType", "정산완료");
+//				trxDAO.insertWlTrxCap(walletCapMap);
+//			}
 			// KBR :  ↑  취소 할 때 안씀 ; end
 			
 		}
