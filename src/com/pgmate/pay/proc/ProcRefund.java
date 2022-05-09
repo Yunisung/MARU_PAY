@@ -134,7 +134,7 @@ public class ProcRefund extends Proc {
 			
 			// 월렛 분리정산 추가
 			//PYS : WL_TRX_CAP테이블이 없어 의미없는코드
-			SharedMap<String, Object> rootTrxCapMap = trxDAO.getWalletTrxCap(trxMap.getString("trxId"));
+			/** SharedMap<String, Object> rootTrxCapMap = trxDAO.getWalletTrxCap(trxMap.getString("trxId"));
 			if(rootTrxCapMap != null) {
 				SharedMap<String, Object> walletCapMap = new SharedMap<String, Object>();
 				walletCapMap.put("trxId", response.refund.trxId);
@@ -299,7 +299,7 @@ public class ProcRefund extends Proc {
 				
 				walletCapMap.put("stlType", "정산완료");
 				trxDAO.insertWlTrxCap(walletCapMap);
-			}
+			} **/
 			// KBR :  ↑  취소 할 때 안씀 ; end
 			
 		}
