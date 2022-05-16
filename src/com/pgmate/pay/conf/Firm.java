@@ -18,6 +18,8 @@ public class Firm {
 	public int firmStartTime		= 3000;		//펌 시작 시간
 	public int firmEndTime			= 233000;	//펌 중지 시간 
 	
+	public String vaccntAssort	= "";			//가상계좌 조회순서
+	
 	public Firm() {
 	}
 	

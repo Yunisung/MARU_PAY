@@ -1,0 +1,14 @@
+{
+  "arsUseYn": "Y",
+  "requrl": "https://fbapi.ksnet.co.kr/ksfb/auth/ars/async",
+  "resurl": "https://fbapi.ksnet.co.kr/ksfb/auth/ars/inquiry",
+  "authorization" : "",
+  "compCode" : "",
+  "authKey": "",
+  "service" : "",
+  "svcType" : "",
+  "ksCode" : "",
+  "usedRecord" : "Y",
+  "resReqCnt" : 60,
+  "secureKey" : ""
+}

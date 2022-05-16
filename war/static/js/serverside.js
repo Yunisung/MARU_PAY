@@ -181,7 +181,7 @@ var ServerUtil = {
     resizeWindow: function(config) {
         var additionHeight = 0;
         if (config.widget.semiAuth == 'Y') {
-            additionHeight += 50;
+            additionHeight += 90;
         }
 
         if (c3Config.mode == 'popup') {
@@ -190,6 +190,7 @@ var ServerUtil = {
         	var innerWidth = window.innerWidth;
         	if(c3Config.payRoute == 'w3d'){
         		ServerUtil.layerHeigth += additionHeight -180;
+        	// 비생결제의 경우
         	}else{
         		ServerUtil.layerHeigth += additionHeight;
         	}
