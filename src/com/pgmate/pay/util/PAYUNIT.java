@@ -10,7 +10,7 @@ public class PAYUNIT {
 
 	
 	public static final String PAY_HOST_LIVE 		= "api.bkwinners.kr";
-	public static final String PAY_HOST_DEV 		= "devapi.bkwinners.kr.";
+	public static final String PAY_HOST_DEV 		= "devapi.bkwinners.kr";
 	
 	public static final String PAY_DATE 			= "yyyyMMddHHmmss";
 	
