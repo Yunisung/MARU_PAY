@@ -22,5 +22,5 @@ JVM_ARGS="$JVM_ARGS -Djdk.tls.ephemeralDHKeySize=2048 "
 JVM_ARGS="$JVM_ARGS -Dorg.vertx.logger-delegate-factory-class-name=org.vertx.java.core.logging.impl.SLF4JLogDelegateFactory "
 JVM_ARGS="$JVM_ARGS -Xss512k -Xms128m -Xmx256m "
 JVM_ARGS="$JVM_ARGS -cp $CP"
-java $JVM_ARGS com.pgmate.lib.vertx.main.VertXServer &
+java $JVM_ARGS com.pgmate.pay.main.VertXServerNew &
 echo $!>apio.pid
