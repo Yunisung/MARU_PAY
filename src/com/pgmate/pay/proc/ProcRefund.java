@@ -121,9 +121,13 @@ public class ProcRefund extends Proc {
 			response.refund.rootTrxDay 	= trxMap.getString("regDay");
 			
 			// 당일 취소는 반드시 전액 취소만 가능하며 . 승인 취소로 업데이트 한다.
-			if(trxMap.isEquals("regDay",sharedMap.getString(PAYUNIT.REG_DATE).substring(0,8))){
-				trxDAO.updateTrxPay(trxMap.getString("trxId"));
-			}
+//			if(trxMap.isEquals("regDay",sharedMap.getString(PAYUNIT.REG_DATE).substring(0,8))){
+//				trxDAO.updateTrxPay(trxMap.getString("trxId"));
+//			}
+			
+			//KBR : 220516_정상 취소 된 매입건은 모두 승인취소로 업데이트 되도록 수정
+			trxDAO.updateTrxPay(trxMap.getString("trxId"));
+			
 			
 			//KJM : webhooUrl 쓰레드 start
 			// KBR : 취소 할 때 안씀 ; start 
