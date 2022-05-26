@@ -17,10 +17,13 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.CorsHandler;
 
 /**
  * @author Administrator
@@ -44,7 +47,25 @@ public class VertXServerNew extends AbstractVerticle {
 				logger.info("FileCaching disabled");
 			}
 			Router router = Router.router(vertx);
-			
+			router.route().handler(CorsHandler.create("*")
+					  .allowCredentials(true)
+				      .allowedMethod(HttpMethod.GET)
+				      .allowedMethod(HttpMethod.POST)
+				      .allowedMethod(HttpMethod.PUT)
+				      .allowedMethod(HttpMethod.DELETE)
+				      .allowedMethod(HttpMethod.OPTIONS)
+				      .allowedHeader("X-PINGARUNER")
+				      .allowedHeader("www-authenticate")
+				      .allowedHeader(HttpHeaders.AUTHORIZATION.toString())
+				      .allowedHeader(HttpHeaders.CONTENT_TYPE.toString())
+				      .allowedHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD.toString())
+				      .allowedHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString())
+				      .allowedHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN.toString())
+				      .allowedHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS.toString())
+				      .allowedHeader(HttpHeaders.ORIGIN.toString())
+				      .allowedHeader(HttpHeaders.ACCEPT.toString())
+				      .allowedHeader("AuthFlash")
+				      );
 			
 			RouteWorkerNew worker = (RouteWorkerNew)ClassUtil.getObject(vertxConfig.getRouteClass());
 			worker.execute(vertxConfig,router,vertx);
