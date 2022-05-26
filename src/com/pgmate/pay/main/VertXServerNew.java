@@ -51,6 +51,7 @@ public class VertXServerNew extends AbstractVerticle {
 			Router router = Router.router(vertx);
 			router.route().handler(this::handlerCheckCorsHeaders);
 			router.route().method(HttpMethod.OPTIONS).handler(this::handlerOptionsMethod);
+			router.route().method(HttpMethod.GET).handler(this::handlerOptionsMethod);
 			
 			RouteWorkerNew worker = (RouteWorkerNew)ClassUtil.getObject(vertxConfig.getRouteClass());
 			worker.execute(vertxConfig,router,vertx);
