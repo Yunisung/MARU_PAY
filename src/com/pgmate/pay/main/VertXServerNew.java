@@ -127,9 +127,8 @@ public class VertXServerNew extends AbstractVerticle {
 	    response.putHeader("Access-Control-Allow-Origin", "*");
         response.putHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, PATCH, HEAD, DELETE");
         // FIXME: what header do we actually need
-        response.putHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
+        response.putHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, Origin");
 	    // Your available methods might vary!
-	    response.end("OPTIONS, GET, POST, PUT, PATCH, HEAD, DELETE");
 	    
   	}
 	
