@@ -126,11 +126,11 @@ public class VertXServerNew extends AbstractVerticle {
 	private void handlerOptionsMethod(final RoutingContext ctx) {
 	    final HttpServerResponse response = ctx.response();
 	    response.putHeader("Access-Control-Allow-Origin", "*");
-        response.putHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, PATCH, HEAD, DELETE");
+        response.putHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         // FIXME: what header do we actually need
-        response.putHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, Origin");
+        response.putHeader("Access-Control-Allow-Headers", "Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization");
 	    // Your available methods might vary!
-	    
+	    response.end();
   	}
 	
 	private HttpServerOptions createOptions(){
