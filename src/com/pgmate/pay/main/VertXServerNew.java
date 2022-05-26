@@ -50,6 +50,7 @@ public class VertXServerNew extends AbstractVerticle {
 			}
 			Router router = Router.router(vertx);
 			router.route().handler(this::handlerCheckCorsHeaders);
+			router.route().method(HttpMethod.OPTIONS).handler(this::handlerOptionsMethod);
 			
 			RouteWorkerNew worker = (RouteWorkerNew)ClassUtil.getObject(vertxConfig.getRouteClass());
 			worker.execute(vertxConfig,router,vertx);
@@ -119,7 +120,18 @@ public class VertXServerNew extends AbstractVerticle {
         // Tell browser that response might change with origin          
         response.putHeader("Vary", "Origin");
 	    ctx.next();
-	  }
+	}	
+	
+	private void handlerOptionsMethod(final RoutingContext ctx) {
+	    final HttpServerResponse response = ctx.response();
+	    response.putHeader("Access-Control-Allow-Origin", "*");
+        response.putHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, PATCH, HEAD, DELETE");
+        // FIXME: what header do we actually need
+        response.putHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
+	    // Your available methods might vary!
+	    response.end("OPTIONS, GET, POST, PUT, PATCH, HEAD, DELETE");
+	    
+  	}
 	
 	private HttpServerOptions createOptions(){
 		HttpServerOptions options = new HttpServerOptions();
