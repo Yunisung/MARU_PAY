@@ -25,7 +25,7 @@ public class ListenerNew extends RouteWorkerNew {
 	public void execute(VertXConfigBean vertxConfig, Router router, Vertx vertx) {
 
 		//1. CORS
-		VertXRoute.setCorsHandler(router);
+		//VertXRoute.setCorsHandler(router);
 
 		//2. Body Handler
 		VertXRoute.setBodyHandler(router);
