@@ -65,6 +65,7 @@ public class VertXServerNew extends AbstractVerticle {
 				      .allowedHeader(HttpHeaders.ORIGIN.toString())
 				      .allowedHeader(HttpHeaders.ACCEPT.toString())
 				      .allowedHeader("AuthFlash")
+				      .allowedHeader("Access-Control-Allow-Origin")
 				      );
 			
 			RouteWorkerNew worker = (RouteWorkerNew)ClassUtil.getObject(vertxConfig.getRouteClass());
