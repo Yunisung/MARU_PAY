@@ -11,13 +11,16 @@ var MARU = (function (win, doc) {
     mode: 'layer',
     debugMode: 'live'
   }
-  
+
   /* GLOBAL */
   var routeUrls = {
     sandbox: 'https://devapi.bkwinners.kr',
 //    live: 'https://api.bkwinners.kr'
-	live: 'https://devapi.bkwinners.kr'
+	live: 'http://127.0.0.1:10002'
   }
+  var paykey = '';
+  var echoSuccess;
+  var echoFail;
   var routeDomain = routeUrls[c3Config.debugMode];
   var layerInited = false;            // 레이어 생성이 완료되었는지
   var layerLoaded = false;            // 레이어가 로드 되었는지
@@ -178,7 +181,12 @@ var MARU = (function (win, doc) {
     payClose: function () {
       var obj = { type: 'PAY_CLOSE' };
       util.sendMessageToFrame(obj);
+    },
+    echo: function() {
+      var obj = { type: 'ECHO', key : paykey };
+      util.sendMessageToFrame(obj);
     }
+
   }
   // 레이어 팝업을 띄우기 위한 Element 생성 및 초기화. (로딩시)
   function layerInit() {
@@ -253,6 +261,14 @@ var MARU = (function (win, doc) {
     }
   }
 
+  function echoResult(result) {
+    if(result.resultCd === '0000') {
+      echoSuccess(result);
+    } else {
+      echoFail();
+    }
+  }
+
 
   /*==== 실행 구문 ====*/
   function init() {
@@ -276,6 +292,8 @@ var MARU = (function (win, doc) {
         layerClosed();
       } else if (recv.type === 'PAY_RESULT') {
         payResult(recv.data);
+      } else if (recv.type === 'ECHO_RESULT') {
+        echoResult(recv.data.result);
       }
     });
 
@@ -314,6 +332,18 @@ var MARU = (function (win, doc) {
     }, 200);
   }
 
+  function echo(key, success, fail) {
+    c3pop();
+    paykey = key;
+    echoSuccess = success;
+    echoFail = fail;
+
+    console.log(paykey);
+    setTimeout(function() {
+      postMessages.echo();
+    }, 200);
+  }
+
   function setDebug(bool) {
     debug = bool;
   }
@@ -323,7 +353,8 @@ var MARU = (function (win, doc) {
     debug: setDebug,
     c3pop: c3pop,
     removec3pop: removePop,
-    pay: pay
+    pay: pay,
+    echo : echo
   }
 
   util.documentReady(init)
