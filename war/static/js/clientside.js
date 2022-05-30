@@ -347,23 +347,24 @@ var MARU = (function (win, doc) {
     }, 200);
   }
 
+  function echoPop() {
+    console.log('c3pop', routeDomain + '/form/payment/layoutV3');
+    doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV3'; // 정해지면 변경...
+    doc.getElementById('c3pop_pop_overlay_wrap').style.display = 'none';
+    doc.getElementById('c3_pop_overlay').style.display = 'none';
+    doc.getElementById('c3pop_content_fixed').style.display = 'none';
+  }
+
   function echo(key, success, fail) {
-    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-    xhr.open('GET', routeDomain + '/api/echo');
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState > 3 && xhr.status == 200) {
-            //console.log(JSON.parse(xhr.responseText));
-            var res = JSON.parse(xhr.responseText);
-            success(res);
-        } else {
-          fail();
-        }
-    };
-    xhr.setRequestHeader("Accept", "application/json");
-    xhr.setRequestHeader("Accept-Language", "ko_KR");
-    xhr.setRequestHeader("Authorization", key);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.send();
+    echoPop();
+    paykey = key;
+    echoSuccess = success;
+    echoFail = fail;
+
+    console.log(paykey);
+    setTimeout(function() {
+      postMessages.echo();
+    }, 200);
   }
 
   function setDebug(bool) {
