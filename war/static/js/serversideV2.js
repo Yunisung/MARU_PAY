@@ -170,6 +170,13 @@ var postMessages = {
         var revcObj = JSON.parse(JSON.stringify(obj));
         revcObj.type = 'REVC_ACK';
         util.sendMessageToParent(revcObj);
+    },
+    echoResult: function(res) {
+        var obj = {
+            type: 'ECHO_RESULT',
+            data: res
+        }
+        util.sendMessageToParent(obj);
     }
 }
 
@@ -297,6 +304,23 @@ function closePayment(data) {
     }, delay);
 }
 
+function echoPayment(recv) {
+    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+    xhr.open('GET', '/api/echo');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState > 3 && xhr.status == 200) {
+            //console.log(JSON.parse(xhr.responseText));
+            var res = JSON.parse(xhr.responseText);
+            postMessages.echoResult(res);
+        }
+    };
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Accept-Language", "ko_KR");
+    xhr.setRequestHeader("Authorization", recv.key);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send();
+}
+
 /* 클라이언트(Parent window)로 부터 받은 PoseMessage */
 util.addEventListener(window, 'message', function(e) {
     //console.log(e.source);
@@ -313,6 +337,8 @@ util.addEventListener(window, 'message', function(e) {
         openPayment(recv);
     } else if (recv.type === 'PAY_CLOSE') {
         closePayment(recv.data);
+    } else if (recv.type === 'ECHO') {
+        echoPayment(recv);
     }
 });
 
