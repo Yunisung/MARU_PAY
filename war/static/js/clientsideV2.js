@@ -343,7 +343,7 @@ var MARU = (function (win, doc) {
     // }, 200);
 
     var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-    xhr.open('GET', '/api/echo');
+    xhr.open('GET', routeDomain + '/api/echo');
     xhr.onreadystatechange = function() {
         if (xhr.readyState > 3 && xhr.status == 200) {
             //console.log(JSON.parse(xhr.responseText));
