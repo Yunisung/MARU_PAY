@@ -314,7 +314,7 @@ function echoPayment(recv) {
     xhr.open('GET', '/api/echo');
     xhr.onreadystatechange = function() {
         if (xhr.readyState > 3 && xhr.status == 200) {
-            //console.log(JSON.parse(xhr.responseText));
+            console.log(JSON.parse(xhr.responseText));
             var res = JSON.parse(xhr.responseText);
             postMessages.echoResult(res);
         }
@@ -343,6 +343,7 @@ util.addEventListener(window, 'message', function(e) {
     } else if (recv.type === 'PAY_CLOSE') {
         closePayment(recv.data);
     } else if (recv.type === 'ECHO') {
+        console.log(recv);
         echoPayment(recv);
     }
 });
