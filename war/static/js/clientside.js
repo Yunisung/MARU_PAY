@@ -348,15 +348,22 @@ var MARU = (function (win, doc) {
   }
 
   function echo(key, success, fail) {
-    c3pop();
-    paykey = key;
-    echoSuccess = success;
-    echoFail = fail;
-
-    console.log(paykey);
-    setTimeout(function() {
-      postMessages.echo();
-    }, 200);
+    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+    xhr.open('GET', '/api/echo');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState > 3 && xhr.status == 200) {
+            //console.log(JSON.parse(xhr.responseText));
+            var res = JSON.parse(xhr.responseText);
+            success(res);
+        } else {
+          fail();
+        }
+    };
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Accept-Language", "ko_KR");
+    xhr.setRequestHeader("Authorization", key);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send();
   }
 
   function setDebug(bool) {
