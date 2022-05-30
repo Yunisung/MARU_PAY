@@ -128,7 +128,7 @@ public class PAYUNIT {
 	
 	public static double VAT						= 0.1;
 	  
-	public static SharedCacheMap cacheMap			= new SharedCacheMap(10);
+	public static SharedCacheMap cacheMap			= new SharedCacheMap(1);
     public static SharedCacheMap cacheWithdrawMap    = new SharedCacheMap(10);
 	public static VactCache vactCacheMap			= new VactCache(5);
     public static VactCache vactWithdrawCacheMap    = new VactCache(1);
