@@ -21,7 +21,6 @@ var MARU = (function (win, doc) {
   //api/echo를 clientside에서 사용하기위해 만듬
   var paykey = '';
   var echoSuccess;
-  var echoFail;
 
   var routeDomain = routeUrls[c3Config.debugMode];
   var layerInited = false;            // 레이어 생성이 완료되었는지
@@ -274,11 +273,7 @@ var MARU = (function (win, doc) {
   }
 
   function echoResult(result) {
-    if(result.resultCd === '0000') {
-      echoSuccess(result);
-    } else {
-      echoFail();
-    }
+    echoSuccess(result);
   }
 
 
@@ -355,11 +350,10 @@ var MARU = (function (win, doc) {
     doc.getElementById('c3pop_content_fixed').style.display = 'none';
   }
 
-  function echo(key, success, fail) {
+  function echo(key, success) {
     echoPop();
     paykey = key;
     echoSuccess = success;
-    echoFail = fail;
 
     console.log(paykey);
     setTimeout(function() {
