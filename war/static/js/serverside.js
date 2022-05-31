@@ -331,7 +331,7 @@ util.addEventListener(window, 'message', function(e) {
     //console.log(e.source);
     //console.log(e.origin);
     var recv = JSON.parse(e.data);
-    //console.log(recv);
+    console.log(recv);
     postMessages.recvMessage(recv);
     if (!recv.type) {
 
