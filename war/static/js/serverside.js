@@ -172,6 +172,7 @@ var postMessages = {
         util.sendMessageToParent(revcObj);
     },
     echoResult: function(res) {
+        console.log(res);
         var obj = {
             type: 'ECHO_RESULT',
             data: res
@@ -313,10 +314,17 @@ function echoPayment(recv) {
     var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
     xhr.open('GET', '/api/echo');
     xhr.onreadystatechange = function() {
-        if (xhr.readyState > 3 && xhr.status == 200) {
-            console.log(JSON.parse(xhr.responseText));
-            var res = JSON.parse(xhr.responseText);
-            postMessages.echoResult(res);
+        if (xhr.readyState > 3) {
+            if(xhr.status == 200) {
+                console.log(JSON.parse(xhr.responseText));
+                var res = JSON.parse(xhr.responseText);
+				console.log(res);
+                postMessages.echoResult(res);
+            } else {
+                var res = {result : {resultCd: 'xxxx', resultMsg: 'echo', advanceMsg: '인증실패'}};
+                postMessages.echoResult(res);
+            }
+            
         }
     };
     xhr.setRequestHeader("Accept", "application/json");
@@ -324,6 +332,7 @@ function echoPayment(recv) {
     xhr.setRequestHeader("Authorization", recv.key);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send();
+    
 }
 
 /* 클라이언트(Parent window)로 부터 받은 PoseMessage */
