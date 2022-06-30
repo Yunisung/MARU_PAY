@@ -351,7 +351,7 @@ public class ProcPay3DV2Widget extends Proc {
 			form.put("sndInstallmenttype", installment);
 		}
 		
-		form.put("sndShowcard", "C(01:02:03:04:05:08:09)")
+		form.put("sndShowcard", "C(01:02:03:04:05:08:09)");
 		
 		form.put("reWHCid", "");				//승인 후 수취 필드
 		form.put("reWHCtype", "");				//승인 후 수취 필드
