@@ -23,8 +23,8 @@ public class KspayV14 {
 	private static Logger logger 	= LoggerFactory.getLogger( com.pgmate.pay.van.KspayV14.class ); 
 	private static String KSPAY_WEB_URL = "http://kspay.ksnet.to/store/KSPayWebV1.4/web_host/recv_post.jsp";
 	private static String KSPAY_MOBILE_URL = "http://kspay.ksnet.to/store/KSPayMobileV1.4/web_host/recv_post.jsp";
-	private static String[] PARAMS ={"authyn","trno","trddt","trdtm","amt","authno","msg1","msg2","ordno","isscd","aqucd","result","halbu","cbtrno","cbauthno","cardno"};
-	private static String PARAM = "authyn`trno`trddt`trdtm`amt`authno`msg1`msg2`ordno`isscd`aqucd`result`halbu`cbtrno`cbauthno`cardno";
+	private static String[] PARAMS ={"authyn","trno","trddt","trdtm","amt","authno","msg1","msg2","ordno","isscd","aqucd","result","halbu","cbtrno","cbauthno","cardno","certitype"};
+	private static String PARAM = "authyn`trno`trddt`trdtm`amt`authno`msg1`msg2`ordno`isscd`aqucd`result`halbu`cbtrno`cbauthno`cardno`certitype";
 	
 	// authyn : O/X 상태
     // trno   : KSNET거래번호(영수증 및 취소 등 결제데이터용 KEY
@@ -36,6 +36,7 @@ public class KspayV14 {
     // isscd  : 발급사코드(신용카드), 가상계좌번호(가상계좌) ,기타결제수단의 경우 의미없음
     // aqucd  : 매입사코드(신용카드)
     // result : 승인구분
+	// certitype : 간편결제 구분값 (SSG = S, KAKAO = K, LPAY = L, NPAY = NP, NPOINT = NPP, PAYCO = PC)
 	
 	private String cid	= "";
 	private String KSPAY_URL	= "";
