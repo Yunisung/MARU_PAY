@@ -1,4 +1,4 @@
-package ksnet.kspay;
+package com.pgmate.pay.bean;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class KSPayApprovalCancelBean {
     private final String IPAddr;
     private final int Port;
 
-    private KSPaySocketBean KSPaySocket;
+    private ksnet.kspay.KSPaySocketBean KSPaySocket;
 
     public String HeadMsg;            //Head Message
     public String DataMsg;
@@ -1452,7 +1452,7 @@ public class KSPayApprovalCancelBean {
     private boolean ProcessRequest(String addr, int port, String ServiceType, String SendMsg) throws IOException {
         boolean ret = false;
 
-        this.KSPaySocket = new KSPaySocketBean(addr, port);
+        this.KSPaySocket = new ksnet.kspay.KSPaySocketBean(addr, port);
 
         this.KSPaySocket.ConnectSocket();   //IPG_Server와 연결을 맺는다
         this.KSPaySocket.write(SendMsg.getBytes(MSG_ENCODING)); //IPG_Server에 승인/취소요청 데이타를 보낸다.
