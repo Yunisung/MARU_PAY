@@ -1,6 +1,7 @@
 var MARU = (function (win, doc) {
   var c3Config = {
     payRoute: "regular",
+	trxType: '',
     publicKey: '',    // 필수값
     amount: 0,        // 필수값
     trackId: '',
@@ -14,6 +15,7 @@ var MARU = (function (win, doc) {
 
   /* GLOBAL */
   var routeUrls = {
+    // sandbox: 'http://127.0.0.1:10002',
     sandbox: 'https://devapi.bkwinners.kr',
     live: 'https://api.bkwinners.kr'
   }
@@ -223,9 +225,15 @@ var MARU = (function (win, doc) {
     	doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
         doc.getElementById('c3_pop_overlay').style.display = '';
     }
-    doc.getElementById('c3pop_content_fixed').style.display = '';
+
+    //간편결제는 fix제거
+    if(c3Config.payRoute !== 'simple') {
+      doc.getElementById('c3pop_content_fixed').style.display = '';
+    }
     
   }
+
+
 
   function removePop() {
     postMessages.payClose();
@@ -321,10 +329,10 @@ var MARU = (function (win, doc) {
       alert('입력값이 올바르지 않아 결제를 진행할 수 없습니다.\n\n' + error.message + "(" + error.code + ")");
       return;
     }
-    requestOpen();
+    requestPayOpen();
   }
 
-  function requestOpen() {
+function requestPayOpen() {
     c3pop();
     setTimeout(function() {
       postMessages.payOpen();

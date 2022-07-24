@@ -569,7 +569,6 @@ public class TrxDAO extends DAO {
 		super.setRecord("regDate", sharedMap.getString(PAYUNIT.REG_DATE));
 		logger.info("set TRX_REQ : {}", super.insert());
 		super.initRecord();
-
 	}
 
 	public void insertTrxREQ(SharedMap<String, Object> sharedMap) {
@@ -633,7 +632,6 @@ public class TrxDAO extends DAO {
 		}
 
 		super.initRecord();
-
 	}
 
 	public void insertTrxRES(SharedMap<String, Object> sharedMap) {
@@ -1857,8 +1855,60 @@ public class TrxDAO extends DAO {
 
 		super.initRecord();
 	}
-	
-	
+
+	public void insertTrx3D(SharedMap<String, Object> ioMap) {
+
+		super.setTable("PG_TRX_REQ");
+
+		super.setRecord("trxId", ioMap.getString("trxId"));
+		super.setRecord("trxType", ioMap.get("trxType"));
+		super.setRecord("mchtId", ioMap.getString("mchtId"));
+		super.setRecord("tmnId", ioMap.getString("tmnId"));
+		super.setRecord("trackId", ioMap.getString("trackId"));
+		super.setRecord("payerName", ioMap.getString("payerName"));
+		super.setRecord("payerEmail", ioMap.getString("payerEmail"));
+		super.setRecord("payerTel", ioMap.getString("payerTel"));
+		super.setRecord("amount", ioMap.getLong("amount"));
+		super.setRecord("cardId", ioMap.getString("cardId"));
+		super.setRecord("issuer", ioMap.getString("issuer"));
+		super.setRecord("last4", ioMap.getString("last4"));
+		super.setRecord("cardType", ioMap.getString("cardType"));
+		super.setRecord("bin", ioMap.getString("bin"));
+//		super.setRecord("installment", ioMap.getString("installment"));
+		super.setRecord("installment", CommonUtil.zerofill(ioMap.getInt("installment"),2));
+		super.setRecord("acquirer", ioMap.getString("acquirer"));
+		super.setRecord("prodId", ioMap.getString("prodId"));
+		super.setRecord("regDay", ioMap.getString("regDay"));
+		super.setRecord("regTime", ioMap.getString("regTime"));
+		super.setRecord("regDate", ioMap.getTimestamp("regDate"));
+		logger.info("set TRX_REQ : {}", super.insert());
+		super.initRecord();
+
+
+		super.setTable("PG_TRX_RES");
+		super.setRecord("trxId", ioMap.getString("trxId"));
+		super.setRecord("authCd", ioMap.getString("authCd"));
+		super.setRecord("resultCd", ioMap.getString("vanResultCd"));
+		super.setRecord("resultMsg", ioMap.getString("vanResultMsg"));
+		super.setRecord("van", ioMap.getString("van"));
+		super.setRecord("vanId", ioMap.getString("vanId"));
+		super.setRecord("vanTrxId", ioMap.getString("vanTrxId"));
+		super.setRecord("vanResultCd", ioMap.getString("vanResultCd"));
+		super.setRecord("vanResultMsg", ioMap.getString("vanResultMsg"));
+		super.setRecord("regDay", ioMap.getString("vanResultDate").substring(0, 8));
+		super.setRecord("regTime", ioMap.getString("vanResultDate").substring(8));
+		super.setRecord("regDate", ioMap.getString("vanResultDate"));
+
+		logger.info("set TRX_RES : {}", super.insert());
+
+		if (ioMap.isEquals("vanResultCd","0000")) {
+			insertTrxPAY(ioMap.getString("trxId"));
+		} else {
+			insertTrxERR(ioMap.getString("trxId"));
+		}
+
+		super.initRecord();
+	}
 	
 	public void insertTrx3D(SharedMap<String, Object> ioMap,SharedMap<String, Object> widgetMap) {
 
@@ -1913,7 +1963,66 @@ public class TrxDAO extends DAO {
 
 		super.initRecord();
 	}
-	
+
+	public void updateTrx3D(SharedMap<String, Object> ioMap) {
+
+		super.setTable("PG_TRX_REQ");
+
+//		super.setRecord("trxId", ioMap.getString("trxId"));
+		super.setRecord("trxType", ioMap.getString("trxType"));
+		super.setRecord("mchtId", ioMap.getString("mchtId"));
+		super.setRecord("tmnId", ioMap.getString("tmnId"));
+		super.setRecord("trackId", ioMap.getString("trackId"));
+		super.setRecord("payerName", ioMap.getString("payerName"));
+		super.setRecord("payerEmail", ioMap.getString("payerEmail"));
+		super.setRecord("payerTel", ioMap.getString("payerTel"));
+		super.setRecord("amount", ioMap.getLong("amount"));
+		super.setRecord("cardId", ioMap.getString("cardId"));
+		super.setRecord("issuer", ioMap.getString("issuer"));
+		super.setRecord("last4", ioMap.getString("last4"));
+		super.setRecord("cardType", ioMap.getString("cardType"));
+		super.setRecord("bin", ioMap.getString("bin"));
+		super.setRecord("installment", ioMap.getString("installment"));
+		super.setRecord("acquirer", ioMap.getString("acquirer"));
+		super.setRecord("prodId", ioMap.getString("prodId"));
+		super.setRecord("regDay", ioMap.getString("regDay"));
+		super.setRecord("regTime", ioMap.getString("regTime"));
+		super.setRecord("regDate", ioMap.getTimestamp("regDate"));
+
+		super.addWhere("trxId", ioMap.getString("trxId"));
+		logger.info("update TRX_REQ : {}", super.update());
+		super.initRecord();
+
+
+		super.setTable("PG_TRX_RES");
+//		super.setRecord("trxId", ioMap.getString("trxId"));
+		super.setRecord("authCd", ioMap.getString("authCd"));
+		super.setRecord("resultCd", ioMap.getString("vanResultCd"));
+		super.setRecord("resultMsg", ioMap.getString("vanResultMsg"));
+		super.setRecord("van", ioMap.getString("van"));
+		super.setRecord("vanId", ioMap.getString("vanId"));
+		super.setRecord("vanTrxId", ioMap.getString("vanTrxId"));
+		super.setRecord("vanResultCd", ioMap.getString("vanResultCd"));
+		super.setRecord("vanResultMsg", ioMap.getString("vanResultMsg"));
+		super.setRecord("regDay", ioMap.getString("vanResultDate").substring(0, 8));
+		super.setRecord("regTime", ioMap.getString("vanResultDate").substring(8));
+		super.setRecord("regDate", ioMap.getString("vanResultDate"));
+
+		super.addWhere("trxId", ioMap.getString("trxId"));
+
+		logger.info("update TRX_RES : {}", super.update());
+
+		if (ioMap.isEquals("vanResultCd","0000")) {
+			insertTrxPAY(ioMap.getString("trxId"));
+		} else {
+			insertTrxERR(ioMap.getString("trxId"));
+		}
+
+		super.initRecord();
+
+
+	}
+
 	public void updateTrx3D(SharedMap<String, Object> ioMap,SharedMap<String, Object> widgetMap) {
 		
 		super.setTable("PG_TRX_REQ");
