@@ -1,4 +1,4 @@
-package ksnet.kspay;
+package com.pgmate.pay.bean;
 
 import java.io.*;
 import java.util.*;
