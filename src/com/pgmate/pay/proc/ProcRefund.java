@@ -34,6 +34,7 @@ public class ProcRefund extends Proc {
 	private static Logger logger 				= LoggerFactory.getLogger( com.pgmate.pay.proc.ProcRefund.class );
 	
 	private SharedMap<String,Object> trxMap 	=	null;
+	private SharedMap<String,Object> reqMap 	=	null;
 	//private SharedMap<String,Object> capDtlMap 	=	null;
 	
 	public ProcRefund() {
@@ -72,7 +73,7 @@ public class ProcRefund extends Proc {
 		
 		// KBR : VAN등록 정보 조회
 		SharedMap<String,Object>  vanMap = trxDAO.getVanByVanId(trxMap.getString("van"), trxMap.getString("vanId"));
-		
+		vanMap.put("trxType", reqMap.getString("trxType"));
 		Van van = null;
 		
 		if(trxMap.isEquals("van", "DEFAULT")){
@@ -360,7 +361,7 @@ public class ProcRefund extends Proc {
 			logger.info("ROOT_TRX_ID  : {},{}",request.refund.tmnId,request.refund.rootTrxId);
 			// KBR : 승인거래 원장 테이블 조회
 			trxMap = trxDAO.getTrxPayByTrxId(request.refund.tmnId, request.refund.rootTrxId);
-			
+			reqMap = trxDAO.getTrxReqByTrxId(request.refund.rootTrxId);
 			
 		}
 		

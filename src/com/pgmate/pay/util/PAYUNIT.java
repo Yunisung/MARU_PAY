@@ -60,8 +60,6 @@ public class PAYUNIT {
     public static String API_3DV2_HOOK                = "/api/3dV2/hook";
     public static String API_PHONE_HOOK                = "/api/phone/hook";
     public static String API_PHONE_REFUND            = "/api/phone/refund";
-    public static String API_KAKAO_HOOK                = "/api/kakao/hook";
-    public static String API_KAKAO_REFUND            = "/api/kakao/refund";
     public static String API_SETTLE_ACCNT            = "/api/settle/accnt";
     public static String API_SETTLE_BALANCE            = "/api/settle/balance";
     public static String API_SETTLE_TRANSFER        = "/api/settle/transfer";
@@ -69,6 +67,8 @@ public class PAYUNIT {
 	
     public static String API_ARS_AUTH_ASYNC			= "/api/ars/auth/async";
 	public static String API_ARS_AUTH_CHECK			= "/api/ars/auth/check";
+
+	public static String API_KAKAO_RETURN			= "/api/kakao/return";
 	
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
     public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook",};    

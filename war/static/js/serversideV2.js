@@ -197,7 +197,7 @@ var ServerUtil = {
         	var innerWidth = window.innerWidth;
         	if(c3Config.payRoute == 'w3d'){
         		ServerUtil.layerHeigth += additionHeight -180;
-        	}else if(c3Config.payRoute == 'phone' || c3Config.payRoute == '3d'){
+        	}else if(c3Config.payRoute == 'phone' || c3Config.payRoute == '3d' || c3Config.payRoute == '3dPay'){
         		ServerUtil.layerWidth = window.innerWidth;
         		if(util.isMobile()){
         			ServerUtil.layerHeigth = window.innerHeight;
@@ -275,12 +275,16 @@ function openPayment(config) {
         if (res.result.resultCd == '0000') {
             var url = window.location.protocol + "//" + window.location.host + res.widget.routeUrl;
             ServerUtil.resizeWindow(res);
-            if(res.widget.target == 'REGULAR') document.getElementById('iframe-payment').style.backgroundColor = 'whitesmoke';
-            document.getElementById('iframe-payment-containner').style.height = ServerUtil.layerHeigth;
-            document.getElementById('iframe-payment-containner').style.width = ServerUtil.layerWidth;
-           
-            document.getElementById('iframe-payment').src = url;
-            document.getElementById('iframe-payment').style.display = 'block';
+
+            if (config.c3Config.mode == 'popup') {
+                popup(url);
+            } else {
+                if(res.widget.target == 'REGULAR') document.getElementById('iframe-payment').style.backgroundColor = 'whitesmoke';
+                document.getElementById('iframe-payment-containner').style.height = ServerUtil.layerHeigth;
+                document.getElementById('iframe-payment-containner').style.width = ServerUtil.layerWidth;
+                document.getElementById('iframe-payment').src = url;
+                document.getElementById('iframe-payment').style.display = 'block';
+            }
         } else {
             /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
         	alert(res.result.advanceMsg);
@@ -291,6 +295,7 @@ function openPayment(config) {
         alert('키가 올바르지 않습니다. ' + err);
     });
 }
+
 /* MCHT 요청 및 기타 요청에 의해 결제 취소 */
 function closePayment(data) {
     /* 결제를 취소하고 창을 닫기위한 작업을 이곳에 추가. */

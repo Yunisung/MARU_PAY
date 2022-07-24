@@ -38,6 +38,7 @@ public class Kspay implements Van {
 	private String tmnId				= "";
 	private String VAN					= "";
     private String payCondition			= "1";
+    private String trxType				= "";
 	
 	public Kspay(SharedMap<String, Object> tmnVanMap) {
 		
@@ -46,6 +47,8 @@ public class Kspay implements Van {
 		SECONDKEY	= tmnVanMap.getString("secondKey").trim();
 		VAN = tmnVanMap.getString("van");
 		tmnId = tmnVanMap.getString("tmnId");
+		//간편결제 취소시 사용
+		trxType = tmnVanMap.getString("trxType");
 		
 		// 상점부담 무이자 적용
 		if(tmnVanMap.getString("vanId").equals("2006500009")) payCondition = "2";
@@ -209,6 +212,12 @@ public class Kspay implements Van {
 		KspayRefund kVoid = new KspayRefund();
 		kVoid.setVoidType("0"); //취소처리구분 0 :거래번호취소 , 1:주문번호취소
 		kVoid.setReqType("1010"); //승인구분
+		
+		//간편결제 SSG만 reqType이 4110임.
+		if(trxType.equals("SSG")) {
+			kVoid.setReqType("4110");
+		}
+		
 		kVoid.setKsnetTrnId(payMap.getString("vanTrxId")); //KSNET 거래번호, 취소구분이 1인경우 SPACE
 		
 		//KJM : 거래번호가 없을 경우

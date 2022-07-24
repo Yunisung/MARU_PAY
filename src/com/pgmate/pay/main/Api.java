@@ -1,5 +1,6 @@
 package com.pgmate.pay.main;
 
+import com.pgmate.pay.proc.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,44 +15,6 @@ import com.pgmate.lib.vertx.main.VertXMessage;
 import com.pgmate.lib.vertx.main.VertXUtil;
 import com.pgmate.pay.bean.Request;
 import com.pgmate.pay.dao.TrxDAO;
-import com.pgmate.pay.proc.ARSAsync;
-import com.pgmate.pay.proc.ARSCheck;
-import com.pgmate.pay.proc.Proc;
-import com.pgmate.pay.proc.ProcAuth;
-import com.pgmate.pay.proc.ProcCheck;
-import com.pgmate.pay.proc.ProcEcho;
-import com.pgmate.pay.proc.ProcGet;
-import com.pgmate.pay.proc.ProcInquery;
-import com.pgmate.pay.proc.ProcPay;
-import com.pgmate.pay.proc.ProcPay3DHook;
-import com.pgmate.pay.proc.ProcPay3DHookMobile;
-import com.pgmate.pay.proc.ProcPay3DV2Hook;
-import com.pgmate.pay.proc.ProcPay3DV2Widget;
-import com.pgmate.pay.proc.ProcPay3DWidget;
-import com.pgmate.pay.proc.ProcPay3DWidgetMobile;
-import com.pgmate.pay.proc.ProcPayPhoneHook;
-import com.pgmate.pay.proc.ProcPayW3DHook;
-import com.pgmate.pay.proc.ProcPayW3DWidget;
-import com.pgmate.pay.proc.ProcPhoneRefund;
-import com.pgmate.pay.proc.ProcRefund;
-import com.pgmate.pay.proc.ProcSettleAccnt;
-import com.pgmate.pay.proc.ProcSettleBalance;
-import com.pgmate.pay.proc.ProcSettleTransfer;
-import com.pgmate.pay.proc.ProcWebHook;
-import com.pgmate.pay.proc.ProcWebHookAllatTmn;
-import com.pgmate.pay.proc.ProcWebHookDaou;
-import com.pgmate.pay.proc.ProcWebHookKICC;
-import com.pgmate.pay.proc.ProcWebHookNice;
-import com.pgmate.pay.proc.ProcWebHookSPC;
-import com.pgmate.pay.proc.ProcWebHookWelcome;
-import com.pgmate.pay.proc.ProcWidget;
-import com.pgmate.pay.proc.VactClose;
-import com.pgmate.pay.proc.VactGet;
-import com.pgmate.pay.proc.VactOpen;
-import com.pgmate.pay.proc.VactPatch;
-import com.pgmate.pay.proc.VactReg;
-import com.pgmate.pay.proc.VactStatus;
-import com.pgmate.pay.proc.VactWithdrawGet;
 import com.pgmate.pay.util.PAYUNIT;
 
 import io.vertx.core.http.HttpMethod;
@@ -188,7 +151,10 @@ public class Api {
 				process = new ARSAsync();
 			}else if (uri.startsWith(PAYUNIT.API_ARS_AUTH_CHECK)) {
 				process = new ARSCheck();
-			}else {
+			}else if (uri.startsWith(PAYUNIT.API_KAKAO_RETURN)) {
+				process = new ProcKakaoReturn();
+			}
+			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
 					sharedMap.put("van", "DANAL");
 					ProcWebHook webHook = new ProcWebHook();
@@ -267,7 +233,7 @@ public class Api {
 
 		// JSON,XML 만 수신처리
 		String contentsType = sharedMap.getString(PAYUNIT.CONTENTTYPE).toLowerCase();
-		if (contentsType.startsWith("application/json") || contentsType.equalsIgnoreCase(VertXMessage.CONTENT_XML)) {
+		if (contentsType.startsWith("application/json") || contentsType.startsWith("application/x-www-form-urlencoded") || contentsType.equalsIgnoreCase(VertXMessage.CONTENT_XML)) {
 		} else {
 			logger.debug("invalid content-type : {}", contentsType);
 			if(sharedMap.getString(PAYUNIT.URI).indexOf("widget") > -1){
@@ -275,6 +241,12 @@ public class Api {
 				VertXMessage.set400(rc);
 				return false;
 			}
+		}
+
+		//간편결제 처리
+		//따로 인증처리 없이 바로 실행되도록
+		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN)) {
+			return true;
 		}
 
 		// Authorization

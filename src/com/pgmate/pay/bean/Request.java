@@ -16,7 +16,7 @@ public class Request {
 	public Accnt accnt		= null;
 	public Transfer transfer = null;
 	public ARS ars			= null;
-	
+
 	public Request() {
 	}
 }
