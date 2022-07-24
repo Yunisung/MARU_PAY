@@ -18,7 +18,6 @@ import com.pgmate.pay.util.KspayUtil;
 import com.pgmate.pay.util.PAYUNIT;
 import com.pgmate.pay.util.TemplateUtil;
 import io.vertx.ext.web.RoutingContext;
-import ksnet.kspay.KSPayApprovalCancelBean;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
