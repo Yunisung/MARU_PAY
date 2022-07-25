@@ -556,16 +556,20 @@ public class ProcPay3DV2Widget extends Proc {
 
 			if(request.widget.isEquals("device", "mobile")){
 				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_KAKAO_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("processtype", "2"); // 1: pc 2:mobile
 			}
 			else {
 				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("processtype", "1"); // 1: pc 2:mobile
 			}
 
 		}else{
 			if(request.widget.isEquals("device", "mobile")) {
 				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_KAKAO_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("processtype", "2"); // 1: pc 2:mobile
 			} else {
 				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("processtype", "1"); // 1: pc 2:mobile
 			}
 		}
 //		form.put("returnUrl", "http://127.0.0.1:10002/api/kakao/return?reqTrxId="+sharedMap.getString(PAYUNIT.TRX_ID));
@@ -580,7 +584,7 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("paymenttype", ""); // CARD or PAY
 		form.put("installment", "00"); //고객이 선택해도 일시불로 보내야됨 by KSNET 간편결제 메뉴얼
 		form.put("availcard", ""); //공백이면 전체 카드
-		form.put("processtype", "1"); // 1: pc 2:mobile
+
 
 		form.put("store_ceo_name", mchtMap.getString("nick"));//상점 대표자명
 		form.put("store_phoneno", mchtMap.getString("tel1").replaceAll("[-]", ""));//상점 연락처
