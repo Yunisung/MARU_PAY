@@ -137,10 +137,6 @@ public class Api {
 				process = new ProcPay3DV2Hook();
 			}else if (uri.startsWith(PAYUNIT.API_PHONE_REFUND)) {
 				process = new ProcPhoneRefund();
-				/*}else if (uri.startsWith(PAYUNIT.API_KAKAO_HOOK)) {
-					process = new ProcPayKakaoHook();
-				}else if (uri.startsWith(PAYUNIT.API_KAKAO_REFUND)) {
-					process = new ProcKakaoRefund();*/
 			}else if (uri.startsWith(PAYUNIT.API_SETTLE_ACCNT)) {
 				process = new ProcSettleAccnt();
 			}else if (uri.startsWith(PAYUNIT.API_SETTLE_BALANCE)) {
@@ -153,6 +149,8 @@ public class Api {
 				process = new ARSCheck();
 			}else if (uri.startsWith(PAYUNIT.API_KAKAO_RETURN)) {
 				process = new ProcKakaoReturn();
+			} else if(uri.startsWith(PAYUNIT.API_KAKAO_MOBILE_RETURN)) {
+				process = new ProcKakaoMobileReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -245,7 +243,8 @@ public class Api {
 
 		//간편결제 처리
 		//따로 인증처리 없이 바로 실행되도록
-		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN)) {
+		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_MOBILE_RETURN)) {
 			return true;
 		}
 

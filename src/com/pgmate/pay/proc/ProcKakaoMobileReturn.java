@@ -28,11 +28,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProcKakaoReturn extends Proc{
+public class ProcKakaoMobileReturn extends Proc{
     private static Logger logger = LoggerFactory.getLogger( com.pgmate.pay.proc.ProcKakaoReturn.class );
     private SharedMap<String,Object> ioMap =  null;
     String trxId = "";
-    public ProcKakaoReturn() {
+    public ProcKakaoMobileReturn() {
 
     }
     @Override
@@ -47,8 +47,8 @@ public class ProcKakaoReturn extends Proc{
         this.trxDAO				= new TrxDAO();
 
         //소켓통신에 필요한 데이터 세팅
-        String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_KAKAO_RETURN+"/", "");
-        logger.info("KAKAO_RETURN : [{}]",search);
+        String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_KAKAO_MOBILE_RETURN+"/", "");
+        logger.info("KAKAO_MOBILE_RETURN : [{}]",search);
         String[] initial = CommonUtil.adjustArray(CommonUtil.split(search, "[/]", true),2);
         logger.info("TRXID: [{}],INSTALLMENT: [{}]",initial[0],initial[1]);
 
@@ -61,13 +61,29 @@ public class ProcKakaoReturn extends Proc{
         JSONParser parser = new JSONParser();
         JSONObject reqObj = (JSONObject) parser.parse(strJson);
 
-        //KAKAO클래스 세팅
-        String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
-        logger.info("payload : " + payload);
-        SharedMap<String, Object> kakaoResMap = parseQueryString(payload);
-        Kakao kakao = new Gson().fromJson(kakaoResMap.toJson(), Kakao.class);
+        //모바일은 request에서 안보내준다. 그래서 DB에서 가지고 온다.
+
+        //DB에 있는 authForm을 Kakao클래스로 변환
+        String formString = reqObj.get("authform").toString();
+        JSONObject formObj = (JSONObject) parser.parse(formString);
+        Kakao kakao = new Gson().fromJson(formObj.toJSONString(), Kakao.class);
         kakao.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
         kakao.setInstallment("00"); //간편결제는 무조건 일시불만 가능
+        kakao.setProceed(rc.request().getParam("proceed"));
+        kakao.setTid(rc.request().getParam("tid"));
+        kakao.setCid(rc.request().getParam("cid"));
+        kakao.setPg_token(rc.request().getParam("pg_token"));
+
+
+        //logger.info("kakao DB : " + kakao.toString());
+
+        //KAKAO클래스 세팅
+//        String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
+//        logger.info("payload : " + payload);
+//        SharedMap<String, Object> kakaoResMap = parseQueryString(payload);
+//        Kakao kakao = new Gson().fromJson(kakaoResMap.toJson(), Kakao.class);
+//        kakao.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
+//        kakao.setInstallment("00"); //간편결제는 무조건 일시불만 가능
 
         logger.info("kakao : " + kakao.toString());
 
