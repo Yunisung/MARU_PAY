@@ -38,7 +38,7 @@
             vfrm.installment.value = document.KSPayInputForm.installment.value;
 
             document.getElementById("DIV_KAKAOFRAME").style.display="";
-            vfrm.returnUrl += "&installment="+vfrm.installment.value;
+            vfrm.returnUrl += "/"+vfrm.installment.value;
             vfrm.target = 'KAKAO_IFRM';
             vfrm.acceptCharset = "euc-kr";
             vfrm.action = "https://kspay.ksnet.to/store/PAY_PROXY/kakao/kakao_rs_o1.jsp" ;

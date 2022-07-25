@@ -47,8 +47,14 @@ public class ProcKakaoReturn extends Proc{
         this.trxDAO				= new TrxDAO();
 
         //소켓통신에 필요한 데이터 세팅
-        trxId = rc.request().getParam("reqTrxId");
-        String installment = rc.request().getParam("installment"); //할부 입력 일단 받음 -> 사용은 안함.
+        String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_KAKAO_RETURN+"/", "");
+        logger.info("KAKAO_RETURN : [{}]",search);
+        String[] initial = CommonUtil.adjustArray(CommonUtil.split(search, "[/]", true),2);
+        logger.info("TRXID: [{}],INSTALLMENT: [{}]",initial[0],initial[1]);
+        trxId = initial[0];
+        String installment = initial[1];
+        //trxId = rc.request().getParam("reqTrxId");
+        //String installment = rc.request().getParam("installment"); //할부 입력 일단 받음 -> 사용은 안함.
         //DB에 저장된 reqJson 들고오기
         String strJson = trxDAO.getTrxIO3DByTrxId(trxId).getString("reqJson");
         //JSON으로 변환
