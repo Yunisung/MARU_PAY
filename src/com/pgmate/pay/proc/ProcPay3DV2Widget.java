@@ -290,12 +290,21 @@ public class ProcPay3DV2Widget extends Proc {
 
 							if(vanMap.startsWith("van", "KSPAY")){
 								response.widget.put("target", "KSPAY");
-								if(request.widget.isEquals("device", "mobile")){
-									response.widget.put("routeUrl", "/form/payment/kspay/kspayV14Mobile.html?token=" + widgetKey);
-								}else {
-									response.widget.put("routeUrl", "/form/payment/kspay/kakao.html?token=" + widgetKey);
+
+								if (request.widget.getString("trxType").equals("KAKAO")) {
+									if (request.widget.isEquals("device", "mobile")) {
+										response.widget.put("routeUrl", "/form/payment/kspay/kakaoMobile.html?token=" + widgetKey);
+									} else {
+										response.widget.put("routeUrl", "/form/payment/kspay/kakao.html?token=" + widgetKey);
+									}
+									setKakaoPay(vanMap);
+								} else if (request.widget.getString("trxType").equals("NAVER")) {
+
+								} else if (request.widget.getString("trxType").equals("PAYCO")) {
+
+								} else if (request.widget.getString("trxType").equals("SSG")) {
+
 								}
-								setKakaoPay(vanMap);
 
 								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 								response.result = ResultUtil.getResult("0000", "정상","정상완료");
@@ -544,9 +553,20 @@ public class ProcPay3DV2Widget extends Proc {
 		
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
 		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
-			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+
+			if(request.widget.isEquals("device", "mobile")){
+				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_KAKAO_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			}
+			else {
+				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			}
+
 		}else{
-			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			if(request.widget.isEquals("device", "mobile")) {
+				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_KAKAO_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			} else {
+				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			}
 		}
 //		form.put("returnUrl", "http://127.0.0.1:10002/api/kakao/return?reqTrxId="+sharedMap.getString(PAYUNIT.TRX_ID));
 		form.put("storeid", vanMap.getString("vanId"));
@@ -626,6 +646,9 @@ public class ProcPay3DV2Widget extends Proc {
 				request.widget.put("device","pc");
 			}
 		}
+
+		//모바일 테스트용
+//		request.widget.put("device", "mobile");
 		
 	}
 	
