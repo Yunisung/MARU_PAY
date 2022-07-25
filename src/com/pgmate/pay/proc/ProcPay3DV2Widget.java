@@ -544,9 +544,9 @@ public class ProcPay3DV2Widget extends Proc {
 		
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
 		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
-			form.put("returnUrl", String.format("https://%s%s?reqTrxId=%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
 		}else{
-			form.put("returnUrl", String.format("https://%s%s?reqTrxId=%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 //		form.put("returnUrl", "http://127.0.0.1:10002/api/kakao/return?reqTrxId="+sharedMap.getString(PAYUNIT.TRX_ID));
 		form.put("storeid", vanMap.getString("vanId"));
