@@ -48,7 +48,7 @@ public class ProcSsgMobileReturn extends Proc{
         this.trxDAO				= new TrxDAO();
 
         //소켓통신에 필요한 데이터 세팅
-        String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_SSG_RETURN+"/", "");
+        String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_SSG_MOBILE_RETURN_RETURN+"/", "");
         logger.info("SSG_RETURN : [{}]",search);
         String[] initial = CommonUtil.adjustArray(CommonUtil.split(search, "[/]", true),2);
         logger.info("TRXID: [{}],INSTALLMENT: [{}]",initial[0],initial[1]);
