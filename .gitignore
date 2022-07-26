@@ -7,3 +7,9 @@ conf/service.json
 conf/logback.xml
 
 conf/config.ini
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
