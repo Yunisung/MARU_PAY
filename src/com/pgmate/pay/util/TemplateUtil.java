@@ -243,7 +243,7 @@ public class TemplateUtil {
 		.write(sb.toString()).end();
 	}
 
-	public static void kakaoPayResultPage(RoutingContext rc, SimplePayResult kakaoRes) {
+	public static void simplePayResultPage(RoutingContext rc, SimplePayResult result, String jsName, String resData) {
 		String returnPage =
 				"<html>\n" +
 				"<head>\n" +
@@ -267,7 +267,7 @@ public class TemplateUtil {
 				"<table width=100% cellspacing=1 cellpadding=2 border=0>\n" +
 				"<tr bgcolor=#4F9AFF height=25>\n" +
 				"<td align=left><font color=\"#FFFFFF\">\n" +
-				"카카오페이 결과</td>\n" +
+				"간편결제 결과</td>\n" +
 				"</tr>\n" +
 				"<tr bgcolor=#FFFFFF>\n" +
 				"<td valign=top>\n" +
@@ -277,39 +277,39 @@ public class TemplateUtil {
 				"<table>\n" +
 				"<tr>\n" +
 				"\t<td>거래종류 :</td>\n" +
-				"\t<td>"+kakaoRes.rApprovalType +"</td>\n" +
+				"\t<td>"+result.rApprovalType +"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>거래번호 :</td>\n" +
-				"\t<td>"+kakaoRes.rTransactionNo +"</td>\n" +
+				"\t<td>"+result.rTransactionNo +"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>거래성공여부 :</td>\n" +
-				"\t<td>"+kakaoRes.rStatus+"</td>\n" +
+				"\t<td>"+result.rStatus+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>거래시간 :</td>\n" +
-				"\t<td>"+kakaoRes.rTradeDate+"&nbsp;"+kakaoRes.rTradeTime+"</td>\n" +
+				"\t<td>"+result.rTradeDate+"&nbsp;"+result.rTradeTime+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>발급사코드 :</td>\n" +
-				"\t<td>"+kakaoRes.rIssCode+"</td>\n" +
+				"\t<td>"+result.rIssCode+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>매입사코드 :</td>\n" +
-				"\t<td>"+kakaoRes.rAquCode+"</td>\n" +
+				"\t<td>"+result.rAquCode+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>승인번호 :</td>\n" +
-				"\t<td>"+kakaoRes.rAuthNo+"</td>\n" +
+				"\t<td>"+result.rAuthNo+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>메시지1 :</td>\n" +
-				"\t<td>"+kakaoRes.rMessage1+"</td>\n" +
+				"\t<td>"+result.rMessage1+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>메시지2 :</td>\n" +
-				"\t<td>"+kakaoRes.rMessage2+"</td>\n" +
+				"\t<td>"+result.rMessage2+"</td>\n" +
 				"</tr>\n" +
 				"</table>\n" +
 				"</tr>\n" +
@@ -327,6 +327,11 @@ public class TemplateUtil {
 				"</tr>\n" +
 				"</table>\n" +
 				"</table>" +
+				"<form name=\"frm\" method=\"POST\" target=\"_self\">" +
+				"<textarea style=\"display:none;\" name=\"data\">"+resData+"</textarea>" +
+				"</form>" +
+				"<script src=\"/static/js/"+jsName+".js\"></script>"+
+				"<script>setTimeout(function() { kspayToParent(); },200);</script>"+
 				"</body>\n" +
 				"</html>";
 

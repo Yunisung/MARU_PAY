@@ -149,8 +149,12 @@ public class Api {
 				process = new ARSCheck();
 			}else if (uri.startsWith(PAYUNIT.API_KAKAO_RETURN)) {
 				process = new ProcKakaoReturn();
-			} else if(uri.startsWith(PAYUNIT.API_KAKAO_MOBILE_RETURN)) {
+			}else if(uri.startsWith(PAYUNIT.API_KAKAO_MOBILE_RETURN)) {
 				process = new ProcKakaoMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_SSG_RETURN)) {
+				process = new ProcSsgReturn();
+			} else if(uri.startsWith(PAYUNIT.API_SSG_MOBILE_RETURN)) {
+				process = new ProcSsgMobileReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -230,6 +234,7 @@ public class Api {
 		}
 
 		// JSON,XML 만 수신처리
+		// 간편결제때문에 "application/x-www-form-urlencoded" 추가
 		String contentsType = sharedMap.getString(PAYUNIT.CONTENTTYPE).toLowerCase();
 		if (contentsType.startsWith("application/json") || contentsType.startsWith("application/x-www-form-urlencoded") || contentsType.equalsIgnoreCase(VertXMessage.CONTENT_XML)) {
 		} else {
@@ -244,7 +249,9 @@ public class Api {
 		//간편결제 처리
 		//따로 인증처리 없이 바로 실행되도록
 		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN) ||
-			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_MOBILE_RETURN)) {
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_MOBILE_RETURN)) {
 			return true;
 		}
 

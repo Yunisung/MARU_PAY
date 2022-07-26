@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,20 +84,30 @@ public class ProcKakaoReturn extends Proc{
             ConnentKsnet(kakao, kakaoResult);
             //통신후 처리
             logger.info("result : " + kakaoResult.rStatus);
+
+            //이중승인 방지
+            SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
+            if(trxCheckMap != null) {
+                logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
+                response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
+                TemplateUtil.simplePayResultPage(rc, kakaoResult,"kakao", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+                return;
+            }
+
             setIOMap(kakaoResult);
             setTrx(ioMap, kakao);
 
             //결과화면 처리
-            TemplateUtil.kakaoPayResultPage(rc, kakaoResult);
+            TemplateUtil.simplePayResultPage(rc, kakaoResult, "kakao", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 
         } else {
             SimplePayResult kakaoResult = new SimplePayResult();
             kakaoResult.rStatus = "X";
             kakaoResult.rMessage1 = "실패";
             kakaoResult.rMessage2 = "카카오페이 인증에 실패했습니다";
-
+            response.result 	= ResultUtil.getResult("9999","승인실패", "카카오페이 인증에 실패했습니다.");
             //결과화면 처리
-            TemplateUtil.kakaoPayResultPage(rc, kakaoResult);
+            TemplateUtil.simplePayResultPage(rc, kakaoResult, "kakao", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 
@@ -104,13 +115,6 @@ public class ProcKakaoReturn extends Proc{
     }
 
     public void setIOMap(SimplePayResult res) {
-        //이중승인 방지
-        SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
-        if(trxCheckMap != null) {
-            logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
-            return;
-        }
-
         ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
 
         if(res.rStatus.equals("O")) {
@@ -464,6 +468,14 @@ public class ProcKakaoReturn extends Proc{
         } catch (UnsupportedEncodingException e) {
         } // Exception
         return "";
+    }
+
+    private String URLEncode(String s) {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (Exception e) {
+            return s;
+        }
     }
 
     private String URLDecode(Object obj) {
