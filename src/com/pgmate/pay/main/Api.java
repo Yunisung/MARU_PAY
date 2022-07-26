@@ -153,6 +153,8 @@ public class Api {
 				process = new ARSCheck();
 			}else if (uri.startsWith(PAYUNIT.API_KAKAO_RETURN)) {
 				process = new ProcKakaoReturn();
+			}else if (uri.startsWith(PAYUNIT.API_NAVER_RETURN)) {
+				process = new ProcNaverReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -246,6 +248,9 @@ public class Api {
 		//간편결제 처리
 		//따로 인증처리 없이 바로 실행되도록
 		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN)) {
+			return true;
+		}
+		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_RETURN)) {
 			return true;
 		}
 

@@ -257,8 +257,8 @@ public class ProcPay3DV2Widget extends Proc {
 				}
 				else if(request.widget.isEquals("payRoute", "simple")) {
 					widgetKey = "key_"+CommonUtil.toString(System.currentTimeMillis())+UUID.randomUUID().toString().substring(0, 7);
-
 					SharedMap<String,Object> ioMap = new SharedMap<String,Object>();
+					logger.info("###################################", sharedMap.getString(PAYUNIT.TRX_ID));
 					ioMap.put("trxId", sharedMap.getString(PAYUNIT.TRX_ID));
 					ioMap.put("widgetKey", widgetKey);
 					ioMap.put("mchtId", mchtTmnMap.getString("mchtId"));
@@ -290,12 +290,44 @@ public class ProcPay3DV2Widget extends Proc {
 
 							if(vanMap.startsWith("van", "KSPAY")){
 								response.widget.put("target", "KSPAY");
-								if(request.widget.isEquals("device", "mobile")){
-									response.widget.put("routeUrl", "/form/payment/kspay/kspayV14Mobile.html?token=" + widgetKey);
-								}else {
-									response.widget.put("routeUrl", "/form/payment/kspay/kakao.html?token=" + widgetKey);
+								// aaa
+								if (request.widget.getString("trxType").equals("KAKAO")) {
+									if (request.widget.isEquals("device", "mobile")) {
+										response.widget.put("routeUrl", "/form/payment/kspay/kakaoMobile.html?token=" + widgetKey);
+									} else {
+										response.widget.put("routeUrl", "/form/payment/kspay/kakao.html?token=" + widgetKey);
+									}
+									setKakaoPay(vanMap);
+								} else if (request.widget.getString("trxType").equals("NAVER")) {
+									if (request.widget.isEquals("device", "mobile")) {
+										// response.widget.put("routeUrl", "/form/payment/kspay/kakaoMobile.html?token=" + widgetKey);
+									} else {
+										response.widget.put("routeUrl", "/form/payment/kspay/naver.html?token=" + widgetKey);
+									}
+									setNaverPay(vanMap);
+								} else if (request.widget.getString("trxType").equals("PAYCO")) {
+
+								} else if (request.widget.getString("trxType").equals("SSG")) {
+									if (request.widget.isEquals("device", "mobile")) {
+										response.widget.put("routeUrl", "/form/payment/kspay/ssgMobile.html?token=" + widgetKey);
+									} else {
+										response.widget.put("routeUrl", "/form/payment/kspay/ssg.html?token=" + widgetKey);
+									}
+									setSsgPay(vanMap);
 								}
-								setKakaoPay(vanMap);
+								// aaa
+
+
+
+
+
+//								response.widget.put("target", "KSPAY");
+//								if(request.widget.isEquals("device", "mobile")){
+//									response.widget.put("routeUrl", "/form/payment/kspay/kspayV14Mobile.html?token=" + widgetKey);
+//								}else {
+//									response.widget.put("routeUrl", "/form/payment/kspay/naver.html?token=" + widgetKey);
+//								}
+//								setKakaoPay(vanMap);
 
 								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 								response.result = ResultUtil.getResult("0000", "정상","정상완료");
@@ -468,62 +500,82 @@ public class ProcPay3DV2Widget extends Proc {
 	}
 	
 	public void setNaverPay(SharedMap<String,Object> vanMap){
-		logger.info("NAVERPAY START");
-		
+		logger.info("NAVER PAY START");
+
 		request.widget.put("key", widgetKey);
 		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
-		
+
 		request.widget.put("target", "KSPAY");
 		request.widget.put("targetMethod", "POPUP");
 		request.widget.put("targetUrl", "http://kspay.ksnet.to/store/PAY_PROXY/npay/naver_rs_o1.jsp");
-		
-		request.widget.put("width", 1000);
-		request.widget.put("height", 1000);
+
+		request.widget.put("width", 750);
+		request.widget.put("height", 850);
+
+		request.widget.put("apiMaxInstall",mchtTmnMap.getString("apiMaxInstall"));
+
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
-		form.put("sndStoreid", vanMap.getString("vanId"));
-		form.put("sndStoreName", mchtMap.getString("nick"));//상점명
-		form.put("sndStoreDomain", "");//도메인 , REFFERE
-		form.put("sndOrdernumber", sharedMap.getString(PAYUNIT.TRX_ID));
-		form.put("sndPaymethod", "");
-		
-		form.put("sndGoodname", getProduct(request.widget.get("products")));
-		form.put("sndAmount", request.widget.getString("amount"));
-		form.put("sndOrdername", request.widget.getString("payerName"));
-		form.put("sndEmail", request.widget.getString("payerEmail"));
-		form.put("sndMobile", request.widget.getString("payerTel").replaceAll("[-]", ""));
-		form.put("sndServicePeriod", request.widget.getString("servicePeriod")); //서비스 제공기간 YYYY/MM/DD ~ YYYY/MM/DD 컨텐츠의 경우 표기
-		form.put("sndCharSet", "utf-8"); 
-		
-		form.put("sndPaymethod", "1000000000");			//신용카드 인증 결제
 		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
-			form.put("sndReply", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_3DV2_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_NAVER_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
 		}else{
-			form.put("sndReply", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3DV2_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_NAVER_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
-		form.put("sndGoodType", "1");		//실물 1, 컨텐츠 2
-		
-		
-		//간편결제는 00으로 고정
-		form.put("sndInstallmenttype", "00");
-		
-		form.put("reWHCid", "");				//승인 후 수취 필드
-		form.put("reWHCtype", "");				//승인 후 수취 필드
-		form.put("reWHHash", "");				//승인 후 수취 필드
-		
-		//REDIRECT FIELD	거래번호하고 위젯 키 
-		
-		form.put("a", sharedMap.getString(PAYUNIT.TRX_ID));
-		form.put("b",response.widget.getString("key"));
-		form.put("c", mchtTmnMap.getString("tmnId"));
-		
+//		form.put("returnUrl", "http://127.0.0.1:10002/api/naver/return/"+sharedMap.getString(PAYUNIT.TRX_ID));
+		form.put("storeid", vanMap.getString("vanId"));				// PG 상점아이디
+//		form.put("storeid", "2999199999"); 									//테스트용 2999199999
+		form.put("ordername", request.widget.getString("payerName"));	// 주문자명
+		form.put("ordernumber", request.widget.getString("trackId"));	// 주문번호
+		form.put("amount", request.widget.getString("amount"));		// 총승인금액
+		form.put("goodname", getProduct(request.widget.get("products")));	// 상품명
+		form.put("productcount", 1);										// 상품개수
+		form.put("email", request.widget.getString("payerEmail"));		// email
+		form.put("phoneno", request.widget.getString("payerTel").replaceAll("[-]", ""));	// 휴대폰번호
+		form.put("availcard", "C0,C1,C3,C4,C5,C7,C9,CF,CH"); 				// C0 : 신한, C1 : 비씨, C3 : KB국민, C4 : NH농협, C5 : 롯데, C7 : 삼성, C9 : 씨티, CF : 하나, CH : 현대 (없을경우 전체)
+		form.put("processtype", "1"); 										// PC:1, mobile : 2
+		form.put("charset", "euc-kr"); 										// 가맹점 Char Set
+		form.put("storename", "KSNET"); 									// 네이버페이 결제창에 노출 될 상점명
+		form.put("installment", "01:02:03:04:05:06:07:08:09:10:11:12"); 	// 2개중 택 1 할부개월수 범위 지정 변수 ex)01:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
+																			// 할부개월수 범위 지정 변수 ex)00:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
+
+//		form.put("store_ceo_name", mchtMap.getString("nick"));//상점 대표자명
+//		form.put("store_phoneno", mchtMap.getString("tel1").replaceAll("[-]", ""));//상점 연락처
+//		form.put("store_address", mchtMap.getString("addr1") +" "+ mchtMap.getString("addr2"));//상점 주소
+		//REDIRECT FIELD	거래번호하고 위젯 키
+
+//		form.put("a", sharedMap.getString(PAYUNIT.TRX_ID));
+//		form.put("b",response.widget.getString("key"));
+//		form.put("c", mchtTmnMap.getString("tmnId"));
+
+		//NAVER용
+		SharedMap<String,Object> authForm = new SharedMap<String,Object>();
+		authForm.put("storeid", vanMap.getString("vanId"));
+		authForm.put("email", request.widget.getString("payerEmail"));
+		authForm.put("phoneno", request.widget.getString("payerTel").replaceAll("[-]", ""));
+		authForm.put("ordernumber", request.widget.getString("trackId"));
+		authForm.put("ordername", request.widget.getString("payerName"));
+		authForm.put("goodname", getProduct(request.widget.get("products")));
+		authForm.put("amount", request.widget.getString("amount"));
+		authForm.put("currencytype", "0"); // 0 : 원화(WON)  1 : 미화(DOLLAR)
+		authForm.put("cardnumber", "");
+		authForm.put("expdt", "");
+		authForm.put("cardcode", "");
+		authForm.put("paymentid", "");
+		authForm.put("installment", "");
+		authForm.put("cavv", "");
+		authForm.put("xid", "");
+		authForm.put("eci", "");
+		authForm.put("trid", "");
+
 		//form 처리
 		request.widget.put("form", GsonUtil.toJson(form));
-		
+		request.widget.put("authForm", GsonUtil.toJson(authForm));
+
 		//요청 값 임시 저장
 		logger.info("save as key : {}",request.widget.getString("key"));
+
 		PAYUNIT.cacheMap.put(request.widget.getString("key"), request.widget);
-		
-		
+
+
 		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
 	}
 	
@@ -549,8 +601,8 @@ public class ProcPay3DV2Widget extends Proc {
 			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 //		form.put("returnUrl", "http://127.0.0.1:10002/api/kakao/return?reqTrxId="+sharedMap.getString(PAYUNIT.TRX_ID));
-		form.put("storeid", vanMap.getString("vanId"));
-//		form.put("storeid", "2999199999"); //테스트용 2999199999
+//		form.put("storeid", vanMap.getString("vanId"));
+		form.put("storeid", "2999199999"); //테스트용 2999199999
 		form.put("ordername", request.widget.getString("payerName"));
 		form.put("ordernumber", request.widget.getString("trackId"));
 		form.put("amount", request.widget.getString("amount"));
