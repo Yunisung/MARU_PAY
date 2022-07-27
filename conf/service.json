@@ -6,12 +6,16 @@
     "jdbcUrl": "jdbc:mariadb://10.100.200.10:3306/CP_MARU",
     "userName": "bkwinners",
     "passWord": "2021bk07&*(db2",
+//    "jdbcUrl": "jdbc:mariadb://127.0.0.1:3306/CP_MARU",
+//    "userName": "root",
+//    "passWord": "1234",
     "maxConnection": 20,
     "minConnection": 10,
     "partitionCount": 1
   },
   "vertx": {
     "host": "10.100.200.10",
+//    "host": "127.0.0.1",
     "port": 10002,
     "idleTimeout": 120000,
     "receiveBufferSize": 4096000,
@@ -20,6 +24,7 @@
     "soLinger": 0,
     "module": "MARU_PAY",
     "webroot": "../war",
+//    "webroot": "C:/git/MARU/MARU_PAY/war",
     "disableCaching":true,
     "ssl": {
       "ssl": false,
