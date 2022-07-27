@@ -33,7 +33,7 @@ public class KSPayApprovalCancelBean {
 
     public int SendCount = 0, ReceiveCount = 0;
 
-    private final int MAXSIZE = 9;
+    private final int MAXSIZE = 50;
 
     /* Haeder */
     public String EncType,                            // 0: 암화안함, 1:openssl, 2: seed
