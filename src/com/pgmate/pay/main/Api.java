@@ -155,6 +155,8 @@ public class Api {
 				process = new ProcSsgReturn();
 			} else if(uri.startsWith(PAYUNIT.API_SSG_MOBILE_RETURN)) {
 				process = new ProcSsgMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_NAVER_RETURN)) {
+				process = new ProcNaverReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -252,6 +254,9 @@ public class Api {
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_MOBILE_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_MOBILE_RETURN)) {
+			return true;
+		}
+		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_RETURN)) {
 			return true;
 		}
 
