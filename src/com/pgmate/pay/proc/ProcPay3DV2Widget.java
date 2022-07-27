@@ -300,7 +300,7 @@ public class ProcPay3DV2Widget extends Proc {
 									setKakaoPay(vanMap);
 								} else if (request.widget.getString("trxType").equals("NAVER")) {
 									if (request.widget.isEquals("device", "mobile")) {
-										// response.widget.put("routeUrl", "/form/payment/kspay/kakaoMobile.html?token=" + widgetKey);
+										response.widget.put("routeUrl", "/form/payment/kspay/naverMobile.html?token=" + widgetKey);
 									} else {
 										response.widget.put("routeUrl", "/form/payment/kspay/naver.html?token=" + widgetKey);
 									}
@@ -503,13 +503,28 @@ public class ProcPay3DV2Widget extends Proc {
 
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
 		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
-			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_NAVER_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			if(request.widget.isEquals("device", "mobile")){
+				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_NAVER_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("processtype", "2"); // 1: pc 2:mobile
+			}
+			else {
+				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_NAVER_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("processtype", "1"); // 1: pc 2:mobile
+			}
 		}else{
-			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_NAVER_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			if(request.widget.isEquals("device", "mobile")) {
+				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_NAVER_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("processtype", "2"); // 1: pc 2:mobile
+			} else {
+				form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_NAVER_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("processtype", "1"); // 1: pc 2:mobile
+			}
 		}
 //		form.put("returnUrl", "http://127.0.0.1:10002/api/naver/return/"+sharedMap.getString(PAYUNIT.TRX_ID));
-		form.put("storeid", vanMap.getString("vanId"));				// PG 상점아이디
+//		form.put("returnUrl", "http://127.0.0.1:10002/api/naver/mobile/return/"+sharedMap.getString(PAYUNIT.TRX_ID));
 //		form.put("storeid", "2999199999"); 									//테스트용 2999199999
+
+		form.put("storeid", vanMap.getString("vanId"));				// PG 상점아이디
 		form.put("ordername", request.widget.getString("payerName"));	// 주문자명
 		form.put("ordernumber", request.widget.getString("trackId"));	// 주문번호
 		form.put("amount", request.widget.getString("amount"));		// 총승인금액
@@ -518,9 +533,8 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("email", request.widget.getString("payerEmail"));		// email
 		form.put("phoneno", request.widget.getString("payerTel").replaceAll("[-]", ""));	// 휴대폰번호
 		form.put("availcard", "C0,C1,C3,C4,C5,C7,C9,CF,CH"); 				// C0 : 신한, C1 : 비씨, C3 : KB국민, C4 : NH농협, C5 : 롯데, C7 : 삼성, C9 : 씨티, CF : 하나, CH : 현대 (없을경우 전체)
-		form.put("processtype", "1"); 										// PC:1, mobile : 2
-		form.put("charset", "euc-kr"); 										// 가맹점 Char Set
-		form.put("storename", "KSNET"); 									// 네이버페이 결제창에 노출 될 상점명
+		form.put("charset", "UTF-8"); 										// 가맹점 Char Set
+		form.put("storename", mchtMap.getString("name"));				// 네이버페이 결제창에 노출 될 상점명
 		form.put("installment", "01:02:03:04:05:06:07:08:09:10:11:12"); 	// 2개중 택 1 할부개월수 범위 지정 변수 ex)01:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
 																			// 할부개월수 범위 지정 변수 ex)00:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
 

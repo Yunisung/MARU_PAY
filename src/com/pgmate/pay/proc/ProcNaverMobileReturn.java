@@ -30,11 +30,11 @@ import java.util.List;
 
 import static com.pgmate.lib.util.lang.CommonUtil.URLEncode;
 
-public class ProcNaverReturn extends Proc{
-    private static Logger logger = LoggerFactory.getLogger( ProcNaverReturn.class );
+public class ProcNaverMobileReturn extends Proc{
+    private static Logger logger = LoggerFactory.getLogger( ProcNaverMobileReturn.class );
     private SharedMap<String,Object> ioMap =  null;
     String trxId = "";
-    public ProcNaverReturn() {
+    public ProcNaverMobileReturn() {
 
     }
     @Override
@@ -49,8 +49,8 @@ public class ProcNaverReturn extends Proc{
         this.trxDAO				= new TrxDAO();
 
         //소켓통신에 필요한 데이터 세팅
-        String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_NAVER_RETURN+"/", "");
-        logger.info("NAVER_RETURN : [{}]",search);
+        String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_NAVER_MOBILE_RETURN+"/", "");
+        logger.info("NAVER_MOBILE_RETURN : [{}]",search);
         String[] initial = CommonUtil.adjustArray(CommonUtil.split(search, "[/]", true),2);
         logger.info("TRXID: [{}],INSTALLMENT: [{}]",initial[0],initial[1]);
         trxId = initial[0];
@@ -64,15 +64,28 @@ public class ProcNaverReturn extends Proc{
         JSONParser parser = new JSONParser();
         JSONObject reqObj = (JSONObject) parser.parse(strJson);
 
-        //NAVER클래스 세팅
-        String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
-        logger.info("payload : " + payload);
-        SharedMap<String, Object> naverResMap = parseQueryString(payload);
-        Naver naver = new Gson().fromJson(naverResMap.toJson(), Naver.class);
+
+// aaa
+        //모바일은 request에서 안보내준다. 그래서 DB에서 가지고 온다.
+        //DB에 있는 authForm을 NAVER클래스로 변환
+        String formString = reqObj.get("authform").toString();
+        JSONObject formObj = (JSONObject) parser.parse(formString);
+        Naver naver = new Gson().fromJson(formObj.toJSONString(), Naver.class);
         naver.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
         naver.setInstallment("00"); //간편결제는 무조건 일시불만 가능
+// aaa
 
-        logger.info("naver : " + naver.toString());
+
+
+        //NAVER클래스 세팅
+//        String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
+//        logger.info("payload : " + payload);
+//        SharedMap<String, Object> naverResMap = parseQueryString(payload);
+//        Naver naver = new Gson().fromJson(naverResMap.toJson(), Naver.class);
+//        naver.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
+//        naver.setInstallment("00"); //간편결제는 무조건 일시불만 가능
+
+        logger.info("naverMobile : " + naver.toString());
 
         if(naver.getProceed() != null && naver.getProceed().equals("true")) {
             //결제시작
@@ -90,7 +103,7 @@ public class ProcNaverReturn extends Proc{
             setTrx(ioMap, naver);
 
             //결과화면 처리
-            TemplateUtil.simplePayResultPage(rc, naverResult,"naver", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, naverResult,"naverMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 
         } else {
             SimplePayResult naverResult = new SimplePayResult();
@@ -100,7 +113,7 @@ public class ProcNaverReturn extends Proc{
 
             //결과화면 처리
             response.result 	= ResultUtil.getResult("9999","승인실패", "네이버페이 인증에 실패했습니다.");
-            TemplateUtil.simplePayResultPage(rc, naverResult,"naver", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, naverResult,"naverMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 
@@ -114,7 +127,7 @@ public class ProcNaverReturn extends Proc{
         if(trxCheckMap != null) {
             logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
             response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
-            TemplateUtil.simplePayResultPage(rc, res,"naver", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, res,"naverMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
             return;
         }
 
@@ -538,8 +551,8 @@ public class ProcNaverReturn extends Proc{
         String name = "%B9%DA%C0%B1%BC%BA";
 //        String name = "%EB%B0%3F%3F%A4%EC%3F%3F";
 
-        String utf = new ProcNaverReturn().changeCharset(name, "UTF-8");
-        String euc = new ProcNaverReturn().changeCharset(name, "EUC-KR");
+        String utf = new ProcNaverMobileReturn().changeCharset(name, "UTF-8");
+        String euc = new ProcNaverMobileReturn().changeCharset(name, "EUC-KR");
 //        String utf2 = new ProcKakaoReturn().urlDecode(name, "UTF-8");
 //        String euc2 = new ProcKakaoReturn().urlDecode(name, "EUC-KR");
         logger.info(utf);

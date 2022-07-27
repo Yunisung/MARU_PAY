@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<!--    <meta http-equiv="Content-Type" content="text/html; charset=euc-kr">-->
+    <meta charset="utf-8">
+    <title>CREDITOP NAVER(모바일) 간편결제 </title>
+    <script language="javascript">
+        // var op_check = false;
+        function _submit()
+        {
+            // if(op_check)return;
+            var vfrm = document.kfrm;
+            //
+            // var width_	= 750;
+            // var height_	= 850;
+            // var left_	= screen.width;
+            // var top_	= screen.height;
+            //
+            // left_ = left_/2 - (width_/2);
+            // top_ = top_/2 - (height_/2);
+            //
+            // op = window.open("",'AuthFrmUp',
+            //     'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+            //
+            // if (op == null)
+            // {
+            //     alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+            //     return false;
+            // }
+
+            var call_url = "http://kspay.ksnet.to/store/PAY_PROXY/npay/naver_rs_o1.jsp";
+            // var call_url = "http://127.0.0.1:10002/api/naver/return";
+
+            vfrm.target = 'AuthFrmUp';
+            vfrm.action = call_url;
+            vfrm.submit();
+        }
+
+        function getLocalUrl(mypage)
+        {
+            var myloc = location.href;
+            return myloc.substring(0, myloc.lastIndexOf('/')) + '/' + mypage;
+        }
+
+        function recvResult(proceed, cardNumber, cardExpiredDate, cardCode, paymentId, installment, cavv, xid, eci, trid)
+        {
+            var frm = document.KSPayAuthForm;
+
+            if (proceed == "true")
+            {
+                frm.cardnumber.value=cardNumber;
+                frm.expdt.value=cardExpiredDate;
+                frm.cardcode.value=cardCode;
+                frm.paymentid.value=paymentId;
+                frm.installment.value=installment;
+                frm.cavv.value=cavv;
+                frm.xid.value=xid;
+                frm.eci.value=eci;
+                frm.trid.value=trid;
+
+                submitAuth();
+                return;
+            }else{
+                //취소처리부분.
+                op_check = false ;
+                return;
+            }
+        }
+
+        function submitAuth()
+        {
+            var frm = document.KSPayAuthForm;
+            frm.action = "./KSPayCreditPostN.jsp";
+            frm.submit();
+        }
+    </script>
+    <style type="text/css">
+        TABLE{font-size:9pt; line-height:160%;}
+        A {color:blueline-height:160% background-color:#E0EFFE}
+        INPUT{font-size:9pt}
+        SELECT{font-size:9pt}
+        .emp{background-color:#FDEAFE}
+        .white{background-color:#FFFFFF color:black border:1x solid white font-size: 9pt}
+    </style>
+</head>
+<body topmargin=0 leftmargin=0 marginwidth=0 marginheight=0 onFocus="" >
+<form name="KSPayAuthForm" method="post">
+    <!--
+	기본
+    <input type="hidden" name="storeid"    			value="<%=storeid%>">
+    일반신용카드
+    <input type="hidden" name="email"					  value="<%=email%>">
+    <input type="hidden" name="phoneno"				  value="<%=phoneno%>">
+    <input type="hidden" name="ordernumber"			value="<%=ordernumber%>">
+    <input type="hidden" name="ordername"				value="<%=ordername%>">
+    <input type="hidden" name="goodname"				value="<%=goodname%>">
+    <input type="hidden" name="amount"				  value="<%=amount%>">
+    <input type="hidden" name="currencytype"    value="<%=currencytype%>">
+    <input type="hidden" name="cardnumber"	    value="">
+    <input type="hidden" name="expdt"	          value="">
+    <input type="hidden" name="cardcode"	      value="">
+    <input type="hidden" name="paymentid"	      value="">
+    <input type="hidden" name="installment"	    value="">
+    <input type="hidden" name="cavv"	          value="">
+    <input type="hidden" name="xid"	            value="">
+    <input type="hidden" name="eci"	            value="">
+    <input type="hidden" name="trid"	          value="">
+	-->
+    <table border=0 width=0>
+        <tr>
+            <td align=center>
+                <table width=100% cellspacing=0 cellpadding=0 border=0 bgcolor=#4F9AFF>
+                    <tr>
+                        <td>
+                            <table width=100% cellspacing=1 cellpadding=2 border=0>
+                                <tr bgcolor=#4F9AFF height=25>
+                                    <td align=left><font color="#FFFFFF">
+                                        네이버페이(모바일) 기본 거래정보
+                                    </font></td>
+                                </tr>
+                                <tr bgcolor=#FFFFFF>
+                                    <td valign=top>
+                                        <table width=100% cellspacing=0 cellpadding=2 border=0>
+                                            <tr>
+                                                <td align=left>
+                                                    <table>
+                                                        <tr>
+                                                            <td>상품명 :</td>
+                                                            <td id="goodname"><%=goodname%></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>금액 :</td>
+                                                            <td id="amount"><%=amount%></td>
+                                                        </tr>
+                                                        <tr><td colspan=2 align=center><HR></td></tr>
+
+                                                        <tr>
+                                                            <td colspan=2>"다음"버튼을 클릭하시고 팝업창의 안내에 따라 진행하세요.</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan=2 align=center>
+                                                                <input type=button onclick="javascript:_submit(this.form);" value="인증">
+                                                            </td>
+                                                        </tr>
+
+                                                    </table></tr></table></td></tr></table></td></tr>
+                </table></td></tr></table></td></tr></table></table>
+</form>
+<!--
+<div id="DIV_NAVERFRAME" style="border-width:0px;" >
+    <IFRAME id="NAVER_IFRM" name="NAVER_IFRM" width=100% height="500px" scrolling=no frameborder="0" src="./blank.html"></IFRAME>
+</div>
+-->
+<!--
+<form name="nfrm" target="_blank" method="post">
+	<INPUT type="hidden" name="returnUrl"      value="" >                 					returnUrl
+	<INPUT type="hidden" name="storeid"        value="<%=storeid%>" >     					PG 상점아이디
+	<INPUT type="hidden" name="ordername"      value="<%=ordername%>" >   					주문자명
+	<INPUT type="hidden" name="ordernumber"    value="<%=ordernumber%>" > 					주문번호
+	<INPUT type="hidden" name="amount"         value="<%=amount%>" >      					총승인금액
+	<INPUT type="hidden" name="goodname"       value="<%=goodname%>" >    					상품명
+	<INPUT type="hidden" name="productcount"   value="<%=productcount%>" >    				상품개수
+	<INPUT type="hidden" name="email"          value="<%=email%>" >       					email
+	<INPUT type="hidden" name="phoneno"        value="<%=phoneno%>" >     					휴대폰번호
+	<INPUT type="hidden" name="availcard"      value="C0,C1,C3,C4,C5,C7,C9,CF,CH">  		C0 : 신한, C1 : 비씨, C3 : KB국민, C4 : NH농협, C5 : 롯데, C7 : 삼성, C9 : 씨티, CF : 하나, CH : 현대 (없을경우 전체)
+	<INPUT type="hidden" name="processtype"    value="1" >                				 	PC:1, mobile : 2
+	<INPUT type="hidden" name="charset"        value="euc-kr"  >          				  	가맹점 Char Set
+	<INPUT type="hidden" name="storename"      value="KSNET"  >          			        네이버페이 결제창에 노출 될 상점명
+	<INPUT type="hidden" name="installment"    value="01:02:03:04:05:06:07:08:09:10:11:12"> 2개중 택 1 할부개월수 범위 지정 변수 ex)01:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
+	                                                                                        할부개월수 범위 지정 변수 ex)00:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
+</form>
+-->
+<script src="/static/js/naverMobile.js?v=1"></script>
+<div id="iframe-payment-containner">
+    <iframe id="iframe-payment" style="width:100%;height:100%;background-color:transparent;border-radius: 6px;display:none;" frameborder="0" allowtransparency="true" src=""></iframe>
+</div>
+</body>
+</html>
