@@ -69,7 +69,8 @@ public class PAYUNIT {
 	public static String API_ARS_AUTH_CHECK			= "/api/ars/auth/check";
 
 	public static String API_KAKAO_RETURN			= "/api/kakao/return";
-	
+	public static String API_PAYCO_RETURN			= "/api/payco/return";
+
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
     public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook",};    
 	

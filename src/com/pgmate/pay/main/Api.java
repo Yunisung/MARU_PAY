@@ -87,7 +87,7 @@ public class Api {
 			logger.info("MCHTID: {}", sharedMap.getString(PAYUNIT.MCHTID));
 			Proc process = null;
 
-			if (uri.startsWith(PAYUNIT.API_PAY)) {
+			if (uri.startsWith(PAYUNIT.API_PAY) && !uri.contains("payco")) {
 				process = new ProcPay();
 			} else if (uri.startsWith(PAYUNIT.API_REFUND)) {
 				process = new ProcRefund();
@@ -153,6 +153,8 @@ public class Api {
 				process = new ARSCheck();
 			}else if (uri.startsWith(PAYUNIT.API_KAKAO_RETURN)) {
 				process = new ProcKakaoReturn();
+			}else if (uri.startsWith(PAYUNIT.API_PAYCO_RETURN)) {
+				process = new ProcPaycoReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -245,7 +247,7 @@ public class Api {
 
 		//간편결제 처리
 		//따로 인증처리 없이 바로 실행되도록
-		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN)) {
+		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_RETURN)) {
 			return true;
 		}
 
