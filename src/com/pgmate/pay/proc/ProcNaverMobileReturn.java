@@ -68,22 +68,22 @@ public class ProcNaverMobileReturn extends Proc{
 // aaa
         //모바일은 request에서 안보내준다. 그래서 DB에서 가지고 온다.
         //DB에 있는 authForm을 NAVER클래스로 변환
-        String formString = reqObj.get("authform").toString();
-        JSONObject formObj = (JSONObject) parser.parse(formString);
-        Naver naver = new Gson().fromJson(formObj.toJSONString(), Naver.class);
-        naver.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
-        naver.setInstallment("00"); //간편결제는 무조건 일시불만 가능
+//        String formString = reqObj.get("authform").toString();
+//        JSONObject formObj = (JSONObject) parser.parse(formString);
+//        Naver naver = new Gson().fromJson(formObj.toJSONString(), Naver.class);
+//        naver.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
+//        naver.setInstallment("00"); //간편결제는 무조건 일시불만 가능
 // aaa
 
 
 
         //NAVER클래스 세팅
-//        String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
-//        logger.info("payload : " + payload);
-//        SharedMap<String, Object> naverResMap = parseQueryString(payload);
-//        Naver naver = new Gson().fromJson(naverResMap.toJson(), Naver.class);
-//        naver.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
-//        naver.setInstallment("00"); //간편결제는 무조건 일시불만 가능
+        String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
+        logger.info("payload : " + payload);
+        SharedMap<String, Object> naverResMap = parseQueryString(payload);
+        Naver naver = new Gson().fromJson(naverResMap.toJson(), Naver.class);
+        naver.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
+        naver.setInstallment("00"); //간편결제는 무조건 일시불만 가능
 
         logger.info("naverMobile : " + naver.toString());
 
