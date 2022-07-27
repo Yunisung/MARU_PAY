@@ -253,10 +253,8 @@ public class Api {
 		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_MOBILE_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_RETURN) ||
-			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_MOBILE_RETURN)) {
-			return true;
-		}
-		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_RETURN)) {
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_RETURN)) {
 			return true;
 		}
 

@@ -11,7 +11,7 @@
     "partitionCount": 1
   },
   "vertx": {
-    "host": "127.0.0.1",
+    "host": "10.100.200.10",
     "port": 10002,
     "idleTimeout": 120000,
     "receiveBufferSize": 4096000,
@@ -19,7 +19,7 @@
     "tcpKeepAlive": false,
     "soLinger": 0,
     "module": "MARU_PAY",
-    "webroot": "C:/Users/DESKTOP-1602/intellij-workspace/MARU_PAY/war",
+    "webroot": "../war",
     "disableCaching":true,
     "ssl": {
       "ssl": false,
