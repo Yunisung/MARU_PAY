@@ -92,7 +92,11 @@ public class ProcSsgReturn extends Proc{
             //통신
             ConnentKsnet(ssg, ssgResult);
             //통신후 처리
-            logger.info("result : " + ssgResult.rStatus);
+            //logger.info("result : " + ssgResult.rStatus);
+            logger.info("[ConnectKsnet_Result] " + ssgResult.toString());
+
+            //SSG는 카드넘버가 안들어옴
+            ssgResult.rCardNo = ssg.getSSGPAY_CARD_NO();
 
             //이중승인 방지
             SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);

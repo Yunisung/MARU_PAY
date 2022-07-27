@@ -39,4 +39,34 @@ public class SimplePayResult {
 	
 	public String rMPIReUseType = null;			// Y : 재사용, N : 재사용아님
 	public String rEncData = null;				// MPI, ISP 데이터
+
+	public String toString() {
+		return "rApprovalType="+rApprovalType+
+				", rTransactionNo="+rTransactionNo+
+				", rStatus="+rStatus+
+				", rTradeDate="+rTradeDate+
+				", rTradeTime="+rTradeTime+
+				", rIssCode="+rIssCode+
+				", rAquCode="+rAquCode+
+				", rAuthNo="+rAuthNo+
+				", rMessage1="+rMessage1+
+				", rMessage2="+rMessage2+
+				", rCardNo="+rCardNo+
+				", rExpDate="+rExpDate+
+				", rInstallment="+rInstallment+
+				", rAmount="+rAmount+
+				", rMerchantNo="+rMerchantNo+
+				", rAuthSendType="+rAuthSendType+
+				", rApprovalSendType="+rApprovalSendType+
+				", rPoint1="+rPoint1+
+				", rPoint2="+rPoint2+
+				", rPoint3="+rPoint3+
+				", rPoint4="+rPoint4+
+				", rVanTransactionNo="+rVanTransactionNo+
+				", rFiller="+rFiller+
+				", rAuthType="+rAuthType+
+				", rMPIPositionType="+rMPIPositionType+
+				", rMPIReUseType="+rMPIReUseType+
+				", rEncData="+rEncData;
+	}
 }

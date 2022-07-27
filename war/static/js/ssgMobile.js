@@ -265,6 +265,8 @@ var C3MOD = (function (win, doc) {
 
         document.getElementById("goodname").innerHTML = config.form.sndGoodname;
         document.getElementById("amount").innerHTML = config.form.sndAmount;
+
+        submitAuth();
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */

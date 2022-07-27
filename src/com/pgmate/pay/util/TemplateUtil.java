@@ -247,7 +247,7 @@ public class TemplateUtil {
 		String returnPage =
 				"<html>\n" +
 				"<head>\n" +
-				"<title>KSPay</title>\n" +
+				"<title>CREDITOP</title>\n" +
 				"<meta http-equiv=\"Content-Type\" content=\"text/html charset=euc-kr\">\n" +
 				"<style type=\"text/css\">\n" +
 				"\tTABLE{font-size:9pt; line-height:160%;}\n" +

@@ -16,6 +16,9 @@
                 }
             }
 
+            //SSG신용만 사용하도록 변경
+            //SSG머니는 결제취소가 안되는 이슈발생
+            ssgfrm.sndCertitype.value = "2";
             //ssgfrm.sndReply.value     = getLocalUrl('ssg_return');
 
             var height_ = 640;
@@ -57,7 +60,7 @@
 </head>
 
 <body topmargin=0 leftmargin=0 marginwidth=0 marginheight=0 onFocus="" >
-<form name="KSPayInputForm">
+<form name="KSPayInputForm" style="display: none;">
 <table border=0 width=0>
     <tr>
         <td align=center>
