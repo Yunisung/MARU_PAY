@@ -159,6 +159,10 @@ public class Api {
 				process = new ProcNaverReturn();
 			}else if(uri.startsWith(PAYUNIT.API_NAVER_MOBILE_RETURN)) {
 				process = new ProcNaverMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_PAYCO_RETURN)) {
+				process = new ProcPaycoReturn();
+			} else if (uri.startsWith(PAYUNIT.API_PAYCO_MOBILE_RETURN)) {
+				process = new ProcPaycoMobileReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -257,7 +261,9 @@ public class Api {
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_MOBILE_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_RETURN) ||
-			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_MOBILE_RETURN)) {
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_MOBILE_RETURN) ||) {
 			return true;
 		}
 
