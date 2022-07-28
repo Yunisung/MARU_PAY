@@ -75,6 +75,7 @@ public class ProcPaycoMobileReturn extends Proc{
         payco.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
         payco.setInstallment("00"); //간편결제는 무조건 일시불만 가능
         payco.setProceed(rc.request().getParam("proceed"));
+        payco.setSellerOrderReferenceKey(rc.request().getParam("sellerOrderReferenceKey"));
         payco.setReserveOrderNo(rc.request().getParam("reserveOrderNo"));
         payco.setPaymentCertifyToken(rc.request().getParam("paymentCertifyToken"));
         payco.setPccode(rc.request().getParam("pccode"));
@@ -340,7 +341,7 @@ public class ProcPaycoMobileReturn extends Proc{
     String reqtr             = payco.getReserveOrderNo() ;
     String rpytr             = payco.getPaymentCertifyToken() ;
     String ks_cardcode       = payco.getPccode();
-    String sellerPgMid       = payco.getSellerKey();
+    String sellerPgMid       = payco.getPcnumb();
     String xtrno             = "KS" + new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new java.util.Date());
 
 // Server로 부터 응답이 없을시 자체응답
