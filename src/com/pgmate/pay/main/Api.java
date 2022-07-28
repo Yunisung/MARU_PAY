@@ -155,6 +155,8 @@ public class Api {
 				process = new ProcKakaoReturn();
 			}else if (uri.startsWith(PAYUNIT.API_PAYCO_RETURN)) {
 				process = new ProcPaycoReturn();
+			} else if (uri.startsWith(PAYUNIT.API_PAYCO_MOBILE_RETURN)) {
+				process = new ProcPaycoMobileReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {

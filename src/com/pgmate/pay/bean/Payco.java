@@ -27,7 +27,7 @@ public class Payco {
     public void setSndStoreid(String sndStoreid) { this.sndStoreid = sndStoreid; }
 
     public String getSndOrdernumber() { return sndOrdernumber; }
-    public void setReserveOrderNo(String sndOrdernumber) { this.sndOrdernumber = sndOrdernumber; }
+    public void setSndOrdernumber(String sndOrdernumber) { this.sndOrdernumber = sndOrdernumber; }
 
     public String getSndOrdername() { return sndOrdername; }
     public void setSndOrdername(String sndOrdername) { this.sndOrdername = sndOrdername; }
@@ -51,26 +51,28 @@ public class Payco {
     public void setCurrencytype(String currencytype) { this.currencytype = currencytype; }
 
     public String getSellerOrderReferenceKey() { return sellerOrderReferenceKey; }
+    public void setSellerOrderReferenceKey(String sellerOrderReferenceKey) { this.sellerOrderReferenceKey = sellerOrderReferenceKey; }
 
     public String getReserveOrderNo() { return reserveOrderNo; }
+    public void setReserveOrderNo(String reserveOrderNo) { this.reserveOrderNo = reserveOrderNo; }
 
     public String getPaymentCertifyToken() { return paymentCertifyToken; }
+    public void setPaymentCertifyToken(String paymentCertifyToken) { this.paymentCertifyToken = paymentCertifyToken; }
 
     public String getPccode() { return pccode; }
+    public void setPccode(String pccode) { this.pccode = pccode; }
 
     public String getPcnumb() { return pcnumb;}
+    public void setPcnumb(String pcnumb) { this.pcnumb = pcnumb; }
 
     public String getSellerKey() { return sellerKey; }
+    public void setSellerKey(String sellerKey) { this.sellerKey = sellerKey; }
 
     public String getXtrno() { return xtrno; }
     public void setXtrno(String xtrno) { this.xtrno = xtrno; }
 
-
-
-
-    public String getProceed() {
-        return proceed;
-    }
+    public String getProceed() { return proceed; }
+    public void setProceed(String proceed) { this.proceed = proceed; }
 
 
     public String toString() {
