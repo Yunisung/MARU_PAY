@@ -263,7 +263,7 @@ public class Api {
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_MOBILE_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_RETURN) ||
-			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_MOBILE_RETURN) ||) {
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_MOBILE_RETURN)) {
 			return true;
 		}
 
