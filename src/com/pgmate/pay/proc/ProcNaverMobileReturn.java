@@ -97,8 +97,19 @@ public class ProcNaverMobileReturn extends Proc{
 
             //통신
             ConnentKsnet(naver, naverResult);
+            logger.info("[NAVER_MOBILE_Result]" + naverResult.toString());
+
             //통신후 처리
-            logger.info("result : " + naverResult.rStatus);
+            //이중승인 방지
+            SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
+            logger.info("trxCheckMap : [{}]", trxCheckMap);
+            if(trxCheckMap != null) {
+                logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
+                response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
+                TemplateUtil.simplePayResultPage(rc, naverResult,"naverMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+                return;
+            }
+
             setIOMap(naverResult);
             setTrx(ioMap, naver);
 
@@ -121,16 +132,6 @@ public class ProcNaverMobileReturn extends Proc{
     }
 
     public void setIOMap(SimplePayResult res) {
-        //이중승인 방지
-        SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
-        logger.info("trxCheckMap : [{}]", trxCheckMap);
-        if(trxCheckMap != null) {
-            logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
-            response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
-            TemplateUtil.simplePayResultPage(rc, res,"naverMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-            return;
-        }
-
         ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
 
         if(res.rStatus.equals("O")) {

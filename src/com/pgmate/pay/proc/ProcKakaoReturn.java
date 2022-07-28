@@ -82,8 +82,7 @@ public class ProcKakaoReturn extends Proc{
 
             //통신
             ConnentKsnet(kakao, kakaoResult);
-            //통신후 처리
-            logger.info("result : " + kakaoResult.rStatus);
+            logger.info("[KAKAO_Result] " + kakaoResult.toString());
 
             //이중승인 방지
             SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);

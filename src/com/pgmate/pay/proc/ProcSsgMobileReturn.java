@@ -66,7 +66,8 @@ public class ProcSsgMobileReturn extends Proc{
         String formString = reqObj.get("form").toString();
         JSONObject formObj = (JSONObject) parser.parse(formString);
 
-
+        //redirect 사용
+        String redirectURL = reqObj.get("redirecturl").toString();
 
         String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
         logger.info("payload : " + payload);
@@ -94,15 +95,17 @@ public class ProcSsgMobileReturn extends Proc{
 
             //통신
             ConnentKsnet(ssg, ssgResult);
+            logger.info("[SSG_MOBILE_Result] " + ssgResult.toString());
             //통신후 처리
-            logger.info("result : " + ssgResult.rStatus);
+            //SSG는 카드넘버가 안들어옴
+            ssgResult.rCardNo = ssg.getSSGPAY_CARD_NO();
 
             //이중승인 방지
             SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
             if(trxCheckMap != null) {
                 logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
                 response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
-                TemplateUtil.simplePayResultPage(rc, ssgResult,"ssgMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+                TemplateUtil.simplePayMobileResultPage(rc, ssgResult,"ssgMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
                 return;
             }
 
@@ -110,7 +113,7 @@ public class ProcSsgMobileReturn extends Proc{
             setTrx(ioMap, ssg);
 
             //결과화면 처리
-            TemplateUtil.simplePayResultPage(rc, ssgResult, "ssgMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayMobileResultPage(rc, ssgResult, "ssgMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 
         } else {
             SimplePayResult ssgResult = new SimplePayResult();
@@ -120,7 +123,7 @@ public class ProcSsgMobileReturn extends Proc{
 
             response.result 	= ResultUtil.getResult("9999","승인실패", "SSG페이 인증에 실패했습니다.");
             //결과화면 처리
-            TemplateUtil.simplePayResultPage(rc, ssgResult,"ssgMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayMobileResultPage(rc, ssgResult,"ssgMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 

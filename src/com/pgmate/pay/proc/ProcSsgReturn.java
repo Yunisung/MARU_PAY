@@ -91,10 +91,9 @@ public class ProcSsgReturn extends Proc{
 
             //통신
             ConnentKsnet(ssg, ssgResult);
-            //통신후 처리
-            //logger.info("result : " + ssgResult.rStatus);
-            logger.info("[ConnectKsnet_Result] " + ssgResult.toString());
+            logger.info("[SSG_Result] " + ssgResult.toString());
 
+            //통신후 처리
             //SSG는 카드넘버가 안들어옴
             ssgResult.rCardNo = ssg.getSSGPAY_CARD_NO();
 

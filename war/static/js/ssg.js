@@ -362,7 +362,7 @@ var C3MOD = (function (win, doc) {
 function kspayToParent() {
     var resObj = document.forms.frm.data.value;
     console.log('kspayToParent: ', resObj, decodeURIComponent(resObj));
-    //close(true);
+    // close(true);
     setTimeout(function () {
         var obj = {
             type: 'PAY_CLOSE'
@@ -383,6 +383,6 @@ function kspayToParent() {
             } else {
                 window.close();
             }
-        }, 200);
-    }, 200);
+        }, 500);
+    }, 500);
 }

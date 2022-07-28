@@ -284,6 +284,8 @@ var C3MOD = (function (win, doc) {
             opt.innerText = i == 0 ? '일시불' : i + ' 개월';
             document.getElementById('installment').appendChild(opt);
         }
+
+        _submit();
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
@@ -325,11 +327,11 @@ var C3MOD = (function (win, doc) {
 //       c3_Config.targetUrl = c3_Config.targetUrl.replace('\u003d', '=');
         console.log('c3_Config', c3_Config);
 
-        //간편결제는 redirectURL 생략
-        // if(c3_Config.device == 'mobile' && !c3_Config.redirectUrl) {
-        //     alert('결제 오류, 모바일 결제 필수값이 존재하지 않습니다.');
-        //     return false;
-        // }
+        //간편결제 모바일때만 redirectURL 사용
+        if(c3_Config.device == 'mobile' && !c3_Config.redirectUrl) {
+            alert('결제 오류, 모바일 결제 필수값(redirectURL)이 존재하지 않습니다.');
+            return false;
+        }
 
         return true;
     }
