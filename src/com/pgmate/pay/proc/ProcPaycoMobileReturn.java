@@ -69,7 +69,7 @@ public class ProcPaycoMobileReturn extends Proc{
 
         //DB에 있는 authForm을 Payco클래스로 변환
         //PAYCO클래스 세팅
-        String formString = reqObj.get("authform").toString();
+        String formString = reqObj.get("form").toString();
         JSONObject formObj = (JSONObject) parser.parse(formString);
         Payco payco = new Gson().fromJson(formObj.toJSONString(), Payco.class);
         payco.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
