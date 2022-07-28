@@ -87,7 +87,7 @@ public class Api {
 			logger.info("MCHTID: {}", sharedMap.getString(PAYUNIT.MCHTID));
 			Proc process = null;
 
-			if (uri.startsWith(PAYUNIT.API_PAY)) {
+			if (uri.startsWith(PAYUNIT.API_PAY) && !uri.contains("payco")) {
 				process = new ProcPay();
 			} else if (uri.startsWith(PAYUNIT.API_REFUND)) {
 				process = new ProcRefund();
@@ -382,7 +382,7 @@ public class Api {
 	/**
 	 * payLoad 의 데이터 파싱 처리 및 syntax error 확인
 	 * 
-	 * @param payment
+	 * @param
 	 * @return
 	 * @throws Exception
 	 */
