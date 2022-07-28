@@ -2,14 +2,14 @@ package com.pgmate.pay.bean;
 
 public class Payco {
     //소켓통신용 데이터
-    private String sndStoreid = null;         //상점ID
-    private String sndOrdernumber = null;     //주문번호
-    private String sndOrdername = null;       //주문자명
-    private String sndEmail = null;           //주문자email
-    private String sndGoodname = null;        //상품이름
-    private String sndMobile = null;         //주문자번호
+    private String sndstoreid = null;         //상점ID
+    private String sndordernumber = null;     //주문번호
+    private String sndordername = null;       //주문자명
+    private String sndemail = null;           //주문자email
+    private String sndgoodname = null;        //상품이름
+    private String sndmobile = null;         //주문자번호
     private String installment = null;     //할부
-    private String sndAmount = null;          //금액
+    private String sndamount = null;          //금액
     private String currencytype = null;    //통화구분 WON or USD
     //PAYCO 인증 데이터
     private String proceed = null;
@@ -23,29 +23,29 @@ public class Payco {
     private String xtrno = null;
 
 
-    public String getSndStoreid() { return sndStoreid; }
-    public void setSndStoreid(String sndStoreid) { this.sndStoreid = sndStoreid; }
+    public String getSndStoreid() { return sndstoreid; }
+    public void setSndStoreid(String sndStoreid) { this.sndstoreid = sndStoreid; }
 
-    public String getSndOrdernumber() { return sndOrdernumber; }
-    public void setSndOrdernumber(String sndOrdernumber) { this.sndOrdernumber = sndOrdernumber; }
+    public String getSndOrdernumber() { return sndordernumber; }
+    public void setSndOrdernumber(String sndOrdernumber) { this.sndordernumber = sndOrdernumber; }
 
-    public String getSndOrdername() { return sndOrdername; }
-    public void setSndOrdername(String sndOrdername) { this.sndOrdername = sndOrdername; }
+    public String getSndOrdername() { return sndordername; }
+    public void setSndOrdername(String sndOrdername) { this.sndordername = sndOrdername; }
 
-    public String getSndEmail() { return sndEmail; }
-    public void setSndEmail(String sndEmail) { this.sndEmail = sndEmail; }
+    public String getSndEmail() { return sndemail; }
+    public void setSndEmail(String sndEmail) { this.sndemail = sndEmail; }
 
-    public String getSndGoodname() { return sndGoodname; }
-    public void setSndGoodname(String sndGoodname) { this.sndGoodname = sndGoodname; }
+    public String getSndGoodname() { return sndgoodname; }
+    public void setSndGoodname(String sndGoodname) { this.sndgoodname = sndGoodname; }
 
-    public String getSndMobile() { return sndMobile; }
-    public void setSndMobile(String sndMobile) { this.sndMobile = sndMobile; }
+    public String getSndMobile() { return sndmobile; }
+    public void setSndMobile(String sndMobile) { this.sndmobile = sndMobile; }
 
     public String getInstallment() { return installment; }
     public void setInstallment(String installment) { this.installment = installment; }
 
-    public String getSndAmount() { return sndAmount; }
-    public void setSndAmount(String sndAmount) { this.sndAmount = sndAmount; }
+    public String getSndAmount() { return sndamount; }
+    public void setSndAmount(String sndAmount) { this.sndamount = sndAmount; }
 
     public String getCurrencytype() { return currencytype; }
     public void setCurrencytype(String currencytype) { this.currencytype = currencytype; }
@@ -77,14 +77,14 @@ public class Payco {
 
     public String toString() {
         return "Payco {" +
-                "storeid="+sndStoreid+
-                ", ordernumber="+sndOrdernumber+
-                ", ordername="+sndOrdername+
-                ", email="+sndEmail+
-                ", goodname="+sndGoodname+
-                ", phoneno="+sndMobile+
+                "storeid="+sndstoreid+
+                ", ordernumber="+sndordernumber+
+                ", ordername="+sndordername+
+                ", email="+sndemail+
+                ", goodname="+sndgoodname+
+                ", phoneno="+sndmobile+
                 ", installment="+installment+
-                ", amount="+sndAmount+
+                ", amount="+sndamount+
                 ", currencytype="+currencytype+
                 ", wtrno="+sellerOrderReferenceKey+
                 ", reqtr="+reserveOrderNo+
