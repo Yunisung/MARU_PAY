@@ -267,24 +267,6 @@ var C3MOD = (function (win, doc) {
         document.getElementById("goodname").innerHTML = config.form.goodname;
         document.getElementById("amount").innerHTML = config.form.amount;
 
-        /* 할부 옵션 추가 */
-        for (i = 0; i <= config.apiMaxInstall; i++) {
-            if (i == 1) continue;
-            if (i > 1 && config.amount < 50000) break;
-
-            var opt = document.createElement('option');
-
-            if(i <= 10) {
-                opt.value = '0'+i;
-            } else {
-                opt.value = i;
-            }
-
-
-            opt.innerText = i == 0 ? '일시불' : i + ' 개월';
-            document.getElementById('installment').appendChild(opt);
-        }
-
         _submit();
     }
 

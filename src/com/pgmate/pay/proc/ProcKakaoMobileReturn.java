@@ -109,7 +109,8 @@ public class ProcKakaoMobileReturn extends Proc{
             if(trxCheckMap != null) {
                 logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
                 response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
-                TemplateUtil.simplePayMobileResultPage(rc, kakaoResult,"kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+//                TemplateUtil.simplePayMobileResultPage(rc, kakaoResult,"kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+                TemplateUtil.simplePayResultPage(rc, kakaoResult, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
                 return;
             }
 
@@ -117,8 +118,8 @@ public class ProcKakaoMobileReturn extends Proc{
             setTrx(ioMap, kakao);
 
             //결과화면 처리
-            TemplateUtil.simplePayMobileResultPage(rc, kakaoResult, "kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-//            TemplateUtil.redirect3D(rc, redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+//            TemplateUtil.simplePayMobileResultPage(rc, kakaoResult, "kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, kakaoResult, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         } else {
             SimplePayResult kakaoResult = new SimplePayResult();
             kakaoResult.rStatus = "X";
@@ -126,8 +127,8 @@ public class ProcKakaoMobileReturn extends Proc{
             kakaoResult.rMessage2 = "카카오페이 인증에 실패했습니다";
 
             //결과화면 처리
-//            TemplateUtil.redirect3D(rc, redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-            TemplateUtil.simplePayMobileResultPage(rc, kakaoResult, "kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, kakaoResult, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+//            TemplateUtil.simplePayMobileResultPage(rc, kakaoResult, "kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 

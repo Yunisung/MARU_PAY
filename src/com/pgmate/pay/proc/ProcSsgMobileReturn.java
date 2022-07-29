@@ -105,8 +105,8 @@ public class ProcSsgMobileReturn extends Proc{
             if(trxCheckMap != null) {
                 logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
                 response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
-//                TemplateUtil.redirect3D(rc, redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-                TemplateUtil.simplePayMobileResultPage(rc, ssgResult,"ssgMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+                TemplateUtil.simplePayResultPage(rc, ssgResult, "ssgMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+//                TemplateUtil.simplePayMobileResultPage(rc, ssgResult,"ssgMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
                 return;
             }
 
@@ -114,8 +114,8 @@ public class ProcSsgMobileReturn extends Proc{
             setTrx(ioMap, ssg);
 
             //결과화면 처리
-//            TemplateUtil.redirect3D(rc, redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-            TemplateUtil.simplePayMobileResultPage(rc, ssgResult, "ssgMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, ssgResult, "ssgMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+//            TemplateUtil.simplePayMobileResultPage(rc, ssgResult, "ssgMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 
         } else {
             SimplePayResult ssgResult = new SimplePayResult();
@@ -125,8 +125,8 @@ public class ProcSsgMobileReturn extends Proc{
 
             response.result 	= ResultUtil.getResult("9999","승인실패", "SSG페이 인증에 실패했습니다.");
             //결과화면 처리
-//            TemplateUtil.redirect3D(rc, redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-            TemplateUtil.simplePayMobileResultPage(rc, ssgResult,"ssgMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, ssgResult, "ssgMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            //TemplateUtil.simplePayMobileResultPage(rc, ssgResult,"ssgMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 
