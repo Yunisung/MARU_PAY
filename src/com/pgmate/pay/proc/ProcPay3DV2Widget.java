@@ -657,7 +657,7 @@ public class ProcPay3DV2Widget extends Proc {
 				form.put("sndReply", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_PAYCO_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
 				form.put("orderChannel", "MOBILE");
 			} else {
-				form.put("sndReply", String.format("https://%s%s/%s", PAYUNIT.PAY_HOST_DEV, PAYUNIT.API_PAYCO_RETURN, sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("sndReply", String.format("http://%s%s/%s", PAYUNIT.PAY_HOST_DEV, PAYUNIT.API_PAYCO_RETURN, sharedMap.getString(PAYUNIT.TRX_ID)));
 			}
 		}
 
