@@ -181,6 +181,7 @@ var C3MOD = (function (win, doc) {
                 util.log('SEND POSTMESSAGE TO PARENT', obj);
                 window.parent.postMessage(JSON.stringify(obj), "*");
             }
+            parent.close();
         },
         loadImg: function (id, URL, title) {
             var tester = document.getElementById(id);
@@ -267,6 +268,7 @@ var C3MOD = (function (win, doc) {
         document.getElementById("goodname").innerHTML = config.form.goodname;
         document.getElementById("amount").innerHTML = config.form.amount;
 
+        _submit();
         // /* 할부 옵션 추가 */
         // for (i = 0; i <= config.apiMaxInstall; i++) {
         //     if (i == 1) continue;
