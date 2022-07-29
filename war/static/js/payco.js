@@ -1,4 +1,4 @@
-console.log('IMPORT KAKAOMobile.JS FILE!');
+console.log('IMPORT PAYCO.JS FILE!');
 var c3_Config = {
     debug: true
 };
@@ -233,59 +233,19 @@ var C3MOD = (function (win, doc) {
     }
 
     function setForm(config) {
-        var authform = doc.createElement("form");
-        authform.setAttribute("name", "KSPayAuthForm");
-        authform.setAttribute("method", "post");
 
-        document.body.appendChild(authform);
-        for(key in config.authForm) {
-            var val = config.authForm[key];
-            var elem = document.createElement("input");
-            elem.setAttribute("type", "hidden");
-            elem.setAttribute("name", key);
-            elem.setAttribute("value", val);
+        document.getElementById("sndStoreid").value = config.form.sndStoreid;
+        document.getElementById("sndEmail").value = config.form.sndEmail;
+        document.getElementById("sndMobile").value = config.form.sndMobile;
+        document.getElementById("sndOrdernumber").value = config.form.sndOrdernumber;
+        document.getElementById("sndOrdername").value = config.form.sndOrdername;
+        document.getElementById("sndGoodname").value = config.form.sndGoodname;
+        document.getElementById("sndAmount").value = config.form.sndAmount;
+        document.getElementById("sndReply").value = config.form.sndReply;
+        document.getElementById("sndStorename").value = config.form.sndStorename;
+        document.getElementById("sndBizNo").value = config.form.sndBizNo;
+        document.getElementById("sndCharSet").value = config.form.sndCharSet;
 
-            authform.appendChild(elem);
-        }
-
-        var f = doc.createElement("form");
-        f.setAttribute("name", "kfrm");
-        f.setAttribute("target", "_blank");
-        f.setAttribute("method", "post");
-        document.body.appendChild(f);
-
-        for (key in config.form) {
-            var val = config.form[key];
-            var elem = document.createElement("input");
-            elem.setAttribute("type", "hidden");
-            elem.setAttribute("name", key);
-            elem.setAttribute("value", val);
-            console.log(key + ' : ' + val);
-            f.appendChild(elem);
-        }
-
-        /* 할부 옵션 추가 */
-        for (i = 0; i <= config.apiMaxInstall; i++) {
-            if (i == 1) continue;
-            if (i > 1 && config.amount < 50000) break;
-
-            var opt = document.createElement('option');
-
-            if(i <= 10) {
-                opt.value = '0'+i;
-            } else {
-                opt.value = i;
-            }
-
-
-            opt.innerText = i == 0 ? '일시불' : i + ' 개월';
-            document.getElementById('installment').appendChild(opt);
-        }
-
-        document.getElementById("goodname").innerHTML = config.form.goodname;
-        document.getElementById("amount").innerHTML = config.form.amount;
-
-        _submit();
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
@@ -322,18 +282,45 @@ var C3MOD = (function (win, doc) {
     function validation(config) {
         c3_Config = JSON.parse(config).widget;
         c3_Config.form = JSON.parse(c3_Config.form);
-        c3_Config.authForm = JSON.parse(c3_Config.authForm);
+        // c3_Config.authForm = JSON.parse(c3_Config.authForm);
 
 //       c3_Config.targetUrl = c3_Config.targetUrl.replace('\u003d', '=');
         console.log('c3_Config', c3_Config);
 
-        //간편결제 모바일때만 redirectURL 사용
         if(c3_Config.device == 'mobile' && !c3_Config.redirectUrl) {
-            alert('결제 오류, 모바일 결제 필수값(redirectURL)이 존재하지 않습니다.');
+            alert('결제 오류, 모바일 결제 필수값이 존재하지 않습니다.');
             return false;
         }
 
         return true;
+    }
+    function submitAuth() {
+        var payco_frm = document.paycoForm;
+
+        var call_url = "https://kspay.ksnet.to/store/PAY_PROXY/payco/payco_p.jsp";
+
+        var width_	= 500;
+        var height_	= 518;
+        var left_	= screen.width;
+        var top_	= screen.height;
+
+        left_ = left_/2 - (width_/2);
+        top_ = top_/2 - (height_/2);
+
+        op = window.open("",'AuthFrmUp',
+            'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+
+        if (op == null)
+        {
+            alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+            return false;
+        }
+
+        // document.getElementById("DIV_KAKAOFRAME").style.display="";
+        payco_frm.target = 'AuthFrmUp';
+        payco_frm.action = call_url;
+        payco_frm.submit();
+
     }
 
     util.documentReady(function () {
@@ -358,6 +345,7 @@ var C3MOD = (function (win, doc) {
                 return;
             }
             setForm(c3_Config);
+            submitAuth();
             /* loading hide */
             setTimeout(function () {
                 fadeOutEffect('c3-loading');

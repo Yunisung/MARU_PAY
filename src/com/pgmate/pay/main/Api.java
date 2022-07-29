@@ -87,7 +87,7 @@ public class Api {
 			logger.info("MCHTID: {}", sharedMap.getString(PAYUNIT.MCHTID));
 			Proc process = null;
 
-			if (uri.startsWith(PAYUNIT.API_PAY)) {
+			if (uri.startsWith(PAYUNIT.API_PAY) && !uri.contains("payco")) {
 				process = new ProcPay();
 			} else if (uri.startsWith(PAYUNIT.API_REFUND)) {
 				process = new ProcRefund();
@@ -149,8 +149,20 @@ public class Api {
 				process = new ARSCheck();
 			}else if (uri.startsWith(PAYUNIT.API_KAKAO_RETURN)) {
 				process = new ProcKakaoReturn();
-			} else if(uri.startsWith(PAYUNIT.API_KAKAO_MOBILE_RETURN)) {
+			}else if(uri.startsWith(PAYUNIT.API_KAKAO_MOBILE_RETURN)) {
 				process = new ProcKakaoMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_SSG_RETURN)) {
+				process = new ProcSsgReturn();
+			} else if(uri.startsWith(PAYUNIT.API_SSG_MOBILE_RETURN)) {
+				process = new ProcSsgMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_NAVER_RETURN)) {
+				process = new ProcNaverReturn();
+			}else if(uri.startsWith(PAYUNIT.API_NAVER_MOBILE_RETURN)) {
+				process = new ProcNaverMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_PAYCO_RETURN)) {
+				process = new ProcPaycoReturn();
+			} else if (uri.startsWith(PAYUNIT.API_PAYCO_MOBILE_RETURN)) {
+				process = new ProcPaycoMobileReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -230,6 +242,7 @@ public class Api {
 		}
 
 		// JSON,XML 만 수신처리
+		// 간편결제때문에 "application/x-www-form-urlencoded" 추가
 		String contentsType = sharedMap.getString(PAYUNIT.CONTENTTYPE).toLowerCase();
 		if (contentsType.startsWith("application/json") || contentsType.startsWith("application/x-www-form-urlencoded") || contentsType.equalsIgnoreCase(VertXMessage.CONTENT_XML)) {
 		} else {
@@ -244,7 +257,13 @@ public class Api {
 		//간편결제 처리
 		//따로 인증처리 없이 바로 실행되도록
 		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN) ||
-			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_MOBILE_RETURN)) {
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_MOBILE_RETURN)) {
 			return true;
 		}
 
@@ -362,8 +381,9 @@ public class Api {
 
 	/**
 	 * payLoad 의 데이터 파싱 처리 및 syntax error 확인
-	 * 
+	 *
 	 * @param payment
+	 * @param
 	 * @return
 	 * @throws Exception
 	 */

@@ -198,6 +198,7 @@ var ServerUtil = {
         	var innerWidth = window.innerWidth;
         	if(c3Config.payRoute == 'w3d'){
         		ServerUtil.layerHeigth += additionHeight -180;
+        	// 비생결제의 경우
         	}else{
         		ServerUtil.layerHeigth += additionHeight;
         	}
