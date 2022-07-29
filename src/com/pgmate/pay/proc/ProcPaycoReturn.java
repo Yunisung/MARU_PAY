@@ -65,10 +65,18 @@ public class ProcPaycoReturn extends Proc{
         //PAYCO클래스 세팅
         String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
         logger.info("payload : " + payload);
-        SharedMap<String, Object> PaycoResMap = parseQueryString(payload);
-        Payco payco = new Gson().fromJson(PaycoResMap.toJson(), Payco.class);
+
+        String formString = reqObj.get("form").toString();
+        JSONObject formObj = (JSONObject) parser.parse(formString);
+        Payco payco = new Gson().fromJson(formObj.toJSONString(), Payco.class);
         payco.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
         payco.setInstallment("00"); //간편결제는 무조건 일시불만 가능
+        payco.setProceed(rc.request().getParam("proceed"));
+        payco.setSellerOrderReferenceKey(rc.request().getParam("sellerOrderReferenceKey"));
+        payco.setReserveOrderNo(rc.request().getParam("reserveOrderNo"));
+        payco.setPaymentCertifyToken(rc.request().getParam("paymentCertifyToken"));
+        payco.setPccode(rc.request().getParam("pccode"));
+        payco.setPcnumb(rc.request().getParam("pcnumb"));
 
         logger.info("payco : " + payco.toString());
 
