@@ -327,10 +327,10 @@ var C3MOD = (function (win, doc) {
 //       c3_Config.targetUrl = c3_Config.targetUrl.replace('\u003d', '=');
         console.log('c3_Config', c3_Config);
 
-        // if(c3_Config.device == 'mobile' && !c3_Config.redirectUrl) {
-        //     alert('결제 오류, 모바일 결제 필수값이 존재하지 않습니다.');
-        //     return false;
-        // }
+        if(c3_Config.device == 'mobile' && !c3_Config.redirectUrl) {
+            alert('결제 오류, 모바일 결제 필수값(redirectURL)이 존재하지 않습니다.');
+            return false;
+        }
 
         return true;
     }
