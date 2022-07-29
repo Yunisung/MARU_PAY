@@ -11,7 +11,6 @@ import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.ByteUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
-import com.pgmate.lib.vertx.main.VertXMessage;
 import com.pgmate.pay.bean.*;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.util.KspayUtil;
@@ -22,6 +21,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -29,11 +29,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProcKakaoMobileReturn extends Proc{
-    private static Logger logger = LoggerFactory.getLogger( com.pgmate.pay.proc.ProcKakaoReturn.class );
+public class ProcPaycoReturn extends Proc{
+    private static Logger logger = LoggerFactory.getLogger( ProcPaycoReturn.class );
     private SharedMap<String,Object> ioMap =  null;
     String trxId = "";
-    public ProcKakaoMobileReturn() {
+    public ProcPaycoReturn() {
 
     }
     @Override
@@ -48,87 +48,75 @@ public class ProcKakaoMobileReturn extends Proc{
         this.trxDAO				= new TrxDAO();
 
         //소켓통신에 필요한 데이터 세팅
-        String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_KAKAO_MOBILE_RETURN+"/", "");
-        logger.info("KAKAO_MOBILE_RETURN : [{}]",search);
+        String search = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_PAYCO_RETURN+"/", "");
+        logger.info("PAYCO_RETURN : [{}]",search);
         String[] initial = CommonUtil.adjustArray(CommonUtil.split(search, "[/]", true),2);
         logger.info("TRXID: [{}],INSTALLMENT: [{}]",initial[0],initial[1]);
-
         trxId = initial[0];
-        String installment = initial[1]; //할부 입력 일단 받음 -> 사용은 안함.
-
+        String installment = initial[1];
+        //trxId = rc.request().getParam("reqTrxId");
+        //String installment = rc.request().getParam("installment"); //할부 입력 일단 받음 -> 사용은 안함.
         //DB에 저장된 reqJson 들고오기
         String strJson = trxDAO.getTrxIO3DByTrxId(trxId).getString("reqJson");
         //JSON으로 변환
         JSONParser parser = new JSONParser();
         JSONObject reqObj = (JSONObject) parser.parse(strJson);
 
-        //모바일은 request에서 안보내준다. 그래서 DB에서 가지고 온다.
+        //PAYCO클래스 세팅
+        String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
+        logger.info("payload : " + payload);
 
-        //DB에 있는 authForm을 Kakao클래스로 변환
-        String formString = reqObj.get("authform").toString();
+        String formString = reqObj.get("form").toString();
         JSONObject formObj = (JSONObject) parser.parse(formString);
+        Payco payco = new Gson().fromJson(formObj.toJSONString(), Payco.class);
+        payco.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
+        payco.setInstallment("00"); //간편결제는 무조건 일시불만 가능
+        payco.setProceed(rc.request().getParam("proceed"));
+        payco.setSellerOrderReferenceKey(rc.request().getParam("sellerOrderReferenceKey"));
+        payco.setReserveOrderNo(rc.request().getParam("reserveOrderNo"));
+        payco.setPaymentCertifyToken(rc.request().getParam("paymentCertifyToken"));
+        payco.setPccode(rc.request().getParam("pccode"));
+        payco.setPcnumb(rc.request().getParam("pcnumb"));
 
-        //redirecurl 사용
-        String redirectURL = reqObj.get("redirecturl").toString();
+        logger.info("payco : " + payco.toString());
 
-        Kakao kakao = new Gson().fromJson(formObj.toJSONString(), Kakao.class);
-        kakao.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
-        kakao.setInstallment("00"); //간편결제는 무조건 일시불만 가능
-        kakao.setProceed(rc.request().getParam("proceed"));
-        kakao.setTid(rc.request().getParam("tid"));
-        kakao.setCid(rc.request().getParam("cid"));
-        kakao.setPg_token(rc.request().getParam("pg_token"));
-
-
-        //logger.info("kakao DB : " + kakao.toString());
-
-        //KAKAO클래스 세팅
-//        String payload = sharedMap.getString(PAYUNIT.PAYLOAD);
-//        logger.info("payload : " + payload);
-//        SharedMap<String, Object> kakaoResMap = parseQueryString(payload);
-//        Kakao kakao = new Gson().fromJson(kakaoResMap.toJson(), Kakao.class);
-//        kakao.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
-//        kakao.setInstallment("00"); //간편결제는 무조건 일시불만 가능
-
-        logger.info("kakao : " + kakao.toString());
-
-        if(kakao.getProceed() != null && kakao.getProceed().equals("true")) {
+        if(payco.getProceed() != null && payco.getProceed().equals("true")) {
             //결제시작
-            SimplePayResult kakaoResult = new SimplePayResult();
-            kakaoResult.trxId = trxId;
-            kakaoResult.webhookUrl = reqObj.get("webhookurl").toString();
-            kakaoResult.udf1 = reqObj.get("udf1").toString();
-            kakaoResult.udf2 = reqObj.get("udf2").toString();
+            SimplePayResult paycoResult = new SimplePayResult();
+            paycoResult.trxId = trxId;
+            paycoResult.webhookUrl = reqObj.get("webhookurl").toString();
+            paycoResult.udf1 = reqObj.get("udf1").toString();
+            paycoResult.udf2 = reqObj.get("udf2").toString();
 
             //통신
-            ConnentKsnet(kakao, kakaoResult);
-            logger.info("[KAKAO_Result] " + kakaoResult.toString());
-
+            ConnentKsnet(payco, paycoResult);
+            logger.info("[PAYCO RESULT] : " + paycoResult.toString());
+            //통신후 처리
+            //logger.info("result : " + paycoResult.rStatus);
             //이중승인 방지
             SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
             if(trxCheckMap != null) {
                 logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
                 response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
-//                TemplateUtil.simplePayMobileResultPage(rc, kakaoResult,"kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-                TemplateUtil.simplePayResultPage(rc, kakaoResult, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+                TemplateUtil.simplePayResultPage(rc, paycoResult,"payco", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
                 return;
             }
 
-            setIOMap(kakaoResult);
-            setTrx(ioMap, kakao);
+
+            setIOMap(paycoResult);
+            setTrx(ioMap, payco);
 
             //결과화면 처리
-//            TemplateUtil.simplePayMobileResultPage(rc, kakaoResult, "kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-            TemplateUtil.simplePayResultPage(rc, kakaoResult, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, paycoResult, "payco", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+
         } else {
-            SimplePayResult kakaoResult = new SimplePayResult();
-            kakaoResult.rStatus = "X";
-            kakaoResult.rMessage1 = "실패";
-            kakaoResult.rMessage2 = "카카오페이 인증에 실패했습니다";
+            SimplePayResult paycoResult = new SimplePayResult();
+            paycoResult.rStatus = "X";
+            paycoResult.rMessage1 = "실패";
+            paycoResult.rMessage2 = "카카오페이 인증에 실패했습니다";
 
             //결과화면 처리
-            TemplateUtil.simplePayResultPage(rc, kakaoResult, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-//            TemplateUtil.simplePayMobileResultPage(rc, kakaoResult, "kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, paycoResult, "payco", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 
@@ -136,6 +124,8 @@ public class ProcKakaoMobileReturn extends Proc{
     }
 
     public void setIOMap(SimplePayResult res) {
+
+
         ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
 
         if(res.rStatus.equals("O")) {
@@ -200,20 +190,20 @@ public class ProcKakaoMobileReturn extends Proc{
         ioMap.put("udf2", res.udf2);
     }
 
-    public void setTrx(SharedMap<String, Object> ioMap, Kakao kakao) {
+    public void setTrx(SharedMap<String, Object> ioMap, Payco payco) {
         SharedMap<String,Object> widgetMap = new GsonBuilder().create().fromJson(ioMap.getString("reqJson"), new TypeToken<SharedMap<String, Object>>(){}.getType());
 
         ioMap.put("cardId", GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
         ioMap.put("prodId", GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
-        ioMap.put("amount", kakao.getAmount());
+        ioMap.put("amount", payco.getSndAmount());
 
         //상품등록
         List<Product> products = new ArrayList<Product>();
         Product product = new Product();
         product.prodId = ioMap.getString("prodId");
-        product.name = kakao.getGoodname();
+        product.name = payco.getSndGoodname();
         product.qty = 1;
-        product.price = Long.valueOf(kakao.getAmount());
+        product.price = Long.valueOf(payco.getSndAmount());
         product.desc = "간편결제";
         products.add(product);
 
@@ -252,10 +242,10 @@ public class ProcKakaoMobileReturn extends Proc{
 
         //DB에 결제 정보 저장
         //필요한 데이터 ioMap에 저장
-        ioMap.put("payerName", kakao.getOrdername());
-        ioMap.put("payerEmail", kakao.getEmail());
-        ioMap.put("payerTel", kakao.getPhoneno());
-        ioMap.put("trxType", "KAKAO");
+        ioMap.put("payerName", payco.getSndOrdername());
+        ioMap.put("payerEmail", payco.getSndEmail());
+        ioMap.put("payerTel", payco.getSndMobile());
+        ioMap.put("trxType", "PAYCO");
         try {
 
 
@@ -280,7 +270,7 @@ public class ProcKakaoMobileReturn extends Proc{
         response.pay.authCd		= ioMap.getString("authCd");
         response.pay.webhookUrl	= ioMap.getString("webhookUrl");
         response.pay.trxId		= ioMap.getString("trxId");
-        response.pay.trxType	= "KAKAO";
+        response.pay.trxType	= "PAYCO";
         response.pay.tmnId		= ioMap.getString("tmnId");
         response.pay.trackId	= ioMap.getString("trackId");
         response.pay.amount		= ioMap.getLong("amount");
@@ -294,7 +284,7 @@ public class ProcKakaoMobileReturn extends Proc{
             new ThreadWebHook(ioMap.getString("webhookUrl"),response).start();
         }
     }
-    public void ConnentKsnet(Kakao kakao, SimplePayResult result) {
+    public void ConnentKsnet(Payco payco, SimplePayResult result) {
         //Header부 Data --------------------------------------------------
         String EncType				 = "2";									    // 0: 암화안함, 1:ssl, 2: seed
         String Version				 = "0603";                                // 전문버전
@@ -307,23 +297,23 @@ public class ProcKakaoMobileReturn extends Proc{
         String GoodType				 = "0";												            // 제품구분 0 : 실물, 1 : 디지털
         String HeadFiller			 = "";											              // 예비
 
-        String StoreId				 = kakao.getStoreid();       // 상점아이디
-        String OrderNumber     = kakao.getOrdernumber();   // 주문번호
-        String UserName				 = kakao.getOrdername();     // 주문자명
+        String StoreId				 = payco.getSndStoreid();       // 상점아이디
+        String OrderNumber     = payco.getSndOrdernumber();   // 주문번호
+        String UserName				 = payco.getSndOrdername();     // 주문자명
         String IdNum				   = "";                                    // 주민번호 or 사업자번호
-        String Email				   = kakao.getEmail();         // email
-        String GoodName				 = kakao.getGoodname();      // 제품명
-        String PhoneNo				 = kakao.getPhoneno();       // 휴대폰번호
+        String Email				   = payco.getSndEmail();         // email
+        String GoodName				 = payco.getSndGoodname();      // 제품명
+        String PhoneNo				 = payco.getSndMobile();       // 휴대폰번호
 //Header end -------------------------------------------------------------------
         //Data Default-------------------------------------------------
         String ApprovalType    = "1000";					                      // 승인구분
         String InterestType    = "1";                                   // 일반/무이자구분 1:일반 2:무이자
-        String TrackII         = "KAKAO";                               // 카드번호=유효기간 , 카카오페이="KAKAO"
-        String Installment     = kakao.getInstallment();   // 할부  00일시불
-        String Amount				   = kakao.getAmount();        // 금액
+        String TrackII         = "PAYCO";                               // 카드번호=유효기간 , 페이코="PAYCO"
+        String Installment     = payco.getInstallment();   // 할부  00일시불
+        String Amount				   = payco.getSndAmount();        // 금액
         String Passwd				   = "";					                          // 비밀번호 앞2자리
         String LastIdNum       = "";				                            // 주민번호  앞6자리, 사업자번호10
-        String CurrencyType    = kakao.getCurrencytype();  // 통화구분 0:원화 1: 미화
+        String CurrencyType    = payco.getCurrencytype();  // 통화구분 0:원화 1: 미화
         String BatchUseType    = "0";												            // 거래번호배치사용구분  0:미사용 1:사용
         String CardSendType    = "2";												            // 카드정보전송유무 0:미전송 1:카드번호,유효기간,할부,금액,가맹점번호 2:카드번호앞14자리 + "XXXX",유효기간,할부,금액,가맹점번호
         String VisaAuthYn      = "7";                                   // 비자인증유무 0:사용안함,7:SSL,9:비자인증
@@ -331,14 +321,18 @@ public class ProcKakaoMobileReturn extends Proc{
         String IpAddr				   = sharedMap.getString(PAYUNIT.REMOTEIP);               // IP ADDRESS 자체가맹점(PG업체용)
         String BusinessNumber  = "";                                    // 사업자 번호 자체가맹점(PG업체용)
         String Filler				   = "";                                    // 예비
-        String AuthType				 = "";                                    // ISP : ISP거래, MP1, MP2 : MPI거래, SPACE : 일반거래
-        String MPIPositionType = "";                                    // K : KSNET, R : Remote, C : 제3기관, SPACE : 일반거래
-        String MPIReUseType    = "";                                    // Y : 재사용, N : 재사용아님
+        String AuthType				 = "S";                                    // ISP : ISP거래, MP1, MP2 : MPI거래, SPACE : 일반거래
+        String MPIPositionType = "K";                                    // K : KSNET, R : Remote, C : 제3기관, SPACE : 일반거래
+        String MPIReUseType    = "N";                                    // Y : 재사용, N : 재사용아님
         String EncData				 = "";										                // MPI, ISP 데이터
 
-        String cavv					   = kakao.getTid().trim() + kakao.getCid().trim() ; // 카카오페이 결제 고유번호 TID + CID
-        String xid					   = kakao.getPg_token();                                      // 카카오페이 결제승인 토큰.
-        String eci					   = "";
+        String wtrno        = payco.getSellerOrderReferenceKey();
+        String reqtr        = payco.getReserveOrderNo();
+        String rpytr        = payco.getPaymentCertifyToken();
+        String ks_cardcode  = payco.getPccode();
+        String sellerPgMid  = payco.getPcnumb();
+        String sellerKey    = payco.getSellerKey();
+        String xtrno        = "KS" + new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new java.util.Date());
 
 //Data Default end -------------------------------------------------------------
 
@@ -382,10 +376,13 @@ public class ProcKakaoMobileReturn extends Proc{
             else if(CurrencyType.equals("USD")||CurrencyType.equals("840"))	CurrencyType = "1" ;
             else	CurrencyType = "0" ;
 
-            cavv				= ipg.format(cavv, 40, 'X');
-            xid					= ipg.format(xid,  40, 'X');
-            eci					= ipg.format(eci,   2, 'X');
-            EncData			    = ipg.format(""+(cavv+xid+eci).getBytes().length, 5, '9') + cavv+xid+eci;
+            xtrno 		= KSPayApprovalCancelBean.format(xtrno, 20, 'X');
+            reqtr       = KSPayApprovalCancelBean.format(reqtr, 20, 'X');
+            wtrno       = KSPayApprovalCancelBean.format(wtrno, 100, 'X');
+            rpytr       = KSPayApprovalCancelBean.format(rpytr, 100, 'X');
+            sellerPgMid = KSPayApprovalCancelBean.format(sellerPgMid, 20, 'X');
+            ks_cardcode = KSPayApprovalCancelBean.format(ks_cardcode, 2,  'X');
+            EncData     = KSPayApprovalCancelBean.format(""+(xtrno+reqtr+wtrno+rpytr+sellerPgMid+ks_cardcode).getBytes().length, 5, '9') + xtrno+reqtr+wtrno+rpytr+sellerPgMid+ks_cardcode;
 
             ipg.CreditDataMessage
                     (ApprovalType, InterestType, TrackII, Installment, Amount, Passwd, LastIdNum, CurrencyType,
@@ -421,8 +418,6 @@ public class ProcKakaoMobileReturn extends Proc{
                 rMPIPositionType  = ipg.MPIPositionType[0];   // K : KSNET, R : Remote, C : 제3기관, SPACE : 일반거래
                 rMPIReUseType     = ipg.MPIReUseType[0];      // Y : 재사용, N : 재사용아님
                 rEncData          = ipg.EncData[0];		  			// MPI, ISP 데이터
-
-                String orderNumber = ipg.OrderNumber;
             }
         }
         catch(Exception e)
@@ -499,6 +494,7 @@ public class ProcKakaoMobileReturn extends Proc{
         }
     }
 
+
     private String URLDecode(Object obj) {
         if (obj == null)
             return null;
@@ -516,13 +512,11 @@ public class ProcKakaoMobileReturn extends Proc{
         String name = "%B9%DA%C0%B1%BC%BA";
 //        String name = "%EB%B0%3F%3F%A4%EC%3F%3F";
 
-        String utf = new ProcKakaoReturn().changeCharset(name, "UTF-8");
-        String euc = new ProcKakaoReturn().changeCharset(name, "EUC-KR");
+        String utf = new ProcPaycoReturn().changeCharset(name, "UTF-8");
+        String euc = new ProcPaycoReturn().changeCharset(name, "EUC-KR");
 //        String utf2 = new ProcKakaoReturn().urlDecode(name, "UTF-8");
 //        String euc2 = new ProcKakaoReturn().urlDecode(name, "EUC-KR");
-        logger.info(utf);
 //        logger.info(utf2);
-        logger.info(euc);
 //        logger.info(euc2);
 
     }

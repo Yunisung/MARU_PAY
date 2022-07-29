@@ -267,7 +267,7 @@ function openPayment(config) {
     c3Config = config.c3Config;
       var widgetUri = '/api/3dV2/widget';
 
-      
+    console.log(widgetUri);
     util.postAjax(widgetUri, JSON.stringify({
         'widget': config.c3Config
     }), function(res) {
@@ -287,6 +287,7 @@ function openPayment(config) {
             }
         } else {
             /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
+            console.log('dd');
         	alert(res.result.advanceMsg);
         	postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
         }

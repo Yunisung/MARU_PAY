@@ -213,11 +213,6 @@ public class Kspay implements Van {
 		kVoid.setVoidType("0"); //취소처리구분 0 :거래번호취소 , 1:주문번호취소
 		kVoid.setReqType("1010"); //승인구분
 		
-		//간편결제 SSG만 reqType이 4110임.
-		if(trxType.equals("SSG")) {
-			kVoid.setReqType("4110");
-		}
-		
 		kVoid.setKsnetTrnId(payMap.getString("vanTrxId")); //KSNET 거래번호, 취소구분이 1인경우 SPACE
 		
 		//KJM : 거래번호가 없을 경우

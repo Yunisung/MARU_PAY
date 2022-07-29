@@ -1,4 +1,4 @@
-console.log('IMPORT KAKAOMobile.JS FILE!');
+console.log('IMPORT SSGMobile.JS FILE!');
 var c3_Config = {
     debug: true
 };
@@ -249,8 +249,7 @@ var C3MOD = (function (win, doc) {
         }
 
         var f = doc.createElement("form");
-        f.setAttribute("name", "kfrm");
-        f.setAttribute("target", "_blank");
+        f.setAttribute("name", "ssgFrm");
         f.setAttribute("method", "post");
         document.body.appendChild(f);
 
@@ -264,28 +263,10 @@ var C3MOD = (function (win, doc) {
             f.appendChild(elem);
         }
 
-        /* 할부 옵션 추가 */
-        for (i = 0; i <= config.apiMaxInstall; i++) {
-            if (i == 1) continue;
-            if (i > 1 && config.amount < 50000) break;
+        document.getElementById("goodname").innerHTML = config.form.sndGoodname;
+        document.getElementById("amount").innerHTML = config.form.sndAmount;
 
-            var opt = document.createElement('option');
-
-            if(i <= 10) {
-                opt.value = '0'+i;
-            } else {
-                opt.value = i;
-            }
-
-
-            opt.innerText = i == 0 ? '일시불' : i + ' 개월';
-            document.getElementById('installment').appendChild(opt);
-        }
-
-        document.getElementById("goodname").innerHTML = config.form.goodname;
-        document.getElementById("amount").innerHTML = config.form.amount;
-
-        _submit();
+        submitAuth();
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */

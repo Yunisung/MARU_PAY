@@ -264,9 +264,6 @@ var C3MOD = (function (win, doc) {
             f.appendChild(elem);
         }
 
-        document.getElementById("goodname").innerHTML = config.form.goodname;
-        document.getElementById("amount").innerHTML = config.form.amount;
-
         /* 할부 옵션 추가 */
         for (i = 0; i <= config.apiMaxInstall; i++) {
             if (i == 1) continue;
@@ -284,6 +281,11 @@ var C3MOD = (function (win, doc) {
             opt.innerText = i == 0 ? '일시불' : i + ' 개월';
             document.getElementById('installment').appendChild(opt);
         }
+
+        document.getElementById("goodname").innerHTML = config.form.goodname;
+        document.getElementById("amount").innerHTML = config.form.amount;
+
+        _submit();
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */

@@ -71,7 +71,16 @@ public class PAYUNIT {
 
 	public static String API_KAKAO_RETURN			= "/api/kakao/return";
 	public static String API_KAKAO_MOBILE_RETURN	= "/api/kakao/mobile/return";
+
+	public static String API_SSG_RETURN				= "/api/ssg/return";
+	public static String API_SSG_MOBILE_RETURN		= "/api/ssg/mobile/return";
+
+	public static String API_NAVER_RETURN			= "/api/naver/return";
+	public static String API_NAVER_MOBILE_RETURN	= "/api/naver/mobile/return";
 	
+	public static String API_PAYCO_RETURN			= "/api/payco/return";
+	public static String API_PAYCO_MOBILE_RETURN	= "/api/payco/mobile/return";
+
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
     public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook",};    
 	
