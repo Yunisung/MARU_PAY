@@ -29,24 +29,23 @@
             left_ = left_/2 - (width_/2);
             top_ = top_/2 - (height_/2);
 
-            // try
-            // {
-            //     op = window.open('about:blank','SsgFrmUp',
-            //         'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
-            //
-            //     if (op == null)
-            //     {
-            //         alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
-            //         return false;
-            //     }
-            //     ssgfrm.target = 'SsgFrmUp';
-            //
-            // }catch(e)
-            // {
-            //     alert("팝업실패("+(e.number & 0xFFFF)+":"+e.description+")");
-            // }
+            try
+            {
+                op = window.open('about:blank','SsgFrmUp',
+                    'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
 
-            ssgfrm.target = 'SSG_IFRM';
+                if (op == null)
+                {
+                    alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+                    return false;
+                }
+                ssgfrm.target = 'SsgFrmUp';
+
+            }catch(e)
+            {
+                alert("팝업실패("+(e.number & 0xFFFF)+":"+e.description+")");
+            }
+
             ssgfrm.action ='https://kspay.ksnet.to/store/PAY_PROXY/ssg/ssg_proxy.jsp';
             ssgfrm.submit();
         }
