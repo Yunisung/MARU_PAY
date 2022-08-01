@@ -39,13 +39,27 @@
             vfrm.paymenttype.value = "CARD";
             vfrm.installment.value = "00";
 
-            //document.getElementById("DIV_KAKAOFRAME").style.display="";
-            //vfrm.returnUrl += "/"+vfrm.installment.value;
 
-            vfrm.target = 'KAKAO_IFRM';
+            var width_	= 750;
+            var height_	= 850;
+            var left_	= screen.width;
+            var top_	= screen.height;
+
+            left_ = left_/2 - (width_/2);
+            top_ = top_/2 - (height_/2);
+
+            op = window.open("",'AuthFrmUp',
+                'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+
+            if (op == null)
+            {
+                alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+                return false;
+            }
+
+            vfrm.target = 'AuthFrmUp';
             vfrm.acceptCharset = "euc-kr";
             vfrm.action = "https://kspay.ksnet.to/store/PAY_PROXY/kakao/kakao_rs_o1.jsp" ;
-            // vfrm.action = "http://127.0.0.1:10002/api/kakao/return";
             vfrm.submit();
 
 
