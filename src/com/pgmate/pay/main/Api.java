@@ -153,7 +153,7 @@ public class Api {
 				process = new ProcKakaoMobileReturn();
 			}else if (uri.startsWith(PAYUNIT.API_SSG_RETURN)) {
 				process = new ProcSsgReturn();
-			} else if(uri.startsWith(PAYUNIT.API_SSG_MOBILE_RETURN)) {
+			}else if(uri.startsWith(PAYUNIT.API_SSG_MOBILE_RETURN)) {
 				process = new ProcSsgMobileReturn();
 			}else if (uri.startsWith(PAYUNIT.API_NAVER_RETURN)) {
 				process = new ProcNaverReturn();
@@ -161,8 +161,12 @@ public class Api {
 				process = new ProcNaverMobileReturn();
 			}else if (uri.startsWith(PAYUNIT.API_PAYCO_RETURN)) {
 				process = new ProcPaycoReturn();
-			} else if (uri.startsWith(PAYUNIT.API_PAYCO_MOBILE_RETURN)) {
+			}else if (uri.startsWith(PAYUNIT.API_PAYCO_MOBILE_RETURN)) {
 				process = new ProcPaycoMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_LPAY_RETURN)) {
+				process = new ProcLpayReturn();
+			}else if (uri.startsWith(PAYUNIT.API_LPAY_MOBILE_RETURN)) {
+				process = new ProcLpayMobileReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -263,7 +267,9 @@ public class Api {
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_MOBILE_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_RETURN) ||
-			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_MOBILE_RETURN)) {
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_LPAY_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_LPAY_MOBILE_RETURN)) {
 			return true;
 		}
 
