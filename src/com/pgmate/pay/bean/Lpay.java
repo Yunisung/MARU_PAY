@@ -1,7 +1,5 @@
 package com.pgmate.pay.bean;
 
-import com.sun.imageio.plugins.common.LZWStringTable;
-
 public class Lpay {
     //인증결과
     private String proceed = null;
