@@ -325,7 +325,15 @@ public class ProcPay3DV2Widget extends Proc {
 									}
 									setSsgPay(vanMap);
 
-								} 
+								} else if (request.widget.getString("trxType").equals("LPAY")) {
+									if (request.widget.isEquals("device", "mobile")) {
+										response.widget.put("routeUrl", "/form/payment/kspay/lpayMobile.html?token=" + widgetKey);
+									} else {
+										response.widget.put("routeUrl", "/form/payment/kspay/lpay.html?token=" + widgetKey);
+									}
+									setLpay(vanMap);
+
+								}
 
 								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 								response.result = ResultUtil.getResult("0000", "정상","정상완료");
@@ -628,8 +636,8 @@ public class ProcPay3DV2Widget extends Proc {
 			}
 		}
 		//로컬에서 테스트용
-		// form.put("returnUrl", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
-		// form.put("storeid", "2999199999"); //테스트용 2999199999
+//		 form.put("returnUrl", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+//		 form.put("storeid", "2999199999"); //테스트용 2999199999
 
 		form.put("storeid", vanMap.getString("vanId"));
 		form.put("ordername", request.widget.getString("payerName"));
@@ -775,8 +783,8 @@ public class ProcPay3DV2Widget extends Proc {
 			}
 		}
 		//로컬은 이걸로 테스트하자
-		// form.put("sndReply", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_SSG_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
-		// form.put("sndStoreid", "2999199999"); //테스트용 2999199999
+//		 form.put("sndReply", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_SSG_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+//		 form.put("sndStoreid", "2999199999"); //테스트용 2999199999
 
 		form.put("sndStoreid", vanMap.getString("vanId"));
 		form.put("sndOrdernumber", request.widget.getString("trackId"));
@@ -818,6 +826,96 @@ public class ProcPay3DV2Widget extends Proc {
 		authForm.put("SSGPAY_PAYMETHOD", "");
 		authForm.put("SSGPAY_PLATFORM_MID", "");
 
+		//form 처리
+		request.widget.put("form", GsonUtil.toJson(form));
+		request.widget.put("authForm", GsonUtil.toJson(authForm));
+
+		//요청 값 임시 저장
+		logger.info("save as key : {}",request.widget.getString("key"));
+
+		PAYUNIT.cacheMap.put(request.widget.getString("key"), request.widget);
+
+
+		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
+	}
+
+	public void setLpay(SharedMap<String,Object> vanMap) {
+		logger.info("LPAY START");
+
+		request.widget.put("key", widgetKey);
+		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
+
+		request.widget.put("target", "KSPAY");
+		request.widget.put("targetMethod", "POPUP");
+
+		//안씀
+		request.widget.put("targetUrl", "https://kspay.ksnet.to/store/PAY_PROXY/kakao/kakao_rs_o1.jsp");
+
+		request.widget.put("width", 1000);
+		request.widget.put("height", 1000);
+
+		request.widget.put("apiMaxInstall",mchtTmnMap.getString("apiMaxInstall"));
+
+		//lpayFrm세팅
+		SharedMap<String,Object> form = new SharedMap<String,Object>();
+
+		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
+
+			if(request.widget.isEquals("device", "mobile")){
+				form.put("sndReply", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_LPAY_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("sndProcesstype", "3"); // 3:  모바일웹
+			}
+			else {
+				form.put("sndReply", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_LPAY_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			}
+
+		}else{
+			if(request.widget.isEquals("device", "mobile")) {
+				form.put("sndReply", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_LPAY_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("sndProcesstype", "3"); // 3:  모바일웹
+			} else {
+				form.put("sndReply", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_LPAY_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			}
+		}
+		//로컬은 이걸로 테스트하자
+//		form.put("sndReply", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_LPAY_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+//		form.put("sndStoreid", "2999199999"); //테스트용 2999199999
+
+		form.put("sndStoreid", vanMap.getString("vanId"));
+		form.put("sndOrdernumber", request.widget.getString("trackId"));
+		form.put("sndGoodname", getProduct(request.widget.get("products")));
+		form.put("sndAmount", request.widget.getString("amount"));
+		form.put("sndOrdername", request.widget.getString("payerName"));
+		form.put("sndEmail", request.widget.getString("payerEmail"));
+		form.put("sndMobile", request.widget.getString("payerTel").replaceAll("[-]", ""));
+		form.put("sndCharSet", "UTF-8");
+
+		//authForm 세팅
+		SharedMap<String,Object> authForm = new SharedMap<String,Object>();
+		authForm.put("storeid", vanMap.getString("vanId"));
+		authForm.put("ordernumber", request.widget.getString("trackId"));
+		authForm.put("ordername", request.widget.getString("payerName"));
+		authForm.put("email", request.widget.getString("payerEmail"));
+		authForm.put("goodname", getProduct(request.widget.get("products")));
+		authForm.put("phoneno", request.widget.getString("payerTel").replaceAll("[-]", ""));
+
+		authForm.put("installment", "");
+		authForm.put("amount", request.widget.getString("amount"));
+		authForm.put("currencytype", "0"); // 0 : 원화(WON)  1 : 미화(DOLLAR)
+
+		authForm.put("P_REQ_ID", "");
+		authForm.put("LPAY_PG_ID", "");
+		authForm.put("LPAY_F_CO_CD", "");
+		authForm.put("LPAY_MEM_M_NUM", "");
+		authForm.put("LPAY_IMONTH_NUM", "");
+		authForm.put("LPAY_REQ_AMT", "");
+		authForm.put("LPAY_CAVV", "");
+		authForm.put("LPAY_P_M_NUM", "");
+		authForm.put("LPAY_XID", "");
+		authForm.put("LPAY_ECI", "");
+		authForm.put("LPAY_OTC_NUM", "");
+		authForm.put("LPAY_TR_ID", "");
+		authForm.put("LPAY_CARD_YYMM", "");
 		//form 처리
 		request.widget.put("form", GsonUtil.toJson(form));
 		request.widget.put("authForm", GsonUtil.toJson(authForm));
