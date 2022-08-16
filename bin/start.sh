@@ -1,5 +1,5 @@
 #!/bin/sh
-
+./stop.sh
 unset LANG
 
 # LANG
