@@ -97,7 +97,7 @@ public abstract class Proc {
 		//KJM : 결제 관련 기능 수행 시에만 서버 통신 이력 추가
 		if(sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_PAY) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_OPEN) 
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_PATCH) 
-				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH)){
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_AUTHOPEN)){
 					
 			trxDAO.updateTrxIO(sharedMap,res);
 		}
