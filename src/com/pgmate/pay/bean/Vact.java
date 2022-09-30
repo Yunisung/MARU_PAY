@@ -24,6 +24,7 @@ public class Vact {
 	public String udf1			= null;	//가맹점 정의영역1
 	public String udf2			= null;	//가맹점 정의영역2
 	public String accountPretty = null; //계좌번호 pretty
+	public String companyName 	= null; //가상계좌 예금주 이름
 	
 	//OPEN 응답 추가 영역
 	public String issueId		= null;

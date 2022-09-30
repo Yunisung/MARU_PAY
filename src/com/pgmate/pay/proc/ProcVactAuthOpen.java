@@ -114,7 +114,7 @@ public class ProcVactAuthOpen extends Proc{
 
             //발행로직 마무리
             vact.put("status","발행");
-            vact.put("holderName", request.vact.holderName);
+            vact.put("holderName", request.vact.companyName);
             vact.put("amount", request.vact.amount);
             vact.put("oper", request.vact.oper);
             vact.put("trackId", request.vact.trackId);
@@ -180,6 +180,11 @@ public class ProcVactAuthOpen extends Proc{
                 response.result = ResultUtil.getResult("9999", "서비스사용이전", "가상계좌서비스가 활성화 되지 않았습니다. 현재 상태" + mchtVactMngMap.getString("status"));
                 return;
             }
+        }
+
+        //PYS : 가상계좌 예금주명이 공백일때 PG_MCHT_MNG_VACT에서 가지고 온다
+        if(CommonUtil.isNullOrSpace(request.vact.companyName)) {
+            request.vact.companyName = mchtVactMngMap.get("holderName").toString();
         }
 
         if(mchtVactMngMap.isEquals("issueType", "임시")) {
@@ -266,11 +271,6 @@ public class ProcVactAuthOpen extends Proc{
 
         if(CommonUtil.parseLong(request.vact.amount) < 0){
             response.result = ResultUtil.getResult("9999", "필수값틀림","금액 포맷이 잘못되었거나 0 보다 작습니다.");
-            return;
-        }
-
-        if(CommonUtil.isNullOrSpace(request.vact.holderName)){
-            response.result = ResultUtil.getResult("9999", "필수값틀림","실제고객명이 지정되지 않았습니다.");
             return;
         }
 

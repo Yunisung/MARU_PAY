@@ -20,7 +20,8 @@ var KWON = (function (win, doc) {
         bankCd: '',
 		account: '',
         amount: '',
-        oper: ''
+        oper: '',
+		companyName: ''
 	}
 
     var MaruConfig = {
@@ -44,7 +45,8 @@ var KWON = (function (win, doc) {
         bankCd: '',
 		account: '',
         amount: '',
-        oper: ''
+        oper: '',
+		companyName: ''
 	}
 
  	/* GLOBAL */
@@ -52,14 +54,19 @@ var KWON = (function (win, doc) {
     	test: 'https://svcapidev.mtouch.com',
     	live: 'https://svcapi.mtouch.com'
   	}
-
     //부국위너스 URL주소
     // var maruUrl = 'http://127.0.0.1:10002'; //local
 	var maruUrl = 'https://devapi.bkwinners.kr'; //dev
 	// var maruUrl = 'https://api.bkwinners.kr'; //live
 
+	var maruUrls = {
+		test: 'https://devapi.bkwinners.kr',
+		live: 'https://api.bkwinners.kr'
+	}
+
 
   	var routeDomain = routeUrls[c3Config.debugMode];
+	var maruDomain = maruUrls[c3Config.debugMode];
   	var layerInited = false;
   	var layerLoaded = false;
   	var sendedIdArray = [];
@@ -83,7 +90,8 @@ var KWON = (function (win, doc) {
             oper: MaruConfig.oper,
             holderName: MaruConfig.holderName,
             phoneNo: MaruConfig.phoneNo,
-            identity: MaruConfig.identity
+            identity: MaruConfig.identity,
+			companyName: MaruConfig.companyName
         }
         sendVactData = {result: data.result, auth: data.auth, vact: vact, publicKey : MaruConfig.publicKey};
         console.log('sendData : ', sendVactData);
@@ -102,10 +110,8 @@ var KWON = (function (win, doc) {
     }
 
     function requestSendVact() {
-		console.log('MARU_POP');
         maruPop();
-    
-		console.log('sendVact');
+
     	setTimeout(function() {
       		postMessages.sendVact();
     	}, 200);
@@ -389,7 +395,7 @@ var KWON = (function (win, doc) {
               console.log('SEND POSTMESSAGE TO IFRAME:', obj, 'Message ID:', obj.msgId);
               
               var contentWindow = doc.getElementById("c3_pop_iframe").contentWindow;
-              contentWindow.postMessage(JSON.stringify(obj), maruUrl);
+              contentWindow.postMessage(JSON.stringify(obj), maruDomain);
           }
         }
 	}
