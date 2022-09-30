@@ -395,7 +395,7 @@ var KWON = (function (win, doc) {
               console.log('SEND POSTMESSAGE TO IFRAME:', obj, 'Message ID:', obj.msgId);
               
               var contentWindow = doc.getElementById("c3_pop_iframe").contentWindow;
-              contentWindow.postMessage(JSON.stringify(obj), maruDomain);
+              contentWindow.postMessage(JSON.stringify(obj), maruUrl);
           }
         }
 	}
