@@ -391,7 +391,7 @@ public class ProcPay extends Proc {
 		
 		
 		//가맹점 한도 측정
-		if(mchtMngMap.getDouble("limitOnce") > 0 && mchtMngMap.getDouble("limitOnce") < request.pay.amount ){
+		if(mchtMngMap.getDouble("limitOnce") > 0 && mchtMngMap.getDouble("limitOnce") <= request.pay.amount ){
 			logger.debug("가맹점 1회 한도초과 : {},{}",mchtMngMap.getDouble("limitOnce"),request.pay.amount);
 			response.result = ResultUtil.getResult("9999", "한도초과","가맹점 1회 거래한도 초과");return;
 		}
@@ -402,7 +402,7 @@ public class ProcPay extends Proc {
 		//가맹점 한도 조회
 		if(mchtMngMap.getDouble("limitDay") > 0 ){
 			mchtSumMap = trxDAO.getTrxMchtDailySum(mchtMap);
-			if(mchtMngMap.getDouble("limitDay") < mchtSumMap.getDouble("mchtDailySum") +request.pay.amount ){
+			if(mchtMngMap.getDouble("limitDay") <= mchtSumMap.getDouble("mchtDailySum") +request.pay.amount ){
 				logger.debug("가맹점 일일 한도초과 : {},{}",mchtMngMap.getDouble("limitDay"),mchtSumMap.getDouble("mchtDailySum")+request.pay.amount);
 				response.result = ResultUtil.getResult("9999", "한도초과","가맹점 일일 거래한도 초과");return;
 			}
@@ -410,7 +410,7 @@ public class ProcPay extends Proc {
 		
 		if(mchtMngMap.getDouble("limitMonth") > 0 ){
 			mchtSumMap = trxDAO.getTrxMchtMonthlySum(mchtMap);
-			if(mchtMngMap.getDouble("limitMonth") < mchtSumMap.getDouble("mchtMonthlySum") +request.pay.amount ){
+			if(mchtMngMap.getDouble("limitMonth") <= mchtSumMap.getDouble("mchtMonthlySum") +request.pay.amount ){
 				logger.debug("가맹점 월 한도초과 : {},{}",mchtMngMap.getDouble("limitMonth"),mchtSumMap.getDouble("mchtMonthlySum")+request.pay.amount);
 				response.result = ResultUtil.getResult("9999", "한도초과","가맹점 월 거래한도 초과");return;
 			}
@@ -418,7 +418,7 @@ public class ProcPay extends Proc {
 		
 		if(mchtMngMap.getDouble("limitYear") > 0 ){
 			mchtSumMap = trxDAO.getTrxMchtYearlySum(mchtMap);
-			if(mchtMngMap.getDouble("limitYear") < mchtSumMap.getDouble("mchtYearlySum") +request.pay.amount ){
+			if(mchtMngMap.getDouble("limitYear") <= mchtSumMap.getDouble("mchtYearlySum") +request.pay.amount ){
 				logger.debug("가맹점 연 한도초과 : {},{}",mchtMngMap.getDouble("limitYear"),mchtSumMap.getDouble("mchtYearlySum")+request.pay.amount);
 				response.result = ResultUtil.getResult("9999", "한도초과","가맹점 연 거래한도 초과");return;
 			}
