@@ -16,7 +16,8 @@ public class Auth {
 	public boolean recurring = false;
 	public SharedMap<String,String> metadata = null;
 	
-	
+	public String totalAuthId = ""; //PYS : 통합인증ID
+
 	
 	public Auth() {
 		// TODO Auto-generated constructor stub
