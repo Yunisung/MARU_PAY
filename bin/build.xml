@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="../../MARU_PAY" default="compile" name="COMP">
+<project basedir="../../WAS1_PAY" default="compile" name="COMP">
 
   <!-- Project Default Directory -->
 	<property name="src.dir" location="${basedir}\src"/>
