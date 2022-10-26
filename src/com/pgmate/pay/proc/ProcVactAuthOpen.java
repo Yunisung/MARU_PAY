@@ -325,8 +325,13 @@ public class ProcVactAuthOpen extends Proc{
 
             //가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)
             //PYS : 통합인증번호도 INSERT해줌
-            trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"), "O",
-                    request.vact.identity, request.vact.phoneNo, request.vact.bankCd, request.vact.account, "");
+//            trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"), "O",
+//                    request.vact.identity, request.vact.phoneNo, request.vact.bankCd, request.vact.account, "");
+            //PYS : 출금계좌정보 추가
+            trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"),
+                    "0", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
+                    request.vact.bankCd, request.vact.account, "");
+
 
             //통합인증 수수료계산
             fee = mchtVactMngMap.getLong("totalAuthFee");
@@ -351,11 +356,18 @@ public class ProcVactAuthOpen extends Proc{
 
                 if(vactAuthInfo.size() == 0) {
                     //첫인증일 경우 인증정보 추가
-                    trxDAO.insertPgVactAuthInfo(mchtMap.getString("mchtId"),
-                            request.vact.identity, request.vact.phoneNo, mchtVactMngMap.getLong("respiteCnt"));
+//                    trxDAO.insertPgVactAuthInfo(mchtMap.getString("mchtId"),
+//                            request.vact.identity, request.vact.phoneNo, mchtVactMngMap.getLong("respiteCnt"));
+
+                    //PYS : 출금계좌정보 추가됨
+                    trxDAO.insertPgVactAuthInfo(mchtMap.getString("mchtId"), request.auth.bankCd, request.auth.account, request.vact.identity,
+                            request.vact.phoneNo, mchtVactMngMap.getLong("respiteCnt"));
                 }else {
                     //인증횟수 초기화
-                    trxDAO.updatePgVactAuthInfo(mchtMap.getString("mchtId"),
+//                    trxDAO.updatePgVactAuthInfo(mchtMap.getString("mchtId"),
+//                            request.vact.identity, request.vact.phoneNo, 0, vactAuthInfo.getLong("authTotalCnt") + 1);
+//                    //PYS : 출금계좌정보 추가됨
+                    trxDAO.updatePgVactAuthInfo(mchtMap.getString("mchtId"), request.auth.bankCd, request.auth.account,
                             request.vact.identity, request.vact.phoneNo, 0, vactAuthInfo.getLong("authTotalCnt") + 1);
                 }
             }

@@ -17,7 +17,8 @@ public class Auth {
 	public SharedMap<String,String> metadata = null;
 	
 	public String totalAuthId = ""; //PYS : 통합인증ID
-
+	public String bankCd = "";
+	public String account = "";
 	
 	public Auth() {
 		// TODO Auto-generated constructor stub
