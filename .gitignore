@@ -1,6 +1,6 @@
 classes/
 .settings/org.eclipse.jdt.core.prefs
-lib/
+lib/MARU_*.jar
 logs/
 conf/service.json
 .classpath
