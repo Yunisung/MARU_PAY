@@ -328,8 +328,9 @@ public class ProcVactAuthOpen extends Proc{
 //            trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"), "O",
 //                    request.vact.identity, request.vact.phoneNo, request.vact.bankCd, request.vact.account, "");
             //PYS : 출금계좌정보 추가
+            logger.info("가상계좌 출금계좌 정보 : [{}][{}][{}]", request.vact.account, request.auth.bankCd, request.auth.account);
             trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"),
-                    "0", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
+                    "O", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
                     request.vact.bankCd, request.vact.account, "");
 
 
@@ -366,7 +367,7 @@ public class ProcVactAuthOpen extends Proc{
                     //인증횟수 초기화
 //                    trxDAO.updatePgVactAuthInfo(mchtMap.getString("mchtId"),
 //                            request.vact.identity, request.vact.phoneNo, 0, vactAuthInfo.getLong("authTotalCnt") + 1);
-//                    //PYS : 출금계좌정보 추가됨
+                    //PYS : 출금계좌정보 추가됨
                     trxDAO.updatePgVactAuthInfo(mchtMap.getString("mchtId"), request.auth.bankCd, request.auth.account,
                             request.vact.identity, request.vact.phoneNo, 0, vactAuthInfo.getLong("authTotalCnt") + 1);
                 }
