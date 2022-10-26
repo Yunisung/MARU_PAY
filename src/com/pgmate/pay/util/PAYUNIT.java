@@ -148,4 +148,7 @@ public class PAYUNIT {
     public static SharedCacheMap cacheWithdrawMap    = new SharedCacheMap(10);
 	public static VactCache vactCacheMap			= new VactCache(5);
     public static VactCache vactWithdrawCacheMap    = new VactCache(1);
+
+	// 단위테스트시 사용
+	public static String DEBUG_MODE					= "DEBUG_MODE";
 }

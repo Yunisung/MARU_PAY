@@ -49,7 +49,7 @@ public class ProcVactAuthOpen extends Proc{
 
         if(response.result != null) {
             //검증에 문제생김
-            setResponse();
+            sendResponse();
             return;
         } else {
             //가상계좌 발행처리
@@ -75,12 +75,12 @@ public class ProcVactAuthOpen extends Proc{
                     }
 
                     response.vact.status = "발행실패";
-                    setResponse();
+                    sendResponse();
                     return;
                 } else {
                     if(!vact.isEquals("bankCd", request.vact.bankCd)){
                         response.result = ResultUtil.getResult("9999", "은행코드틀림","가상계좌 발행은행과 요청된 은행코드가 다릅니다.");
-                        setResponse(); return;
+                        sendResponse(); return;
                     }
 
                     issueId = vact.getString("issueId");
@@ -108,7 +108,7 @@ public class ProcVactAuthOpen extends Proc{
             Auth();
 
             if(response.result != null) {
-                setResponse();
+                sendResponse();
                 return;
             }
 
@@ -138,7 +138,7 @@ public class ProcVactAuthOpen extends Proc{
             }else{
                 response.result = ResultUtil.getResult("9999", "발행오류","시스템 오류로 인한 가상계좌 발행 실패.");
             }
-            setResponse();
+            sendResponse();
         }
 
 

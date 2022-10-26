@@ -208,6 +208,7 @@ public class Api {
 
 			if (process != null) {
 				process.exec(rc, request, sharedMap, sharedObject);
+				process.clear();
 			}
 
 		} catch (Exception e) {
