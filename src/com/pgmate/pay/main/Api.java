@@ -123,6 +123,8 @@ public class Api {
 				process = new VactPatch();
 			}else if (uri.startsWith(PAYUNIT.API_VACT_REG)) {
 				process = new VactReg();
+			}else if (uri.startsWith(PAYUNIT.API_NEW_VACT_REG)) {
+				process = new VactRegNew();
 			}else if (uri.startsWith(PAYUNIT.API_VACT_WITHDRAW_GET)) {
 				process = new VactWithdrawGet();
 			}else if (uri.startsWith(PAYUNIT.API_AUTH)) {

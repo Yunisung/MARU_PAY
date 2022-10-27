@@ -2948,6 +2948,17 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRowFirst().getString("issueId");
 	}
+
+	public SharedMap<String,Object> getVactDtl(String issueId) {
+		super.setTable("PG_VACT_DTL");
+		super.addWhere("issueId", issueId, eq);
+
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRowFirst();
+	}
 	
 	public boolean deleteVactDtl(String issueId){
 		super.setTable("PG_VACT_DTL");

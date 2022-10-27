@@ -56,6 +56,7 @@ public class PAYUNIT {
 	public static String API_VACT_PATCH				= "/api/vact/patch";
     public static String API_VACT_WITHDRAW_GET        = "/api/vact/withdrawGet";
     public static String API_VACT_REG                = "/api/vact/reg";
+	public static String API_NEW_VACT_REG			= "/api/new/vact/reg";
     public static String API_CHECK                    = "/api/check";
     public static String API_3DV2_WIDGET            = "/api/3dV2/widget";
     public static String API_3DV2_HOOK                = "/api/3dV2/hook";
