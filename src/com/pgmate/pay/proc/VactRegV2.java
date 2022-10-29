@@ -32,7 +32,6 @@ import com.pgmate.pay.bean.Request;
 import com.pgmate.pay.conf.Firm;
 import com.pgmate.pay.conf.FirmLoader;
 import com.pgmate.pay.conf.Ksnet;
-import com.pgmate.pay.conf.KsnetLoader;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.firm.FirmBean;
 import com.pgmate.pay.util.AES256Cipher;
@@ -44,8 +43,8 @@ import io.vertx.ext.web.RoutingContext;
  * @author Administrator
  *
  */
-public class VactRegNew extends Proc {
-    private static Logger logger 				= LoggerFactory.getLogger( com.pgmate.pay.proc.VactRegNew.class );
+public class VactRegV2 extends Proc {
+    private static Logger logger 				= LoggerFactory.getLogger( VactRegV2.class );
     private SharedMap<String,Object> vact = null;
     private String host = "";
     private int port = 10006;
@@ -66,7 +65,7 @@ public class VactRegNew extends Proc {
     private long fee = 0;
     private long orgFee = 0;
 
-    public VactRegNew() {
+    public VactRegV2() {
     }
 
     /*
@@ -122,7 +121,7 @@ public class VactRegNew extends Proc {
 
                     logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]", withdrawBankCd, withdrawAccount);
 
-                    setResponse();
+                    sendResponse();
                     return;
                 }
 
@@ -135,7 +134,7 @@ public class VactRegNew extends Proc {
 //
 //						logger.info("기등록 가상계좌 입니다. [{}]", issueId);
 //
-//						setResponse();
+//						sendResponse();
 //						return;
 //					}
 
@@ -144,7 +143,7 @@ public class VactRegNew extends Proc {
 
                         logger.info("기등록 출금계좌 입니다. [{}]", dupleWithdraw);
 
-                        setResponse();
+                        sendResponse();
                         return;
                     }
                 }else if("2".equals(trxType)) {
@@ -161,7 +160,7 @@ public class VactRegNew extends Proc {
 
                         logger.info("등록되어있지않은 계좌입니다. [{}]", account);
 
-                        setResponse();
+                        sendResponse();
                         return;
                     }
 
@@ -172,7 +171,7 @@ public class VactRegNew extends Proc {
 
                             logger.info("기등록 출금계좌 입니다. [{}]", dupleWithdraw);
 
-                            setResponse();
+                            sendResponse();
                             return;
                         }
                     }
@@ -191,7 +190,7 @@ public class VactRegNew extends Proc {
 
                         logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, bean.resultCd, bean.resultMsg);
 
-                        setResponse();
+                        sendResponse();
                         return;
                     } else {
                         if(!request.vact.holderName.trim().equals(bean.data.getString("name"))) {

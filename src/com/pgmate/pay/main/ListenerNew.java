@@ -168,7 +168,7 @@ public class ListenerNew extends RouteWorkerNew {
 					}
 				});
 
-		router.route(PAYUNIT.API_NEW_VACT_REG)
+		router.route(PAYUNIT.API_VACTV2_REG)
 				.handler(rc -> {
 					// poolSize defualt : 20
 					int poolSize = 100;
@@ -191,7 +191,7 @@ public class ListenerNew extends RouteWorkerNew {
 					if (fc.statusCode() == 404) {
 						logger.debug("{} not found ", fc.request().uri());
 					} else {
-						logger.error("{} error : {},{}", PAYUNIT.API_NEW_VACT_REG, fc.statusCode(), CommonUtil.getExceptionMessage(new Exception(fc.failure())));
+						logger.error("{} error : {},{}", PAYUNIT.API_VACTV2_REG, fc.statusCode(), CommonUtil.getExceptionMessage(new Exception(fc.failure())));
 						VertXMessage.set500(fc);
 					}
 				});
