@@ -1,15 +1,15 @@
 classes/
 .settings/org.eclipse.jdt.core.prefs
-lib/
+lib/MARU_pay.jar
 logs/
 conf/service.json
 .classpath
 conf/logback.xml
 
 conf/config.ini
-MARU_PAY.iml
-.idea/.gitignore
-.idea/misc.xml
-.idea/modules.xml
-.idea/vcs.xml
-.idea/libraries/billgateAPI.xml
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr

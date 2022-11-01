@@ -243,11 +243,11 @@ public class TemplateUtil {
 		.write(sb.toString()).end();
 	}
 
-	public static void kakaoPayResultPage(RoutingContext rc, SimplePayResult kakaoRes) {
+	public static void simplePayResultPage(RoutingContext rc, SimplePayResult result, String jsName, String resData) {
 		String returnPage =
 				"<html>\n" +
 				"<head>\n" +
-				"<title>KSPay</title>\n" +
+				"<title>CREDITOP</title>\n" +
 				"<meta http-equiv=\"Content-Type\" content=\"text/html charset=euc-kr\">\n" +
 				"<style type=\"text/css\">\n" +
 				"\tTABLE{font-size:9pt; line-height:160%;}\n" +
@@ -267,7 +267,7 @@ public class TemplateUtil {
 				"<table width=100% cellspacing=1 cellpadding=2 border=0>\n" +
 				"<tr bgcolor=#4F9AFF height=25>\n" +
 				"<td align=left><font color=\"#FFFFFF\">\n" +
-				"카카오페이 결과</td>\n" +
+				"간편결제 결과</td>\n" +
 				"</tr>\n" +
 				"<tr bgcolor=#FFFFFF>\n" +
 				"<td valign=top>\n" +
@@ -277,39 +277,39 @@ public class TemplateUtil {
 				"<table>\n" +
 				"<tr>\n" +
 				"\t<td>거래종류 :</td>\n" +
-				"\t<td>"+kakaoRes.rApprovalType +"</td>\n" +
+				"\t<td>"+result.rApprovalType +"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>거래번호 :</td>\n" +
-				"\t<td>"+kakaoRes.rTransactionNo +"</td>\n" +
+				"\t<td>"+result.rTransactionNo +"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>거래성공여부 :</td>\n" +
-				"\t<td>"+kakaoRes.rStatus+"</td>\n" +
+				"\t<td>"+result.rStatus+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>거래시간 :</td>\n" +
-				"\t<td>"+kakaoRes.rTradeDate+"&nbsp;"+kakaoRes.rTradeTime+"</td>\n" +
+				"\t<td>"+result.rTradeDate+"&nbsp;"+result.rTradeTime+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>발급사코드 :</td>\n" +
-				"\t<td>"+kakaoRes.rIssCode+"</td>\n" +
+				"\t<td>"+result.rIssCode+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>매입사코드 :</td>\n" +
-				"\t<td>"+kakaoRes.rAquCode+"</td>\n" +
+				"\t<td>"+result.rAquCode+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>승인번호 :</td>\n" +
-				"\t<td>"+kakaoRes.rAuthNo+"</td>\n" +
+				"\t<td>"+result.rAuthNo+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>메시지1 :</td>\n" +
-				"\t<td>"+kakaoRes.rMessage1+"</td>\n" +
+				"\t<td>"+result.rMessage1+"</td>\n" +
 				"</tr>\n" +
 				"<tr>\n" +
 				"\t<td>메시지2 :</td>\n" +
-				"\t<td>"+kakaoRes.rMessage2+"</td>\n" +
+				"\t<td>"+result.rMessage2+"</td>\n" +
 				"</tr>\n" +
 				"</table>\n" +
 				"</tr>\n" +
@@ -327,6 +327,11 @@ public class TemplateUtil {
 				"</tr>\n" +
 				"</table>\n" +
 				"</table>" +
+				"<form name=\"frm\" method=\"POST\" target=\"_self\">" +
+				"<textarea style=\"display:none;\" name=\"data\">"+resData+"</textarea>" +
+				"</form>" +
+				"<script src=\"/static/js/"+jsName+".js\"></script>"+
+				"<script>setTimeout(function() { kspayToParent(); },200);</script>"+
 				"</body>\n" +
 				"</html>";
 
@@ -337,101 +342,5 @@ public class TemplateUtil {
 		.putHeader(HttpHeaders.CONNECTION, "close")
 		.putHeader(HttpHeaders.SERVER, "CREDITOP")
 		.write(returnPage.toString()).end();
-	}
-
-	public static void paycoPayResultPage(RoutingContext rc, SimplePayResult paycoRes) {
-		String returnPage =
-				"<html>\n" +
-						"<head>\n" +
-						"<title>KSPay</title>\n" +
-						"<meta http-equiv=\"Content-Type\" content=\"text/html charset=euc-kr\">\n" +
-						"<style type=\"text/css\">\n" +
-						"\tTABLE{font-size:9pt; line-height:160%;}\n" +
-						"\tA {color:blueline-height:160% background-color:#E0EFFE}\n" +
-						"\tINPUT{font-size:9pt}\n" +
-						"\tSELECT{font-size:9pt}\n" +
-						"\t.emp{background-color:#FDEAFE}\n" +
-						"\t.white{background-color:#FFFFFF color:black border:1x solid white font-size: 9pt}\n" +
-						"</style>\n" +
-						"</head>"+
-						"<table border=0 width=0>\n" +
-						"<tr>\n" +
-						"<td align=center>\n" +
-						"<table width=320 cellspacing=0 cellpadding=0 border=0 bgcolor=#4F9AFF>\n" +
-						"<tr>\n" +
-						"<td>\n" +
-						"<table width=100% cellspacing=1 cellpadding=2 border=0>\n" +
-						"<tr bgcolor=#4F9AFF height=25>\n" +
-						"<td align=left><font color=\"#FFFFFF\">\n" +
-						"페이코 결과</td>\n" +
-						"</tr>\n" +
-						"<tr bgcolor=#FFFFFF>\n" +
-						"<td valign=top>\n" +
-						"<table width=100% cellspacing=0 cellpadding=2 border=0>\n" +
-						"<tr>\n" +
-						"<td align=left>\n" +
-						"<table>\n" +
-						"<tr>\n" +
-						"\t<td>거래종류 :</td>\n" +
-						"\t<td>"+paycoRes.rApprovalType +"</td>\n" +
-						"</tr>\n" +
-						"<tr>\n" +
-						"\t<td>거래번호 :</td>\n" +
-						"\t<td>"+paycoRes.rTransactionNo +"</td>\n" +
-						"</tr>\n" +
-						"<tr>\n" +
-						"\t<td>거래성공여부 :</td>\n" +
-						"\t<td>"+paycoRes.rStatus+"</td>\n" +
-						"</tr>\n" +
-						"<tr>\n" +
-						"\t<td>거래시간 :</td>\n" +
-						"\t<td>"+paycoRes.rTradeDate+"&nbsp;"+paycoRes.rTradeTime+"</td>\n" +
-						"</tr>\n" +
-						"<tr>\n" +
-						"\t<td>발급사코드 :</td>\n" +
-						"\t<td>"+paycoRes.rIssCode+"</td>\n" +
-						"</tr>\n" +
-						"<tr>\n" +
-						"\t<td>매입사코드 :</td>\n" +
-						"\t<td>"+paycoRes.rAquCode+"</td>\n" +
-						"</tr>\n" +
-						"<tr>\n" +
-						"\t<td>승인번호 :</td>\n" +
-						"\t<td>"+paycoRes.rAuthNo+"</td>\n" +
-						"</tr>\n" +
-						"<tr>\n" +
-						"\t<td>메시지1 :</td>\n" +
-						"\t<td>"+paycoRes.rMessage1+"</td>\n" +
-						"</tr>\n" +
-						"<tr>\n" +
-						"\t<td>메시지2 :</td>\n" +
-						"\t<td>"+paycoRes.rMessage2+"</td>\n" +
-						"</tr>\n" +
-						"</table>\n" +
-						"</tr>\n" +
-						"</table>\n" +
-						"</td>\n" +
-						"</tr>\n" +
-						"</table>\n" +
-						"</td>\n" +
-						"</tr>\n" +
-						"</table>\n" +
-						"</td>\n" +
-						"</tr>\n" +
-						"</table>\n" +
-						"</td>\n" +
-						"</tr>\n" +
-						"</table>\n" +
-						"</table>" +
-						"</body>\n" +
-						"</html>";
-
-		rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "text/html; charset=UTF-8")
-				.putHeader(HttpHeaders.CONTENT_LENGTH, ""+returnPage.toString().getBytes().length)
-				.putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-				.putHeader(HttpHeaders.EXPIRES, "-1")
-				.putHeader(HttpHeaders.CONNECTION, "close")
-				.putHeader(HttpHeaders.SERVER, "CREDITOP")
-				.write(returnPage.toString()).end();
 	}
 }

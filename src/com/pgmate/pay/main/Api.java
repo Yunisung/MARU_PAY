@@ -123,6 +123,8 @@ public class Api {
 				process = new VactPatch();
 			}else if (uri.startsWith(PAYUNIT.API_VACT_REG)) {
 				process = new VactReg();
+			}else if (uri.startsWith(PAYUNIT.API_VACTV2_REG)) {
+				process = new VactRegV2();
 			}else if (uri.startsWith(PAYUNIT.API_VACT_WITHDRAW_GET)) {
 				process = new VactWithdrawGet();
 			}else if (uri.startsWith(PAYUNIT.API_AUTH)) {
@@ -137,10 +139,6 @@ public class Api {
 				process = new ProcPay3DV2Hook();
 			}else if (uri.startsWith(PAYUNIT.API_PHONE_REFUND)) {
 				process = new ProcPhoneRefund();
-				/*}else if (uri.startsWith(PAYUNIT.API_KAKAO_HOOK)) {
-					process = new ProcPayKakaoHook();
-				}else if (uri.startsWith(PAYUNIT.API_KAKAO_REFUND)) {
-					process = new ProcKakaoRefund();*/
 			}else if (uri.startsWith(PAYUNIT.API_SETTLE_ACCNT)) {
 				process = new ProcSettleAccnt();
 			}else if (uri.startsWith(PAYUNIT.API_SETTLE_BALANCE)) {
@@ -153,10 +151,26 @@ public class Api {
 				process = new ARSCheck();
 			}else if (uri.startsWith(PAYUNIT.API_KAKAO_RETURN)) {
 				process = new ProcKakaoReturn();
+			}else if(uri.startsWith(PAYUNIT.API_KAKAO_MOBILE_RETURN)) {
+				process = new ProcKakaoMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_SSG_RETURN)) {
+				process = new ProcSsgReturn();
+			}else if(uri.startsWith(PAYUNIT.API_SSG_MOBILE_RETURN)) {
+				process = new ProcSsgMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_NAVER_RETURN)) {
+				process = new ProcNaverReturn();
+			}else if(uri.startsWith(PAYUNIT.API_NAVER_MOBILE_RETURN)) {
+				process = new ProcNaverMobileReturn();
 			}else if (uri.startsWith(PAYUNIT.API_PAYCO_RETURN)) {
 				process = new ProcPaycoReturn();
-			} else if (uri.startsWith(PAYUNIT.API_PAYCO_MOBILE_RETURN)) {
+			}else if (uri.startsWith(PAYUNIT.API_PAYCO_MOBILE_RETURN)) {
 				process = new ProcPaycoMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_LPAY_RETURN)) {
+				process = new ProcLpayReturn();
+			}else if (uri.startsWith(PAYUNIT.API_LPAY_MOBILE_RETURN)) {
+				process = new ProcLpayMobileReturn();
+			}else if (uri.startsWith(PAYUNIT.API_VACT_AUTHOPEN)) {
+				process = new ProcVactAuthOpen();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -196,6 +210,7 @@ public class Api {
 
 			if (process != null) {
 				process.exec(rc, request, sharedMap, sharedObject);
+				process.clear();
 			}
 
 		} catch (Exception e) {
@@ -236,6 +251,7 @@ public class Api {
 		}
 
 		// JSON,XML 만 수신처리
+		// 간편결제때문에 "application/x-www-form-urlencoded" 추가
 		String contentsType = sharedMap.getString(PAYUNIT.CONTENTTYPE).toLowerCase();
 		if (contentsType.startsWith("application/json") || contentsType.startsWith("application/x-www-form-urlencoded") || contentsType.equalsIgnoreCase(VertXMessage.CONTENT_XML)) {
 		} else {
@@ -249,7 +265,16 @@ public class Api {
 
 		//간편결제 처리
 		//따로 인증처리 없이 바로 실행되도록
-		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_RETURN)) {
+		if(sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_KAKAO_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_SSG_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_LPAY_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_LPAY_MOBILE_RETURN)) {
 			return true;
 		}
 
@@ -367,8 +392,9 @@ public class Api {
 
 	/**
 	 * payLoad 의 데이터 파싱 처리 및 syntax error 확인
-	 * 
+	 *
 	 * @param payment
+	 * @param
 	 * @return
 	 * @throws Exception
 	 */

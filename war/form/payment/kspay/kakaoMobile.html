@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <!--    <meta http-equiv="Content-Type" content="text/html; charset=euc-kr">-->
+    <meta charset="utf-8">
+    <title>CREDITOP KAKAO 간편결제 </title>
+    <style type="text/css">
+        TABLE{font-size:9pt; line-height:160%;}
+        A {color:blueline-height:160% background-color:#E0EFFE}
+        INPUT{font-size:9pt}
+        SELECT{font-size:9pt}
+        .emp{background-color:#FDEAFE}
+        .white{background-color:#FFFFFF color:black border:1x solid white font-size: 9pt}
+    </style>
+    <script language="javascript">
+
+        function _submit()
+        {
+            var vfrm = document.kfrm;
+
+            if (parseInt(document.KSPayAuthForm.amount.value,10) < 50000 && parseInt(document.KSPayInputForm.installment.value,10) > 0)
+            {
+                alert("5만원이상 할부가능");
+                return;
+            }
+
+            if(document.KSPayInputForm.ptype[0].checked)
+            {
+                vfrm.paymenttype.value=document.KSPayInputForm.ptype[0].value;
+            }else{
+                vfrm.paymenttype.value=document.KSPayInputForm.ptype[1].value;
+            }
+
+            //카카오는 아무거나 써도 똑같음
+            vfrm.paymenttype.value = "CARD";
+            vfrm.installment.value = "00";
+
+            var width_	= 750;
+            var height_	= 850;
+            var left_	= screen.width;
+            var top_	= screen.height;
+
+            left_ = left_/2 - (width_/2);
+            top_ = top_/2 - (height_/2);
+
+            op = window.open("",'AuthFrmUp',
+                'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+
+            if (op == null)
+            {
+                alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+                return false;
+            }
+
+            vfrm.target = 'AuthFrmUp';
+            vfrm.acceptCharset = "euc-kr";
+            vfrm.action = "https://kspay.ksnet.to/store/PAY_PROXY/kakao/kakao_rs_o1.jsp" ;
+            vfrm.submit();
+
+
+        }
+
+        function getLocalUrl(mypage)
+        {
+            var myloc = location.href;
+            return myloc.substring(0, myloc.lastIndexOf('/')) + '/' + mypage;
+        }
+
+        function recvResult(proceed,tid ,cid,token )
+        {
+            var frm = document.KSPayAuthForm;
+
+            if ( token != "" && proceed == "true")
+            {
+                frm.tid.value=tid;
+                frm.cid.value=cid;
+                frm.pg_token.value=token;
+                submitAuth();
+                return;
+            }else{
+                //취소처리부분.
+                op_check = false ;
+                return;
+            }
+        }
+
+        function submitAuth()
+        {
+            var frm = document.KSPayAuthForm;
+            frm.action = "KSPayCreditPostK";
+            frm.submit();
+        }
+    </script>
+</head>
+<body topmargin=0 leftmargin=0 marginwidth=0 marginheight=0 onFocus="" >
+
+<!--<form id="KSPayAuthForm" method="post">-->
+<!--    &lt;!&ndash;기본&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&ndash;&gt;-->
+<!--    <input type="hidden" name="storeid"    			value="<%=storeid%>">-->
+<!--    &lt;!&ndash;일반신용카드&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&ndash;&gt;-->
+<!--    <input type="hidden" name="email"					  value="<%=email%>">-->
+<!--    <input type="hidden" name="phoneno"				  value="<%=phoneno%>">-->
+<!--    <input type="hidden" name="ordernumber"			value="<%=ordernumber%>">-->
+<!--    <input type="hidden" name="ordername"				value="<%=ordername%>">-->
+<!--    <input type="hidden" name="goodname"				value="<%=goodname%>">-->
+<!--    <input type="hidden" name="amount"				  value="<%=amount%>">-->
+<!--    <input type="hidden" name="currencytype"    value="<%=currencytype%>">-->
+<!--    <input type="hidden" name="tid"	            value="">                   &lt;!&ndash; 카카오페이 TID &ndash;&gt;-->
+<!--    <input type="hidden" name="cid"	            value="">-->
+<!--    <input type="hidden" name="pg_token"        value="">                   &lt;!&ndash; 카카오페이 결제승인 토큰 &ndash;&gt;-->
+<!--</form>-->
+<form name="KSPayInputForm" style="display: none;">
+    <table border=0 width=0>
+        <tr>
+            <td align=center>
+                <table width=320 cellspacing=0 cellpadding=0 border=0 bgcolor=#4F9AFF>
+                    <tr>
+                        <td>
+                            <table width=100% cellspacing=1 cellpadding=2 border=0>
+                                <tr bgcolor=#4F9AFF height=25>
+                                    <td align=left><font color="#FFFFFF">
+                                        카카오페이 기본 거래정보
+                                    </font></td>
+                                </tr>
+                                <tr bgcolor=#FFFFFF>
+                                    <td valign=top>
+                                        <table width=100% cellspacing=0 cellpadding=2 border=0>
+                                            <tr>
+                                                <td align=left>
+                                                    <table>
+                                                        <tr>
+                                                            <td>상품명 :</td>
+                                                            <td id="goodname"><%=goodname%></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>금액 :</td>
+                                                            <td id="amount"><%=amount%></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>결제수단</td>
+                                                            <td>
+                                                                <INPUT TYPE="radio" NAME="ptype" value="CARD" checked>카드<br>
+                                                                <INPUT TYPE="radio" NAME="ptype" value="MONEY">머니
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>할부 </td>
+                                                            <td>
+                                                                <select name="installment" id="installment">
+                                                                    <!--                                                                    <option value='00' selected>일시불</option>-->
+                                                                    <!--                                                                    <option value='01' >2개월  </option>-->
+                                                                    <!--                                                                    <option value='03' >3개월  </option>-->
+                                                                    <!--                                                                    <option value='04' >4개월  </option>-->
+                                                                    <!--                                                                    <option value='05' >5개월  </option>-->
+                                                                    <!--                                                                    <option value='06' >6개월  </option>-->
+                                                                    <!--                                                                    <option value='07' >7개월  </option>-->
+                                                                    <!--                                                                    <option value='08' >08개월 </option>-->
+                                                                    <!--                                                                    <option value='09' >09개월 </option>-->
+                                                                    <!--                                                                    <option value='10' >10개월 </option>-->
+                                                                    <!--                                                                    <option value='11' >11개월 </option>-->
+                                                                    <!--                                                                    <option value='12' >12개월 </option>-->
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr><td colspan=2 align=center><HR></td></tr>
+
+                                                        <tr>
+                                                            <td colspan=2>"다음"버튼을 클릭하시고 팝업창의 안내에 따라 진행하세요.</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan=2 align=center>
+                                                                <input type=button onclick="javascript:_submit(this.form);" value="인증">
+                                                            </td>
+                                                        </tr>
+
+                                                    </table></tr></table></td></tr></table></td></tr>
+                </table></td></tr></table></td></tr></table></table>
+</form>
+<!--<div id="DIV_KAKAOFRAME" style="border-width:0px;" >-->
+<!--    <IFRAME id="KAKAO_IFRM" name="KAKAO_IFRM" width=100% height="500px" scrolling=no frameborder="0" src="blank"></IFRAME>-->
+<!--</div>-->
+<!--<form name="kfrm" target="_blank" method="post">-->
+<!--    <INPUT type="hidden" name="returnUrl"      value="" >                 &lt;!&ndash; returnUrl &ndash;&gt;-->
+<!--    <INPUT type="hidden" id="storeid" name="storeid"        value="<%=storeid%>" >     &lt;!&ndash; PG 상점아이디 &ndash;&gt;-->
+<!--    <INPUT type="hidden" id="ordername" name="ordername"      value="<%=ordername%>" >   &lt;!&ndash; 주문자명 &ndash;&gt;-->
+<!--    <INPUT type="hidden" name="ordernumber"    value="<%=ordernumber%>" > &lt;!&ndash; 주문번호 &ndash;&gt;-->
+<!--    <INPUT type="hidden" name="amount"         value="<%=amount%>" >      &lt;!&ndash; 총승인금액 &ndash;&gt;-->
+<!--    <INPUT type="hidden" name="goodname"       value="<%=goodname%>" >    &lt;!&ndash; 상품명 &ndash;&gt;-->
+<!--    <INPUT type="hidden" name="email"          value="<%=email%>" >       &lt;!&ndash; email &ndash;&gt;-->
+<!--    <INPUT type="hidden" name="phoneno"        value="<%=phoneno%>" >     &lt;!&ndash; 휴대폰번호 &ndash;&gt;-->
+<!--    <INPUT type="hidden" name="paymenttype"    value="" >                 &lt;!&ndash; 결제수단 CARD,MONEY 없는경우 모두노출&ndash;&gt;-->
+<!--    <INPUT type="hidden" name="installment"    value="" >                 &lt;!&ndash; 카드할부개월수 0~12(개월)사이의 값 &ndash;&gt;-->
+<!--    <INPUT type="hidden" name="availcard"      value="11,06,04,14,12,03,34,41,43" > &lt;!&ndash; (없을경우 전체),   11: 비씨 , 06: 국민, 34:하나, 12:삼성, 14: 신한, 04:현대, 03: 롯데,41: 농협, 43: 씨티   &ndash;&gt;-->
+<!--    <INPUT type="hidden" name="processtype"    value="1" >                &lt;!&ndash; PC:1, mobile : 2 &ndash;&gt;-->
+<!--    <input type="hidden" name="store_ceo_name" value="KSNET" >            &lt;!&ndash; 가맹점 상호명 (필수)&ndash;&gt;-->
+<!--    <input type="hidden" name="store_phoneno"  value="01012341234" >      &lt;!&ndash; 가맹점 연락처 (필수)&ndash;&gt;-->
+<!--    <input type="hidden" name="store_address"  value="테헤란로 130길 9" >    &lt;!&ndash; 가맹점 주소  (필수)&ndash;&gt;-->
+<!--</form>-->
+<script src="/static/js/kakaoMobile.js?v=1"></script>
+<div id="iframe-payment-containner">
+    <iframe id="iframe-payment" style="width:100%;height:100%;background-color:transparent;border-radius: 6px;display:none;" frameborder="0" allowtransparency="true" src=""></iframe>
+</div>
+</body>
+</html>

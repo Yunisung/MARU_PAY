@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,9 @@ public class ProcPaycoMobileReturn extends Proc{
 
         //모바일은 request에서 안보내준다. 그래서 DB에서 가지고 온다.
 
+        //redirecurl 사용
+        String redirectUrl = reqObj.get("redirecturl").toString();
+
         //DB에 있는 authForm을 Payco클래스로 변환
         //PAYCO클래스 세팅
         String formString = reqObj.get("form").toString();
@@ -90,14 +94,24 @@ public class ProcPaycoMobileReturn extends Proc{
 
             //통신
             ConnentKsnet(payco, paycoResult);
+            logger.info("[PAYCO RESULT] : " + paycoResult.toString());
             //통신후 처리
-            //logger.info("result : " + paycoResult.rStatus);
-            logger.info("[KSNET CONNECT] : " + paycoResult.toString());
+            //이중승인 방지
+            SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
+            if(trxCheckMap != null) {
+                logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
+                response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
+//                TemplateUtil.simplePayMobileResultPage(rc, paycoResult,"payco", redirectUrl, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+                TemplateUtil.simplePayResultPage(rc, paycoResult, "paycoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+                return;
+            }
+
             setIOMap(paycoResult);
             setTrx(ioMap, payco);
 
             //결과화면 처리
-            TemplateUtil.paycoPayResultPage(rc, paycoResult);
+            TemplateUtil.simplePayResultPage(rc, paycoResult, "paycoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+//            TemplateUtil.simplePayMobileResultPage(rc, paycoResult,"payco", redirectUrl, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 
         } else {
             SimplePayResult paycoResult = new SimplePayResult();
@@ -106,7 +120,8 @@ public class ProcPaycoMobileReturn extends Proc{
             paycoResult.rMessage2 = "카카오페이 인증에 실패했습니다";
 
             //결과화면 처리
-            TemplateUtil.paycoPayResultPage(rc, paycoResult);
+            TemplateUtil.simplePayResultPage(rc, paycoResult, "paycoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+//            TemplateUtil.simplePayMobileResultPage(rc, paycoResult,"payco", redirectUrl, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 
@@ -114,12 +129,7 @@ public class ProcPaycoMobileReturn extends Proc{
     }
 
     public void setIOMap(SimplePayResult res) {
-        //이중승인 방지
-        SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
-        if(trxCheckMap != null) {
-            logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
-            return;
-        }
+
 
         ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
 
@@ -493,6 +503,14 @@ public class ProcPaycoMobileReturn extends Proc{
         } catch (UnsupportedEncodingException e) {
         } // Exception
         return "";
+    }
+
+    private String URLEncode(String s) {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (Exception e) {
+            return s;
+        }
     }
 
     private String URLDecode(Object obj) {

@@ -31,9 +31,7 @@ public class Kakao {
         this.ordernumber = ordernumber;
     }
 
-    public String getOrdername() {
-        return ordername;
-    }
+    public String getOrdername() { return ordername; }
     public void setOrdername(String ordername) {
         this.ordername = ordername;
     }
@@ -80,18 +78,22 @@ public class Kakao {
     public String getProceed() {
         return proceed;
     }
+    public void setProceed(String proceed) { this.proceed = proceed; }
 
     public String getTid() {
         return tid;
     }
+    public void setTid(String tid) { this.tid = tid; }
 
     public String getCid() {
         return cid;
     }
+    public void setCid(String cid) { this.cid = cid; }
 
     public String getPg_token() {
         return pg_token;
     }
+    public void setPg_token(String pg_token) { this.pg_token = pg_token; }
 
     public String toString() {
         return "Kakao {" +

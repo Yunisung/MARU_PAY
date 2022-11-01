@@ -11,7 +11,8 @@ public class Vact {
 	//GET 으로 발급가능한 가상계좌 리스트 요청할때 null 이면 전체, 그외는 지정된 은행 
 	public List<String> banks	= null;	 
 	public List<VactBank> vacts = null;
-	
+	//PYS : 가상계좌 인증전에 임시계좌로 세팅된 가맹점은 1개의 가상계좌만 발급함.
+	public VactBank vactBank = null;
 
 	//OPEN 관련 사항
 	public String trackId		= null;	//주문번호
@@ -22,7 +23,8 @@ public class Vact {
 	public String holderName	= null;	//예금주
 	public String udf1			= null;	//가맹점 정의영역1
 	public String udf2			= null;	//가맹점 정의영역2
-	
+	public String accountPretty = null; //계좌번호 pretty
+	public String companyName 	= null; //가상계좌 예금주 이름
 	
 	//OPEN 응답 추가 영역
 	public String issueId		= null;
@@ -44,8 +46,8 @@ public class Vact {
 	public String identity			= null;
 	public String phoneNo			= null;
 	
-	public String authAccount		= null;
-	public String authBankCd		= null;
+	public String authAccount		= null; //광원에서 안보내줌
+	public String authBankCd		= null; //광원에서 안보내줌
 	public String bankName			= null;
 	
 	public Vact() {

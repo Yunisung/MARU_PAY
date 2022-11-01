@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <meta charset="utf-8">
+    <title>CREDITOP LPAY 간편결제</title>
+    <style type="text/css">
+        TABLE{font-size:9pt; line-height:160%;}
+        A {color:blueline-height:160% background-color:#E0EFFE}
+        INPUT{font-size:9pt}
+        SELECT{font-size:9pt}
+        .emp{background-color:#FDEAFE}
+        .white{background-color:#FFFFFF color:black border:1x solid white font-size: 9pt}
+    </style>
+</head>
+<script type="text/javascript">
+    function submitAuth(_frm)
+    {
+        var lpay_frm  = document.lpayForm;
+
+        var width_	= 500;
+        var height_	= 518;
+        var left_	= screen.width;
+        var top_	= screen.height;
+
+        left_ = left_/2 - (width_/2);
+        top_ = top_/2 - (height_/2);
+
+        op = window.open("",'AuthFrmUp',
+            'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+
+        if (op == null)
+        {
+            alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+            return false;
+        }
+
+        var call_url = "https://kspay.ksnet.to/store/PAY_PROXY/lpay/lpayp.jsp";
+
+        lpay_frm.target = 'AuthFrmUp';
+        lpay_frm.action = call_url;
+        lpay_frm.submit();
+    }
+
+</script>
+<body onload="" topmargin=0 leftmargin=0 marginwidth=0 marginheight=0 >
+<script src="/static/js/lpay.js?v=1"></script>
+<div id="iframe-payment-containner">
+    <iframe id="iframe-payment" style="width:100%;height:100%;background-color:transparent;border-radius: 6px;display:none;" frameborder="0" allowtransparency="true" src=""></iframe>
+</div>
+</body>
+</html>

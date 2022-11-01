@@ -3,7 +3,10 @@
     "dbType": "MYSQL",
     "poolName": "MARU_PAY",
     "driver": "org.mariadb.jdbc.Driver",
-    "jdbcUrl": "jdbc:mariadb://127.0.0.1:3306/cp_maru_test",
+//    "jdbcUrl": "jdbc:mariadb://10.100.200.10:3306/CP_MARU",
+//    "userName": "bkwinners",
+//    "passWord": "2021bk07&*(db2",
+    "jdbcUrl": "jdbc:mariadb://127.0.0.1:3306/CP_MARU_TEST",
     "userName": "root",
     "passWord": "1234",
     "maxConnection": 20,
@@ -11,6 +14,7 @@
     "partitionCount": 1
   },
   "vertx": {
+//    "host": "10.100.200.10",
     "host": "127.0.0.1",
     "port": 10002,
     "idleTimeout": 120000,
@@ -19,7 +23,8 @@
     "tcpKeepAlive": false,
     "soLinger": 0,
     "module": "MARU_PAY",
-    "webroot": "C:/MARUGIT/MARU_PAY/war",
+//    "webroot": "../war",
+    "webroot": "C:/MARU_GITHUB/MARU_PAY/war",
     "disableCaching":true,
     "ssl": {
       "ssl": false,

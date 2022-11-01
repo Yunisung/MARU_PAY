@@ -17,6 +17,8 @@ public class Request {
 	public Transfer transfer = null;
 	public ARS ars			= null;
 
+	public Result result	= null;
+
 	public Request() {
 	}
 }
