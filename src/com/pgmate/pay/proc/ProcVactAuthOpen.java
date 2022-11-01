@@ -1,5 +1,6 @@
 package com.pgmate.pay.proc;
 
+import com.pgmate.lib.conf.ConfigLoader;
 import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
@@ -18,6 +19,12 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.nio.charset.Charset;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -34,6 +41,13 @@ public class ProcVactAuthOpen extends Proc{
     private String issueId = "";
     private long fee = 0;
     private long orgFee = 0;
+
+    private String companyCd = "";
+    private String bankCd = "";
+
+    private int timeout = 0;
+    private int port = 10006;
+    private String host = "";
 
     public ProcVactAuthOpen() {
 
@@ -61,6 +75,7 @@ public class ProcVactAuthOpen extends Proc{
                     SharedMap<String, Object> dtlMap = trxDAO.accountDtlData(request.vact.account);
 
                     if(dtlMap != null) {
+                        logger.info("dtlmap is Null");
                         if(!dtlMap.getString("mchtId").equals(mchtMap.getString("mchtId"))) {
                             response.result = ResultUtil.getResult("9999", "가상계좌오류","요청하신 가맹점의 가상계좌가 아닙니다.");
                         }else if(!"대기".equals(dtlMap.getString("status"))) {
@@ -71,6 +86,7 @@ public class ProcVactAuthOpen extends Proc{
                             }
                         }
                     }else{
+                        logger.info("dtlmap is not Null");
                         response.result = ResultUtil.getResult("9999", "가상계좌없음","존재하지않는 가상계좌 입니다.");
                     }
 
@@ -102,6 +118,21 @@ public class ProcVactAuthOpen extends Proc{
                     vact.put("expireAt", CommonUtil.getOpDate(Calendar.DATE, expireSet+1, CommonUtil.getCurrentDate("yyyyMMdd"))+"00");
                 }
             }
+
+            //하이픈 출금계좌정보 등록
+            withdrawReg(request);
+            String mchtId = request.vact.mchtId;
+            String bankCd = request.vact.bankCd;
+            String account = request.vact.account;
+            String withdrawBankCd = request.vact.withdrawBankCd;
+            String withdrawAccount = request.vact.withdrawAccount;
+            String name = request.vact.name;
+            String regType = request.vact.regType;
+            String identity = request.vact.identity;
+            String phoneNo = request.vact.phoneNo;
+            String trxType = request.vact.trxType;
+            logger.info("request 출금계좌 정보 확인 [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]",
+                        mchtId, bankCd, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo, trxType);
 
             //원래는 여기서 인증과정을 거침
             //앞에서 하고 들어오니 DB저장만 하고 패스
@@ -289,9 +320,208 @@ public class ProcVactAuthOpen extends Proc{
             return;
         }
 
+        SharedMap<String, Object> accountData = trxDAO.vactAccountData(request.vact.account);
+
+        if(accountData.isNullOrSpace("account")) {
+            response.result = ResultUtil.getResult("9999", "가상계좌없음","등록되어 있지않은 가상계좌번호 입니다.");return;
+        }else {
+            companyCd = accountData.getString("companyCd");
+            bankCd = accountData.getString("bankCd");
+        }
+
         //검증끝
         //원래 코드는 인증을 해야되지만 앞에서 하고 오니 패스
 
+    }
+
+    //하이픈 출금계좌정보 등록
+    //MARU_FIRM -> 하이픈 서버 거쳐 등록
+    private void withdrawReg(Request request) {
+        Firm firm = FirmLoader.getConfig();
+        FirmBean firmBean = new FirmBean();
+        String mchtId = request.vact.mchtId;
+        String bankCd = request.vact.bankCd;
+        String account = request.vact.account;
+        String withdrawBankCd = request.vact.withdrawBankCd;
+        String withdrawAccount = request.vact.withdrawAccount;
+        String name = request.vact.name;
+        String regType = request.vact.regType;
+        String identity = request.vact.identity;
+        String phoneNo = request.vact.phoneNo;
+        String trxType = request.vact.trxType;
+        String type = "등록";
+
+        if("2".equals(trxType)) {
+            type = "변경";
+        }
+
+        host = firm.firmServer;
+        timeout = firm.firmTimeout;
+
+        String dupleWithdraw = trxDAO.getDupleWithdraw(mchtId, bankCd, withdrawBankCd, withdrawAccount);
+        boolean blackList = trxDAO.blackListCheck(withdrawBankCd, withdrawAccount);
+
+        if(blackList) {
+            response.result = ResultUtil.getResult("9999", "계좌오류","해당 출금계좌는 등록하실 수 없습니다. 관리자에 문의 바랍니다");
+
+            logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]",withdrawBankCd, withdrawAccount);
+
+            sendResponse();
+            return;
+        }
+
+        if("0".equals(trxType)) {
+            if(!CommonUtil.isNullOrSpace(dupleWithdraw)) {
+                response.result = ResultUtil.getResult("9999", "계좌오류", "기등록 출금계좌 입니다.");
+
+                logger.info("기등록 출금계좌 입니다. [{}]", dupleWithdraw);
+
+                sendResponse();
+                return;
+            }
+        } else if("2".equals(trxType)) {
+            String status = trxDAO.vactAccountDtlData(account);
+
+            if(!"발행".equals(status)) {
+                response.result = ResultUtil.getResult("9999", "계좌상태오류","만료된 가상계좌 입니다.");
+                return;
+            }
+
+            if(CommonUtil.isNullOrSpace(issueId)) {
+                response.result = ResultUtil.getResult("9999", "계좌오류","등록되어있지않은 계좌입니다.");
+
+                logger.info("등록되어있지않은 계좌입니다. [{}]", account);
+
+                sendResponse();
+                return;
+            }
+
+            if(!CommonUtil.isNullOrSpace(dupleWithdraw)) {
+                if(!account.equals(dupleWithdraw)) {
+                    response.result = ResultUtil.getResult("9999", "계좌오류","기등록 출금계좌 입니다.");
+
+                    logger.info("기등록 출금계좌 입니다. [{}]", dupleWithdraw);
+
+                    sendResponse();
+                    return;
+                }
+            }
+        }
+
+        firmBean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
+                name, regType, identity, phoneNo, bankCd);
+
+        if(!"0000".equals(firmBean.resultCd)) {
+            response.result = ResultUtil.getResult(firmBean.resultCd, "예금주 실명조회 오류",firmBean.resultMsg);
+
+            logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
+
+            sendResponse();
+            return;
+        } else {
+            if(!request.vact.holderName.trim().equals(firmBean.data.getString("name"))) {
+                logger.info("API인증 예금주 실명조회 비교오류 [{}][{}][{}][{}][{}]", request.vact.authBankCd, request.vact.authAccount, request.vact.identity, request.vact.holderName.trim(), firmBean.data.getString("name"));
+
+                response.result = ResultUtil.getResult("9999", "실명오류", "입력한이름과 고객실명이 다릅니다.");return;
+            }
+        }
+    }
+
+
+    public FirmBean vactReg(String companyCd, String trxType, String account, String withdrawBankCd, String withdrawAccount,
+                            String name, String regType, String identity, String phoneNo, String bankCd){
+        FirmBean firmBean = new FirmBean();
+
+        firmBean.bankCd 	= bankCd;
+        firmBean.msgType 	= "0900400";
+        firmBean.userId		= "SYSTEM";
+        firmBean.data.put("companyCd",companyCd);
+        firmBean.data.put("virtualAccount",account);
+        firmBean.data.put("withdrawBankCd",withdrawBankCd);
+        firmBean.data.put("withdrawAccount",withdrawAccount);
+
+        if("089".equals(firmBean.bankCd)) {
+            //케이뱅크일 경우
+            if("0".equals(trxType)) {
+                firmBean.data.put("trxType","1");
+                firmBean.data.put("customerName",name);
+            }else if("1".equals(trxType)) {
+                firmBean.data.put("trxType","2");
+            }
+        }
+
+        firmBean = comm(firmBean);
+
+        logger.info("vactReg 응답 : [{}][{}]",firmBean.resultCd,firmBean.resultMsg);
+        logger.info("vactReg data : [{}]",GsonUtil.toJson(firmBean.data));
+
+        return firmBean;
+    }
+
+    /**
+     * KSNET FIRM 서버와 통신
+     * @param firmBean
+     * @return
+     */
+    public FirmBean comm(FirmBean firmBean){
+        Socket socket = null;
+        OutputStream output = null;
+        InputStream input = null;
+        String reqJson = GsonUtil.toJson(firmBean);
+        String resJson = "";
+        long time = System.currentTimeMillis();
+
+        try{
+            socket = new Socket(host, port);
+            socket.setSoTimeout(timeout);
+
+            output = socket.getOutputStream();
+            output.write(reqJson.getBytes(Charset.forName("MS949")));
+            output.flush();
+
+            input = socket.getInputStream();
+
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            int bcount = 0;
+            byte[] buf = new byte[2048];
+            int read_retry_count = 0;
+            while(true) {
+                int n = input.read(buf);
+                if ( n > 0 ) { bcount += n; bout.write(buf,0,n); }
+                else if (n == -1) break;
+                else  { // n == 0
+                    if (++read_retry_count >= 5)
+                        throw new IOException("inputstream-read-retry-count(5) exceed !");
+                }
+                if(input.available() == 0){ break; }
+            }
+            bout.flush();
+            byte[] res = bout.toByteArray();
+            bout.close();
+            resJson = new String(res,"MS949");
+            if(!CommonUtil.isNullOrSpace(resJson)) {
+                firmBean = (FirmBean)GsonUtil.fromJson(resJson, FirmBean.class);
+            }else {
+                throw new Exception("서버응답없음");
+            }
+        } catch(Exception e){
+            firmBean.resultCd = "XXXX";
+            firmBean.resultMsg = "펌뱅킹 시스템과의 통신장애 :"+e.getMessage();
+            logger.info(firmBean.resultMsg);
+        }finally{
+            logger.info("-> FIRM : [{}]",reqJson);
+            logger.info("<- FIRM : [{}],{}",resJson,(System.currentTimeMillis()-time));
+
+            try{
+                if(input != null){ input.close();}
+                if(output != null){ output.close();}
+                if(socket != null){ socket.close();}
+            }catch(Exception ex){
+
+            }
+        }
+
+        return firmBean;
     }
 
     /**
