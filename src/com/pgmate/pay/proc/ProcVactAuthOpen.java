@@ -46,7 +46,7 @@ public class ProcVactAuthOpen extends Proc{
     private String bankCd = "";
 
     private int timeout = 0;
-    private int port = 10006;
+    private int port = 0;
     private String host = "";
 
     public ProcVactAuthOpen() {
@@ -75,7 +75,7 @@ public class ProcVactAuthOpen extends Proc{
                     SharedMap<String, Object> dtlMap = trxDAO.accountDtlData(request.vact.account);
 
                     if(dtlMap != null) {
-                        logger.info("dtlmap is Null");
+                        logger.info("dtlmap is not Null");
                         if(!dtlMap.getString("mchtId").equals(mchtMap.getString("mchtId"))) {
                             response.result = ResultUtil.getResult("9999", "가상계좌오류","요청하신 가맹점의 가상계좌가 아닙니다.");
                         }else if(!"대기".equals(dtlMap.getString("status"))) {
@@ -86,7 +86,7 @@ public class ProcVactAuthOpen extends Proc{
                             }
                         }
                     }else{
-                        logger.info("dtlmap is not Null");
+                        logger.info("dtlmap is Null");
                         response.result = ResultUtil.getResult("9999", "가상계좌없음","존재하지않는 가상계좌 입니다.");
                     }
 
@@ -119,20 +119,27 @@ public class ProcVactAuthOpen extends Proc{
                 }
             }
 
-            //하이픈 출금계좌정보 등록
-            withdrawReg(request);
-            String mchtId = request.vact.mchtId;
+            String mchtId = mchtMap.getString("mchtId");
             String bankCd = request.vact.bankCd;
             String account = request.vact.account;
-            String withdrawBankCd = request.vact.withdrawBankCd;
-            String withdrawAccount = request.vact.withdrawAccount;
-            String name = request.vact.name;
+            String withdrawBankCd = request.auth.bankCd;
+            String withdrawAccount = request.auth.account;
+            String name = request.vact.holderName;
             String regType = request.vact.regType;
             String identity = request.vact.identity;
             String phoneNo = request.vact.phoneNo;
             String trxType = request.vact.trxType;
-            logger.info("request 출금계좌 정보 확인 [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]",
-                        mchtId, bankCd, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo, trxType);
+
+            logger.info("request 출금계좌 정보 확인 [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]",
+                    mchtId, bankCd, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo, trxType, host);
+
+            //하이픈 출금계좌정보 등록
+            withdrawReg(request);
+
+            if(!"0000".equals(response.result.resultCd)) {
+                sendResponse();
+                return;
+            }
 
             //원래는 여기서 인증과정을 거침
             //앞에서 하고 들어오니 DB저장만 하고 패스
@@ -339,12 +346,12 @@ public class ProcVactAuthOpen extends Proc{
     private void withdrawReg(Request request) {
         Firm firm = FirmLoader.getConfig();
         FirmBean firmBean = new FirmBean();
-        String mchtId = request.vact.mchtId;
+        String mchtId = mchtMap.getString("mchtId");
         String bankCd = request.vact.bankCd;
         String account = request.vact.account;
-        String withdrawBankCd = request.vact.withdrawBankCd;
-        String withdrawAccount = request.vact.withdrawAccount;
-        String name = request.vact.name;
+        String withdrawBankCd = request.auth.bankCd;
+        String withdrawAccount = request.auth.account;
+        String name = request.vact.holderName;
         String regType = request.vact.regType;
         String identity = request.vact.identity;
         String phoneNo = request.vact.phoneNo;
@@ -357,6 +364,10 @@ public class ProcVactAuthOpen extends Proc{
 
         host = firm.firmServer;
         timeout = firm.firmTimeout;
+        port = firm.firmPort;
+
+        logger.info("request 출금계좌 정보 확인 [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]",
+                mchtId, bankCd, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo, trxType, host);
 
         String dupleWithdraw = trxDAO.getDupleWithdraw(mchtId, bankCd, withdrawBankCd, withdrawAccount);
         boolean blackList = trxDAO.blackListCheck(withdrawBankCd, withdrawAccount);
@@ -435,7 +446,8 @@ public class ProcVactAuthOpen extends Proc{
         firmBean.bankCd 	= bankCd;
         firmBean.msgType 	= "0900400";
         firmBean.userId		= "SYSTEM";
-        firmBean.data.put("companyCd",companyCd);
+//        firmBean.data.put("companyCd",companyCd);
+        firmBean.data.put("companyCd","");
         firmBean.data.put("virtualAccount",account);
         firmBean.data.put("withdrawBankCd",withdrawBankCd);
         firmBean.data.put("withdrawAccount",withdrawAccount);
@@ -472,11 +484,15 @@ public class ProcVactAuthOpen extends Proc{
         long time = System.currentTimeMillis();
 
         try{
-            socket = new Socket(host, port);
-            socket.setSoTimeout(timeout);
+//            socket = new Socket(host, port);
+//            socket.setSoTimeout(timeout);
+            socket = new Socket("10.100.200.10", 10006);
+            socket.setSoTimeout(70000);
 
             output = socket.getOutputStream();
-            output.write(reqJson.getBytes(Charset.forName("MS949")));
+//            output.write(reqJson.getBytes(Charset.forName("MS949")));
+//            output.write(reqJson.getBytes(Charset.forName("UTF-8")));
+            output.write(reqJson.getBytes(Charset.forName("EUC-KR")));
             output.flush();
 
             input = socket.getInputStream();
@@ -498,7 +514,9 @@ public class ProcVactAuthOpen extends Proc{
             bout.flush();
             byte[] res = bout.toByteArray();
             bout.close();
-            resJson = new String(res,"MS949");
+//            resJson = new String(res,"MS949");
+//            resJson = new String(res,"UTF-8");
+            resJson = new String(res,"EUC-KR");
             if(!CommonUtil.isNullOrSpace(resJson)) {
                 firmBean = (FirmBean)GsonUtil.fromJson(resJson, FirmBean.class);
             }else {
