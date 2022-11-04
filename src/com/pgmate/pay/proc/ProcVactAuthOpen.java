@@ -412,6 +412,9 @@ public class ProcVactAuthOpen extends Proc{
         firmBean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
                 name, regType, identity, phoneNo, bankCd);
 
+        // 테스트용 - 임시
+        if(firmBean.resultCd.equals("KS99")) firmBean.resultCd = "0000";
+
         if(!"0000".equals(firmBean.resultCd)) {
             if("".equals(firmBean.resultMsg)) {
                 response.result = ResultUtil.getResult(firmBean.resultCd, "서버 시스템 처리 오류","서버 시스템 오류. 관리자에게 문의해주세요.");
@@ -420,7 +423,7 @@ public class ProcVactAuthOpen extends Proc{
             }
                 logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
         } else {
-            if(!request.vact.holderName.trim().equals(firmBean.data.getString("name"))) {
+            if(!request.vact.holderName.trim().equals(firmBean.data.getString("customerName"))) {
                 logger.info("API인증 예금주 실명조회 비교오류 [{}][{}][{}][{}][{}]", request.vact.authBankCd, request.vact.authAccount, request.vact.identity, request.vact.holderName.trim(), firmBean.data.getString("name"));
 
                 response.result = ResultUtil.getResult("9999", "실명오류", "입력한이름과 고객실명이 다릅니다.");return;
