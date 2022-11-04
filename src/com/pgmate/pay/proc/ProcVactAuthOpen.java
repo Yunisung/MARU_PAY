@@ -364,7 +364,6 @@ public class ProcVactAuthOpen extends Proc{
 
             logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]",withdrawBankCd, withdrawAccount);
 
-            sendResponse();
             return;
         }
 
@@ -374,7 +373,6 @@ public class ProcVactAuthOpen extends Proc{
 
                 logger.info("기등록 출금계좌 입니다. [{}]", dupleWithdraw);
 
-                sendResponse();
                 return;
             }
         /*} else if("2".equals(trxType)) {
@@ -407,6 +405,7 @@ public class ProcVactAuthOpen extends Proc{
         //trxType!='0' => 출금계좌 등록이 아닐 경우 리턴 처리 / 출금계좌 해지 처리는 다른 클래스에서 하게
         } else {
             response.result = ResultUtil.getResult("9999", "요청오류", "출금계좌 등록이 아닙니다.");
+            return;
         }
 
         firmBean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
