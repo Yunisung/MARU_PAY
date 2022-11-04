@@ -3362,7 +3362,7 @@ public class TrxDAO extends DAO {
 	 * @param withdrawAccount
 	 * @return
 	 */
-	public String getDupleWithdraw(String mchtId, String bankCd, String withdrawBankCd, String withdrawAccount) {
+	public String getDupleWithdraw(String account, String mchtId, String bankCd, String withdrawBankCd, String withdrawAccount) {
 		String encAccnt = getAESEnc(withdrawAccount);
 		
 		super.setTable("PG_VACT_REG");
@@ -3371,8 +3371,9 @@ public class TrxDAO extends DAO {
 		super.addWhere("bankCd", bankCd, eq);
 		super.addWhere("withdrawBankCd", withdrawBankCd, eq);
 		super.addWhere("withdrawAccount", encAccnt, eq);
+		super.addWhere("account", account, eq);
 		super.setLimit(1);
-		
+
 		RecordSet rset = super.search();
 		super.initRecord();
 		return rset.getRowFirst().getString("account");
