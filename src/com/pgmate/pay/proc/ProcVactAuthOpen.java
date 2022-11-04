@@ -103,7 +103,7 @@ public class ProcVactAuthOpen extends Proc{
                 }
             } else {
                 //임시계좌 발행 로직
-                issueId = TrxDAO.getVactIssueId();
+                /*issueId = TrxDAO.getVactIssueId();
 
                 vact = new SharedMap<String,Object>();
                 vact.put("issueId", issueId);
@@ -116,10 +116,19 @@ public class ProcVactAuthOpen extends Proc{
                     vact.put("expireAt", CommonUtil.getOpDate(Calendar.YEAR, 1, CommonUtil.getCurrentDate("yyyyMMdd"))+"00");
                 }else{
                     vact.put("expireAt", CommonUtil.getOpDate(Calendar.DATE, expireSet+1, CommonUtil.getCurrentDate("yyyyMMdd"))+"00");
-                }
+                }*/
+                //임시계좌 발행 막기
+                response.result = ResultUtil.getResult("9999", "요청오류","영구계좌 등록만 가능합니다.");
+                sendResponse(); return;
             }
 
             // 공통 validation 처리 - 블랙리스트체크, 발급계좌체크, 인증10회인지 체크
+            regValid(request);
+
+            if(response.result != null) {
+                sendResponse();
+                return;
+            }
 
             //하이픈 출금계좌정보 등록
             withdrawReg(request);
@@ -167,7 +176,6 @@ public class ProcVactAuthOpen extends Proc{
             }
             sendResponse();
         }
-
 
         return;
     }
@@ -330,52 +338,23 @@ public class ProcVactAuthOpen extends Proc{
 
     }
 
-    //하이픈 출금계좌정보 등록
-    //MARU_FIRM -> 하이픈 서버 거쳐 등록
-    private void withdrawReg(Request request) {
-        Firm firm = FirmLoader.getConfig();
-        FirmBean firmBean = new FirmBean();
-        String mchtId = mchtMap.getString("mchtId");
-        String bankCd = request.vact.bankCd;
-        String account = request.vact.account;
-        String withdrawBankCd = request.auth.bankCd;
-        String withdrawAccount = request.auth.account;
-        String name = request.vact.holderName;
-        String regType = request.vact.regType;
-        String identity = request.vact.identity;
-        String phoneNo = request.vact.phoneNo;
-        String trxType = request.vact.trxType;
-        String type = "등록";
-
-        // trxType 기본값은 등록(0)
-        if(CommonUtil.isEmpty(trxType)) {
-            trxType = "0";
-            request.vact.trxType = "0";
-        }
-
-//        if("2".equals(trxType)) {
-//            type = "변경";
-//        }
-
-        host = firm.firmServer;
-        timeout = firm.firmTimeout;
-        port = firm.firmPort;
-
-        logger.info("request 출금계좌 정보 확인 [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]",
-                mchtId, bankCd, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo, trxType, host);
-
-        String dupleWithdraw = trxDAO.getDupleWithdraw(account, mchtId, bankCd, withdrawBankCd, withdrawAccount);
-        boolean blackList = trxDAO.blackListCheck(withdrawBankCd, withdrawAccount);
+    //출금계좌 유효성 검사
+    private void regValid(Request request) {
+        //블랙리스트 확인
+        boolean blackList = trxDAO.blackListCheck(request.auth.bankCd, request.auth.account);
 
         if(blackList) {
             response.result = ResultUtil.getResult("9999", "계좌오류","해당 출금계좌는 등록하실 수 없습니다. 관리자에 문의 바랍니다");
 
-            logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]",withdrawBankCd, withdrawAccount);
+            logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]",request.auth.bankCd, request.auth.account);
 
             return;
         }
 
-        if("0".equals(trxType)) {
+        //기등록 계좌 확인
+        String dupleWithdraw = trxDAO.getDupleWithdraw(request.vact.account, mchtMap.getString("mchtId"), request.vact.bankCd, request.auth.bankCd, request.auth.account);
+
+        if("0".equals(request.vact.trxType)) {
             if(!CommonUtil.isNullOrSpace(dupleWithdraw)) {
                 response.result = ResultUtil.getResult("9999", "계좌오류", "기등록 출금계좌 입니다.");
 
@@ -410,11 +389,56 @@ public class ProcVactAuthOpen extends Proc{
                     return;
                 }
             }*/
-        //trxType!='0' => 출금계좌 등록이 아닐 경우 리턴 처리 / 출금계좌 해지 처리는 다른 클래스에서 하게
+            //trxType!='0' => 출금계좌 등록이 아닐 경우 리턴 처리 / 출금계좌 해지 처리는 다른 클래스에서 하게
         } else {
-            response.result = ResultUtil.getResult("9999", "요청오류", "출금계좌 등록이 아닙니다.");
+            response.result = ResultUtil.getResult("9999", "요청오류", "출금계좌 등록요청이 아닙니다.");
             return;
         }
+
+        //인증횟수 확인
+        SharedMap<String, Object> vactAuthInfo = trxDAO.getVactAuthInfo(mchtMap.getString("mchtId"), request.vact.identity, request.vact.phoneNo);
+        if(vactAuthInfo.size() > 0) {
+            int totalCnt = (int)vactAuthInfo.getLong("authTotalCnt");
+            if(totalCnt >= 10) {
+                response.result = ResultUtil.getResult("9999", "계좌오류", "인증가능 횟수를 초과하였습니다.");
+                return;
+            }
+        }
+    }
+
+    //하이픈 출금계좌정보 등록
+    //MARU_FIRM -> 하이픈 서버 거쳐 등록
+    private void withdrawReg(Request request) {
+        Firm firm = FirmLoader.getConfig();
+        FirmBean firmBean = new FirmBean();
+        String mchtId = mchtMap.getString("mchtId");
+        String bankCd = request.vact.bankCd;
+        String account = request.vact.account;
+        String withdrawBankCd = request.auth.bankCd;
+        String withdrawAccount = request.auth.account;
+        String name = request.vact.holderName;
+        String regType = request.vact.regType;
+        String identity = request.vact.identity;
+        String phoneNo = request.vact.phoneNo;
+        String trxType = request.vact.trxType;
+        String type = "등록";
+
+        // trxType 기본값은 등록(0)
+        if(CommonUtil.isEmpty(trxType)) {
+            trxType = "0";
+            request.vact.trxType = "0";
+        }
+
+//        if("2".equals(trxType)) {
+//            type = "변경";
+//        }
+
+        host = firm.firmServer;
+        timeout = firm.firmTimeout;
+        port = firm.firmPort;
+
+        logger.info("request 출금계좌 정보 확인 [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]",
+                mchtId, bankCd, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo, trxType, host);
 
         firmBean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
                 name, regType, identity, phoneNo, bankCd);
@@ -437,7 +461,6 @@ public class ProcVactAuthOpen extends Proc{
             }
         }
     }
-
 
     public FirmBean vactReg(String companyCd, String trxType, String account, String withdrawBankCd, String withdrawAccount,
                             String name, String regType, String identity, String phoneNo, String bankCd){
@@ -584,8 +607,10 @@ public class ProcVactAuthOpen extends Proc{
                     request.vact.bankCd, request.vact.account, "");
 
             //출금계좌정보 등록 내역 추가
+            //HT_VACT_REG
             trxDAO.insertHtVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.vact.trxType, request.auth.bankCd, request.auth.account,
                     request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2, request.result.resultCd, request.result.resultMsg);
+            //PG_VACT_REG
             trxDAO.insertVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.auth.bankCd, request.auth.account,
                     request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2);
 
