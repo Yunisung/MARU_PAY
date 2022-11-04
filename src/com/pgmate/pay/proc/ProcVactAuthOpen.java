@@ -345,6 +345,11 @@ public class ProcVactAuthOpen extends Proc{
         String trxType = request.vact.trxType;
         String type = "등록";
 
+        // trxType 기본값은 등록(0)
+        if(CommonUtil.isEmpty(trxType)) {
+            trxType = "0";
+        }
+
 //        if("2".equals(trxType)) {
 //            type = "변경";
 //        }
