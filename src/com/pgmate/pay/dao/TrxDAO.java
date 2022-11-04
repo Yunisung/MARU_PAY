@@ -3312,7 +3312,8 @@ public class TrxDAO extends DAO {
 			super.initRecord();
 		}catch(Exception ex) {
 			ex.printStackTrace();
-			logger.error("insertHtVactReg Exception : {}", ex.getMessage());
+			//logger.error("insertHtVactReg Exception : {}", ex.getMessage());
+			logger.error("insertHtVactReg Exception : {}", ex);
 		}
 		
 		return insert;
