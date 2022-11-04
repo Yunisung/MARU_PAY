@@ -3351,8 +3351,27 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return result;
 	}
-	
-	
+
+	/**
+	 * 가상계좌 출금계좌 등록정보 삭제
+	 * @param mchtId	가맹점아이디
+	 * @param bankCd	가상계좌은행코드
+	 * @param account	가상계좌번호
+	 * @param regDay	등록일자
+	 */
+	public boolean deleteVactReg(String mchtId, String bankCd, String account, String regDay) {
+		super.setTable("PG_VACT_REG");
+		super.addWhere("mchtId", mchtId);
+		super.addWhere("bankCd", bankCd);
+		super.addWhere("account", account);
+		super.addWhere("regDay", regDay);
+
+		boolean deleted = super.delete();
+		super.initRecord();
+		logger.info("set deleteVactReg delete : [{}][{}][{}][{}][{}]", mchtId, bankCd, account, regDay, deleted);
+
+		return deleted;
+	}
 	
 	/**
 	 * 가상계좌 출금계좌 등록서비스에 이미 등록되어있는지 체크
