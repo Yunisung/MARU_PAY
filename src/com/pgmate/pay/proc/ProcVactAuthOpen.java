@@ -119,6 +119,8 @@ public class ProcVactAuthOpen extends Proc{
                 }
             }
 
+            // 공통 validation 처리 - 블랙리스트체크, 발급계좌체크, 인증10회인지 체크
+
             //하이픈 출금계좌정보 등록
             withdrawReg(request);
 
@@ -348,6 +350,7 @@ public class ProcVactAuthOpen extends Proc{
         // trxType 기본값은 등록(0)
         if(CommonUtil.isEmpty(trxType)) {
             trxType = "0";
+            request.vact.trxType = "0";
         }
 
 //        if("2".equals(trxType)) {
