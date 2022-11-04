@@ -1,10 +1,11 @@
-package com.pgmate.test;
+package com.pgmate.pay.proc;
 
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
-import com.pgmate.pay.bean.*;
+import com.pgmate.pay.bean.Pay;
+import com.pgmate.pay.bean.Request;
+import com.pgmate.pay.bean.Vact;
 import com.pgmate.pay.dao.TrxDAO;
-import com.pgmate.pay.proc.ProcWithdrawTrmn;
 import com.pgmate.pay.util.PAYUNIT;
 import org.junit.After;
 import org.junit.Before;
@@ -12,7 +13,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class ProcWithdrawTrmnTest {
 
