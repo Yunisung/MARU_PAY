@@ -113,7 +113,7 @@ public class VactRegV2 extends Proc {
                         mchtId, bankCd, trxType, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo);
 
                 issueId = trxDAO.getIssueId(account);
-                String dupleWithdraw = trxDAO.getDupleWithdraw(mchtId, bankCd, withdrawBankCd, withdrawAccount);
+                String dupleWithdraw = trxDAO.getDupleWithdraw(account, mchtId, bankCd, withdrawBankCd, withdrawAccount);
                 boolean blackList  = trxDAO.blackListCheck(withdrawBankCd, withdrawAccount);
 
                 if(blackList) {

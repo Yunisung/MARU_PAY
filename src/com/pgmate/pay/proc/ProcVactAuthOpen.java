@@ -361,7 +361,7 @@ public class ProcVactAuthOpen extends Proc{
         logger.info("request 출금계좌 정보 확인 [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]",
                 mchtId, bankCd, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo, trxType, host);
 
-        String dupleWithdraw = trxDAO.getDupleWithdraw(mchtId, bankCd, withdrawBankCd, withdrawAccount);
+        String dupleWithdraw = trxDAO.getDupleWithdraw(account, mchtId, bankCd, withdrawBankCd, withdrawAccount);
         boolean blackList = trxDAO.blackListCheck(withdrawBankCd, withdrawAccount);
 
         if(blackList) {
