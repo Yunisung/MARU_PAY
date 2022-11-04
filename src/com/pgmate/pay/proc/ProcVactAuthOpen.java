@@ -413,12 +413,12 @@ public class ProcVactAuthOpen extends Proc{
                 name, regType, identity, phoneNo, bankCd);
 
         if(!"0000".equals(firmBean.resultCd)) {
-            response.result = ResultUtil.getResult(firmBean.resultCd, "서버 시스템 처리 오류",firmBean.resultMsg);
-
-            logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
-
-            sendResponse();
-            return;
+            if("".equals(firmBean.resultMsg)) {
+                response.result = ResultUtil.getResult(firmBean.resultCd, "서버 시스템 처리 오류","서버 시스템 오류. 관리자에게 문의해주세요.");
+            } else {
+                response.result = ResultUtil.getResult(firmBean.resultCd, "서버 시스템 처리 오류",firmBean.resultMsg);
+            }
+                logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
         } else {
             if(!request.vact.holderName.trim().equals(firmBean.data.getString("name"))) {
                 logger.info("API인증 예금주 실명조회 비교오류 [{}][{}][{}][{}][{}]", request.vact.authBankCd, request.vact.authAccount, request.vact.identity, request.vact.holderName.trim(), firmBean.data.getString("name"));
@@ -573,6 +573,11 @@ public class ProcVactAuthOpen extends Proc{
                     "O", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
                     request.vact.bankCd, request.vact.account, "");
 
+            //출금계좌정보 등록 내역 추가
+            trxDAO.insertHtVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.vact.trxType, request.auth.bankCd, request.auth.account,
+                    request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2, request.result.resultCd, request.result.resultMsg);
+            trxDAO.insertVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.auth.bankCd, request.auth.account,
+                    request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2);
 
             //통합인증 수수료계산
             fee = mchtVactMngMap.getLong("totalAuthFee");
