@@ -49,6 +49,7 @@ public class Vact {
 	public String authAccount		= null; //광원에서 안보내줌
 	public String authBankCd		= null; //광원에서 안보내줌
 	public String bankName			= null;
+	public String regDay			= null;
 	
 	public Vact() {
 	}
