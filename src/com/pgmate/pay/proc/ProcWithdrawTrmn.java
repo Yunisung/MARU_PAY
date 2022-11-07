@@ -74,8 +74,8 @@ public class ProcWithdrawTrmn extends Proc{
                 bean = vactReg("", trxType, account, withdrawBankCd, withdrawAccount,
                         name, regType, identity, phoneNo, bankCd);
 
-                 bean.resultCd = "0000";
-                 bean.resultMsg = "테스트해보기";
+                bean.resultCd = "0000";
+                bean.resultMsg = "테스트해보기";
 
                 logger.info("가상계좌 출금정보 해지 응답 : [{}][{}][{}][{}]", trxType, account, bean.resultCd, bean.resultMsg);
 
@@ -100,7 +100,7 @@ public class ProcWithdrawTrmn extends Proc{
                             return;
                         }
 
-                        // DELETE - PG_VACT_REG
+                        // DELETE - PG_VACT_REG ==> 수정필요
                         boolean executeDeleteVactReg = trxDAO.deleteVactReg(idx);
                         logger.info("PG_VACT_REG DELETE : [{}][{}]", idx, executeDeleteVactReg);
 
@@ -119,8 +119,7 @@ public class ProcWithdrawTrmn extends Proc{
                 }
             }
         }catch(Exception ex) {
-            ex.getStackTrace();
-            ex.printStackTrace();
+            logger.error("가상계좌 출금정보 해지 Exception : {}", ex);
             logger.info("가상계좌 출금정보 해지 ERROR : [{}]", ex.getMessage());
 
             response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
