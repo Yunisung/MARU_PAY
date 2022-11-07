@@ -122,6 +122,11 @@ public class ProcVactAuthOpen extends Proc{
                 sendResponse(); return;
             }
 
+            // trxType 기본값은 등록(0)
+            if(CommonUtil.isEmpty(request.vact.trxType)) {
+                request.vact.trxType = "0";
+            }
+
             // 공통 validation 처리 - 블랙리스트체크, 발급계좌체크, 인증10회인지 체크
             regValid(request);
 
@@ -425,11 +430,7 @@ public class ProcVactAuthOpen extends Proc{
         String trxType = request.vact.trxType;
         String type = "등록";
 
-        // trxType 기본값은 등록(0)
-        if(CommonUtil.isEmpty(trxType)) {
-            trxType = "0";
-            request.vact.trxType = "0";
-        }
+
 
 //        if("2".equals(trxType)) {
 //            type = "변경";
