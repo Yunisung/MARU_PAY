@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ProcWithdrawTrmnTest {
@@ -58,7 +59,7 @@ public class ProcWithdrawTrmnTest {
         request.vact.trackId = "";                      // 가맹점 주문번호
         request.vact.udf1 = "";                         // 가맹점 설정 필드 1
         request.vact.udf2 = "";                         // 가맹점 설정 필드 2
-        request.vact.regDay = "";                       // 등록일자
+        request.vact.idx = 999999;                       // 인덱스
 //        request.vact.amount = "100000";
 //        request.vact.oper = "eq";
 //        request.vact.regType = "";
@@ -83,6 +84,8 @@ public class ProcWithdrawTrmnTest {
         try {
             procWithdrawTrmn.exec(null, request, sharedMap, sharedObject);
             System.out.println("------------- response message --------------");
+            logger.info("결과 ==> {}, {}", procWithdrawTrmn.response.result.resultMsg, procWithdrawTrmn.response.result.advanceMsg);
+            assertEquals("0000", procWithdrawTrmn.response.result.resultCd);
         } catch (Exception e) {
             e.printStackTrace();
             fail();

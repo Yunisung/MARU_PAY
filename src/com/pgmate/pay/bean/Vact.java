@@ -50,6 +50,7 @@ public class Vact {
 	public String authBankCd		= null; //광원에서 안보내줌
 	public String bankName			= null;
 	public String regDay			= null;
+	public int idx;							// 인덱스
 	
 	public Vact() {
 	}

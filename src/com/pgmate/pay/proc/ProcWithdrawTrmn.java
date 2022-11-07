@@ -32,14 +32,13 @@ public class ProcWithdrawTrmn extends Proc{
         // 해지
         try {
             set(rc,request,sharedMap,sharedObject);
-            valid();
 
             if(response.result != null){
                 sendResponse();
                 return;
             }else{
                 Firm firm = FirmLoader.getConfig();
-                FirmBean bean = new FirmBean();
+                FirmBean bean;
                 host = firm.firmServer;
                 timeout = firm.firmTimeout;
                 response.vact = request.vact;
@@ -48,23 +47,21 @@ public class ProcWithdrawTrmn extends Proc{
                 String bankCd = request.vact.bankCd;                    // 가상계좌 은행코드
                 String account = request.vact.account;
                 String trxType = request.vact.trxType;
-                String regDay = request.vact.regDay;
+                int idx = request.vact.idx;
                 String withdrawBankCd = request.vact.withdrawBankCd;
                 String withdrawAccount = request.vact.withdrawAccount;
                 String name = request.vact.holderName;
                 String regType = request.vact.regType;
                 String identity = request.vact.identity;
                 String phoneNo = request.vact.phoneNo;
-                String type = "해지";
                 String issueId = trxDAO.getIssueId(account);
 
-                logger.info("가상계좌 출금정보 " + type + " 시작");
+                logger.info("가상계좌 출금정보 해지 시작");
 
-                logger.info("가상계좌 출금정보 " + type + " 요청 : [{}][{}][{}][{}][{}][{}][{}][{}][{}][{}]",
+                logger.info("가상계좌 출금정보 해지 요청 : [{}][{}][{}][{}][{}][{}][{}][{}][{}][{}]",
                         mchtId, bankCd, trxType, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo);
 
                 // 출금 계좌 등록 펌뱅킹 전송
-
                 if("KSNET".equals(accountData.getString("van"))) {
                     //수협은행은 KSNET
                     port = 10006;
@@ -80,7 +77,7 @@ public class ProcWithdrawTrmn extends Proc{
                  bean.resultCd = "0000";
                  bean.resultMsg = "테스트해보기";
 
-                logger.info("가상계좌 출금정보 " + type + " 응답 : [{}][{}][{}][{}]", trxType, account, bean.resultCd, bean.resultMsg);
+                logger.info("가상계좌 출금정보 해지 응답 : [{}][{}][{}][{}]", trxType, account, bean.resultCd, bean.resultMsg);
 
                 // INSERT - HT_VACT_REG
                 // 로그성 데이터 남기기
@@ -90,37 +87,35 @@ public class ProcWithdrawTrmn extends Proc{
                 if("0000".equals(bean.resultCd)) {
                     //해지일 경우
                     if("2".equals(trxType)) {
-                        boolean executeDeleteVactDtl;
-                        boolean executeDeleteVactReg;
-
                         // DELETE - PG_VACT_DTL
-                        executeDeleteVactDtl = trxDAO.deleteVactDtl(issueId);
+                        boolean executeDeleteVactDtl = trxDAO.deleteVactDtl(issueId);
                         logger.info("PG_VACT_DTL DELETE : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
 
                         if(executeDeleteVactDtl){
-                            response.vact.issueId = issueId;
                             response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+issueId);
+                            logger.info("PG_VACT_DTL DELETE : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
                         }else{
                             response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
+                            sendResponse();
+                            return;
                         }
 
                         // DELETE - PG_VACT_REG
-                        executeDeleteVactReg = trxDAO.deleteVactReg(mchtId, bankCd, account, regDay);
-                        logger.info("PG_VACT_REG DELETE : [{}][{}][{}][{}][{}][{}]", issueId, mchtId, bankCd, account, regDay, executeDeleteVactReg);
+                        boolean executeDeleteVactReg = trxDAO.deleteVactReg(idx);
+                        logger.info("PG_VACT_REG DELETE : [{}][{}]", idx, executeDeleteVactReg);
 
                         if(executeDeleteVactReg){
-                            response.vact.mchtId = mchtId;
-                            response.vact.bankCd = bankCd;
-                            response.vact.account = account;
-                            response.vact.regDay = regDay;
-
-                            response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+mchtId+bankCd+account+regDay);
+                            response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+idx);
                         }else{
                             response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
+                            sendResponse();
+                            return;
                         }
                     }
                 }else {
                     response.result = ResultUtil.getResult(bean.resultCd, "FIRM 통신 오류", bean.resultMsg);
+                    sendResponse();
+                    return;
                 }
             }
         }catch(Exception ex) {
