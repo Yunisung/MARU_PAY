@@ -123,27 +123,20 @@ public class ProcVactAuthOpen extends Proc{
             }
 
             // 공통 validation 처리 - 블랙리스트체크, 발급계좌체크, 인증10회인지 체크
-            regValid(request);
-
-            if(response.result != null) {
+            if(!regValid(request)) {
                 sendResponse();
                 return;
             }
 
             //하이픈 출금계좌정보 등록
-            withdrawReg(request);
-
-            //오류일 경우에만 response.result 값 세팅
-            if(response.result != null) {
+            if(!withdrawReg(request)) {
                 sendResponse();
                 return;
             }
 
             //원래는 여기서 인증과정을 거침
             //앞에서 하고 들어오니 DB저장만 하고 패스
-            Auth();
-
-            if(response.result != null) {
+            if(!Auth()) {
                 sendResponse();
                 return;
             }
@@ -339,7 +332,7 @@ public class ProcVactAuthOpen extends Proc{
     }
 
     //출금계좌 유효성 검사
-    private void regValid(Request request) {
+    private boolean regValid(Request request) {
         //블랙리스트 확인
         boolean blackList = trxDAO.blackListCheck(request.auth.bankCd, request.auth.account);
 
@@ -348,7 +341,7 @@ public class ProcVactAuthOpen extends Proc{
 
             logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]",request.auth.bankCd, request.auth.account);
 
-            return;
+            return false;
         }
 
         //기등록 계좌 확인
@@ -360,7 +353,7 @@ public class ProcVactAuthOpen extends Proc{
 
                 logger.info("기등록 출금계좌 입니다. [{}]", dupleWithdraw);
 
-                return;
+                return false;
             }
         /*} else if("2".equals(trxType)) {
             String status = trxDAO.vactAccountDtlData(account);
@@ -392,7 +385,7 @@ public class ProcVactAuthOpen extends Proc{
             //trxType!='0' => 출금계좌 등록이 아닐 경우 리턴 처리 / 출금계좌 해지 처리는 다른 클래스에서 하게
         } else {
             response.result = ResultUtil.getResult("9999", "요청오류", "출금계좌 등록요청이 아닙니다.");
-            return;
+            return false;
         }
 
         //인증횟수 확인
@@ -401,14 +394,15 @@ public class ProcVactAuthOpen extends Proc{
             int totalCnt = (int)vactAuthInfo.getLong("authTotalCnt");
             if(totalCnt >= 10) {
                 response.result = ResultUtil.getResult("9999", "계좌오류", "인증가능 횟수를 초과하였습니다.");
-                return;
+                return false;
             }
         }
+        return true;
     }
 
     //하이픈 출금계좌정보 등록
     //MARU_FIRM -> 하이픈 서버 거쳐 등록
-    private void withdrawReg(Request request) {
+    private boolean withdrawReg(Request request) {
         Firm firm = FirmLoader.getConfig();
         FirmBean firmBean = new FirmBean();
         String mchtId = mchtMap.getString("mchtId");
@@ -452,14 +446,17 @@ public class ProcVactAuthOpen extends Proc{
             } else {
                 response.result = ResultUtil.getResult(firmBean.resultCd, "서버 시스템 처리 오류",firmBean.resultMsg);
             }
-                logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
+            logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
+            return false;
         } else {
             if(!request.vact.holderName.trim().equals(firmBean.data.getString("customerName"))) {
                 logger.info("API인증 예금주 실명조회 비교오류 [{}][{}][{}][{}][{}]", request.vact.authBankCd, request.vact.authAccount, request.vact.identity, request.vact.holderName.trim(), firmBean.data.getString("name"));
 
-                response.result = ResultUtil.getResult("9999", "실명오류", "입력한이름과 고객실명이 다릅니다.");return;
+                response.result = ResultUtil.getResult("9999", "실명오류", "입력한이름과 고객실명이 다릅니다.");
+                return false;
             }
         }
+        return true;
     }
 
     public FirmBean vactReg(String companyCd, String trxType, String account, String withdrawBankCd, String withdrawAccount,
@@ -570,7 +567,7 @@ public class ProcVactAuthOpen extends Proc{
     /**
      * 가상계좌 인증 : 들어올때 한번하니 DB 업데이트만 적용
      */
-    private void Auth() {
+    private boolean Auth() {
         try{
             SharedMap<String, Object> vactAuthInfo = trxDAO.getVactAuthInfo(mchtMap.getString("mchtId"), request.vact.identity, request.vact.phoneNo);
 
@@ -631,7 +628,8 @@ public class ProcVactAuthOpen extends Proc{
             if(!"0000".equals(request.result.resultCd)) {
                 logger.info("통합인증 오류 [{}][{}][{}]", request.vact.identity, request.result.resultCd, request.result.resultMsg);
                 //PYS : 통합인증 실패시 오류코드,오류메세지 리턴
-                response.result = ResultUtil.getResult(request.result.resultCd, request.result.resultMsg, request.result.advanceMsg);return;
+                response.result = ResultUtil.getResult(request.result.resultCd, request.result.resultMsg, request.result.advanceMsg);
+                return false;
             }else {
                 //PYS : ARS로직 생략, 인증횟수는 고민...
 
@@ -651,12 +649,13 @@ public class ProcVactAuthOpen extends Proc{
                     trxDAO.updatePgVactAuthInfo(mchtMap.getString("mchtId"), request.auth.bankCd, request.auth.account,
                             request.vact.identity, request.vact.phoneNo, 0, vactAuthInfo.getLong("authTotalCnt") + 1);
                 }
+                return true;
             }
         } catch(Exception e){
             e.printStackTrace();
             logger.error("vactAuth Error : " + e.getMessage());
         }
-
+        return false;
     }
 
     /**
