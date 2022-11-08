@@ -361,23 +361,23 @@ var KWON = (function (win, doc) {
 	    },
         sendMessageToFramebyMaru: function (obj) {
             if(obj.type == 'IE8_RESIZE') {
-              sendPost(obj);
+              sendPostMaru(obj);
               return;
             }
     
             var time = 50;
-            var id = setInterval(toFrame, time);
+            var id = setInterval(toFrameMaru, time);
             var msgId = util.guid();
             obj.msgId = msgId;
   
-            function toFrame() {
+            function toFrameMaru() {
               console.log('SEND MESSAGE time: ',time);
           
               time += 50;
               
               if (time > 20000) { 
-                  error.code = "XXXX", error.message = "PostMessage Send Fail"; 
-                  alert('서버와 통신할 수 없습니다.'); clearInterval(id); 
+                  error.code = "XXXX", error.message = "PostMessage Send Fail";
+                  alert('서버와 통신할 수 없습니다.'); clearInterval(id);
               }
   
               if(util.indexOf(sendedIdArray, msgId) > -1) {
@@ -385,11 +385,11 @@ var KWON = (function (win, doc) {
             
                     clearInterval(id);
               } else {
-                    sendPost(obj);
+					sendPostMaru(obj);
               }
           }
   
-          function sendPost(obj) {
+          function sendPostMaru(obj) {
               console.log('SEND POSTMESSAGE TO IFRAME:', obj, 'Message ID:', obj.msgId);
               
               var contentWindow = doc.getElementById("c3_pop_iframe").contentWindow;
