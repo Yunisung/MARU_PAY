@@ -85,32 +85,29 @@ public class ProcWithdrawTrmn extends Proc{
                         request.vact.trackId, request.vact.udf1, request.vact.udf2, bean.resultCd, bean.resultMsg);
 
                 if("0000".equals(bean.resultCd)) {
-                    //해지일 경우
-                    if("2".equals(trxType)) {
-                        // DELETE - PG_VACT_DTL
-                        boolean executeDeleteVactDtl = trxDAO.deleteVactDtl(issueId);
+                    // DELETE - PG_VACT_DTL
+                    boolean executeDeleteVactDtl = trxDAO.deleteVactDtl(issueId);
+                    logger.info("PG_VACT_DTL DELETE : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
+
+                    if(executeDeleteVactDtl){
+                        response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+issueId);
                         logger.info("PG_VACT_DTL DELETE : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
+                    }else{
+                        response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
+                        sendResponse();
+                        return;
+                    }
 
-                        if(executeDeleteVactDtl){
-                            response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+issueId);
-                            logger.info("PG_VACT_DTL DELETE : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
-                        }else{
-                            response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
-                            sendResponse();
-                            return;
-                        }
+                    // DELETE - PG_VACT_REG(가상계좌번호, 출금은행코드, 출금계좌번호, 예금주명)
+                    boolean executeDeleteVactReg = trxDAO.deleteVactReg(account, withdrawBankCd, withdrawAccount, name);
+                    logger.info("PG_VACT_REG DELETE : [{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, name, executeDeleteVactReg);
 
-                        // DELETE - PG_VACT_REG ==> 수정필요
-                        boolean executeDeleteVactReg = trxDAO.deleteVactReg(idx);
-                        logger.info("PG_VACT_REG DELETE : [{}][{}]", idx, executeDeleteVactReg);
-
-                        if(executeDeleteVactReg){
-                            response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+idx);
-                        }else{
-                            response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
-                            sendResponse();
-                            return;
-                        }
+                    if(executeDeleteVactReg){
+                        response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+idx);
+                    }else{
+                        response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
+                        sendResponse();
+                        return;
                     }
                 }else {
                     response.result = ResultUtil.getResult(bean.resultCd, "FIRM 통신 오류", bean.resultMsg);
@@ -140,6 +137,31 @@ public class ProcWithdrawTrmn extends Proc{
         if(currentTime > 233000 || currentTime < 3000) {
             logger.info("- -- --- ---- ---- ---- 은행점검 시간입니다. ---- ---- ---- --- -- -");
             response.result = ResultUtil.getResult("9999", "등록실패","은행점검 시간입니다.");return;
+        }
+
+        if(CommonUtil.isNullOrSpace(request.vact.account)) {
+            response.result = ResultUtil.getResult("9999", "필수값없음","가상계좌번호 값이 없습니다.");
+            return;
+        }
+
+        if(CommonUtil.isNullOrSpace(request.vact.withdrawBankCd)) {
+            response.result = ResultUtil.getResult("9999", "필수값없음","출금계좌은행코드 값이 없습니다.");
+            return;
+        }
+
+        if(CommonUtil.isNullOrSpace(request.vact.withdrawAccount)) {
+            response.result = ResultUtil.getResult("9999", "필수값없음","출금계좌번호 값이 없습니다.");
+            return;
+        }
+
+        if(CommonUtil.isNullOrSpace(request.vact.holderName)) {
+            response.result = ResultUtil.getResult("9999", "필수값없음","예금주명 값이 없습니다.");
+            return;
+        }
+
+        if(!"2".equals(request.vact.trxType)) {
+            response.result = ResultUtil.getResult("9999", "해지오류","가상계좌발급해지 서비스가 아닙니다.");
+            return;
         }
     }
 
