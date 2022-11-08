@@ -450,12 +450,12 @@ public class ProcVactAuthOpen extends Proc{
             logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
             return false;
         } else {
-            if(!request.vact.holderName.trim().equals(firmBean.data.getString("customerName"))) {
+            /*if(!request.vact.holderName.trim().equals(firmBean.data.getString("customerName"))) {
                 logger.info("API인증 예금주 실명조회 비교오류 [{}][{}][{}][{}][{}]", request.vact.authBankCd, request.vact.authAccount, request.vact.identity, request.vact.holderName.trim(), firmBean.data.getString("name"));
 
                 response.result = ResultUtil.getResult("9999", "실명오류", "입력한이름과 고객실명이 다릅니다.");
                 return false;
-            }
+            }*/
         }
         return true;
     }
