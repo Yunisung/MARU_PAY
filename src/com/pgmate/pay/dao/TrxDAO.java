@@ -3355,15 +3355,23 @@ public class TrxDAO extends DAO {
 
 	/**
 	 * 가상계좌 출금계좌 등록정보 삭제
-	 * @param idx	인덱스
+	 * @param account			가상계좌번호
+	 * @param withdrawBankCd	출금은행코드
+	 * @param withdrawAccount	출금계좌번호
+	 * @param holderName				예금주명
 	 */
-	public boolean deleteVactReg(int idx) {
+	public boolean deleteVactReg(String account, String withdrawBankCd, String withdrawAccount, String holderName) {
+		String encAccnt = getAESEnc(withdrawAccount);
+
 		super.setTable("PG_VACT_REG");
-		super.addWhere("idx", idx);
+		super.addWhere("account", account);
+		super.addWhere("withdrawBankCd", withdrawBankCd);
+		super.addWhere("withdrawAccount", encAccnt);
+		super.addWhere("holderName", holderName);
 
 		boolean deleted = super.delete();
 		super.initRecord();
-		logger.info("set deleteVactReg delete : [{}][{}]", idx, deleted);
+		logger.info("set deleteVactReg delete : [{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, holderName, deleted);
 
 		return deleted;
 	}
