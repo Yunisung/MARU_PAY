@@ -177,6 +177,7 @@ public class ProcVactAuthOpen extends Proc{
             sendResponse();
         }
 
+
         return;
     }
 
@@ -348,6 +349,7 @@ public class ProcVactAuthOpen extends Proc{
 
             logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]",request.auth.bankCd, request.auth.account);
 
+            sendResponse();
             return;
         }
 
@@ -461,6 +463,7 @@ public class ProcVactAuthOpen extends Proc{
             }
         }
     }
+
 
     public FirmBean vactReg(String companyCd, String trxType, String account, String withdrawBankCd, String withdrawAccount,
                             String name, String regType, String identity, String phoneNo, String bankCd){
