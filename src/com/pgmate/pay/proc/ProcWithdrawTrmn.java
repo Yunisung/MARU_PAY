@@ -55,6 +55,12 @@ public class ProcWithdrawTrmn extends Proc{
                 String phoneNo = request.vact.phoneNo;
                 String issueId = trxDAO.getIssueId(account);
 
+                if(CommonUtil.isEmpty(issueId)) {
+                    response.result = ResultUtil.getResult("9999", "해지오류", "계좌가 존재하지 않습니다.");
+                    sendResponse();
+                    return;
+                }
+
                 logger.info("가상계좌 출금정보 해지 시작");
 
                 logger.info("가상계좌 출금정보 해지 요청 : [{}][{}][{}][{}][{}][{}][{}][{}][{}][{}]",
