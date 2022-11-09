@@ -55,8 +55,10 @@ public class PAYUNIT {
 	public static String API_VACT_STATUS			= "/api/vact/status";
 	public static String API_VACT_PATCH				= "/api/vact/patch";
     public static String API_VACT_WITHDRAW_GET        = "/api/vact/withdrawGet";
+	public static String API_VACT_WITHDRAW_TRMN		= "/api/vact/withdrawTrmn";	// 가상계좌발급해지
     public static String API_VACT_REG                = "/api/vact/reg";
 	public static String API_VACTV2_REG				= "/api/vact/v2/reg";
+	public static String API_VACT_AUTHOPEN			= "/api/vact/authopen";
     public static String API_CHECK                    = "/api/check";
     public static String API_3DV2_WIDGET            = "/api/3dV2/widget";
     public static String API_3DV2_HOOK                = "/api/3dV2/hook";
@@ -84,8 +86,6 @@ public class PAYUNIT {
 
 	public static String API_LPAY_RETURN			= "/api/lpay/return";
 	public static String API_LPAY_MOBILE_RETURN		= "/api/lpay/mobile/return";
-
-	public static String API_VACT_AUTHOPEN			= "/api/vact/authopen";
 
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
     public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook",};    
