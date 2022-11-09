@@ -110,7 +110,7 @@ public class VactReg extends Proc {
 						mchtId, bankCd, trxType, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo);
 				
 				issueId = trxDAO.getIssueId(account);
-				String dupleWithdraw = trxDAO.getDupleWithdraw(mchtId, bankCd, withdrawBankCd, withdrawAccount);
+				String dupleWithdraw = trxDAO.getDupleWithdraw(account, mchtId, bankCd, withdrawBankCd, withdrawAccount);
 				boolean blackList  = trxDAO.blackListCheck(withdrawBankCd, withdrawAccount);
 				
 				if(blackList) {
@@ -125,9 +125,9 @@ public class VactReg extends Proc {
 				if("0".equals(trxType)) {
 					if(!CommonUtil.isNullOrSpace(issueId)){
 						response.result = ResultUtil.getResult("9999", "계좌오류","기등록 가상계좌 입니다.");
-						
+
 						logger.info("기등록 가상계좌 입니다. [{}]", issueId);
-						
+
 						setResponse();
 						return;
 					}
@@ -858,6 +858,7 @@ public class VactReg extends Proc {
 				firmBean.data.put("trxType","3");
 			}else if("2".equals(trxType)) {
 				firmBean.data.put("trxType","2");
+				firmBean.data.put("customerName",name);
 			}
 
 			firmBean.data.put("identity",identity);

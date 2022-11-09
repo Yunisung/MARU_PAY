@@ -97,7 +97,8 @@ public abstract class Proc {
 		//KJM : 결제 관련 기능 수행 시에만 서버 통신 이력 추가
 		if(sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_PAY) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_OPEN) 
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_PATCH) 
-				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH)){
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_AUTHOPEN)
+		 		|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_WITHDRAW_TRMN)){
 					
 			trxDAO.updateTrxIO(sharedMap,res);
 		}
@@ -115,6 +116,33 @@ public abstract class Proc {
 	
 	public Proc() {
 
+	}
+
+	protected void sendResponse() {
+		String res = GsonUtil.toJsonExcludeStrategies(response,true);
+
+		//KJM : 결제 관련 기능 수행 시에만 서버 통신 이력 추가
+		if(sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_PAY) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_OPEN)
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_PATCH)
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_AUTHOPEN)
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_WITHDRAW_TRMN)){
+
+			trxDAO.updateTrxIO(sharedMap,res);
+		}
+		if(!sharedMap.getString(PAYUNIT.DEBUG_MODE).equalsIgnoreCase("true")) {
+			VertXMessage.set200(rc, res);
+		}
+		logger.info("estimatedTime : {}",TimeUnit.MILLISECONDS.convert(System.nanoTime()- startTime, TimeUnit.NANOSECONDS));
+	}
+
+	public void clear() {
+		sharedMap 		= null;
+		mchtTmnMap 		= null;
+		mchtMap 		= null;
+		mchtMngMap 		= null;
+		trxDAO 			= null;
+		response		= null;
+		request			= null;
 	}
 
 }

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AuthVactResult</title>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+<script>
+    var urlParams = window.location.search;
+    var decoded = decodeURIComponent(decodeURI(urlParams));
+    var trim = decoded.replace('?result=','');
+
+    var obj = JSON.parse(trim);
+
+    window.onload = function(){
+        document.writeln("<h3>Redirect Response</h3>");
+        document.writeln("[통합인증 결과]" + "<br>");
+        document.writeln("resultMsg : " + obj.result.resultMsg + "<br>");
+        document.writeln("resultCd : " + obj.result.resultCd + "<br>");
+        document.writeln("advanceMsg : " + obj.result.advanceMsg + "<br><br>");
+
+        document.writeln("통합인증번호 : " + obj.auth.totalAuthId + "<br>");
+        document.writeln("trackId : " + obj.auth.trackId + "<br>");
+
+        document.writeln("가상계좌은행코드 : " + obj.vact.bankCd + "<br>");
+        document.writeln("가상계좌번호 : " + obj.vact.account + "<br>");
+        document.writeln("가상계좌번호(pretty) : " + obj.vact.accountPretty + "<br>");
+        document.writeln("가상계좌 예금주명 : " + obj.vact.companyName + "<br>");
+        document.writeln("가상계좌 수취조회시 요청 수식 : " + obj.vact.oper + "<br>");
+        document.writeln("가상계좌 수취조회시 요청 금액 : " + obj.vact.amount + "<br>");
+        document.writeln("가맹점 설정 필드1 :" + obj.vact.udf1 + "<br>");
+        document.writeln("가맹점 설정 필드2 :" + obj.vact.udf2 + "<br>");
+        document.writeln("가상계좌 발행번호 :" + obj.vact.issueId + "<br>");
+        document.writeln("가상계좌 만료 시간 :" + obj.vact.expireAt + "<br>");
+        document.writeln("가상계좌 상태 :" + obj.vact.status + "<br>");
+
+        document.writeln("[통합인증전문]" + "<br>");
+        document.writeln(trim);
+    }
+</script>
+</body>
+</html>

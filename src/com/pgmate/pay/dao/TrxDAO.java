@@ -1477,8 +1477,25 @@ public class TrxDAO extends DAO {
 		}
 		return list;
 	}
-	
-	
+
+	public SharedMap<String,Object> getNotIssueAccount(String bankCd){
+		super.setTable("PG_VACT A LEFT JOIN PG_VACT_DTL B  ON A.account = B.account");
+
+		super.setColumns("A.bankCd, A.account,A.issuerBank");
+		super.setWhere("B.account is null and A.pisp ='N'");
+		super.addWhere("A.bankCd", bankCd, eq);
+		super.setOrderBy("A.account");
+
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.getRowFirst().isNullOrSpace("account")){
+			logger.info("getNotIssueAccount : [{}]", bankCd);
+		}
+		return rset.getRow(0);
+	}
+
 	public SharedMap<String,Object> getNotIssueAccount(String bankCd, String assort){
 		super.setTable("PG_VACT A LEFT JOIN PG_VACT_DTL B  ON A.account = B.account LEFT JOIN PG_VACT_TEMP C ON A.account = C.account ");
 		
@@ -1593,7 +1610,44 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRow(0);
 	}
-	
+
+	/**
+	 * HT_VACT_DTL테이블에 저장
+	 * @param issueId	가상계좌발급번호
+	 * @return
+	 */
+	public boolean insertHtVactDtl(String issueId, String resultCd, String resultMsg){
+		SharedMap<String,Object> map = getVactDtl(issueId);
+		super.setTable("HT_VACT_DTL");
+
+		super.setRecord("issueId", 			map.getString("issueId"));							// 가상계좌발급번호
+		super.setRecord("account", 			map.getString("account"));							// 계좌번호
+		super.setRecord("vactType", 		map.getString("vactType"));						// 발행용도 임시,영구,월렛
+		super.setRecord("status", 			map.getString("status"));							// 계좌상태  할당,사용만료,기한만료
+		super.setRecord("mchtId", 			map.getString("mchtId"));							// 가맹점아이디
+		super.setRecord("holderName", 		map.getString("holderName"));						// IR방식의 예금주명 기본값없으면 PG_MCHT_MNG_VACT.holderName 사용
+		super.setRecord("amount", 			CommonUtil.parseLong(map.getString("amount")));	// 입금 예상 금액 0 : 제한없음 , 그외는 금액 일치 시
+		super.setRecord("oper", 			map.getString("oper"));							// 0 이외의 금액에 대해서 eq, gt 보다클때,ge 크거나같을때,  lt 작을때,le 작거나 같을때
+		super.setRecord("trackId", 			map.getString("trackId"));							// 임시,영구의 경우 가맹점 주문번호, 월렛의 경우 터미널ID
+		super.setRecord("depositCnt", 		map.getInt("depositCnt"));							// 입금횟수
+		super.setRecord("depositLimitCnt", 	map.getInt("depositLimitCnt"));					// 입금제한횟수
+		super.setRecord("expireAt", 		map.getString("expireAt"));						// 만료예상시간
+		super.setRecord("expireDate", 		map.getTimestamp("expireDate"));					// 만료일자
+		super.setRecord("udf1",				map.getString("udf1"));							// 가맹점 사용 필드1
+		super.setRecord("udf2", 			map.getString("udf2"));							// 가맹점 사용 필드2
+		super.setRecord("reason", 			map.getString("reason"));							// 변경사유
+		super.setRecord("resultCd", 		resultCd);												// 응답코드
+		super.setRecord("resultMsg", 		resultMsg);												// 응답메세지
+		super.setRecord("regId", 		"SYSTEM");											// 등록자아이디
+		super.setRecord("regDay", 			CommonUtil.getCurrentDate("yyyyMMdd"));			// 등록일
+
+		boolean insert = super.insert();
+		logger.info("set HT_VACT_DTL insert : {}", insert);
+
+		super.initRecord();
+		return insert;
+	}
+
 	/**
 	 * PG_VACT_DTL테이블에 저장
 	 * @param vact
@@ -2931,6 +2985,17 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRowFirst().getString("issueId");
 	}
+
+	public SharedMap<String,Object> getVactDtl(String issueId) {
+		super.setTable("PG_VACT_DTL");
+		super.addWhere("issueId", issueId, eq);
+
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRowFirst();
+	}
 	
 	public boolean deleteVactDtl(String issueId){
 		super.setTable("PG_VACT_DTL");
@@ -3284,7 +3349,8 @@ public class TrxDAO extends DAO {
 			super.initRecord();
 		}catch(Exception ex) {
 			ex.printStackTrace();
-			logger.error("insertHtVactReg Exception : {}", ex.getMessage());
+			//logger.error("insertHtVactReg Exception : {}", ex.getMessage());
+			logger.error("insertHtVactReg Exception : {}", ex);
 		}
 		
 		return insert;
@@ -3323,8 +3389,29 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return result;
 	}
-	
-	
+
+	/**
+	 * 가상계좌 출금계좌 등록정보 삭제
+	 * @param account			가상계좌번호
+	 * @param withdrawBankCd	출금은행코드
+	 * @param withdrawAccount	출금계좌번호
+	 * @param holderName				예금주명
+	 */
+	public boolean deleteVactReg(String account, String withdrawBankCd, String withdrawAccount, String holderName) {
+		String encAccnt = getAESEnc(withdrawAccount);
+
+		super.setTable("PG_VACT_REG");
+		super.addWhere("account", account);
+		super.addWhere("withdrawBankCd", withdrawBankCd);
+		super.addWhere("withdrawAccount", encAccnt);
+		super.addWhere("holderName", holderName);
+
+		boolean deleted = super.delete();
+		super.initRecord();
+		logger.info("set deleteVactReg delete : [{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, holderName, deleted);
+
+		return deleted;
+	}
 	
 	/**
 	 * 가상계좌 출금계좌 등록서비스에 이미 등록되어있는지 체크
@@ -3334,7 +3421,7 @@ public class TrxDAO extends DAO {
 	 * @param withdrawAccount
 	 * @return
 	 */
-	public String getDupleWithdraw(String mchtId, String bankCd, String withdrawBankCd, String withdrawAccount) {
+	public String getDupleWithdraw(String account, String mchtId, String bankCd, String withdrawBankCd, String withdrawAccount) {
 		String encAccnt = getAESEnc(withdrawAccount);
 		
 		super.setTable("PG_VACT_REG");
@@ -3343,8 +3430,9 @@ public class TrxDAO extends DAO {
 		super.addWhere("bankCd", bankCd, eq);
 		super.addWhere("withdrawBankCd", withdrawBankCd, eq);
 		super.addWhere("withdrawAccount", encAccnt, eq);
+		super.addWhere("account", account, eq);
 		super.setLimit(1);
-		
+
 		RecordSet rset = super.search();
 		super.initRecord();
 		return rset.getRowFirst().getString("account");
@@ -3830,6 +3918,64 @@ public class TrxDAO extends DAO {
 		 
 		 return insert ;
 	}
+
+	/**
+	 * 가상계좌 인증 테이블 INSERT (PG_VACT_AUTH), 은행정보없는버전
+	 * @param authId
+	 * @param mchtId
+	 * @param authType
+	 * @param bankCd
+	 * @param account
+	 * @param identity
+	 * @param phoneNo
+	 * @param vactBankCd
+	 * @param vactAccount
+	 * @return
+	 */
+	public boolean insertPgVactAuth(String authId, String issueId, String totalAuthId, String trackId, String mchtId, String authType,
+									String identity, String phoneNo, String vactBankCd, String vactAccount, String authNo){
+		boolean insert = false;
+
+		try {
+			String encPhoneNo = getAESEnc(phoneNo);
+			String encIdentity = getAESEnc(identity);
+
+			super.setTable("PG_VACT_AUTH");
+			super.setRecord("authId", authId);
+			super.setRecord("issueId", issueId);
+			super.setRecord("trackId", trackId);
+
+			if(!"".equals(totalAuthId)) {
+				super.setRecord("totalAuthId", totalAuthId);
+			}
+
+			super.setRecord("mchtId", mchtId);
+			super.setRecord("authType", authType);
+			super.setRecord("identity", encIdentity);
+			super.setRecord("phoneNo", encPhoneNo);
+			super.setRecord("vactBankCd", vactBankCd);
+			super.setRecord("vactAccount", vactAccount);
+
+			if(!"".equals(authNo)) {
+				super.setRecord("authNo", authNo);
+			}
+
+			super.setRecord("resultCd", "");
+			super.setRecord("resultMsg", "");
+			super.setRecord("regDay", CommonUtil.getCurrentDate("yyyyMMdd"));
+			super.setRecord("regTime", CommonUtil.getCurrentDate("HHmmss"));
+
+			insert = super.insert();
+			logger.info("set insertPgVactAuth insert : [{}][{}]", authId, insert);
+
+			super.initRecord();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error("insertPgVactAuth Exception : {}", ex.getMessage());
+		}
+
+		return insert ;
+	}
 	
 	/**
 	 * 가상계좌 인증 테이블에 데이터 수정(PG_VACT_ARS)
@@ -4016,6 +4162,34 @@ public class TrxDAO extends DAO {
 			return new SharedMap<String,Object>();
 		}
 	}
+
+	/**
+	 * PYS : 계좌인증 정보 테이블 정보 검색, 인증계좌삭제버전
+	 * @param mchtId
+	 * @param bankCd
+	 * @param account
+	 * @param identity
+	 * @param phoneNo
+	 * @return
+	 */
+	public SharedMap<String, Object> getVactAuthInfo(String mchtId, String identity, String phoneNo) {
+		String encPhoneNo = getAESEnc(phoneNo);
+		String encIdentity = getAESEnc(identity);
+
+		super.setTable("PG_VACT_AUTH_INFO");
+		super.setColumns("*");
+		super.addWhere("mchtId", mchtId, eq);
+		super.addWhere("identity", encIdentity, eq);
+		super.addWhere("phoneNo", encPhoneNo, eq);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() > 0){
+			return rset.getRow(0);
+		}else{
+			return new SharedMap<String,Object>();
+		}
+	}
 	
 	/**
 	 * 가상계좌 인증 정보 테이블 INSERT (PG_VACT_AUTH_INFO)
@@ -4062,6 +4236,50 @@ public class TrxDAO extends DAO {
 		 }
 		 
 		 return insert ;
+	}
+
+	/**
+	 * 가상계좌 인증 정보 테이블 INSERT (PG_VACT_AUTH_INFO), 은행정보 없는버전
+	 * @param mchtId
+	 * @param authType
+	 * @param bankCd
+	 * @param account
+	 * @param identity
+	 * @param phoneNo
+	 * @param vactBankCd
+	 * @param vactAccount
+	 * @param respiteCnt
+	 * @return
+	 */
+	public boolean insertPgVactAuthInfo(String mchtId, String identity, String phoneNo, long respiteCnt){
+		boolean insert = false;
+
+		try {
+			String encIdentity = getAESEnc(identity);
+			String encPhoneNo = getAESEnc(phoneNo);
+
+			super.setTable("PG_VACT_AUTH_INFO");
+			super.setRecord("mchtId", mchtId);
+			super.setRecord("identity", encIdentity);
+			super.setRecord("phoneNo", encPhoneNo);
+			super.setRecord("respiteCnt", respiteCnt);
+			super.setRecord("authCnt", 0);
+			super.setRecord("authTotalCnt", 1);
+			super.setRecord("regDay", CommonUtil.getCurrentDate("yyyyMMdd"));
+			super.setRecord("regTime", CommonUtil.getCurrentDate("HHmmss"));
+
+			insert = super.insert();
+
+			logger.info("set insertPgVactAuthInfo insert : [{}][{}][{}][{}][{}]",
+					mchtId, identity, phoneNo, respiteCnt, insert);
+
+			super.initRecord();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error("insertPgVactAuth Exception : {}", ex.getMessage());
+		}
+
+		return insert ;
 	}
 	
 	/**
@@ -4110,7 +4328,51 @@ public class TrxDAO extends DAO {
 		
 		return result;
 	}
-	
+
+	/**
+	 * 가상계좌 인증 정보 테이블 UPDATE (PG_VACT_AUTH_INFO), 은행정보없는버전
+	 * @param mchtId
+	 * @param bankCd
+	 * @param account
+	 * @param identity
+	 * @param phoneNo
+	 * @param authCnt
+	 * @param authTotalCnt
+	 * @return
+	 */
+	public boolean updatePgVactAuthInfo(String mchtId, String identity, String phoneNo, long authCnt, long authTotalCnt) {
+		boolean result = false;
+
+		try {
+			String encIdentity = getAESEnc(identity);
+			String encPhoneNo = getAESEnc(phoneNo);
+
+			super.setTable("PG_VACT_AUTH_INFO");
+			super.setRecord("authCnt", authCnt);
+			super.setRecord("authTotalCnt", authTotalCnt);
+			super.setRecord("updtDay", CommonUtil.getCurrentDate("yyyyMMdd"));
+			super.setRecord("updtTime", CommonUtil.getCurrentDate("HHmmss"));
+
+			super.addWhere("mchtId", mchtId, eq);
+			super.addWhere("identity", encIdentity, eq);
+			super.addWhere("phoneNo", encPhoneNo, eq);
+
+			result = super.update();
+
+			logger.info("set updatePgVactAuthInfo update : [{}][{}][{}][{}][{}][{}]",
+					mchtId, identity, phoneNo, authCnt, authTotalCnt, result);
+
+			super.initRecord();
+
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error("updatePgArsAuth Exception : {}", ex.getMessage());
+			throw ex;
+		}
+
+		return result;
+	}
+
 	/**
 	 * 계좌점유인증 인증번호 조회
 	 * @param authId
@@ -4526,6 +4788,25 @@ public class TrxDAO extends DAO {
 			return rset.getRow(0);
 		} else {
 			return null;
+		}
+	}
+
+	/**
+	 * PYS: 가상계좌번호로 가상계좌은행코드 조회
+	 * @param account
+	 * @return
+	 */
+	public String getVactBankCd(String account) {
+		super.setTable("PG_VACT");
+		super.setColumns("bankCd");
+		super.addWhere("account", account);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0).getString("bankCd");
 		}
 	}
 }

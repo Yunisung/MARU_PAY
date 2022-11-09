@@ -121,6 +121,7 @@ public class VactOpen extends Proc {
 			}
 			
 			if(mchtVactMngMap.isEquals("authType","1")){
+				// 가상계좌인증 - 실명, ARS 인증
 				vactAuth();
 				
 				if(response.result != null){

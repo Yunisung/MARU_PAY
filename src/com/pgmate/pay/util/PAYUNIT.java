@@ -55,7 +55,10 @@ public class PAYUNIT {
 	public static String API_VACT_STATUS			= "/api/vact/status";
 	public static String API_VACT_PATCH				= "/api/vact/patch";
     public static String API_VACT_WITHDRAW_GET        = "/api/vact/withdrawGet";
+	public static String API_VACT_WITHDRAW_TRMN		= "/api/vact/withdrawTrmn";	// 가상계좌발급해지
     public static String API_VACT_REG                = "/api/vact/reg";
+	public static String API_VACTV2_REG				= "/api/vact/v2/reg";
+	public static String API_VACT_AUTHOPEN			= "/api/vact/authopen";
     public static String API_CHECK                    = "/api/check";
     public static String API_3DV2_WIDGET            = "/api/3dV2/widget";
     public static String API_3DV2_HOOK                = "/api/3dV2/hook";
@@ -146,4 +149,7 @@ public class PAYUNIT {
     public static SharedCacheMap cacheWithdrawMap    = new SharedCacheMap(10);
 	public static VactCache vactCacheMap			= new VactCache(5);
     public static VactCache vactWithdrawCacheMap    = new VactCache(1);
+
+	// 단위테스트시 사용
+	public static String DEBUG_MODE					= "DEBUG_MODE";
 }

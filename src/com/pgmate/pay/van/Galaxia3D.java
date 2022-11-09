@@ -92,9 +92,9 @@ public class Galaxia3D {
             while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
-            
-            logger.info("sb : [{}]", sb.toString() );
-            
+            logger.info("##############################");
+            logger.info(sb.toString());
+            logger.info("##############################");
             Object jsonobject = JSONValue.parse(sb.toString());
             JSONObject jsonobj = (JSONObject)jsonobject;
             
@@ -107,6 +107,7 @@ public class Galaxia3D {
     		requestMap.put("dtlMsg", jsonobj.get("DETAIL_RESPONSE_MESSAGE"));
 			
 		} catch(Exception e) {
+			logger.info("갤럭시아 통신 error : " + e.getMessage());
 			result ="CONNECT ERROR ["+e.getMessage()+"] "+Galaxia3D.GALAXIA_WEB_URL;
 		} finally {
 			conn.disconnect();
