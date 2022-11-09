@@ -439,7 +439,7 @@ public class ProcVactAuthOpen extends Proc{
                 name, regType, identity, phoneNo, bankCd);
 
         // 테스트용 - 임시
-        if(firmBean.resultCd.equals("KS99")) firmBean.resultCd = "0000";
+//        if(firmBean.resultCd.equals("KS99")) firmBean.resultCd = "0000";
 
         if(!"0000".equals(firmBean.resultCd)) {
             if("".equals(firmBean.resultMsg)) {
