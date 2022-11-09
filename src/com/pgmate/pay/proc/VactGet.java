@@ -73,6 +73,7 @@ public class VactGet extends Proc {
 		request.vact.vacts = new ArrayList<VactBank>();
 		
 		for(String bankCd : request.vact.banks){
+			// 발급가능한 가상계좌 1건을 조회 (limit 1)
 			SharedMap<String,Object> vact = trxDAO.getNotIssueAccount(bankCd, assort);
 			
 			if(vact != null && !vact.isEquals("account","")){
