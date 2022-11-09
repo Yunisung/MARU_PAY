@@ -47,18 +47,19 @@ public class ProcSettleTransfer extends Proc {
 		request.transfer.balance = sumMap.getLong("balance")-request.transfer.netAmount;
 		
 		firmAccntMap = trxDAO.getFirmAccnt(request.transfer.bankCd, request.transfer.account).getRowFirst();
-		
+
+		//response.transfer = 응답 object로 사용
 		response.transfer = request.transfer;
 		
 		SharedMap<String, Object> trxMap = new SharedMap<String,Object>();
-		trxMap.put("trxId", response.transfer.trxId);
-		trxMap.put("mchtId", response.transfer.mchtId);
+		trxMap.put("trxId", request.transfer.trxId);
+		trxMap.put("mchtId", request.transfer.mchtId);
 		trxMap.put("trxType", "출금");
 		trxMap.put("trxUnit", "펌뱅킹");
 		String regDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
 		trxMap.put("trxDay", regDate.substring(0, 8));
 		trxMap.put("trxTime", regDate.substring(8));
-		trxMap.put("amount", response.transfer.amount);
+		trxMap.put("amount", request.transfer.amount);
 		trxMap.put("fee", fee);
 		trxMap.put("feeVat", feeVat);
 		// 모계좌(케이뱅크,케이에스넷) 출금수수료 변경(90원 VAT포함 99원)
@@ -68,12 +69,12 @@ public class ProcSettleTransfer extends Proc {
 //		}else {
 //			trxMap.put("bankFee", 100);
 //		}
-		trxMap.put("netAmount", response.transfer.netAmount);
-		trxMap.put("balance", response.transfer.balance);
-		trxMap.put("trackId", response.transfer.trackId);
-		trxMap.put("bankCd", response.transfer.bankCd);
-		trxMap.put("bankName", response.transfer.bankName);
-		trxMap.put("account", trxDAO.getAESEnc(response.transfer.account));
+		trxMap.put("netAmount", request.transfer.netAmount);
+		trxMap.put("balance", request.transfer.balance);
+		trxMap.put("trackId", request.transfer.trackId);
+		trxMap.put("bankCd", request.transfer.bankCd);
+		trxMap.put("bankName", request.transfer.bankName);
+		trxMap.put("account", trxDAO.getAESEnc(request.transfer.account));
 		trxMap.put("holder", trxDAO.getAESEnc(firmAccntMap.getString("accntHolder")));
 		
 		String recordInfo = "";
@@ -85,8 +86,9 @@ public class ProcSettleTransfer extends Proc {
 		}
 		
 		trxMap.put("recordInfo", recordInfo);
-		trxMap.put("regId", response.transfer.mchtId);
+		trxMap.put("regId", request.transfer.mchtId);
 		trxMap.put("regDay", regDate.substring(0, 8));
+
 		// 펌뱅킹내역 등록
 		trxDAO.insertChargeSettleFirm(trxMap);
 		
@@ -95,7 +97,7 @@ public class ProcSettleTransfer extends Proc {
 		
 		response.result = ResultUtil.getResult("0000", "이체접수완료","이체 접수가 완료되었습니다.");
 		
-		setResponse();
+		sendResponse();
 		
 		return;
 	}
