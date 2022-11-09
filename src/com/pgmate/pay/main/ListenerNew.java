@@ -174,17 +174,17 @@ public class ListenerNew extends RouteWorkerNew {
 					int poolSize = 100;
 					//long maxExecueTime = 120 *1000; // 2분
 					long maxExecueTime = 5 * 60 *1000; // 5분
-					WorkerExecutor executor = vertx.createSharedWorkerExecutor("API_NEW_VACT_REG", poolSize, maxExecueTime);
+					WorkerExecutor executor = vertx.createSharedWorkerExecutor("API_VACT_V2_REG", poolSize, maxExecueTime);
 					executor.executeBlocking(future -> {
 						log(rc);
-						logger.info("API_NEW_VACT_REG START!!!");
+						logger.info("API_VACT_V2_REG START!!!");
 
 						new Api().apiHandler(rc);
 
 						future.complete();
 					}, false, res ->{
 						executor.close();
-						logger.info("API_NEW_VACT_REG END!!!");
+						logger.info("API_VACT_V2_REG END!!!");
 					});
 				})
 				.failureHandler(fc -> {
@@ -195,7 +195,35 @@ public class ListenerNew extends RouteWorkerNew {
 						VertXMessage.set500(fc);
 					}
 				});
-		
+		//PYS : 출금계좌해지도 추가
+		router.route(PAYUNIT.API_VACT_WITHDRAW_TRMN)
+				.handler(rc -> {
+					// poolSize defualt : 20
+					int poolSize = 100;
+					//long maxExecueTime = 120 *1000; // 2분
+					long maxExecueTime = 5 * 60 *1000; // 5분
+					WorkerExecutor executor = vertx.createSharedWorkerExecutor("API_VACT_WITHDRAW_TRMN", poolSize, maxExecueTime);
+					executor.executeBlocking(future -> {
+						log(rc);
+						logger.info("API_VACT_WITHDRAW_TRMN START!!!");
+
+						new Api().apiHandler(rc);
+
+						future.complete();
+					}, false, res ->{
+						executor.close();
+						logger.info("API_VACT_WITHDRAW_TRMN END!!!");
+					});
+				})
+				.failureHandler(fc -> {
+					if (fc.statusCode() == 404) {
+						logger.debug("{} not found ", fc.request().uri());
+					} else {
+						logger.error("{} error : {},{}", PAYUNIT.API_VACT_WITHDRAW_TRMN, fc.statusCode(), CommonUtil.getExceptionMessage(new Exception(fc.failure())));
+						VertXMessage.set500(fc);
+					}
+				});
+
 		//13. "/api/vact/open" route
 		router.route(PAYUNIT.API_VACT_OPEN)
 				.handler(rc -> {

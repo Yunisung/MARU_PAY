@@ -513,10 +513,10 @@ public class ProcVactAuthOpen extends Proc{
         long time = System.currentTimeMillis();
 
         try{
-//            socket = new Socket(host, port);
-//            socket.setSoTimeout(timeout);
-            socket = new Socket("10.100.200.10", 10006);
-            socket.setSoTimeout(70000);
+            socket = new Socket(host, port);
+            socket.setSoTimeout(timeout);
+//            socket = new Socket("10.100.200.10", 10006);
+//            socket.setSoTimeout(70000);
 
             output = socket.getOutputStream();
 //            output.write(reqJson.getBytes(Charset.forName("MS949")));

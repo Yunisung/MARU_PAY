@@ -179,11 +179,11 @@ public class VactRegV2 extends Proc {
 
                 if(mchtVactMngMap.isEquals("authType","1")){
                     //PYS : 출금계좌 예금주 조회 예외처리
-//                    bean = vactHolder(companyCd, account, withdrawBankCd, withdrawAccount, identity, bankCd);
+                    bean = vactHolder(companyCd, account, withdrawBankCd, withdrawAccount, identity, bankCd);
                     //PYS : 일단 테스트
-                    bean.resultCd = "0000";
-                    bean.resultMsg = "테스트~~~";
-                    bean.data.put("name", "박윤성");
+//                    bean.resultCd = "0000";
+//                    bean.resultMsg = "테스트~~~";
+//                    bean.data.put("name", "박윤성");
 
                     if(!"0000".equals(bean.resultCd)) {
                         response.result = ResultUtil.getResult(bean.resultCd, "예금주 실명조회 오류",bean.resultMsg);
@@ -214,11 +214,11 @@ public class VactRegV2 extends Proc {
                 bean = new FirmBean();
 
                 //PYS : 일단 주석
-                //bean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
-                //        name, regType, identity, phoneNo, bankCd);
+                bean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
+                        name, regType, identity, phoneNo, bankCd);
 
-                bean.resultCd = "0000";
-                bean.resultMsg = "테스트해보기";
+//                bean.resultCd = "0000";
+//                bean.resultMsg = "테스트해보기";
 
                 logger.info("가상계좌 출금정보 " + type + " 응답 : [{}][{}][{}][{}]", trxType, account, bean.resultCd, bean.resultMsg);
 
