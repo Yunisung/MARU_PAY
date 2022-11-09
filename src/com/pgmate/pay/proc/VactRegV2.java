@@ -47,7 +47,7 @@ public class VactRegV2 extends Proc {
     private static Logger logger 				= LoggerFactory.getLogger( VactRegV2.class );
     private SharedMap<String,Object> vact = null;
     private String host = "";
-    private int port = 10006;
+    private int port = 0;
     private int timeout = 0;
 
     private String companyCd = "";
@@ -88,7 +88,7 @@ public class VactRegV2 extends Proc {
                 FirmBean bean = new FirmBean();
 
                 host = firm.firmServer;
-
+                port = firm.firmPort;
                 timeout = firm.firmTimeout;
 
                 String mchtId = request.vact.mchtId;
