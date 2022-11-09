@@ -41,15 +41,15 @@ public class ProcSettleTransfer extends Proc {
 		set(rc,request,sharedMap,sharedObject);
 		
 		if(response.result != null){
-			setResponse();
+			sendResponse();
 			return;
 		}
 		request.transfer.balance = sumMap.getLong("balance")-request.transfer.netAmount;
 		
 		firmAccntMap = trxDAO.getFirmAccnt(request.transfer.bankCd, request.transfer.account).getRowFirst();
 
-		//response에 값 넣어 사용할 필요 없어 주석 처리
-//		response.transfer = request.transfer;
+		//response.transfer = 응답 object로 사용
+		response.transfer = request.transfer;
 		
 		SharedMap<String, Object> trxMap = new SharedMap<String,Object>();
 		trxMap.put("trxId", request.transfer.trxId);
@@ -88,6 +88,7 @@ public class ProcSettleTransfer extends Proc {
 		trxMap.put("recordInfo", recordInfo);
 		trxMap.put("regId", request.transfer.mchtId);
 		trxMap.put("regDay", regDate.substring(0, 8));
+
 		// 펌뱅킹내역 등록
 		trxDAO.insertChargeSettleFirm(trxMap);
 		
@@ -96,7 +97,7 @@ public class ProcSettleTransfer extends Proc {
 		
 		response.result = ResultUtil.getResult("0000", "이체접수완료","이체 접수가 완료되었습니다.");
 		
-		setResponse();
+		sendResponse();
 		
 		return;
 	}
