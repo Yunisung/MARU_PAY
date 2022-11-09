@@ -394,14 +394,14 @@ public class ProcVactAuthOpen extends Proc{
         }
 
         //인증횟수 확인
-        SharedMap<String, Object> vactAuthInfo = trxDAO.getVactAuthInfo(mchtMap.getString("mchtId"), request.vact.identity, request.vact.phoneNo);
+        /*SharedMap<String, Object> vactAuthInfo = trxDAO.getVactAuthInfo(mchtMap.getString("mchtId"), request.vact.identity, request.vact.phoneNo);
         if(vactAuthInfo.size() > 0) {
             int totalCnt = vactAuthInfo.getInt("authTotalCnt");
             if(totalCnt >= 10) {
                 response.result = ResultUtil.getResult("9999", "계좌오류", "인증가능 횟수를 초과하였습니다.");
                 return false;
             }
-        }
+        }*/
         return true;
     }
 
