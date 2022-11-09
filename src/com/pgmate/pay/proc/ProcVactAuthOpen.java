@@ -160,8 +160,12 @@ public class ProcVactAuthOpen extends Proc{
             boolean execute = false;
             if(vact.isEquals("vactType","임시")){
                 execute = trxDAO.insertVactDtl(vact);
+                //HT_VACT_DTL insert
+                trxDAO.insertHtVactDtl(issueId, response.result.resultCd, response.result.resultMsg);
             }else{
                 execute = trxDAO.updateVactDtl(vact);
+                //HT_VACT_DTL insert
+                trxDAO.insertHtVactDtl(issueId, response.result.resultCd, response.result.resultMsg);
             }
 
             if(execute){
@@ -613,8 +617,7 @@ public class ProcVactAuthOpen extends Proc{
             //PG_VACT_REG
             trxDAO.insertVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.auth.bankCd, request.auth.account,
                     request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2);
-            //HT_VACT_DTL
-            trxDAO.insertHtVactDtl(issueId, response.result.resultCd, response.result.resultMsg);
+
 
             //통합인증 수수료계산
             fee = mchtVactMngMap.getLong("totalAuthFee");
