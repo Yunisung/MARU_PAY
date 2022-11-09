@@ -20,7 +20,8 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		trxType: '0'
 	}
 
     var MaruConfig = {
@@ -44,17 +45,18 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		trxType: '0'
 	}
 
  	/* GLOBAL */
   	var routeUrls = {
-    	test: 'https://svcapidev.mtouch.com',
+    	test: 'http://svcapidev.mtouch.com',
     	live: 'https://svcapi.mtouch.com'
   	}
     //부국위너스 URL주소
-    // var maruUrl = 'http://127.0.0.1:10002'; //local
-	var maruUrl = 'https://devapi.bkwinners.kr'; //dev
+    var maruUrl = 'http://127.0.0.1:10002'; //local
+	// var maruUrl = 'https://devapi.bkwinners.kr'; //dev
 	// var maruUrl = 'https://api.bkwinners.kr'; //live
 
 	var maruUrls = {
@@ -89,7 +91,8 @@ var KWON = (function (win, doc) {
             holderName: MaruConfig.holderName,
             phoneNo: MaruConfig.phoneNo,
             identity: MaruConfig.identity,
-			companyName: MaruConfig.companyName
+			companyName: MaruConfig.companyName,
+			trxType: MaruConfig.trxType
         }
         sendVactData = {result: data.result, auth: data.auth, vact: vact, publicKey : MaruConfig.publicKey};
         console.log('sendData : ', sendVactData);
@@ -119,7 +122,7 @@ var KWON = (function (win, doc) {
         //rediectURL, publicKey, responseFunction 따로저장
         //MARUConfig는 부국위너스 서버에 보낼 데이터 세팅 > 사용자가 입력한 값을 그대로 보내줌
         //c3Config는 광원서버에 보낼 데이터 세팅 > 광원에 등록된 부국위너스 publicKey를 사용 > 인증과정 거친후 return값을 부국위너스로 보냄
-        
+        console.log('trxType ::::' + config.trxType);
     	c3Config = util.extend(c3Config, config);
         MaruConfig = util.extend(MaruConfig, config);
         c3Config.publicKey = 'pk_55af-b88fa5-8cb-6ff54';
