@@ -84,10 +84,13 @@ public class ProcWithdrawTrmn extends Proc{
                 trxDAO.insertHtVactReg(mchtId, bankCd, account, trxType, withdrawBankCd, withdrawAccount, request.vact.holderName,
                         request.vact.trackId, request.vact.udf1, request.vact.udf2, bean.resultCd, bean.resultMsg);
 
+                // INSERT - HT_VACT_DTL
+                // 로그성 데이터 남기기
+                trxDAO.insertHtVactDtl(issueId, bean.resultCd, bean.resultMsg);
+
                 if("0000".equals(bean.resultCd)) {
                     /*if(!name.trim().equals(bean.data.getString("customerName"))) {
                         logger.info("API인증 예금주 실명조회 비교오류 [{}][{}][{}][{}][{}]", request.vact.authBankCd, request.vact.authAccount, request.vact.identity, request.vact.holderName.trim(), bean.data.getString("name"));
-
                         response.result = ResultUtil.getResult("9999", "실명오류", "입력한이름과 고객실명이 다릅니다.");
                         sendResponse();
                         return;
