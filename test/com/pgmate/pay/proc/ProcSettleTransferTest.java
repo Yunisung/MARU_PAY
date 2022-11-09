@@ -57,8 +57,8 @@ public class ProcSettleTransferTest {
         request.transfer = new Transfer();
         request.transfer.account = "100035419428";
         request.transfer.bankCd = "088";
-        request.transfer.amount = 1004;
-        request.transfer.trackId = "order_202211091503008";
+        request.transfer.amount = 3000;
+        request.transfer.trackId = "order_202211091503011";
         request.transfer.recordInfo = "테스트";
         createEnvironment(request);
 
