@@ -450,6 +450,8 @@ public class ProcVactAuthOpen extends Proc{
             logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
             return false;
         } else {
+            response.result.resultCd = firmBean.resultCd;
+            response.result.resultMsg = firmBean.resultMsg;
             /*if(!request.vact.holderName.trim().equals(firmBean.data.getString("customerName"))) {
                 logger.info("API인증 예금주 실명조회 비교오류 [{}][{}][{}][{}][{}]", request.vact.authBankCd, request.vact.authAccount, request.vact.identity, request.vact.holderName.trim(), firmBean.data.getString("name"));
 
@@ -611,6 +613,8 @@ public class ProcVactAuthOpen extends Proc{
             //PG_VACT_REG
             trxDAO.insertVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.auth.bankCd, request.auth.account,
                     request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2);
+            //HT_VACT_DTL
+            trxDAO.insertHtVactDtl(issueId, response.result.resultCd, response.result.resultMsg);
 
             //통합인증 수수료계산
             fee = mchtVactMngMap.getLong("totalAuthFee");
