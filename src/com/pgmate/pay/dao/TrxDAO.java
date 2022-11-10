@@ -1690,6 +1690,7 @@ public class TrxDAO extends DAO {
 		super.setRecord("expireAt", vact.getString("expireAt"));
 		super.setRecord("udf1",		vact.getString("udf1"));
 		super.setRecord("udf2", 	vact.getString("udf2"));
+		super.setRecord("depositLimitCnt", vact.getInt("depositLimitCnt"));
 		super.setRecord("regDay", 	CommonUtil.getCurrentDate("yyyyMMdd"));
 		super.addWhere("issueId", 	vact.getString("issueId"));
 		boolean update = super.update();

@@ -154,6 +154,7 @@ public class ProcVactAuthOpen extends Proc{
             vact.put("trackId", request.vact.trackId);
             vact.put("udf1", request.vact.udf1);
             vact.put("udf2", request.vact.udf2);
+            vact.put("depositLimitCnt", mchtVactMngMap.getInt("depositLimitCnt"));
 
             logger.info("VACT OPEN INFO : [{}]", GsonUtil.toJson(vact,true,""));
 
