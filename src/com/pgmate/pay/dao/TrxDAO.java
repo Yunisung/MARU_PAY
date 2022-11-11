@@ -4809,4 +4809,41 @@ public class TrxDAO extends DAO {
 			return rset.getRow(0).getString("bankCd");
 		}
 	}
+
+	public boolean insertAccnt(String bankCd,String account,String accntHolder){
+		String query = "INSERT INTO PG_FIRM_ACCNT (bankCd,account,accntHolder,accntYn,regId,regDay)"
+				+" VALUES (?,?,?,?,'SYSTEM',?)";
+
+		DBManager db    = null;
+		PreparedStatement pstmt   = null;
+		Connection conn         = null;
+		int result      =0;
+		try{
+			db       = DBFactory.getInstance();
+			conn   = db.getConnection();
+			pstmt   = conn.prepareStatement(query);
+
+			int idx = 1;
+			pstmt.setString(idx++, bankCd);
+			pstmt.setString(idx++, account);
+			pstmt.setString(idx++, accntHolder);
+			pstmt.setString(idx++, "확인");
+			pstmt.setString(idx++, CommonUtil.getCurrentDate("yyyyMMdd"));
+
+			result = pstmt.executeUpdate();
+
+			conn.commit();
+
+		}catch(Exception e){
+			logger.info("DB Error : {} , {} , [{}]",Thread.currentThread().getStackTrace()[1].getMethodName(),e.getMessage(),query);
+		}finally{
+			db.close(pstmt);
+			db.close(conn);
+		}
+		if(result > 0){
+			return true;
+		}else{
+			return false;
+		}
+	}
 }

@@ -294,6 +294,7 @@ public class ProcVactAuthOpen extends Proc{
 
             //가상계좌번호 입력시 PG_VACT에서 해당계좌에 은행코드를 찾아서 세팅
             request.vact.bankCd = trxDAO.getVactBankCd(request.vact.account);
+
         }
 
         request.vact.accountPretty = AccountUtil.pretty(request.vact.bankCd, request.vact.account);
@@ -441,7 +442,10 @@ public class ProcVactAuthOpen extends Proc{
                 name, regType, identity, phoneNo, bankCd);
 
         // 테스트용 - 임시
-//        if(firmBean.resultCd.equals("KS99")) firmBean.resultCd = "0000";
+//        if(firmBean.resultCd.equals("KS99")) {
+//            firmBean.resultCd = "0000";
+//            firmBean.resultMsg = "출금계좌 정보 등록 완료.";
+//        }
 
         if(!"0000".equals(firmBean.resultCd)) {
             if("".equals(firmBean.resultMsg)) {
@@ -454,6 +458,8 @@ public class ProcVactAuthOpen extends Proc{
         } else {
             response.result.resultCd = firmBean.resultCd;
             response.result.resultMsg = firmBean.resultMsg;
+            //임시 - 테스트용
+//            response.result = ResultUtil.getResult("0000", "정상","가상계좌가 발행되었습니다."+vact.getString("issueId"));
             /*if(!request.vact.holderName.trim().equals(firmBean.data.getString("customerName"))) {
                 logger.info("API인증 예금주 실명조회 비교오류 [{}][{}][{}][{}][{}]", request.vact.authBankCd, request.vact.authAccount, request.vact.identity, request.vact.holderName.trim(), firmBean.data.getString("name"));
 
@@ -627,6 +633,8 @@ public class ProcVactAuthOpen extends Proc{
             //실명인증
             //PYS : request.result로 받아오니 해당 로직 주석처리
             //bean = vactHolder(request.vact.authBankCd, request.vact.authAccount, request.vact.identity);
+            //실명인증 확인 테이블 INSERT
+            trxDAO.insertAccnt(request.auth.bankCd, request.auth.account, request.vact.holderName);
 
             //PYS : 광원인증결과 테이블에 업데이트
             trxDAO.updatePgVactAuth(authId, request.result.resultCd, request.result.advanceMsg);
