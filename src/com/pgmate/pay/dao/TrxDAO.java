@@ -1631,8 +1631,10 @@ public class TrxDAO extends DAO {
 		super.setRecord("trackId", 			map.getString("trackId"));							// 임시,영구의 경우 가맹점 주문번호, 월렛의 경우 터미널ID
 		super.setRecord("depositCnt", 		map.getInt("depositCnt"));							// 입금횟수
 		super.setRecord("depositLimitCnt", 	map.getInt("depositLimitCnt"));					// 입금제한횟수
-		super.setRecord("expireAt", 		map.getString("expireAt"));						// 만료예상시간
-		super.setRecord("expireDate", 		map.getTimestamp("expireDate"));					// 만료일자
+		super.setRecord("expireAt", 		map.getString("expireAt"));
+		if(!map.isNullOrSpace("expireDate")) {
+			super.setRecord("expireDate", map.getTimestamp("expireDate"));                    // 만료일자
+		}
 		super.setRecord("udf1",				map.getString("udf1"));							// 가맹점 사용 필드1
 		super.setRecord("udf2", 			map.getString("udf2"));							// 가맹점 사용 필드2
 		super.setRecord("reason", 			map.getString("reason"));							// 변경사유
@@ -2989,6 +2991,7 @@ public class TrxDAO extends DAO {
 
 	public SharedMap<String,Object> getVactDtl(String issueId) {
 		super.setTable("PG_VACT_DTL");
+		super.setColumns("*");
 		super.addWhere("issueId", issueId, eq);
 
 		super.setLimit(1);
