@@ -480,8 +480,7 @@ public class ProcVactAuthOpen extends Proc{
         firmBean.bankCd 	= bankCd;
         firmBean.msgType 	= "0900400";
         firmBean.userId		= "SYSTEM";
-//        firmBean.data.put("companyCd",companyCd);
-        firmBean.data.put("companyCd","");
+        firmBean.data.put("companyCd",companyCd);
         firmBean.data.put("virtualAccount",account);
         firmBean.data.put("withdrawBankCd",withdrawBankCd);
         firmBean.data.put("withdrawAccount",withdrawAccount);
