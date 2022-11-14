@@ -459,8 +459,8 @@ public class ProcVactAuthOpen extends Proc{
             logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
             return false;
         } else {
-            response.result.resultCd = firmBean.resultCd;
-            response.result.resultMsg = firmBean.resultMsg;
+            response.result = ResultUtil.getResult(firmBean.resultCd, firmBean.resultMsg);
+            
             //임시 - 테스트용
 //            response.result = ResultUtil.getResult("0000", "정상","가상계좌가 발행되었습니다."+vact.getString("issueId"));
             /*if(!request.vact.holderName.trim().equals(firmBean.data.getString("customerName"))) {
