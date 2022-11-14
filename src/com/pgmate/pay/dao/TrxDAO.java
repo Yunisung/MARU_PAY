@@ -3000,7 +3000,7 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRowFirst();
 	}
-	
+
 	public boolean deleteVactDtl(String issueId){
 		super.setTable("PG_VACT_DTL");
 		super.addWhere("issueId", issueId);
