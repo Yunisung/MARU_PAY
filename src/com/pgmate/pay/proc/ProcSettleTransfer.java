@@ -71,13 +71,21 @@ public class ProcSettleTransfer extends Proc {
 		SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(request.transfer.bankCd, request.transfer.account).getRowFirst();
 
 		//response.transfer = 응답 object로 사용
-		//response.transfer = request.transfer;
+//		response.transfer = request.transfer;
 		response.transfer = new Transfer();
 		response.transfer.trxId = trxId;
 		response.transfer.mchtId = mchtId;
 		response.transfer.netAmount = transferNetAmount;
 		response.transfer.fee = transferFee;
 		response.transfer.balance = transferBalance;
+
+		response.transfer.account = request.transfer.account;
+		response.transfer.bankCd = request.transfer.bankCd;
+		response.transfer.trackId = request.transfer.trackId;
+		response.transfer.amount = request.transfer.amount;
+		response.transfer.bankName = request.transfer.bankName;
+
+
 
 		SharedMap<String, Object> trxMap = new SharedMap<String,Object>();
 		trxMap.put("trxId", trxId);
