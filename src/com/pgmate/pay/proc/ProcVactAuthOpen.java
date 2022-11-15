@@ -225,6 +225,15 @@ public class ProcVactAuthOpen extends Proc{
             request.vact.companyName = mchtVactMngMap.get("holderName").toString();
         }
 
+        SharedMap<String, Object> accountData = trxDAO.vactAccountData(request.vact.account);
+        if(accountData.isNullOrSpace("account")) {
+            response.result = ResultUtil.getResult("9999", "가상계좌없음","등록되어 있지않은 가상계좌번호 입니다.");
+            return;
+        }else {
+            companyCd = accountData.getString("companyCd");
+            bankCd = accountData.getString("bankCd");
+        }
+
         if(mchtVactMngMap.isEquals("issueType", "임시")) {
             //임시계좌는 생성해주고 오픈해줘야됨
 
@@ -295,6 +304,10 @@ public class ProcVactAuthOpen extends Proc{
 
             //가상계좌번호 입력시 PG_VACT에서 해당계좌에 은행코드를 찾아서 세팅
             request.vact.bankCd = trxDAO.getVactBankCd(request.vact.account);
+            if(CommonUtil.isNullOrSpace(request.vact.bankCd)){
+                response.result = ResultUtil.getResult("9999", "필수값없음","가상계좌번호의 은행코드가 존재하지 않습니다.");
+                return;
+            }
 
         }
 
@@ -326,15 +339,6 @@ public class ProcVactAuthOpen extends Proc{
             logger.info("duplicated trackId : {}, issueId : {}",request.vact.trackId,issueId);
             response.result = ResultUtil.getResult("9999", "중복된 주문번호입니다.","가상계좌 발행원장에 이미 사용된 주문번호입니다.");
             return;
-        }
-
-        SharedMap<String, Object> accountData = trxDAO.vactAccountData(request.vact.account);
-
-        if(accountData.isNullOrSpace("account")) {
-            response.result = ResultUtil.getResult("9999", "가상계좌없음","등록되어 있지않은 가상계좌번호 입니다.");return;
-        }else {
-            companyCd = accountData.getString("companyCd");
-            bankCd = accountData.getString("bankCd");
         }
 
         //검증끝
