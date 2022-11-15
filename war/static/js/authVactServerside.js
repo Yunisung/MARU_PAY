@@ -135,6 +135,12 @@ var postMessages = {
         };
         util.sendMessageToParent(obj);
     },
+    layerVactClosed: function() {
+        var obj = {
+            type: 'LAYER_VACT_CLOSED'
+        };
+        util.sendMessageToParent(obj);
+    },
     authResult: function(res) {
         var obj = {
             type: 'AUTH_RESULT',
@@ -238,7 +244,7 @@ function openAuth(config) {
         } else {
             /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
             alert(res.result.advanceMsg);
-            postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
+            postMessages.layerVactClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
         }
     }, function(err) {
         alert('키가 올바르지 않습니다. ' + err);
@@ -254,7 +260,7 @@ function closeAuth(data) {
         postMessages.authResult(data);
     }
     setTimeout(function() {
-        postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
+        postMessages.layerVactClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
     }, delay);
 }
 
@@ -274,7 +280,7 @@ function sendVact(data) {
         } else {
             /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
             alert(res.result.advanceMsg);
-            postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
+            postMessages.layerVactClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
         }
 
     }, function(err) {
