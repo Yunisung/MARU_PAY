@@ -158,6 +158,14 @@ public class ProcSettleTransfer extends Proc {
 		if(!"사용".equals(chargeMng.getString("status"))){
 			response.result = ResultUtil.getResult("9999", "이용불가","출금 중지된 가맹점입니다.");return;
 		}
+
+		if(CommonUtil.isNullOrSpace(request.transfer.transferKey)) {
+			response.result = ResultUtil.getResult("9999", "필수값없음","가맹점 출금키가 입력되지 않았습니다.");return;
+		}
+
+		if(!request.transfer.transferKey.equals(chargeMng.getString("transferKey"))) {
+			response.result = ResultUtil.getResult("9999", "이용불가", "출금키가 맞지 않습니다."); return;
+		}
 		
 		if(CommonUtil.isNullOrSpace(request.transfer.trackId)){
 			response.result = ResultUtil.getResult("9999", "필수값없음","가맹점 주문번호가 입력되지 않았습니다.");return;
