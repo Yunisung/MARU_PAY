@@ -50,6 +50,7 @@ public class ProcWithdrawTrmn extends Proc{
                 String bankCd = request.vact.bankCd;                    // 가상계좌 은행코드
                 String account = request.vact.account;
                 String trxType = request.vact.trxType;
+                int idx = request.vact.idx;
                 String withdrawBankCd = request.vact.withdrawBankCd;
                 String withdrawAccount = request.vact.withdrawAccount;
                 String name = request.vact.holderName;
@@ -122,7 +123,7 @@ public class ProcWithdrawTrmn extends Proc{
                     logger.info("PG_VACT_REG DELETE : [{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, name, executeDeleteVactReg);
 
                     if(executeDeleteVactReg){
-                        response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+account+withdrawBankCd+withdrawAccount+name);
+                        response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+idx);
                     }else{
                         response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
                         sendResponse();

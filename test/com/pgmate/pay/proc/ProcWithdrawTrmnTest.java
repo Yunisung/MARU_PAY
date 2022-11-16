@@ -51,11 +51,11 @@ public class ProcWithdrawTrmnTest {
         request.vact = new Vact();
         request.vact.mchtId = "bktest001";              // 가맹점아이디
         request.vact.bankCd = "089";                    // 가상계좌 은행코드
-        request.vact.account = "70019000000069";        // 가상계좌번호
+        request.vact.account = "70022000105712";        // 가상계좌번호
         request.vact.trxType = "2";                     // 2: 해지
-        request.vact.withdrawBankCd = "089";            // 출금계좌 은행코드
+        request.vact.withdrawBankCd = "088";            // 출금계좌 은행코드
         request.vact.withdrawAccount = "100035419428";              // 출금계좌 계좌번호
-        request.vact.holderName = "김정미2222";  // 통인자명
+        request.vact.holderName = "김정미";  // 통인자명
         request.vact.trackId = "";                      // 가맹점 주문번호
         request.vact.udf1 = "";                         // 가맹점 설정 필드 1
         request.vact.udf2 = "";                         // 가맹점 설정 필드 2
