@@ -15,7 +15,8 @@ public class Transfer {
 	public long fee			= 0;		 
 	public long netAmount	= 0;		 
 	public long balance		= 0;		 
-	public String trackId	= "";		 
+	public String trackId	= "";
+	public String transferKey = "";
 	public String recordInfo= "";		
 	
 	
