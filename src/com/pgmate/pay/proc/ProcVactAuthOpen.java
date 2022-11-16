@@ -154,6 +154,7 @@ public class ProcVactAuthOpen extends Proc{
             vact.put("trackId", request.vact.trackId);
             vact.put("udf1", request.vact.udf1);
             vact.put("udf2", request.vact.udf2);
+            vact.put("depositLimitCnt", mchtVactMngMap.getInt("depositLimitCnt"));
 
             logger.info("VACT OPEN INFO : [{}]", GsonUtil.toJson(vact,true,""));
 
@@ -222,6 +223,15 @@ public class ProcVactAuthOpen extends Proc{
         //PYS : 가상계좌 예금주명이 공백일때 PG_MCHT_MNG_VACT에서 가지고 온다
         if(CommonUtil.isNullOrSpace(request.vact.companyName)) {
             request.vact.companyName = mchtVactMngMap.get("holderName").toString();
+        }
+
+        SharedMap<String, Object> accountData = trxDAO.vactAccountData(request.vact.account);
+        if(accountData.isNullOrSpace("account")) {
+            response.result = ResultUtil.getResult("9999", "가상계좌없음","등록되어 있지않은 가상계좌번호 입니다.");
+            return;
+        }else {
+            companyCd = accountData.getString("companyCd");
+            bankCd = accountData.getString("bankCd");
         }
 
         if(mchtVactMngMap.isEquals("issueType", "임시")) {
@@ -294,6 +304,10 @@ public class ProcVactAuthOpen extends Proc{
 
             //가상계좌번호 입력시 PG_VACT에서 해당계좌에 은행코드를 찾아서 세팅
             request.vact.bankCd = trxDAO.getVactBankCd(request.vact.account);
+            if(CommonUtil.isNullOrSpace(request.vact.bankCd)){
+                response.result = ResultUtil.getResult("9999", "필수값없음","가상계좌번호의 은행코드가 존재하지 않습니다.");
+                return;
+            }
 
         }
 
@@ -325,15 +339,6 @@ public class ProcVactAuthOpen extends Proc{
             logger.info("duplicated trackId : {}, issueId : {}",request.vact.trackId,issueId);
             response.result = ResultUtil.getResult("9999", "중복된 주문번호입니다.","가상계좌 발행원장에 이미 사용된 주문번호입니다.");
             return;
-        }
-
-        SharedMap<String, Object> accountData = trxDAO.vactAccountData(request.vact.account);
-
-        if(accountData.isNullOrSpace("account")) {
-            response.result = ResultUtil.getResult("9999", "가상계좌없음","등록되어 있지않은 가상계좌번호 입니다.");return;
-        }else {
-            companyCd = accountData.getString("companyCd");
-            bankCd = accountData.getString("bankCd");
         }
 
         //검증끝
@@ -477,8 +482,7 @@ public class ProcVactAuthOpen extends Proc{
         firmBean.bankCd 	= bankCd;
         firmBean.msgType 	= "0900400";
         firmBean.userId		= "SYSTEM";
-//        firmBean.data.put("companyCd",companyCd);
-        firmBean.data.put("companyCd","");
+        firmBean.data.put("companyCd",companyCd);
         firmBean.data.put("virtualAccount",account);
         firmBean.data.put("withdrawBankCd",withdrawBankCd);
         firmBean.data.put("withdrawAccount",withdrawAccount);

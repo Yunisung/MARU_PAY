@@ -20,8 +20,7 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: '',
-		trxType: '0'
+		companyName: ''
 	}
 
     var MaruConfig = {
@@ -45,18 +44,17 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: '',
-		trxType: '0'
+		companyName: ''
 	}
 
  	/* GLOBAL */
   	var routeUrls = {
-    	test: 'http://svcapidev.mtouch.com',
+    	test: 'https://svcapidev.mtouch.com',
     	live: 'https://svcapi.mtouch.com'
   	}
     //부국위너스 URL주소
-    var maruUrl = 'http://127.0.0.1:10002'; //local
-	// var maruUrl = 'https://devapi.bkwinners.kr'; //dev
+    //var maruUrl = 'http://127.0.0.1:10002'; //local
+	var maruUrl = 'https://devapi.bkwinners.kr'; //dev
 	// var maruUrl = 'https://api.bkwinners.kr'; //live
 
 	var maruUrls = {
@@ -84,15 +82,14 @@ var KWON = (function (win, doc) {
         //광원인증후 결과값이 여기로 들어온다.
         //여기 데이터를 이용해 부국서버와 통신
         var vact = {
-            bankCd: MaruConfig.bankCd, 
+            bankCd: MaruConfig.bankCd,
             account: MaruConfig.account,
             amount: MaruConfig.amount,
             oper: MaruConfig.oper,
             holderName: MaruConfig.holderName,
             phoneNo: MaruConfig.phoneNo,
             identity: MaruConfig.identity,
-			companyName: MaruConfig.companyName,
-			trxType: MaruConfig.trxType
+			companyName: MaruConfig.companyName
         }
         sendVactData = {result: data.result, auth: data.auth, vact: vact, publicKey : MaruConfig.publicKey};
         console.log('sendData : ', sendVactData);
@@ -107,7 +104,7 @@ var KWON = (function (win, doc) {
         //serverside.js로 데이터 보내는 처리
         requestSendVact();
 
-        
+
     }
 
     function requestSendVact() {
@@ -118,11 +115,20 @@ var KWON = (function (win, doc) {
     	}, 200);
     }
 
+	function maruPop() {
+		console.log('c3pop', maruUrl + '/form/payment/vact/authVactLayout');
+
+		doc.getElementById('c3_pop_iframe').src = maruUrl + '/form/payment/vact/authVactLayout';
+		doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
+		doc.getElementById('c3_pop_overlay').style.display = '';
+		doc.getElementById('c3pop_content_fixed').style.display = '';
+	}
+
 	function onlyAuth(config) {
         //rediectURL, publicKey, responseFunction 따로저장
         //MARUConfig는 부국위너스 서버에 보낼 데이터 세팅 > 사용자가 입력한 값을 그대로 보내줌
         //c3Config는 광원서버에 보낼 데이터 세팅 > 광원에 등록된 부국위너스 publicKey를 사용 > 인증과정 거친후 return값을 부국위너스로 보냄
-        console.log('trxType ::::' + config.trxType);
+        
     	c3Config = util.extend(c3Config, config);
         MaruConfig = util.extend(MaruConfig, config);
         c3Config.publicKey = 'pk_55af-b88fa5-8cb-6ff54';
@@ -137,9 +143,9 @@ var KWON = (function (win, doc) {
       		return;
     	}
 
-    	requestOpen();
+		requestOpen();
   	}
-  
+
   	function requestOpen() {
   		c3pop();
     
@@ -148,25 +154,16 @@ var KWON = (function (win, doc) {
     	}, 200);
   	}
 
-    function maruPop() {
-        console.log('c3pop', maruUrl + '/form/payment/vact/authVactLayout');
-	    
-	    doc.getElementById('c3_pop_iframe').src = maruUrl + '/form/payment/vact/authVactLayout'; 
-	    doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
-	    doc.getElementById('c3_pop_overlay').style.display = '';
-	    doc.getElementById('c3pop_content_fixed').style.display = '';
-    }
-  
-  	function c3pop() {
-	    console.log('c3pop', routeDomain + '/form/payment/onlyAuthLayout');
-	    
-	    doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/onlyAuthLayout'; 
-	    doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
-	    doc.getElementById('c3_pop_overlay').style.display = '';
-	    doc.getElementById('c3pop_content_fixed').style.display = '';
-  	}
-  
-  	var postMessages = {
+	function c3pop() {
+		console.log('c3pop', routeDomain + '/form/payment/onlyAuthLayout');
+
+		doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/onlyAuthLayout';
+		doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
+		doc.getElementById('c3_pop_overlay').style.display = '';
+		doc.getElementById('c3pop_content_fixed').style.display = '';
+	}
+
+    var postMessages = {
 	    ie8Resize: function () {
 	      var obj = { type: 'IE8_RESIZE', width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
 	      util.sendMessageToFrame(obj);
@@ -394,9 +391,9 @@ var KWON = (function (win, doc) {
   
           function sendPostMaru(obj) {
               console.log('SEND POSTMESSAGE TO IFRAME:', obj, 'Message ID:', obj.msgId);
-              
-              var contentWindow = doc.getElementById("c3_pop_iframe").contentWindow;
-              contentWindow.postMessage(JSON.stringify(obj), maruUrl);
+
+			  var contentWindow = doc.getElementById("c3_pop_iframe").contentWindow;
+			  contentWindow.postMessage(JSON.stringify(obj), maruUrl);
           }
         }
 	}
@@ -448,7 +445,7 @@ var KWON = (function (win, doc) {
   	}
   	
 	function layerClosed() {
-	    doc.getElementById('c3pop_pop_overlay_wrap').style.display = 'none';
+		doc.getElementById('c3pop_pop_overlay_wrap').style.display = 'none';
 	    doc.getElementById('c3_pop_overlay').style.display = 'none';
 	    doc.getElementById('c3pop_content_fixed').style.display = 'none';
 	    doc.getElementById('c3_pop_iframe').src = 'about:blank';
@@ -474,8 +471,10 @@ var KWON = (function (win, doc) {
 	      } else if (recv.type === 'REVC_ACK') {
 	        sendedIdArray.push(recv.msgId);
 	      } else if (recv.type === 'LAYER_CLOSED') {
-	      	layerClosed();
-	      } else if (recv.type === 'AUTH_RESULT') {
+	      	//layerClosed();
+	      } else if (recv.type === 'LAYER_VACT_CLOSED') {
+			layerClosed();
+		  } else if (recv.type === 'AUTH_RESULT') {
 	        authResult(recv.data);
 	      } else if (recv.type === 'AUTH_VACT_RESULT') {
             authVactResult(recv.data);

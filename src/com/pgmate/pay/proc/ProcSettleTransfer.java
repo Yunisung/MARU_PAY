@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
+import com.pgmate.pay.bean.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,13 +71,21 @@ public class ProcSettleTransfer extends Proc {
 		SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(request.transfer.bankCd, request.transfer.account).getRowFirst();
 
 		//response.transfer = 응답 object로 사용
-		//response.transfer = request.transfer;
+//		response.transfer = request.transfer;
 		response.transfer = new Transfer();
 		response.transfer.trxId = trxId;
 		response.transfer.mchtId = mchtId;
 		response.transfer.netAmount = transferNetAmount;
 		response.transfer.fee = transferFee;
 		response.transfer.balance = transferBalance;
+
+		response.transfer.account = request.transfer.account;
+		response.transfer.bankCd = request.transfer.bankCd;
+		response.transfer.trackId = request.transfer.trackId;
+		response.transfer.amount = request.transfer.amount;
+		response.transfer.bankName = request.transfer.bankName;
+
+
 
 		SharedMap<String, Object> trxMap = new SharedMap<String,Object>();
 		trxMap.put("trxId", trxId);
@@ -150,6 +159,14 @@ public class ProcSettleTransfer extends Proc {
 			response.result = ResultUtil.getResult("9999", "이용불가","출금 중지된 가맹점입니다.");return;
 		}
 
+		if(CommonUtil.isNullOrSpace(request.transfer.transferKey)) {
+			response.result = ResultUtil.getResult("9999", "필수값없음","가맹점 출금키가 입력되지 않았습니다.");return;
+		}
+
+		if(!request.transfer.transferKey.equals(chargeMng.getString("transferKey"))) {
+			response.result = ResultUtil.getResult("9999", "이용불가", "출금키가 맞지 않습니다."); return;
+		}
+		
 		if(CommonUtil.isNullOrSpace(request.transfer.trackId)){
 			response.result = ResultUtil.getResult("9999", "필수값없음","가맹점 주문번호가 입력되지 않았습니다.");return;
 		}

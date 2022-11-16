@@ -74,7 +74,7 @@ public class ProcWithdrawTrmnTest {
         sharedMap.put(PAYUNIT.DEBUG_MODE, "true");
         sharedMap.put(PAYUNIT.TRX_ID, TrxDAO.getTrxId());
         sharedMap.put(PAYUNIT.REG_DATE, CommonUtil.getCurrentDate("yyyyMMddHHmmss")); 	// 시스템 시간
-        sharedMap.put(PAYUNIT.URI, "api/vact/trmn");    //  PAYUNIT.API_VACT_?);
+        sharedMap.put(PAYUNIT.URI, PAYUNIT.API_VACT_WITHDRAW_TRMN);                             //  가상계좌발급해지
         sharedMap.put(PAYUNIT.MCHTID, mchtTmn.getString("mchtId"));
         sharedMap.put("tmnId", mchtTmn.getString("tmnId"));
         sharedObject.put("mchtTmn", mchtTmn);

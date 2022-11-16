@@ -26,6 +26,8 @@ public class ProcWithdrawTrmn extends Proc{
     private int port = 10006;
     private int timeout = 0;
     private SharedMap<String,Object> accountData = new SharedMap<String, Object>();
+    private String companyCd = "";
+    private String bankCd = "";
 
     @Override
     public void exec(RoutingContext rc, Request request, SharedMap<String, Object> sharedMap, SharedMap<String, SharedMap<String, Object>> sharedObject) throws Exception {
@@ -40,6 +42,7 @@ public class ProcWithdrawTrmn extends Proc{
                 Firm firm = FirmLoader.getConfig();
                 FirmBean bean;
                 host = firm.firmServer;
+                port = firm.firmPort;
                 timeout = firm.firmTimeout;
                 response.vact = request.vact;
 
@@ -47,7 +50,6 @@ public class ProcWithdrawTrmn extends Proc{
                 String bankCd = request.vact.bankCd;                    // 가상계좌 은행코드
                 String account = request.vact.account;
                 String trxType = request.vact.trxType;
-                int idx = request.vact.idx;
                 String withdrawBankCd = request.vact.withdrawBankCd;
                 String withdrawAccount = request.vact.withdrawAccount;
                 String name = request.vact.holderName;
@@ -55,6 +57,12 @@ public class ProcWithdrawTrmn extends Proc{
                 String identity = request.vact.identity;
                 String phoneNo = request.vact.phoneNo;
                 String issueId = trxDAO.getIssueId(account);
+
+                if(CommonUtil.isEmpty(issueId)) {
+                    response.result = ResultUtil.getResult("9999", "해지오류", "계좌가 존재하지 않습니다.");
+                    sendResponse();
+                    return;
+                }
 
                 logger.info("가상계좌 출금정보 해지 시작");
 
@@ -71,11 +79,11 @@ public class ProcWithdrawTrmn extends Proc{
                 }
 
                 // FIRM 통신
-                bean = vactReg("", trxType, account, withdrawBankCd, withdrawAccount,
+                bean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
                         name, regType, identity, phoneNo, bankCd);
 
-                bean.resultCd = "0000";
-                bean.resultMsg = "테스트해보기";
+                //bean.resultCd = "0000";
+                //bean.resultMsg = "테스트해보기";
 
                 logger.info("가상계좌 출금정보 해지 응답 : [{}][{}][{}][{}]", trxType, account, bean.resultCd, bean.resultMsg);
 
@@ -114,7 +122,7 @@ public class ProcWithdrawTrmn extends Proc{
                     logger.info("PG_VACT_REG DELETE : [{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, name, executeDeleteVactReg);
 
                     if(executeDeleteVactReg){
-                        response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+idx);
+                        response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+account+withdrawBankCd+withdrawAccount+name);
                     }else{
                         response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
                         sendResponse();
@@ -174,6 +182,15 @@ public class ProcWithdrawTrmn extends Proc{
             response.result = ResultUtil.getResult("9999", "해지오류","가상계좌발급해지 서비스가 아닙니다.");
             return;
         }
+
+        SharedMap<String, Object> accountData = trxDAO.vactAccountData(request.vact.account);
+
+        if(accountData.isNullOrSpace("account")) {
+            response.result = ResultUtil.getResult("9999", "가상계좌없음","등록되어 있지않은 가상계좌번호 입니다.");return;
+        }else {
+            companyCd = accountData.getString("companyCd");
+            bankCd = accountData.getString("bankCd");
+        }
     }
 
     public FirmBean vactReg(String companyCd, String trxType, String account, String withdrawBankCd, String withdrawAccount,
@@ -212,10 +229,10 @@ public class ProcWithdrawTrmn extends Proc{
         long time = System.currentTimeMillis();
 
         try{
-//            socket = new Socket(host, port);
-//            socket.setSoTimeout(timeout);
-            socket = new Socket("10.100.200.10", 10006);
-            socket.setSoTimeout(70000);
+            socket = new Socket(host, port);
+            socket.setSoTimeout(timeout);
+//            socket = new Socket("10.100.200.10", 10006);
+//            socket.setSoTimeout(70000);
 
             output = socket.getOutputStream();
 //            output.write(reqJson.getBytes(Charset.forName("MS949")));
