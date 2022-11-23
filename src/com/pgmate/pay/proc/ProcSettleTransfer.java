@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
+import com.pgmate.app.util.KSignUtil;
 import com.pgmate.lib.vertx.main.VertXUtil;
 import com.pgmate.pay.bean.Transfer;
 import org.slf4j.Logger;
@@ -164,7 +165,10 @@ public class ProcSettleTransfer extends Proc {
 			response.result = ResultUtil.getResult("9999", "필수값없음","가맹점 출금키가 입력되지 않았습니다.");return;
 		}
 
-		if(!request.transfer.transferKey.equals(chargeMng.getString("transferKey"))) {
+		//PYS : 출금키 암호화하고 비교하기
+		String key = KSignUtil.getInstance().Encrypt(request.transfer.transferKey);
+
+		if(!key.equals(chargeMng.getString("transferKey"))) {
 			response.result = ResultUtil.getResult("9999", "이용불가", "출금키가 맞지 않습니다."); return;
 		}
 		
