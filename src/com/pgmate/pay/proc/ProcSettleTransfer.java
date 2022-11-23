@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
-import com.pgmate.app.util.KSignUtil;
+import com.pgmate.pay.util.KSignUtil;
 import com.pgmate.lib.vertx.main.VertXUtil;
 import com.pgmate.pay.bean.Transfer;
 import org.slf4j.Logger;
