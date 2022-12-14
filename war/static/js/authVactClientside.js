@@ -2,6 +2,7 @@ var KWON = (function (win, doc) {
 	var c3Config = {
 	    publicKey: '',    // 필수값
 	    trackId: '',	  // 필수값
+		authKey: '',
 	    responseFunction: '',
 	    redirectUrl: '',
 	    webhookUrl: '',
@@ -26,6 +27,7 @@ var KWON = (function (win, doc) {
     var MaruConfig = {
 	    publicKey: '',    // 필수값
 	    trackId: '',	  // 필수값
+		authKey: '',
 	    responseFunction: '',
 	    redirectUrl: '',
 	    webhookUrl: '',
@@ -131,7 +133,8 @@ var KWON = (function (win, doc) {
         
     	c3Config = util.extend(c3Config, config);
         MaruConfig = util.extend(MaruConfig, config);
-        c3Config.publicKey = 'pk_55af-b88fa5-8cb-6ff54';
+        //c3Config.publicKey = 'pk_55af-b88fa5-8cb-6ff54';
+		c3Config.publicKey = config.authKey;
         c3Config.redirectUrl = '';
         c3Config.responseFunction = MaruResponseFunction;
     	routeDomain = routeUrls[c3Config.debugMode];
