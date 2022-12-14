@@ -1,49 +1,51 @@
 var KWON = (function (win, doc) {
 	var c3Config = {
-		publicKey: '',    // 필수값
-		trackId: '',	  // 필수값
-		responseFunction: '',
-		redirectUrl: '',
-		webhookUrl: '',
-		mode: 'layer',
-		debugMode: 'test',
-		identity: '',
-		phoneNo: '',
-		authId: '',
-		holderName: '',
-		resultCd: '',
-		resultMsg: '',
-		advanceMsg: '',
-		create: '',
-		totalAuthId: '',
-		bankCd: '',
+	    publicKey: '',    // 필수값
+	    trackId: '',	  // 필수값
+		authKey: '',
+	    responseFunction: '',
+	    redirectUrl: '',
+	    webhookUrl: '',
+	    mode: 'layer',
+	    debugMode: 'test',
+	    identity: '',
+	    phoneNo: '',
+	    authId: '',
+	    holderName: '',
+	    resultCd: '',
+	    resultMsg: '',
+	    advanceMsg: '',
+	    create: '',
+	    totalAuthId: '',
+        bankCd: '',
 		account: '',
-		amount: '',
-		oper: '',
+        amount: '',
+        oper: '',
 		companyName: ''
 	}
 
-	var MaruConfig = {
-		publicKey: '',    // 필수값
-		trackId: '',	  // 필수값
-		responseFunction: '',
-		redirectUrl: '',
-		webhookUrl: '',
-		mode: 'layer',
-		debugMode: 'test',
-		identity: '',
-		phoneNo: '',
-		authId: '',
-		holderName: '',
-		resultCd: '',
-		resultMsg: '',
-		advanceMsg: '',
-		create: '',
-		totalAuthId: '',
-		bankCd: '',
+    var MaruConfig = {
+	    publicKey: '',    // 필수값
+	    trackId: '',	  // 필수값
+		authKey: '',
+	    responseFunction: '',
+	    redirectUrl: '',
+	    webhookUrl: '',
+	    mode: 'layer',
+	    debugMode: 'test',
+	    identity: '',
+	    phoneNo: '',
+	    authId: '',
+	    holderName: '',
+	    resultCd: '',
+	    resultMsg: '',
+	    advanceMsg: '',
+	    create: '',
+	    totalAuthId: '',
+        bankCd: '',
 		account: '',
-		amount: '',
-		oper: '',
+        amount: '',
+        oper: '',
 		companyName: ''
 	}
 
@@ -63,20 +65,20 @@ var KWON = (function (win, doc) {
 	}
 
 
-	var routeDomain = routeUrls[c3Config.debugMode];
+  	var routeDomain = routeUrls[c3Config.debugMode];
 	var maruDomain = maruUrls[c3Config.debugMode];
-	var layerInited = false;
-	var layerLoaded = false;
-	var sendedIdArray = [];
-	var debug = false;
-	var error = { code: '0000', message: '' }
+  	var layerInited = false;
+  	var layerLoaded = false;
+  	var sendedIdArray = [];
+  	var debug = false;
+  	var error = { code: '0000', message: '' }
 
-	var sendVactData = {
-		result: '',
-		auth: '',
-		vact: '',
-		publicKey: ''
-	}
+    var sendVactData = { 
+        result: '',
+        auth: '',
+        vact: '',
+        publicKey: ''
+    }
 
 	function MaruResponseFunction(data) {
 		//광원인증후 결과값이 여기로 들어온다.
@@ -125,23 +127,24 @@ var KWON = (function (win, doc) {
 	}
 
 	function onlyAuth(config) {
-		//rediectURL, publicKey, responseFunction 따로저장
-		//MARUConfig는 부국위너스 서버에 보낼 데이터 세팅 > 사용자가 입력한 값을 그대로 보내줌
-		//c3Config는 광원서버에 보낼 데이터 세팅 > 광원에 등록된 부국위너스 publicKey를 사용 > 인증과정 거친후 return값을 부국위너스로 보냄
-
-		c3Config = util.extend(c3Config, config);
-		MaruConfig = util.extend(MaruConfig, config);
-		c3Config.publicKey = 'pk_55af-b88fa5-8cb-6ff54';
-		c3Config.redirectUrl = '';
-		c3Config.responseFunction = MaruResponseFunction;
-		routeDomain = routeUrls[c3Config.debugMode];
-
-		console.log('routeDomain', routeDomain);
-
+        //rediectURL, publicKey, responseFunction 따로저장
+        //MARUConfig는 부국위너스 서버에 보낼 데이터 세팅 > 사용자가 입력한 값을 그대로 보내줌
+        //c3Config는 광원서버에 보낼 데이터 세팅 > 광원에 등록된 부국위너스 publicKey를 사용 > 인증과정 거친후 return값을 부국위너스로 보냄
+        
+    	c3Config = util.extend(c3Config, config);
+        MaruConfig = util.extend(MaruConfig, config);
+        //c3Config.publicKey = 'pk_55af-b88fa5-8cb-6ff54';
+		c3Config.publicKey = config.authKey;
+        c3Config.redirectUrl = '';
+        c3Config.responseFunction = MaruResponseFunction;
+    	routeDomain = routeUrls[c3Config.debugMode];
+    
+    	console.log('routeDomain', routeDomain);
+    
 		if (!util.validation(config)) {
-			alert('입력값이 올바르지 않아 결제를 진행할 수 없습니다.\n\n' + error.message + "(" + error.code + ")");
-			return;
-		}
+      		alert('입력값이 올바르지 않아 결제를 진행할 수 없습니다.\n\n' + error.message + "(" + error.code + ")");
+      		return;
+    	}
 
 		requestOpen();
 	}
