@@ -632,7 +632,8 @@ public class ProcVactAuthOpen extends Proc{
             orgFee = trxDAO.getAuthOrgFee("OWNER"); //DB에 값없음
 
             //가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)
-            trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay, fee, calcVat(fee), orgFee, calcVat(orgFee));
+            //221216_PYS : 인증 수수료 자동 차감 기능 막기
+            //trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay, fee, calcVat(fee), orgFee, calcVat(orgFee));
 
             //실명인증
             //PYS : request.result로 받아오니 해당 로직 주석처리
