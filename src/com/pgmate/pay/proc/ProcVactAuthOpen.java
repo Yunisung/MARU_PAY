@@ -192,6 +192,11 @@ public class ProcVactAuthOpen extends Proc{
             return;
         }
 
+        //221219_PYS : ARS뺀 인증 성공시 정상값으로 수정
+        if(request.result.resultCd.equals("0001")) {
+            request.result.resultCd = "0000";
+        }
+
         if(!request.result.resultCd.equals("0000")) {
             response.result = ResultUtil.getResult("9999", "인증실패","가상계좌 인증에 실패했습니다.");
             return;
