@@ -638,7 +638,8 @@ public class ProcVactAuthOpen extends Proc{
 
             //가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)
             //221216_PYS : 인증 수수료 자동 차감 기능 막기
-            //trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay, fee, calcVat(fee), orgFee, calcVat(orgFee));
+            //221220_OSC : 주석해제. 데몬에서 주석으로 막으면 되고 로그성으로 남기는게 나을 것 같아서 해제
+            trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay, fee, calcVat(fee), orgFee, calcVat(orgFee));
 
             //실명인증
             //PYS : request.result로 받아오니 해당 로직 주석처리
