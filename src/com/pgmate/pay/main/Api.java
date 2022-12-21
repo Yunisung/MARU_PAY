@@ -87,6 +87,8 @@ public class Api {
 			logger.info("MCHTID: {}", sharedMap.getString(PAYUNIT.MCHTID));
 			Proc process = null;
 
+			logger.info("url : {}", uri);
+
 			if (uri.startsWith(PAYUNIT.API_PAY) && !uri.contains("payco")) {
 				process = new ProcPay();
 			} else if (uri.startsWith(PAYUNIT.API_REFUND)) {
