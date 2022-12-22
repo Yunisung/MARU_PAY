@@ -254,15 +254,7 @@ var KWON = (function (win, doc) {
 				error.code = '4002'; error.message = 'trackId 필수값이 없습니다.';
 				return false;
 			}
-			if(!config.identity) {
-				error.code = '4002'; error.message = 'identity 필수값이 없습니다.';
-				return false;
-			}else{
-				if(config.identity.length != 6) {
-					error.code = '4002'; error.message = 'identity 6자리만 가능합니다.';
-					return false;
-				}
-			}
+			
 			if(!config.holderName) {
 				error.code = '4002'; error.message = 'holderName 필수값이 없습니다.';
 				return false;
