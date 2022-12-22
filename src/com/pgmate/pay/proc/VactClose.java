@@ -69,11 +69,15 @@ public class VactClose extends Proc {
 			response.vact = vact;
 			
 			
-			if(vactDtlMap.getString("status").equals("발행") || vactDtlMap.getString("status").equals("대기")){
+//			if(vactDtlMap.getString("status").equals("발행") || vactDtlMap.getString("status").equals("대기")){
+			if(vactDtlMap.getString("status").equals("발행")){
 				vact.expireAt 	= CommonUtil.getCurrentDate("yyyyMMddHH");
 				vact.status 	= "사용자만료";
 				logger.info("account closing : {} ",trxDAO.updateVactDtlClose(vactDtlMap));
 				response.result = ResultUtil.getResult("0000", "계좌만료","가상계좌가 만료처리되었습니다. "+vactDtlMap.getString("status") +" -> 사용자만료");return;
+			}else if(vactDtlMap.getString("status").equals("대기")){
+				logger.info("account 대기상태이므로 사용자만료가 불가능합니다.");
+				response.result = ResultUtil.getResult("0000", "계좌만료","대기 상태인 가상계좌입니다. "+vactDtlMap.getString("status"));return;
 			}else{
 				logger.info("account aleady closed");
 				response.result = ResultUtil.getResult("0000", "계좌만료","이미 만료된 가상계좌입니다. "+vactDtlMap.getString("status"));return;
