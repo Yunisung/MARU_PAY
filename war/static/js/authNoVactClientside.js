@@ -21,7 +21,9 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		withdrawBankCd: '',
+		withdrawAccount: ''
 	}
 
     var MaruConfig = {
@@ -46,7 +48,9 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		withdrawBankCd: '',
+		withdrawAccount: ''
 	}
 
  	/* GLOBAL */
@@ -158,8 +162,8 @@ var KWON = (function (win, doc) {
 			},
 			auth: {
 				totalAuthId: '',
-				bankCd: '032',
-				account: '087120852531',
+				bankCd: MaruConfig.withdrawBankCd,
+				account: MaruConfig.withdrawAccount,
 				trackId: MaruConfig.trackId,
 			}
 		}
