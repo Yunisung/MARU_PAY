@@ -84,10 +84,10 @@ public class ProcRefund extends Proc {
 			van = new Nice(vanMap);
 		}else if(trxMap.isEquals("van", "DAOU")){
 			van = new Daou(vanMap);
-		}else if(mchtTmnMap.startsWith("van", "KSPAY")){
+		}else if(trxMap.startsWith("van", "KSPAY")){
 			// KBR : van 등록 정보 전달하여 필수값 셋팅
 			van = new Kspay(vanMap); 
-		}else if(mchtTmnMap.startsWith("van", "ALLAT")){
+		}else if(trxMap.startsWith("van", "ALLAT")){
 			van = new Allat(vanMap);
         }else if(trxMap.startsWith("van", "FIRST")){
 			van = new Firstpay(vanMap);
