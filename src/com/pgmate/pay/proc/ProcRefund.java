@@ -102,14 +102,20 @@ public class ProcRefund extends Proc {
 		}else if(trxMap.startsWith("van", "GALAXIA")){
 			van = new Galaxia(vanMap);
 		}else{
-            trxMap.put("van","DEFAULT");
-			van = new DemoVan(vanMap);
+			logger.info("van 없음으로 드러옴 {}", trxMap.getString("van"));
+			response.result = ResultUtil.getResult("9999", "VAN 오류","VAN 필수값 없음");
+			setResponse();
+			return;
 		}
-		
+
+		logger.info("===== VAN 통신 시작 =====");
+
 		//KJM : 해당 van에 맞는 refund 메서드 실행
 		// KBR : kspay 통신 취소 로직 실행
 		sharedMap = van.refund(trxDAO, sharedMap, trxMap, response);
-		
+
+		logger.info("===== VAN 통신 끝 =====");
+
 		//KJM : 결제취소 테이블 수정
 		// KBR : PG_TRX_RFD 테이블 업데이트 
 		trxDAO.updateTrxRFD(sharedMap, response);
