@@ -2836,7 +2836,7 @@ public class TrxDAO extends DAO {
 		super.setOrderBy("");
 		RecordSet rset = super.search();
 		super.initRecord();
-		return rset.getRow();
+		return rset.getRowFirst();
 	}
 
 	public SharedMap<String, Object> getMchtBalance(String mchtId) {
