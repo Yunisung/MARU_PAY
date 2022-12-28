@@ -2813,7 +2813,8 @@ public class TrxDAO extends DAO {
 	}
 	
 	public SharedMap<String,Object> getBankName(String bankCd){
-		String key = "PG_CODE_BANK_" + bankCd;
+		//OSC: 운영중 은행코드를 추가했을 시 즉각 반영이 안되므로 캐시 제거
+		/*String key = "PG_CODE_BANK_" + bankCd;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
 			logger.debug("get key : {}", key);
 			return PAYUNIT.cacheMap.getUnchecked(key);
@@ -2827,7 +2828,15 @@ public class TrxDAO extends DAO {
 			super.initRecord();
 			logger.debug("load key : {}", key);
 			return PAYUNIT.cacheMap.put(key, rset.getRow(0));
-		}
+		}*/
+		super.setTable("PG_CODE");
+		super.setColumns("*");
+		super.addWhere("`alias`","BANK", eq);
+		super.addWhere("code", bankCd, eq);
+		super.setOrderBy("");
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRow();
 	}
 
 	public SharedMap<String, Object> getMchtBalance(String mchtId) {
