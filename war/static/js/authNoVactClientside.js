@@ -160,6 +160,14 @@ var KWON = (function (win, doc) {
 				trackId: MaruConfig.trackId,
 			}
 		}
+
+		console.log('routeDomain', routeDomain);
+
+		if (!util.validation(config)) {
+			alert('입력값이 올바르지 않아 결제를 진행할 수 없습니다.\n\n' + error.message + "(" + error.code + ")");
+			return;
+		}
+
 		MaruResponseFunction(data);
   	}
 
