@@ -84,10 +84,10 @@ public class ProcRefund extends Proc {
 			van = new Nice(vanMap);
 		}else if(trxMap.isEquals("van", "DAOU")){
 			van = new Daou(vanMap);
-		}else if(mchtTmnMap.startsWith("van", "KSPAY")){
+		}else if(trxMap.startsWith("van", "KSPAY")){
 			// KBR : van 등록 정보 전달하여 필수값 셋팅
 			van = new Kspay(vanMap); 
-		}else if(mchtTmnMap.startsWith("van", "ALLAT")){
+		}else if(trxMap.startsWith("van", "ALLAT")){
 			van = new Allat(vanMap);
         }else if(trxMap.startsWith("van", "FIRST")){
 			van = new Firstpay(vanMap);
@@ -102,14 +102,20 @@ public class ProcRefund extends Proc {
 		}else if(trxMap.startsWith("van", "GALAXIA")){
 			van = new Galaxia(vanMap);
 		}else{
-            trxMap.put("van","DEFAULT");
-			van = new DemoVan(vanMap);
+			logger.info("van 없음으로 드러옴 {}", trxMap.getString("van"));
+			response.result = ResultUtil.getResult("9999", "VAN 오류","VAN 필수값 없음");
+			setResponse();
+			return;
 		}
-		
+
+		logger.info("===== VAN 통신 시작 =====");
+
 		//KJM : 해당 van에 맞는 refund 메서드 실행
 		// KBR : kspay 통신 취소 로직 실행
 		sharedMap = van.refund(trxDAO, sharedMap, trxMap, response);
-		
+
+		logger.info("===== VAN 통신 끝 =====");
+
 		//KJM : 결제취소 테이블 수정
 		// KBR : PG_TRX_RFD 테이블 업데이트 
 		trxDAO.updateTrxRFD(sharedMap, response);

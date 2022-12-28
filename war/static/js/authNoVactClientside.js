@@ -21,7 +21,9 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		withdrawBankCd: '',
+		withdrawAccount: ''
 	}
 
     var MaruConfig = {
@@ -46,7 +48,9 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		withdrawBankCd: '',
+		withdrawAccount: ''
 	}
 
  	/* GLOBAL */
@@ -55,8 +59,8 @@ var KWON = (function (win, doc) {
     	live: 'https://svcapi.mtouch.com'
   	}
     //부국위너스 URL주소
-    var maruUrl = 'http://127.0.0.1:10002'; //local
-	//var maruUrl = 'https://devapi.bkwinners.kr'; //dev
+    // var maruUrl = 'http://127.0.0.1:10002'; //local
+	var maruUrl = 'https://devapi.bkwinners.kr'; //dev
 	// var maruUrl = 'https://api.bkwinners.kr'; //live
 
 	var maruUrls = {
@@ -158,8 +162,8 @@ var KWON = (function (win, doc) {
 			},
 			auth: {
 				totalAuthId: '',
-				bankCd: '032',
-				account: '087120852531',
+				bankCd: MaruConfig.withdrawBankCd,
+				account: MaruConfig.withdrawAccount,
 				trackId: MaruConfig.trackId,
 			}
 		}
