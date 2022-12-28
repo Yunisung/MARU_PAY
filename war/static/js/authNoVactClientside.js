@@ -59,19 +59,12 @@ var KWON = (function (win, doc) {
     	live: 'https://svcapi.mtouch.com'
   	}
     //부국위너스 URL주소
-    // var maruUrl = 'http://127.0.0.1:10002'; //local
+    //var maruUrl = 'http://127.0.0.1:10002'; //local
 	var maruUrl = 'https://devapi.bkwinners.kr'; //dev
 	// var maruUrl = 'https://api.bkwinners.kr'; //live
 
-	var maruUrls = {
-		test: 'https://devapi.bkwinners.kr',
-		live: 'https://api.bkwinners.kr'
-	}
-
-
-  	var routeDomain = routeUrls[c3Config.debugMode];
-	var maruDomain = maruUrls[c3Config.debugMode];
-  	var layerInited = false;
+	var routeDomain = routeUrls[c3Config.debugMode];
+	var layerInited = false;
   	var layerLoaded = false;
   	var sendedIdArray = [];
   	var debug = false;
@@ -275,7 +268,7 @@ var KWON = (function (win, doc) {
 	        	error.code = '4002'; error.message = 'trackId 필수값이 없습니다.';
 	        	return false;
 	      	}
-	      	if(!config.identity) {
+	      	/*if(!config.identity) {
 	        	error.code = '4002'; error.message = 'identity 필수값이 없습니다.';
 	        	return false;
 	      	}else{
@@ -283,7 +276,20 @@ var KWON = (function (win, doc) {
 	      			error.code = '4002'; error.message = 'identity 6자리만 가능합니다.';
 	        		return false;
 	      		}
-	      	}
+	      	}*/
+			if(!config.withdrawBankCd) {
+				error.code = '4002'; error.message = 'withdrawBankCd 필수값이 없습니다.';
+				return false;
+			} else {
+				if(config.withdrawBankCd.length != 3) {
+					error.code = '4002'; error.message = 'withdrawBankCd 3자리만 가능합니다.';
+					return false;
+				}
+			}
+			if(!config.withdrawAccount) {
+				error.code = '4002'; error.message = 'withdrawAccount 필수값이 없습니다.';
+				return false;
+			}
 	      	if(!config.holderName) {
 	        	error.code = '4002'; error.message = 'holderName 필수값이 없습니다.';
 	        	return false;
