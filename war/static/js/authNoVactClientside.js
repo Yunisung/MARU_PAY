@@ -154,7 +154,7 @@ var KWON = (function (win, doc) {
 				resultMsg: '통합인증이 적용되지 않았습니다.'
 			},
 			auth: {
-				totalAuthId: '',
+				totalAuthId: 'NOAUTH',
 				bankCd: MaruConfig.withdrawBankCd,
 				account: MaruConfig.withdrawAccount,
 				trackId: MaruConfig.trackId,
