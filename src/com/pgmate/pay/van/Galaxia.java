@@ -218,6 +218,9 @@ public class Galaxia implements Van{
 		String codeName = codeDAO.getCodeName(response.pay.card.bin);
 		if(codeName.equals("삼성")) {
 			dealType = "0014";
+			//230102_PYS : 갤럭시아 삼성카드 결제시 자동으로 비생으로 넘어가게 처리
+			password = response.pay.metadata.getString("authPw");
+			socialNumber = response.pay.metadata.getString("authDob");
 		}
 		
 		// 구인증일때
