@@ -173,6 +173,8 @@ public class Api {
 				process = new ProcVactAuthOpen();
 			}else if (uri.startsWith(PAYUNIT.API_VACT_WITHDRAW_TRMN)) {
 				process = new ProcWithdrawTrmn();	// 가상계좌발급해지
+			}else if (uri.startsWith(PAYUNIT.API_TMN)) {
+				process = new ProcTmn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
