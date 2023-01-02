@@ -110,7 +110,7 @@ public class TrxDAO extends DAO {
 	
 	//WH
 	public SharedMap<String, Object> getMchtTmnByTmnId(String tmnId) {
-		String key = "PG_MCHT_TMN_" + tmnId;
+		/*String key = "PG_MCHT_TMN_" + tmnId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
 			logger.debug("get key : {}", key);
 			return PAYUNIT.cacheMap.getUnchecked(key);
@@ -122,7 +122,14 @@ public class TrxDAO extends DAO {
 			super.initRecord();
 			logger.debug("load key : {}", key);
 			return PAYUNIT.cacheMap.put(key, rset.getRow(0));
-		}
+		}*/
+
+		super.setTable("PG_MCHT_TMN");
+		super.setColumns("*");
+		super.addWhere("tmnId", tmnId, eq);
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRowFirst();
 	}
 
 	public SharedMap<String, Object> getMchtTmnByPayKey(String payKey) {
