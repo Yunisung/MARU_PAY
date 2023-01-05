@@ -4069,6 +4069,38 @@ public class TrxDAO extends DAO {
 		 
 		 return insert ;
 	}
+
+	/**
+	 * 가상계좌 인증 상세 테이블 INSERT (PG_VACT_AUTH_DTL) summary추가
+	 */
+	public boolean insertPgVactAuthDtl(String authId, String stlType, String stlUnit, String stlStatus, String stlDay,String summary, long fee, long feeVat, long orgFee, long orgFeeVat){
+		boolean insert = false;
+
+		try {
+			super.setTable("PG_VACT_AUTH_DTL");
+			super.setRecord("authId", authId);
+			super.setRecord("stlId", "");
+			super.setRecord("stlType", stlType);
+			super.setRecord("stlUnit", stlUnit);
+			super.setRecord("stlStatus", stlStatus);
+			super.setRecord("stlDay", stlDay);
+			super.setRecord("summary", summary);
+			super.setRecord("fee", fee);
+			super.setRecord("feeVat", feeVat);
+			super.setRecord("orgFee", orgFee);
+			super.setRecord("orgFeeVat", orgFeeVat);
+
+			insert = super.insert();
+			logger.info("set insertPgVactAuthDtl insert : [{}][{}]", authId, insert);
+
+			super.initRecord();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error("insertPgVactAuthDtl Exception : {}", ex.getMessage());
+		}
+
+		return insert ;
+	}
 	
 	/**
 	 * 해당일자가 휴일인지 체크
