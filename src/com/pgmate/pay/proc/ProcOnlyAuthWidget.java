@@ -62,9 +62,9 @@ public class ProcOnlyAuthWidget extends Proc {
 					//response.widget.put("apiMaxInstall", mchtTmnMap.getInt("apiMaxInstall") );
 					//response.widget.put("nick", mchtMap.getString("nick"));
 					//response.widget.put("semiAuth",  mchtTmnMap.getString("semiAuth"));
+					//response.widget.put("tmnId", mchtTmnMap.getString("tmnId"));
 					response.widget.put("key", widgetKey);
-					response.widget.put("tmnId", mchtTmnMap.getString("tmnId"));
-					response.widget.put("target", "REGULAR");
+					response.widget.put("target", "AUTH");
 					response.widget.put("routeUrl", "/form/payment/total/step_01.html?token=" + widgetKey);
 					// 최대할수개월수
 					//request.widget.put("apiMaxInstall",mchtTmnMap.getInt("apiMaxInstall") );
@@ -73,9 +73,10 @@ public class ProcOnlyAuthWidget extends Proc {
 					// 구인증사용여부(비밀번호,생년월일)
 					//request.widget.put("semiAuth", mchtTmnMap.getString("semiAuth") );
 					request.widget.put("tmnId", mchtTmnMap.getString("tmnId"));
+					request.widget.put("mchtId", mchtTmnMap.getString("mchtId"));
 					// 온라인 결제키
 					request.widget.put("authorization", mchtTmnMap.getString("payKey"));
-					
+
 					logger.info("save as key : {}",response.widget.getString("key"));
 					PAYUNIT.cacheMap.put(response.widget.getString("key"), request.widget);
 					
