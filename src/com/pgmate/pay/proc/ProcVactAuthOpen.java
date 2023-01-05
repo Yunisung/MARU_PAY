@@ -144,7 +144,7 @@ public class ProcVactAuthOpen extends Proc{
                 sendResponse();
                 return;
             }
-            
+
             //원래는 여기서 인증과정을 거침
             //앞에서 하고 들어오니 DB저장만 하고 패스
             if(!Auth()) {
@@ -320,6 +320,11 @@ public class ProcVactAuthOpen extends Proc{
                 return;
             }
 
+        }
+
+        //230105_PYS : 주민번호 빠지면 공백으로 처리
+        if(CommonUtil.isNullOrSpace(request.vact.identity)){
+            request.vact.identity = "";
         }
 
         request.vact.accountPretty = AccountUtil.pretty(request.vact.bankCd, request.vact.account);
@@ -712,6 +717,7 @@ public class ProcVactAuthOpen extends Proc{
      * FCS인증 체크 : 무인증시에만 체크, 수수료 자동차감
      */
     public boolean FcsChecker(Request request) {
+        logger.info("FCS 인증 시작");
         //무인증이 아닌건 바로 리턴
         if(!request.auth.totalAuthId.equals("NOAUTH")) {
             return true;
@@ -720,7 +726,7 @@ public class ProcVactAuthOpen extends Proc{
         //데이터 세팅
         String bankCd = request.vact.bankCd.trim();
         String account = request.vact.account.trim();
-        String identity = request.vact.identity.trim();
+        String identity =  request.vact.identity;
         String holderName = request.vact.holderName.trim();
 
         //PG_FIRM_ACCNT에 있는 계좌 조회
@@ -755,8 +761,9 @@ public class ProcVactAuthOpen extends Proc{
         orgFee = trxDAO.getAuthOrgFee("OWNER");
 
         //가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)
-        trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"), "O", request.vact.authBankCd, request.vact.authAccount,
-                request.vact.identity, request.vact.phoneNo, request.vact.bankCd, request.vact.account, "");
+        trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"),
+                "O", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
+                request.vact.bankCd, request.vact.account, "");
 
         //PG_VACT_AUTH_DTL에 INSERT
         trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay,"실명인증수수료", fee, calcVat(fee), orgFee, calcVat(orgFee));
@@ -785,6 +792,7 @@ public class ProcVactAuthOpen extends Proc{
                 //이름같을때
                 //PG_FIRM_ACCNT에 INSERT
                 trxDAO.insertAccnt(bankCd, account, accountName);
+                logger.info("FCS 인증 완료");
                 return true;
             } else {
                 //이름이 다를때
