@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, minimum-scale=1.0,maximum-scale=1.0">
+        <meta name="format-detection" content="telephone=no, address=no, email=no">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <link
+            href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css'
+            rel='stylesheet'
+            type='text/css'>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap"
+            rel="stylesheet">
+        <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+            integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"/>
+        <title>통합인증</title>
+        <script></script>
+
+    </head>
+
+    <body class="mb-register">
+	<form id="initData" name="initData">
+		<input type="hidden" id="initMchtId" name="initMchtId" value="" />
+		<input type="hidden" id="initTrackId" name="initTrackId" value="" />
+		<input type="hidden" id="initIdentity" name="initIdentity" value="" />
+		<input type="hidden" id="initHolderName" name="initHolderName" value="" />
+		<input type="hidden" id="initPhoneNo" name="initPhoneNo" value="" />
+		<input type="hidden" id="initPublicKey" name="initPublicKey" value="" />
+		<input type="hidden" id="initRedirectUrl" name="initRedirectUrl" value="" />
+		<input type="hidden" id="initWebhookUrl" name="initWebhookUrl" value="" />
+		<input type="hidden" id="initWebKey" name="initWebKey" value="" />
+	</form>
+	<form id="userForm" name="userForm" method = "POST" action="">
+		<input type="hidden" id="userBankCd" name="userBankCd" value="" />
+		<input type="hidden" id="userBankName" name="userBankName" value="" />
+		<input type="hidden" id="userAccount" name="userAccount" value="" />
+		<input type="hidden" id="userIdentity" name="userIdentity" value="" />
+		<input type="hidden" id="userName" name="userName" value="" />
+		<input type="hidden" id="userPhoneNo" name="userPhoneNo" value="" />
+		<input type="hidden" id="userAuthId" name="userAuthId" value="" />
+	</form>
+   	<form id="holderNameForm" name="holderNameForm" method = "POST" action="">
+   		<input type="hidden" id="mchtId" name="mchtId" value="" />
+		<input type="hidden" id="bankCd" name="bankCd" value="" />
+		<input type="hidden" id="bankName" name="bankName" value="" />
+		<input type="hidden" id="account" name="account" value="" />
+		<input type="hidden" id="identity" name="identity" value="" />
+		<input type="hidden" id="name" name="name" value="" />
+		<input type="hidden" id="phoneNo" name="phoneNo" value="" />
+	</form>
+	<form id="vactResForm" name="vactResForm" method = "POST" action="">
+			<input type="hidden" id="vactTotalAuthId" name="vactTotalAuthId" value="" />
+	</form>
+		
+    <div class="popup-layer">
+        <div class="layer-container">
+
+            <!-- title -->
+            <div class="header-title">
+                <span>
+                    통합인증
+                </span> 
+            </div>
+            <!-- //title -->
+            <!-- navigation --> 
+            <div class="nav">
+				<div class="step">
+					<img
+						src="/static/img/auth/nav/icon_consent_active.png"
+						srcset="/static/img/auth/nav/icon_consent_active@2x.png 2x, /static/img/auth/nav/icon_consent_active@3x.png 3x"/>
+				</div>
+				<div class="arrow">
+					<img
+						src="/static/img/auth/nav/icon_next_active.png"
+						srcset="/static/img/auth/nav/icon_next_active@2x.png 2x,/static/img/auth/nav/icon_next_active@3x.png 3x"/>
+				</div>
+
+				<div class="step">
+					<img
+						src="/static/img/auth/nav/icon_name.png"
+						srcset="/static/img/auth/nav/icon_name@2x.png 2x, /static/img/auth/nav/icon_name@3x.png 3x"/>
+				</div>
+				<div class="arrow">
+					<img
+						src="/static/img/auth/nav/icon_next.png"
+						srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+				</div>
+
+				<div class="step">
+					<img
+						src="/static/img/auth/nav/icon_occupy.png"
+						srcset="/static/img/auth/nav/icon_occupy@2x.png 2x, /static/img/auth/nav/icon_occupy@3x.png 3x"/>
+				</div>
+				<div class="arrow">
+					<img
+						src="/static/img/auth/nav/icon_next.png"
+						srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+				</div>
+
+				<div class="step">
+					<img
+						src="/static/img/auth/nav/icon_ars.png"
+						srcset="/static/img/auth/nav/icon_ars@2x.png 2x, /static/img/auth/nav/icon_ars@3x.png 3x"/>
+				</div>
+				<div class="arrow">
+					<img
+						src="/static/img/auth/nav/icon_next.png"
+						srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+				</div>
+
+				<div class="step">
+					<img
+						src="/static/img/auth/nav/icon_complet.png"
+						srcset="/static/img/auth/nav/icon_complet@2x.png 2x, /static/img/auth/nav/icon_complet@3x.png 3x"/>
+				</div>
+			</div>
+			<!-- //navigation -->
+			<!-- 내용 -->
+			<div class="content step01">
+				<span class="title">약관동의</span>
+				<div>
+					<span class="subtitle-02">서비스를 이용하려면 약관 동의가 필요합니다.
+						<br/>
+						아래 약관을 확인하시고 동의해주세요.</span>
+				</div>
+				<div class="main provision">        
+					<div class="check_confirm">
+                        <input type="checkbox" id="confirm">
+                        <label for="confirm" class="check_label">
+                            <span>
+                                전체 동의합니다.
+                            </span>
+                        </label>
+                    </div>
+					<div id="provision-area" >
+						<div class="agree">
+							<input type="checkbox" id="agree_01">
+							<label for="agree_01">
+								<span>
+									전자금융거래 이용약관에 동의합니다. (필수)
+								</span>
+							</label>
+							<span class="detail"></span>
+						</div>
+						<div class="agree_text">
+							<p id="provision1"></p>
+						</div>
+						<div class="agree">
+							<input type="checkbox" id="agree_02">
+							<label for="agree_02">
+								<span>
+									개인정보 수집 및 이용에 동의합니다. (필수)
+								</span>
+							</label>
+							<span class="detail"></span>
+						</div>
+						<div class="agree_text">
+							<p id="provision2"></p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- //내용 -->
+		</div>
+        <!-- //container -->
+        <!-- footer -->
+        <div id="footer">
+			<button id="c3-btn-close" class="cancel">취소</button>
+            <button id="next" class="next">다음</button>
+		</div>
+        <!-- //footer -->
+    </div>
+    <!-- //popup-layer -->
+</body>
+<script>
+   	//전체선택
+    $("input[id='confirm']").on('click', function (event) {
+    	$("input[type='checkbox']").prop('checked', this.checked)
+    	
+    	if(this.checked){
+    		$("button[id='next']").addClass('active');
+    	}else{
+    		$("button[id='next']").removeClass('active');
+    	}
+    });
+    
+    $("label").on('click', function (event) {
+           event.stopImmediatePropagation();
+       });
+    
+       $("label").on('click', function (event) {
+           event.stopImmediatePropagation();
+       });
+	
+       $("#next").on('click', function (event) {
+			if($("input[id='agree_01']").is(":checked") && $("input[id='agree_02']").is(":checked")){
+           	location.href='/form/payment/total/step_02.html?token=' + $("input[id='initWebKey']").val();
+           }
+       });
+       
+       $("input[type='checkbox']").on('click', function (event) {
+			var checked = $(this).is(":checked");
+
+				if (!checked) {
+					$("input[id='confirm']").prop('checked', false);
+					
+				if(!$("input[id='agree_01']").is(":checked") || !$("input[id='agree_02']").is(":checked")){
+					$("button[id='next']").removeClass('active');
+				}
+				}else {
+					var is_checked = true;
+				
+				$("input[class='agree']").each(function(){
+					is_checked = is_checked && $(this).is(":checked");
+				});
+				
+				if(!checked){
+					is_checked = is_checked && $(this).is(":checked");
+				}
+				
+				if($("input[id='agree_01']").is(":checked") && $("input[id='agree_02']").is(":checked")){
+					$("button[id='next']").addClass('active');
+				}
+			
+				$("input[id='confirm']").prop('checked', is_checked)
+			}
+
+			event.stopPropagation();
+       });
+       
+	   $("div.agree").on('click', function (event) {
+                if(!KWON.util.isMobile()){ //pc 화면
+                    $(this)
+                        .next(".agree_text")
+                        .slideToggle(200);
+                    $(this)
+                        .find('i')
+                        .toggleClass('open')
+                }
+            });
+	</script>
+	<script src="/js/onlyAuthIndex.js?v=1" charset="utf-8"></script>
+	<script type="text/javascript" src="/js/common_mb.js"></script>
+	<script type="text/javascript" src="/js/common_provision.js"></script>
+</html>
