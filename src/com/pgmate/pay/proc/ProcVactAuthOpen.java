@@ -794,7 +794,8 @@ public class ProcVactAuthOpen extends Proc{
             if(holderName.equals(accountName)) {
                 //이름같을때
                 //PG_FIRM_ACCNT에 INSERT
-                trxDAO.insertAccnt(bankCd, account, accountName);
+                //FIRM에서 PG_FIRM_ACCNT에 INSERT 처리함.
+                //trxDAO.insertAccnt(bankCd, account, accountName);
                 logger.info("FCS 인증 완료");
                 return true;
             } else {
