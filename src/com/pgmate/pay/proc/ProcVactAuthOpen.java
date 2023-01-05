@@ -133,18 +133,18 @@ public class ProcVactAuthOpen extends Proc{
                 return;
             }
 
-            //하이픈 출금계좌정보 등록
-            if(!withdrawReg(request)) {
-                sendResponse();
-                return;
-            }
-
             //230105_PYS : FCS 계좌인증
             if(!FcsChecker(request)) {
                 sendResponse();
                 return;
             }
 
+            //하이픈 출금계좌정보 등록
+            if(!withdrawReg(request)) {
+                sendResponse();
+                return;
+            }
+            
             //원래는 여기서 인증과정을 거침
             //앞에서 하고 들어오니 DB저장만 하고 패스
             if(!Auth()) {
