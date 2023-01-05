@@ -501,6 +501,11 @@ public class ProcVactAuthOpen extends Proc{
         firmBean.data.put("account", account.trim());
         firmBean.data.put("socialNumber", identity.trim());
 
+        Firm firm = FirmLoader.getConfig();
+        host = firm.firmServer;
+        timeout = firm.firmTimeout;
+        port = firm.firmPort;
+
         firmBean = comm(firmBean);
 
         logger.info("FCS인증 응답 : [{}][{}][{}][{}]", bankCd, account,firmBean.resultCd,firmBean.resultMsg);
@@ -722,8 +727,8 @@ public class ProcVactAuthOpen extends Proc{
         }
 
         //데이터 세팅
-        String bankCd = request.vact.bankCd.trim();
-        String account = request.vact.account.trim();
+        String bankCd = request.auth.bankCd.trim();
+        String account = request.auth.account.trim();
         String identity =  request.vact.identity;
         String holderName = request.vact.holderName.trim();
 
