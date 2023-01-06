@@ -215,13 +215,13 @@ public class Galaxia implements Van{
 		String dealType = "0011";															//수기특약 상세타입 0011비인증 / 0014구인증
 		String password = "";																//비밀번호(삼성카드 경우 필수)
 		String socialNumber = "";															//주민번호 앞 6자리, 법인번호 10자리(삼성카드 경우 필수)
-		String codeName = codeDAO.getCodeName(response.pay.card.bin);
+		/*String codeName = codeDAO.getCodeName(response.pay.card.bin);
 		if(codeName.equals("삼성")) {
 			dealType = "0014";
 			//230102_PYS : 갤럭시아 삼성카드 결제시 자동으로 비생으로 넘어가게 처리
 			password = response.pay.metadata.getString("authPw");
 			socialNumber = response.pay.metadata.getString("authDob");
-		}
+		}*/
 		
 		// 구인증일때
 		if(sharedMap.isEquals("semiAuth", "Y")) {
