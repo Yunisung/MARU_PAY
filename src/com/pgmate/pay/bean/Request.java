@@ -16,6 +16,8 @@ public class Request {
 	public Accnt accnt		= null;
 	public Transfer transfer = null;
 	public ARS ars			= null;
+	// 통합인증
+	public TotalAuth totalAuth = null;
 
 	public Result result	= null;
 

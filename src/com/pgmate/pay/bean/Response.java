@@ -18,7 +18,11 @@ public class Response {
 	public Transfer transfer = null;
 	public SharedMap<String,Object> widget = null;
 	public ARS ars			= null;
-	
+	public Tmn tmn			= null;
+	// 통합인증
+	public TotalAuth totalAuth = null;
+
+
 	public Response() {
 	}
 }

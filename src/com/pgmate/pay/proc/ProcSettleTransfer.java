@@ -7,6 +7,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
+import com.pgmate.pay.util.KSignUtil;
+import com.pgmate.lib.vertx.main.VertXUtil;
 import com.pgmate.pay.bean.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,7 +165,10 @@ public class ProcSettleTransfer extends Proc {
 			response.result = ResultUtil.getResult("9999", "필수값없음","가맹점 출금키가 입력되지 않았습니다.");return;
 		}
 
-		if(!request.transfer.transferKey.equals(chargeMng.getString("transferKey"))) {
+		//PYS : 출금키 암호화하고 비교하기
+		String key = KSignUtil.getInstance().Encrypt(request.transfer.transferKey);
+
+		if(!key.equals(chargeMng.getString("transferKey"))) {
 			response.result = ResultUtil.getResult("9999", "이용불가", "출금키가 맞지 않습니다."); return;
 		}
 		
@@ -189,6 +194,21 @@ public class ProcSettleTransfer extends Proc {
 		
 		if(request.transfer.amount < 1){
 			response.result = ResultUtil.getResult("9999", "이체 최소 금액 오류","이체금액은 1원 이상만 가능합니다.");return;
+		}
+
+		//PYS : IP체크로직 추가
+		//3.38.6.59 		: 에이블 라이브서버
+		//15.164.142.118 	: 에이블 개발서버
+		boolean ipChecker = true;
+		String clientIp = VertXUtil.getClientIp(rc);
+
+		if(clientIp.indexOf("15.164.142.118") > -1 || clientIp.indexOf("3.38.6.59") > -1 ||
+				clientIp.indexOf("192.168.") > -1 || clientIp.indexOf("10.100.100.") > -1){
+			ipChecker = false;
+		}
+
+		if(ipChecker == true) {
+			response.result = ResultUtil.getResult("9999", "허용된 IP 아님","접근 가능한 IP가 아닙니다.");return;
 		}
 
 

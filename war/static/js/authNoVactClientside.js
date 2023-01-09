@@ -21,7 +21,9 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		withdrawBankCd: '',
+		withdrawAccount: ''
 	}
 
     var MaruConfig = {
@@ -46,7 +48,9 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		withdrawBankCd: '',
+		withdrawAccount: ''
 	}
 
  	/* GLOBAL */
@@ -59,15 +63,8 @@ var KWON = (function (win, doc) {
 	var maruUrl = 'https://devapi.bkwinners.kr'; //dev
 	// var maruUrl = 'https://api.bkwinners.kr'; //live
 
-	var maruUrls = {
-		test: 'https://devapi.bkwinners.kr',
-		live: 'https://api.bkwinners.kr'
-	}
-
-
-  	var routeDomain = routeUrls[c3Config.debugMode];
-	var maruDomain = maruUrls[c3Config.debugMode];
-  	var layerInited = false;
+	var routeDomain = routeUrls[c3Config.debugMode];
+	var layerInited = false;
   	var layerLoaded = false;
   	var sendedIdArray = [];
   	var debug = false;
@@ -130,7 +127,7 @@ var KWON = (function (win, doc) {
         //rediectURL, publicKey, responseFunction 따로저장
         //MARUConfig는 부국위너스 서버에 보낼 데이터 세팅 > 사용자가 입력한 값을 그대로 보내줌
         //c3Config는 광원서버에 보낼 데이터 세팅 > 광원에 등록된 부국위너스 publicKey를 사용 > 인증과정 거친후 return값을 부국위너스로 보냄
-        
+        /*
     	c3Config = util.extend(c3Config, config);
         MaruConfig = util.extend(MaruConfig, config);
         //c3Config.publicKey = 'pk_55af-b88fa5-8cb-6ff54';
@@ -147,6 +144,31 @@ var KWON = (function (win, doc) {
     	}
 
 		requestOpen();
+		*/
+
+		c3Config = util.extend(c3Config, config);
+		MaruConfig = util.extend(MaruConfig, config);
+		const data = {
+			result: {
+				resultCd: '0000',
+				resultMsg: '통합인증이 적용되지 않았습니다.'
+			},
+			auth: {
+				totalAuthId: 'NOAUTH',
+				bankCd: MaruConfig.withdrawBankCd,
+				account: MaruConfig.withdrawAccount,
+				trackId: MaruConfig.trackId,
+			}
+		}
+
+		console.log('routeDomain', routeDomain);
+
+		if (!util.validation(config)) {
+			alert('입력값이 올바르지 않아 결제를 진행할 수 없습니다.\n\n' + error.message + "(" + error.code + ")");
+			return;
+		}
+
+		MaruResponseFunction(data);
   	}
 
   	function requestOpen() {
@@ -254,7 +276,28 @@ var KWON = (function (win, doc) {
 	        	error.code = '4002'; error.message = 'trackId 필수값이 없습니다.';
 	        	return false;
 	      	}
-
+	      	/*if(!config.identity) {
+	        	error.code = '4002'; error.message = 'identity 필수값이 없습니다.';
+	        	return false;
+	      	}else{
+	      		if(config.identity.length != 6) {
+	      			error.code = '4002'; error.message = 'identity 6자리만 가능합니다.';
+	        		return false;
+	      		}
+	      	}*/
+			if(!config.withdrawBankCd) {
+				error.code = '4002'; error.message = 'withdrawBankCd 필수값이 없습니다.';
+				return false;
+			} else {
+				if(config.withdrawBankCd.length != 3) {
+					error.code = '4002'; error.message = 'withdrawBankCd 3자리만 가능합니다.';
+					return false;
+				}
+			}
+			if(!config.withdrawAccount) {
+				error.code = '4002'; error.message = 'withdrawAccount 필수값이 없습니다.';
+				return false;
+			}
 	      	if(!config.holderName) {
 	        	error.code = '4002'; error.message = 'holderName 필수값이 없습니다.';
 	        	return false;
@@ -377,7 +420,6 @@ var KWON = (function (win, doc) {
   
               if(util.indexOf(sendedIdArray, msgId) > -1) {
                     console.log('Clear Interval', id);
-            
                     clearInterval(id);
               } else {
 					sendPostMaru(obj);

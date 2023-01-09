@@ -62,8 +62,11 @@ public abstract class Proc {
 		
 		//2018.03.16 WIDGET 반영과 함께 적용 
 		if(sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_GET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_WIDGET )
-				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_ECHO ) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3D_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_W3D_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3D_MOBILE_WIDGET)
-                || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_STATUS) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3DV2_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_SETTLE_BALANCE)){            
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_ECHO ) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3D_WIDGET)
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_W3D_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3D_MOBILE_WIDGET)
+                || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_STATUS)
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3DV2_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_SETTLE_BALANCE)
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_ONLY_AUTH_WIDGET)){
 		}else{
 			if(request == null){
 				logger.info("request is null , payLoad : {}",sharedMap.getString(PAYUNIT.PAYLOAD));

@@ -110,7 +110,7 @@ public class TrxDAO extends DAO {
 	
 	//WH
 	public SharedMap<String, Object> getMchtTmnByTmnId(String tmnId) {
-		String key = "PG_MCHT_TMN_" + tmnId;
+		/*String key = "PG_MCHT_TMN_" + tmnId;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
 			logger.debug("get key : {}", key);
 			return PAYUNIT.cacheMap.getUnchecked(key);
@@ -122,7 +122,14 @@ public class TrxDAO extends DAO {
 			super.initRecord();
 			logger.debug("load key : {}", key);
 			return PAYUNIT.cacheMap.put(key, rset.getRow(0));
-		}
+		}*/
+
+		super.setTable("PG_MCHT_TMN");
+		super.setColumns("*");
+		super.addWhere("tmnId", tmnId, eq);
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRowFirst();
 	}
 
 	public SharedMap<String, Object> getMchtTmnByPayKey(String payKey) {
@@ -2812,7 +2819,8 @@ public class TrxDAO extends DAO {
 	}
 	
 	public SharedMap<String,Object> getBankName(String bankCd){
-		String key = "PG_CODE_BANK_" + bankCd;
+		//OSC: 운영중 은행코드를 추가했을 시 즉각 반영이 안되므로 캐시 제거
+		/*String key = "PG_CODE_BANK_" + bankCd;
 		if (PAYUNIT.cacheMap.containsKey(key)) {
 			logger.debug("get key : {}", key);
 			return PAYUNIT.cacheMap.getUnchecked(key);
@@ -2826,7 +2834,15 @@ public class TrxDAO extends DAO {
 			super.initRecord();
 			logger.debug("load key : {}", key);
 			return PAYUNIT.cacheMap.put(key, rset.getRow(0));
-		}
+		}*/
+		super.setTable("PG_CODE");
+		super.setColumns("*");
+		super.addWhere("`alias`","BANK", eq);
+		super.addWhere("code", bankCd, eq);
+		super.setOrderBy("");
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRowFirst();
 	}
 
 	public SharedMap<String, Object> getMchtBalance(String mchtId) {
@@ -4051,6 +4067,38 @@ public class TrxDAO extends DAO {
 		 }
 		 
 		 return insert ;
+	}
+
+	/**
+	 * 가상계좌 인증 상세 테이블 INSERT (PG_VACT_AUTH_DTL) summary추가
+	 */
+	public boolean insertPgVactAuthDtl(String authId, String stlType, String stlUnit, String stlStatus, String stlDay,String summary, long fee, long feeVat, long orgFee, long orgFeeVat){
+		boolean insert = false;
+
+		try {
+			super.setTable("PG_VACT_AUTH_DTL");
+			super.setRecord("authId", authId);
+			super.setRecord("stlId", "");
+			super.setRecord("stlType", stlType);
+			super.setRecord("stlUnit", stlUnit);
+			super.setRecord("stlStatus", stlStatus);
+			super.setRecord("stlDay", stlDay);
+			super.setRecord("summary", summary);
+			super.setRecord("fee", fee);
+			super.setRecord("feeVat", feeVat);
+			super.setRecord("orgFee", orgFee);
+			super.setRecord("orgFeeVat", orgFeeVat);
+
+			insert = super.insert();
+			logger.info("set insertPgVactAuthDtl insert : [{}][{}]", authId, insert);
+
+			super.initRecord();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error("insertPgVactAuthDtl Exception : {}", ex.getMessage());
+		}
+
+		return insert ;
 	}
 	
 	/**

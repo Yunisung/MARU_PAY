@@ -26,11 +26,20 @@ public class CodeDAO extends DAO{
 	}
 	
 	public String getCodeName(String bin) {
+//		String codeName = "";
+//		addWhere("code", bin, eq);
+//		setOrderBy("");
+//		SharedMap<String, Object> map = super.search().getRowFirst();
+//		codeName = map.getString("codeName");
+//		super.initRecord();
+//		return codeName;
+
 		String codeName = "";
-		addWhere("code", bin, eq);
-		setOrderBy("");
+		super.setTable("PG_CODE_BIN");
+		super.setColumns("*");
+		super.addWhere("bin", bin, eq);
 		SharedMap<String, Object> map = super.search().getRowFirst();
-		codeName = map.getString("codeName");
+		codeName = map.getString("issuer");
 		super.initRecord();
 		return codeName;
 	}

@@ -133,6 +133,12 @@ public class ProcVactAuthOpen extends Proc{
                 return;
             }
 
+            //230105_PYS : FCS 계좌인증
+            if(!FcsChecker(request)) {
+                sendResponse();
+                return;
+            }
+
             //하이픈 출금계좌정보 등록
             if(!withdrawReg(request)) {
                 sendResponse();
@@ -190,6 +196,11 @@ public class ProcVactAuthOpen extends Proc{
         if(request.result == null || request.result.resultCd == null) {
             response.result = ResultUtil.getResult("9999", "필수값없음","가상계좌 인증 결과값이 없습니다.");
             return;
+        }
+
+        //221219_PYS : ARS뺀 인증 성공시 정상값으로 수정
+        if(request.result.resultCd.equals("0001")) {
+            request.result.resultCd = "0000";
         }
 
         if(!request.result.resultCd.equals("0000")) {
@@ -296,6 +307,11 @@ public class ProcVactAuthOpen extends Proc{
             //가상계좌번호 입력시 PG_VACT에서 해당계좌에 은행코드를 찾아서 세팅
             request.vact.bankCd = trxDAO.getVactBankCd(request.vact.account);
 
+        }
+
+        //230105_PYS : 주민번호 빠지면 공백으로 처리
+        if(CommonUtil.isNullOrSpace(request.vact.identity)){
+            request.vact.identity = "";
         }
 
         request.vact.accountPretty = AccountUtil.pretty(request.vact.bankCd, request.vact.account);
@@ -457,8 +473,9 @@ public class ProcVactAuthOpen extends Proc{
             logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
             return false;
         } else {
-            response.result.resultCd = firmBean.resultCd;
-            response.result.resultMsg = firmBean.resultMsg;
+//            response.result.resultCd = firmBean.resultCd;
+//            response.result.resultMsg = firmBean.resultMsg;
+            response.result = ResultUtil.getResult(firmBean.resultCd, firmBean.resultMsg,"");
             //임시 - 테스트용
 //            response.result = ResultUtil.getResult("0000", "정상","가상계좌가 발행되었습니다."+vact.getString("issueId"));
             /*if(!request.vact.holderName.trim().equals(firmBean.data.getString("customerName"))) {
@@ -469,6 +486,28 @@ public class ProcVactAuthOpen extends Proc{
             }*/
         }
         return true;
+    }
+
+    public FirmBean fcsFirmBean(String bankCd, String account, String identity) {
+        FirmBean firmBean = new FirmBean();
+        firmBean.bankCd 	= "099";
+        firmBean.msgType 	= "0600400";
+        firmBean.userId		= "SYSTEM";
+        firmBean.data.put("bankCd", bankCd.trim());
+        firmBean.data.put("account", account.trim());
+        firmBean.data.put("socialNumber", identity.trim());
+
+        Firm firm = FirmLoader.getConfig();
+        host = firm.firmServer;
+        timeout = firm.firmTimeout;
+        port = firm.firmPort;
+
+        firmBean = comm(firmBean);
+
+        logger.info("FCS인증 응답 : [{}][{}][{}][{}]", bankCd, account,firmBean.resultCd,firmBean.resultMsg);
+        logger.info("FCS인증 data : [{}]",GsonUtil.toJson(firmBean.data));
+
+        return firmBean;
     }
 
     public FirmBean vactReg(String companyCd, String trxType, String account, String withdrawBankCd, String withdrawAccount,
@@ -629,7 +668,8 @@ public class ProcVactAuthOpen extends Proc{
             orgFee = trxDAO.getAuthOrgFee("OWNER"); //DB에 값없음
 
             //가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)
-            trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay, fee, calcVat(fee), orgFee, calcVat(orgFee));
+            //221216_PYS : 인증 수수료 자동 차감 기능 막기
+            //trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay, fee, calcVat(fee), orgFee, calcVat(orgFee));
 
             //실명인증
             //PYS : request.result로 받아오니 해당 로직 주석처리
@@ -671,6 +711,98 @@ public class ProcVactAuthOpen extends Proc{
             logger.error("vactAuth Error : " + e.getMessage());
         }
         return false;
+    }
+
+    /**
+     * FCS인증 체크 : 무인증시에만 체크, 수수료 자동차감
+     */
+    public boolean FcsChecker(Request request) {
+        logger.info("FCS 인증 시작");
+        //무인증이 아닌건 바로 리턴
+        if(!request.auth.totalAuthId.equals("NOAUTH")) {
+            return true;
+        }
+
+        //데이터 세팅
+        String bankCd = request.auth.bankCd.trim();
+        String account = request.auth.account.trim();
+        String identity =  request.vact.identity;
+        String holderName = request.vact.holderName.trim();
+
+        //PG_FIRM_ACCNT에 있는 계좌 조회
+        SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(bankCd, account).getRowFirst();
+        String dbName = firmAccntMap.getString("accntHolder");
+
+        //PG_FIRM_ACCNT에 있는 계좌는 바로 리턴
+        if(dbName.equals(holderName)) {
+            return true;
+        }
+
+        //FIRM 실행전 수수료 차감
+        String authId = TrxDAO.getAuthId();
+        String stlType = mchtVactMngMap.getString("settleType");
+        String unitType = "";
+        if(mchtVactMngMap.getString("settleType").startsWith("D+0")){
+            unitType = "실시간정산";
+        }else if(mchtVactMngMap.getString("settleType").startsWith("D+")){
+            unitType = "일반정산";
+        }else if(mchtVactMngMap.getString("settleType").startsWith("C+")){
+            unitType = "충전정산";
+        }else if(mchtVactMngMap.getString("settleType").equals("A+1")){
+            unitType = "자동정산";
+        }else if(mchtVactMngMap.getString("settleType").equals("A+0") ||
+                mchtVactMngMap.getString("settleType").equals("A+2")){
+            unitType = "당일정산";
+        }
+        String stlDay = calcDay(stlType, CommonUtil.getCurrentDate("yyyyMMdd"));
+
+        //실명인증수수료값 조회
+        fee = mchtVactMngMap.getLong("ownerAuthFee");
+        orgFee = trxDAO.getAuthOrgFee("OWNER");
+
+        //가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)
+        trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"),
+                "O", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
+                request.vact.bankCd, request.vact.account, "");
+
+        //PG_VACT_AUTH_DTL에 INSERT
+        trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay,"실명인증수수료", fee, calcVat(fee), orgFee, calcVat(orgFee));
+
+        //PG_FIRM_ACCNT에 없는 계좌는 FIRM으로 보냄
+        FirmBean firmBean = fcsFirmBean(bankCd, account, identity);
+
+        //FIRM 결과값 PG_VACT_AUTH에 업데이트
+        trxDAO.updatePgVactAuth(authId, firmBean.resultCd, firmBean.resultMsg);
+
+        if(!firmBean.resultCd.equals("0000")) {
+            //FCS 인증 실패시
+            if("".equals(firmBean.resultMsg)) {
+                response.result = ResultUtil.getResult(firmBean.resultCd, "FCS인증 실패","서버 시스템 오류. 관리자에게 문의해주세요.");
+            } else {
+                response.result = ResultUtil.getResult(firmBean.resultCd, "FCS인증 실패",firmBean.resultMsg);
+            }
+
+            logger.info("FCS인증 오류 [{}][{}][{}][{}][{}]", bankCd, account, identity, firmBean.resultCd, firmBean.resultMsg);
+            return false;
+        } else {
+            //FCS 인증 성공시
+            String accountName = firmBean.data.getString("accountName");
+
+            if(holderName.equals(accountName)) {
+                //이름같을때
+                //PG_FIRM_ACCNT에 INSERT
+                //FIRM에서 PG_FIRM_ACCNT에 INSERT 처리함.
+                //trxDAO.insertAccnt(bankCd, account, accountName);
+                logger.info("FCS 인증 완료");
+                return true;
+            } else {
+                //이름이 다를때
+                response.result = ResultUtil.getResult("9999", "FCS인증 오류", "이름이 올바르지 않습니다.");
+                logger.info("FCS인증 이름 오류 [{}][{}][{}][{}]", bankCd, account, accountName, holderName);
+                return false;
+            }
+        }
+
     }
 
     /**

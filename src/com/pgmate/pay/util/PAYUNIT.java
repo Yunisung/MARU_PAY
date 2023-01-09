@@ -87,6 +87,11 @@ public class PAYUNIT {
 	public static String API_LPAY_RETURN			= "/api/lpay/return";
 	public static String API_LPAY_MOBILE_RETURN		= "/api/lpay/mobile/return";
 
+	public static String API_TMN					= "/api/tmn";
+
+	public static String API_ONLY_AUTH_WIDGET		= "/api/only/auth/widget";		// 통합인증 위젯
+	public static String API_ACCOUNT_HOLDER			= "/api/account/holder";		// 계좌실명인증(FCS) 조회
+
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
     public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook",};    
 	

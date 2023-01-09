@@ -1,0 +1,347 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, minimum-scale=1.0,maximum-scale=1.0, viewport-fit=cover">
+        <meta name="format-detection" content="telephone=no, address=no, email=no">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <link
+            href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css'
+            rel='stylesheet'
+            type='text/css'>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap"
+            rel="stylesheet">
+        <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+            integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"/>
+        <title>계좌 점유 인증</title>
+    </head>
+    <body class="mb-register">
+    	<form id="initData" name="initData">
+			<input type="hidden" id="initMchtId" name="initMchtId" value="" />
+			<input type="hidden" id="initTrackId" name="initTrackId" value="" />
+			<input type="hidden" id="initIdentity" name="initIdentity" value="" />
+			<input type="hidden" id="initHolderName" name="initHolderName" value="" />
+			<input type="hidden" id="initPhoneNo" name="initPhoneNo" value="" />
+			<input type="hidden" id="initPublicKey" name="initPublicKey" value="" />
+			<input type="hidden" id="initRedirectUrl" name="initRedirectUrl" value="" />
+			<input type="hidden" id="initWebhookUrl" name="initWebhookUrl" value="" />
+			<input type="hidden" id="initWebKey" name="initWebKey" value="" />
+		</form>
+		<form id="userForm" name="userForm" method = "POST" action="">
+			<input type="hidden" id="userBankCd" name="userBankCd" value="" />
+			<input type="hidden" id="userBankName" name="userBankName" value="" />
+			<input type="hidden" id="userAccount" name="userAccount" value="" />
+			<input type="hidden" id="userIdentity" name="userIdentity" value="" />
+			<input type="hidden" id="userName" name="userName" value="" />
+			<input type="hidden" id="userPhoneNo" name="userPhoneNo" value="" />
+			<input type="hidden" id="userAuthId" name="userAuthId" value="" />
+		</form>
+	   	<form id="holderNameForm" name="holderNameForm" method = "POST" action="">
+	   		<input type="hidden" id="mchtId" name="mchtId" value="" />
+			<input type="hidden" id="bankCd" name="bankCd" value="" />
+			<input type="hidden" id="bankName" name="bankName" value="" />
+			<input type="hidden" id="account" name="account" value="" />
+			<input type="hidden" id="identity" name="identity" value="" />
+			<input type="hidden" id="name" name="name" value="" />
+			<input type="hidden" id="phoneNo" name="phoneNo" value="" />
+		</form>
+		<form id="vactResForm" name="vactResForm" method = "POST" action="">
+			<input type="hidden" id="vactTotalAuthId" name="vactTotalAuthId" value="" />
+		</form>
+		<form id="accountAuthForm" name="accountAuthForm" method = "POST" action="">
+			<input type="hidden" id="authNo" name="authNo" value="" />
+			<input type="hidden" id="authId" name="authId" value="" />
+		</form>
+		
+        <div class="popup-layer">
+            <div class="layer-container step03-2">
+                <!-- title -->
+                <div class="header-title">
+                    <span>
+                        계좌 점유 인증
+                    </span>
+                </div>
+                <!-- //title -->
+                <!-- navigation -->
+                <div class="nav">
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_consent.png"
+                            srcset="/static/img/auth/nav/icon_consent@2x.png 2x, /static/img/auth/nav/icon_consent@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next.png"
+                            srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_name.png"
+                            srcset="/static/img/auth/nav/icon_name@2x.png 2x, /static/img/auth/nav/icon_name@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next.png"
+                            srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_occupy_active.png"
+                            srcset="/static/img/auth/nav/icon_occupy_active@2x.png 2x, /static/img/auth/nav/icon_occupy_active@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next_active.png"
+                            srcset="/static/img/auth/nav/icon_next_active@2x.png 2x,/static/img/auth/nav/icon_next_active@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_ars.png"
+                            srcset="/static/img/auth/nav/icon_ars@2x.png 2x, /static/img/auth/nav/icon_ars@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next.png"
+                            srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_complet.png"
+                            srcset="/static/img/auth/nav/icon_complet@2x.png 2x, /static/img/auth/nav/icon_complet@3x.png 3x"/>
+                    </div>
+                </div>
+                <!-- //navigation -->
+                <!-- 내용 -->
+                <div class="content step03-2">
+					<div id="content-title">
+                        <span class="subtitle">
+                            등록 하신 계좌로
+                            <br/>
+                            1원이 송금 되었습니다.
+                        </span>
+                    </div>
+					
+                    <div class="main step03-2">
+                        <div>
+                            <div>
+                                <span>
+                                    입금자로 표시된
+                                    <span class="accent">숫자 4자리를 입력</span>해주세요.
+                                </span>
+                            </div>
+                            <div class="auth">
+                                <!-- <span> 숫자 4자리 입력 </span> -->
+                                <div class="auth_number">
+                                    <input
+                                        id="authNo1" 
+                                        type="number"
+                                        class="next"
+                                        placeholder="*"
+                                        maxlength="1"
+                                        oninput="checkMaxLength(this)">
+                                    <input
+                                        id="authNo2" 
+                                        type="number"
+                                        class="next"
+                                        placeholder="*"
+                                        maxlength="1"
+                                        oninput="checkMaxLength(this)">
+                                    <input
+                                        id="authNo3" 
+                                        type="number"
+                                        class="next"
+                                        placeholder="*"
+                                        maxlength="1"
+                                        oninput="checkMaxLength(this)">
+                                    <input
+                                        id="authNo4" 
+                                        type="number"
+                                        class="last"
+                                        placeholder="*"
+                                        maxlength="1"
+                                        oninput="checkMaxLength(this)">
+                                </div>
+                            </div>
+                            <div class="bankinfo">
+                                <table>
+                                    <tr>
+                                        <th>보낸사람</th>
+                                        <td>KWONPS
+                                            <span class="authno">1</span>
+                                            <span class="authno">2</span>
+                                            <span class="authno">3</span>
+                                            <span class="authno">4</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>입금</th>
+                                        <td>입금 1원</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+					<div id="error_message" class="error_message">
+						<span class="success">＊ 입금자 숫자를 넣어주세요.</span>
+                    </div>
+                <!-- //내용 --> 
+            </div>
+            <!-- //container -->
+            <!-- footer -->
+			<div id="footer">
+                <button id="c3-btn-close" class="cancel">취소</button>
+                <button id="next" class="next active">확인</button>
+            </div>
+            <!-- //footer -->
+        </div>
+        <!-- //popup-layer -->
+    </body>
+    <script>
+		var clickCheck = false;
+		var authNo = "";
+		var count = 0;
+		
+		$("input[id='authNo1']").focus();
+		
+		$("#next").on('click', function (event) {
+			if($("input[id='authNo1']").val().length != 1){
+        		$("div[class='error_message']").html('<span class="error">인증번호를 입력해주세요.</span>');
+        		$("input[id='authNo1']").focus();
+        		
+        		return false;
+        	}
+			if($("input[id='authNo2']").val().length != 1){
+        		$("div[class='error_message']").html('<span class="error">인증번호를 입력해주세요.</span>');
+        		$("input[id='authNo2']").focus();
+        		
+        		return false;
+        	}
+			if($("input[id='authNo3']").val().length != 1){
+        		$("div[class='error_message']").html('<span class="error">인증번호를 입력해주세요.</span>');
+        		$("input[id='authNo3']").focus();
+        		
+        		return false;
+        	}
+			if($("input[id='authNo4']").val().length != 1){
+        		$("div[class='error_message']").html('<span class="error">인증번호를 입력해주세요.</span>');
+        		$("input[id='authNo4']").focus();
+        		
+        		return false;
+        	}
+			
+			if(clickCheck){
+	    		return false;
+	    	}else{
+	    		clickCheck = true;
+	    	}
+			
+			authNo = $("input[id='authNo1']").val() + $("input[id='authNo2']").val() + $("input[id='authNo3']").val() + $("input[id='authNo4']").val();
+			
+			$("#accountAuthForm > #authId").val($("#userForm > #userAuthId").val());
+	    	$("#accountAuthForm > #authNo").val(authNo);
+	    	
+	    	$("div[class='error_message']").html('<span class="error">계좌점유 인증중입니다.</span>');
+	    	$("button[id='next']").removeClass('active');
+			
+	    	var data = {"totalAuth" : $('#accountAuthForm').serializeObject()};
+	    	
+	    	loading.start();
+	    	
+				$.ajax({
+					type : 'POST', 
+					url : '/api/account/auth/check', 
+					data : JSON.stringify(data),
+					dataType : 'json', 
+					beforeSend : function(xhr){ 
+			            xhr.setRequestHeader("Content-type", "application/json");
+						xhr.setRequestHeader("Authorization", $("input[id='initPublicKey']").val());
+					}, 
+					success : function(json){
+						loading.end();
+						
+						if("0000" == json.result.resultCd){
+                            $("#accountAuthForm").attr("action","/form/payment/total/step_04.html?token=" + $("input[id='initWebKey']").val()).submit();
+                        } else if("0001" == json.result.resultCd) {
+                            KWON.totalAuthConfirm(
+                                "0000",
+                                json.result.resultMsg,
+                                "통합인증이 정상적으로 완료되었습니다."
+                            );
+                        } else {
+                            clickCheck = false;
+                            $("button[id='next']").addClass('active');
+                            $("div[class='error_message']").html('<span class="error">' + json.result.advanceMsg + '<br>3회실패시 인증이 취소됩니다.</span>');
+                            $("input[id='authNo1']").val("");
+                            $("input[id='authNo2']").val("");
+                            $("input[id='authNo3']").val("");
+
+							$("input[id='authNo4']").val("");
+
+							$("input[id='authNo1']").focus();
+
+							count++;
+                            if(count >= 3){
+
+								KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, "[계좌점유인증 인증번호 비교오류]<br>" + json.result.resultMsg + "(" + json.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
+                                $("#accountAuthForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+                            }
+                        }
+                    },
+					error: function(xhr, status, error){ 
+						loading.end();
+						
+						clickCheck = false;
+						$("button[id='next']").addClass('active');
+						$("div[class='error_message']").html('<span class="error">통신에러<br>3회실패시 인증이 취소됩니다.</span>');
+						
+						count++;
+						
+						if(count >= 3){
+							KWON.setErrMsg("9999", "계좌점유인증 인증번호 비교 통신에러", "[계좌점유인증 오류]<br>통신에러" + "<br>가맹점에 문의해 주세요.");
+
+							$("#accountAuthForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+						}
+					}
+				});
+		});
+
+	    jQuery.fn.serializeObject = function() {
+	    	var obj = null;
+	        try {
+	            if (this[0].tagName && this[0].tagName.toUpperCase() == "FORM") {
+	                var arr = this.serializeArray();
+	                if (arr) {
+	                    obj = {};
+	
+	                    jQuery.each(arr, function() {
+	                        obj[this.name] = this.value;
+	                    });
+	                }//if ( arr ) {
+	            }
+	        } catch (e) {
+	            alert(e.message);
+	        } finally {
+	        }
+	     
+	        return obj;
+	    };
+	</script> 
+	
+	<script src="/js/onlyAuthIndex.js?v=1" charset="utf-8"></script>
+	<script type="text/javascript" src="/js/common_mb.js"></script>
+</html>
