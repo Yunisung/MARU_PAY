@@ -72,7 +72,17 @@ public class Kspay implements Van {
 		ksHeader.setRetry("0");
 		ksHeader.setTrnDate(CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		ksHeader.setMerchantId(TID);
-		ksHeader.setPayName(tmnId);
+		// OSC: 실주문자명, 실제품명으로 세팅
+		//ksHeader.setPayName(tmnId);
+		if(!CommonUtil.isNullOrSpace(response.pay.payerName)) {
+			ksHeader.setPayName(response.pay.payerName);
+		} else {
+			ksHeader.setPayName(tmnId);
+		}
+		if(response.pay.products != null && response.pay.products.size() > 0) {
+			ksHeader.setPdtName(response.pay.products.get(0).name);
+		}
+
 		ksHeader.setTrnsNo(response.pay.trxId);
 		// KEYIN여부  S:SWAP, K:KEYIN
 		ksHeader.setTrxType("K");
