@@ -172,8 +172,8 @@ public class ProcPay extends Proc {
 			response.result = ResultUtil.getResult("9999", "필수값없음","가맹점 주문번호가 입력되지 않았습니다.");return;
 		}
 		
-        if(request.pay.payerName.length() > 100){
-            request.pay.payerName = request.pay.payerName.substring(0, 100);
+        if(request.pay.payerName.length() > 25){
+            request.pay.payerName = request.pay.payerName.substring(0, 25);
             response.result = ResultUtil.getResult("9999", "입력값오류","구매자 성명은 25자리 이하만 가능합니다.");return;
         }
         if(request.pay.payerEmail.length() > 100){
@@ -317,6 +317,16 @@ public class ProcPay extends Proc {
 		//KJM : 결제주문내역 추가
 		if(request.pay.products != null){
 			trxDAO.insertProduct(sharedMap.getString(PAYUNIT.KEY_PROD), request.pay.products,sharedMap.getString(PAYUNIT.REG_DATE));
+
+			//OSC: 제품명 길이 체크
+			if(request.pay.products.size() > 0) {
+				String productName = request.pay.products.get(0).name;
+				if(productName.length() > 50) {
+					//request.pay.products.get(0).name = productName.substring(0, 50);
+					response.result = ResultUtil.getResult("9999", "입력값오류", "제품명은 50자리 이하만 가능합니다.");
+					return;
+				}
+			}
 		}
 		
 		//semiAuth 즉 생년월일/카드비번2자리 꼭 사용하는 가맹점 2017-08-01
