@@ -14,6 +14,8 @@ package com.pgmate.pay.van;
 
 import com.pgmate.lib.util.lang.CommonUtil;
 
+import java.io.UnsupportedEncodingException;
+
 public class KspayHead {
 
 	private String headerLength = "";		// 전문 길이
@@ -66,7 +68,7 @@ public class KspayHead {
 		
 	}
 	
-	public String getHeader(byte[] data){
+	/*public String getHeader(byte[] data){
 
 		StringBuffer transaction = new StringBuffer();
 		headerLength = CommonUtil.zerofill(296+data.length, 4);
@@ -90,6 +92,33 @@ public class KspayHead {
 		transaction.append(CommonUtil.byteFiller(extra		,35));
 		transaction.append(CommonUtil.toString(data));
 		
+		return transaction.toString();
+	}*/
+
+	public String getHeader(byte[] data){
+
+		StringBuffer transaction = new StringBuffer();
+		headerLength = CommonUtil.zerofill(296+data.length, 4);
+		transaction.append(headerLength);
+		transaction.append(CommonUtil.zerofill(crypto		,1));
+		transaction.append(byteFillerEucKr(specVersion		,4));
+		transaction.append(byteFillerEucKr(specType			,2));
+		transaction.append(CommonUtil.zerofill(retry		,1));
+		transaction.append(byteFillerEucKr(trnDate			,14));
+		transaction.append(byteFillerEucKr(CommonUtil.nToB(merchantId)	,10));
+		transaction.append(byteFillerEucKr(trnsNo			,50));
+		transaction.append(byteFillerEucKr(payName 			,50));
+		transaction.append(byteFillerEucKr(payIdentity		,13));
+		transaction.append(byteFillerEucKr(payEmail			,50));
+		transaction.append(byteFillerEucKr(pdtType			,1));
+		transaction.append(byteFillerEucKr(pdtName			,50));
+		transaction.append(byteFillerEucKr(trxType			,1));
+		transaction.append(byteFillerEucKr(trnAccess		,1));
+		transaction.append(byteFillerEucKr(payTel			,12));
+		transaction.append(byteFillerEucKr(payCount			,1));
+		transaction.append(byteFillerEucKr(extra			,35));
+		transaction.append(CommonUtil.toString(data));
+
 		return transaction.toString();
 	}
 
@@ -238,7 +267,24 @@ public class KspayHead {
 	}
 
 
-	
+	public static String byteFillerEucKr(String data, int size) {
+		try {
+			return data + set(" ", size - data.getBytes("euc-kr").length);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	public static String set(String str, int size) {
+		StringBuilder sb = new StringBuilder();
+
+		for(int i = 0; i < size; ++i) {
+			sb.append(str);
+		}
+
+		return sb.toString();
+	}
 	
 	
 }
