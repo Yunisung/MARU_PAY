@@ -441,55 +441,6 @@ public class Kspay implements Van {
 		
 	}
 
-	public KspayResponse comm2(KspayHead head,KspayCredit credit){
-
-		TcpSocket tcp = new TcpSocket();
-		KspayResponse res = new KspayResponse();
-
-		byte[] response = null;
-
-		try{
-			byte[] request = head.getHeader(credit.getKSNETCredit()).getBytes();
-			//KJM : ksnet ip 세팅
-			// KBR : Socket 생성시 필요한 필수값 설정
-			tcp.setSocketProperty(KSNET_HOST_PROD, port, timeout);
-			logger.info("KSNET >> [{}],{}",CommonUtil.toString(request),request.length);
-			//KJM : connect() : 서버와 연결 설정 , send() : 데이터 전송
-			// KBR :  Socket 접속 및 InputStream, OutputStream의 생성
-			tcp.connect();
-			// KBR : byte 기반의 송신
-			tcp.send(request);
-			//KJM : len : 읽을 데이터 크기 , recv() : 데이터 수신
-			int len = CommonUtil.parseInt(CommonUtil.toString(tcp.recv(4)));
-			System.out.println("[ len ] : " + len);
-			// KBR : 지정된 문자열만큼 데이터 수신.
-			response = tcp.recv(len);
-
-			byte[] resBuf = new byte[response.length-300-4];
-			// KBR : System.arraycopy => byte[] 형태의 데이터를 자르거나 연접하기 위해 사용하는 메소드 입니다
-			//KJM : arraycopy(원본, 읽어올 위치, 복사하려는 대상, 대상의 시작 위치, 복사할 데이터 길이)
-			//response의 296위치부터의 데이터를 resBuf에 resBuf의 길이만큼 처음부터 붙여넣음
-			System.arraycopy(response,300-4, resBuf,0, resBuf.length);
-
-			res =  new KspayResponse(resBuf);
-		}catch(Exception e){
-			logger.info("KSNET CONNECTION ERROR [{}]",CommonUtil.getExceptionMessage(e));
-			logger.info("KSNET IP :{},PORT:{}",KSNET_HOST_PROD,port);
-			res = new KspayResponse();
-			res.setResponseCode("V");
-			res.setTrnDay(CommonUtil.getCurrentDate("yyyyMMdd"));
-			res.setTrnTime(CommonUtil.getCurrentDate("HHmmss"));
-			res.setApprovalNo("XXXX");
-			res.setMessage1("통신장애");
-		}finally{
-			logger.info("BANK RESPONSE [{},{}]",res.getResponseCode(),res.getMessage1());
-			logger.info("KSNET << [{}]",convert(response,"ksc5601"));
-		}
-
-		return res;
-
-	}
-	
 	//KJM : 결제 취소 통신
 	public KspayResponse comm(KspayHead head,KspayRefund kVoid){
 		
@@ -554,23 +505,6 @@ public class Kspay implements Van {
 		return sb.toString();
 	}
 
-	private String changeCharset(String str, String charset) {
-		try {
-			byte[] bytes = str.getBytes(charset);
-			return new String(bytes);
-		} catch(UnsupportedEncodingException e) { }//Exception
-		return "";
-	}
-
-	private String changeCharset(String str, String charset, String targetCharset) {
-		try {
-			byte[] bytes = str.getBytes(charset);
-			return new String(bytes, targetCharset);
-		} catch(UnsupportedEncodingException e) { }//Exception
-		return "";
-	}
-
-	
 
 	
 
