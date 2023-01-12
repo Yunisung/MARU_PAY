@@ -93,8 +93,13 @@ public class ProcPay extends Proc {
 		}else if(mchtTmnMap.startsWith("van", "GALAXIA")){
 			van = new Galaxia(tmnVanMap);
 		}else{
-			mchtTmnMap.put("van","DEFAULT");
-			van = new DemoVan(tmnVanMap);
+			//mchtTmnMap.put("van","DEFAULT");
+			//van = new DemoVan(tmnVanMap);
+
+			logger.info("van 없음으로 드러옴 {}", mchtTmnMap.getString("van"));
+			response.result = ResultUtil.getResult("9999", "VAN 오류","VAN 필수값 없음");
+			setResponse();
+			return;
 		}
 		
 		//KJM : 해당 van에 맞는 정보세팅 후 승인요청, 승인결과값 세팅
