@@ -63,6 +63,30 @@ public class ProcAccountHolder extends Proc {
 
 	@Override
 	public void valid() {
+		//230113_PYS : 가맹점 통합인증 정보로 검증처리
+		TrxDAO dao = new TrxDAO();
+		SharedMap<String, Object> totalAuth = dao.getTotalAuth(mchtTmnMap.getString("mchtId"));
+
+		String identityCheck = "";
+
+		if(totalAuth != null) {
+			String ownerAuth = totalAuth.getString("ownerAuth");
+
+			if(ownerAuth.equals("N")) {
+				response.result = ResultUtil.getResult("9999", "사용할수 없음", "실명인증 사용중인 가맹점이 아닙니다.");
+				return;
+			}
+
+			identityCheck = totalAuth.getString("identityCheck");
+		}
+
+		if(identityCheck.equals("Y")) {
+			if(CommonUtil.isNullOrSpace(request.totalAuth.identity)) {
+				response.result = ResultUtil.getResult("9999", "필수값없음","생년월일 값이 없습니다.");
+				return;
+			}
+		}
+
 
 		if(CommonUtil.isNullOrSpace(request.totalAuth.bankCd)) {
 			response.result = ResultUtil.getResult("9999", "필수값없음","출금은행코드 값이 없습니다.");
@@ -74,10 +98,9 @@ public class ProcAccountHolder extends Proc {
 			return;
 		}
 
-		if(CommonUtil.isNullOrSpace(request.totalAuth.identity)) {
-			response.result = ResultUtil.getResult("9999", "필수값없음","생년월일 값이 없습니다.");
-			return;
-		}
+
+
+
 
 		if(CommonUtil.isNullOrSpace(request.totalAuth.name)) {
 			response.result = ResultUtil.getResult("9999", "필수값없음","예금주명 값이 없습니다.");

@@ -17,7 +17,11 @@ var KWON = (function (win, doc) {
         resultMsg: '',
         advanceMsg: '',
         create: '',
-        totalAuthId: ''
+        totalAuthId: '',
+        identityCheck: '',
+        ownerAuth: '',
+        accountAuth: '',
+        arsAuth: ''
     }
 
     var routeUrls = {

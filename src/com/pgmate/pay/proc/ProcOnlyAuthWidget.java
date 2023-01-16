@@ -3,6 +3,7 @@ package com.pgmate.pay.proc;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.bean.Request;
+import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.util.PAYUNIT;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
@@ -76,6 +77,29 @@ public class ProcOnlyAuthWidget extends Proc {
 					request.widget.put("mchtId", mchtTmnMap.getString("mchtId"));
 					// 온라인 결제키
 					request.widget.put("authorization", mchtTmnMap.getString("payKey"));
+
+					//230113_PYS : 통합인증 설정값 세팅
+					String identityCheck = "";
+					String ownerAuth = "";
+					String accountAuth = "";
+					String arsAuth = "";
+
+					SharedMap<String, Object> totalAuth = trxDAO.getTotalAuth(mchtTmnMap.getString("mchtId"));
+
+					if(totalAuth != null) {
+						identityCheck = totalAuth.getString("identityCheck");
+						ownerAuth = totalAuth.getString("ownerAuth");
+						accountAuth = totalAuth.getString("accountAuth");
+						arsAuth = totalAuth.getString("arsAuth");
+					}
+					request.widget.put("identityCheck", identityCheck);
+					request.widget.put("ownerAuth", ownerAuth);
+					request.widget.put("accountAuth", accountAuth);
+					request.widget.put("arsAuth", arsAuth);
+
+					String totalAuthId = TrxDAO.getTotalAuthId();
+					request.widget.put("totalAuthId", totalAuthId);
+
 
 					logger.info("save as key : {}",response.widget.getString("key"));
 					PAYUNIT.cacheMap.put(response.widget.getString("key"), request.widget);

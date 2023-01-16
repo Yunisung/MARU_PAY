@@ -195,7 +195,23 @@ var KWON = (function(win, doc) {
         document.getElementById('initPublicKey').value = config.publicKey;
         document.getElementById('initRedirectUrl').value = config.redirectUrl;
         document.getElementById('initWebhookUrl').value = config.webhookUrl;
+        document.getElementById('initIdentityCheck').value = config.identityCheck;
+        document.getElementById('initOwnerAuth').value = config.ownerAuth;
+        document.getElementById('initAccountAuth').value = config.accountAuth;
+        document.getElementById('initArsAuth').value = config.arsAuth;
         document.getElementById('initWebKey').value = token;
+
+        console.log('mchtId', config.mchtId);
+        console.log('Identity', config.identityCheck);
+        console.log('ownerAuth', config.ownerAuth);
+        console.log('accountAuth', config.accountAuth);
+        console.log('arsAuth', config.arsAuth);
+        console.log('webKey', token);
+
+        if(config.identityCheck === 'N') {
+            $('#identityTr').attr('style', "display:none;");
+        }
+
         
         /** 사용자 입력 내용 */
         document.getElementById('userBankCd').value = config.bankCd;
@@ -437,7 +453,9 @@ var KWON = (function(win, doc) {
         var token = window.location.search.split('=')[1];
         getConfigByToken(token, function(res) {
             kwonConfig = JSON.parse(res.target.responseText).widget;
-            
+
+            console.log('config : ', kwonConfig);
+
             setForm(kwonConfig, token);
         }, function(err) {
             console.log('TOKEN ERROR  ', err);
@@ -454,6 +472,7 @@ var KWON = (function(win, doc) {
 		okBtnExit: okBtnExit,
 		close: close
   	}
+
   	window.KWON = KWON
   	return KWON
 })(window, document);
