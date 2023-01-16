@@ -1,0 +1,368 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0,maximum-scale=1.0, viewport-fit=cover">
+        <meta name="format-detection" content="telephone=no, address=no, email=no">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap"
+            rel="stylesheet">
+        <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+            integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"/>
+        <title>계좌 실명 인증</title>
+    </head>
+	<body class="mb-register">
+    	<form id="initData" name="initData">
+			<input type="hidden" id="initMchtId" name="initMchtId" value="" />
+			<input type="hidden" id="initTrackId" name="initTrackId" value="" />
+			<input type="hidden" id="initIdentity" name="initIdentity" value="" />
+			<input type="hidden" id="initHolderName" name="initHolderName" value="" />
+			<input type="hidden" id="initPhoneNo" name="initPhoneNo" value="" />
+			<input type="hidden" id="initPublicKey" name="initPublicKey" value="" />
+			<input type="hidden" id="initRedirectUrl" name="initRedirectUrl" value="" />
+			<input type="hidden" id="initWebhookUrl" name="initWebhookUrl" value="" />
+			<input type="hidden" id="initIdentityCheck" name="initIdentityCheck" value="" />
+			<input type="hidden" id="initOwnerAuth" name="initOwnerAuth" value="" />
+			<input type="hidden" id="initAccountAuth" name="initAccountAuth" value="" />
+			<input type="hidden" id="initArsAuth" name="initArsAuth" value="" />
+			<input type="hidden" id="initWebKey" name="initWebKey" value="" />
+		</form>
+		<form id="userForm" name="userForm" method = "POST" action="">
+			<input type="hidden" id="userBankCd" name="userBankCd" value="" />
+			<input type="hidden" id="userBankName" name="userBankName" value="" />
+			<input type="hidden" id="userAccount" name="userAccount" value="" />
+			<input type="hidden" id="userIdentity" name="userIdentity" value="" />
+			<input type="hidden" id="userName" name="userName" value="" />
+			<input type="hidden" id="userPhoneNo" name="userPhoneNo" value="" />
+			<input type="hidden" id="userAuthId" name="userAuthId" value="" />
+		</form>
+    	<form id="holderNameForm" name="holderNameForm" method = "POST" action="">
+    		<input type="hidden" id="mchtId" name="mchtId" value="" />
+			<input type="hidden" id="bankCd" name="bankCd" value="" />
+			<input type="hidden" id="bankName" name="bankName" value="" />
+			<input type="hidden" id="account" name="account" value="" />
+			<input type="hidden" id="identity" name="identity" value="" />
+			<input type="hidden" id="name" name="name" value="" />
+			<input type="hidden" id="phoneNo" name="phoneNo" value="" />
+			<input type="hidden" id="trackId" name="trackId" value="" />
+		</form>
+		<form id="vactResForm" name="vactResForm" method = "POST" action="">
+			<input type="hidden" id="vactTotalAuthId" name="vactTotalAuthId" value="" />
+		</form>
+		
+        <div class="popup-layer">
+            <div class="layer-container step02">
+                <!-- title -->
+                <div class="header-title">
+                    <span>
+                        계좌 실명 인증
+                    </span>
+                </div>
+                <!-- //title -->
+                <!-- navigation -->
+                <div class="nav">
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_consent.png"
+                            srcset="/static/img/auth/nav/icon_consent@2x.png 2x, /static/img/auth/nav/icon_consent@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next.png"
+                            srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_name_active.png"
+                            srcset="/static/img/auth/nav/icon_name_active@2x.png 2x, /static/img/auth/nav/icon_name_active@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next_active.png"
+                            srcset="/static/img/auth/nav/icon_next_active@2x.png 2x,/static/img/auth/nav/icon_next_active@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_occupy.png"
+                            srcset="/static/img/auth/nav/icon_occupy@2x.png 2x, /static/img/auth/nav/icon_occupy@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next.png"
+                            srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_ars.png"
+                            srcset="/static/img/auth/nav/icon_ars@2x.png 2x, /static/img/auth/nav/icon_ars@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next.png"
+                            srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_complet.png"
+                            srcset="/static/img/auth/nav/icon_complet@2x.png 2x, /static/img/auth/nav/icon_complet@3x.png 3x"/>
+                    </div>
+                </div>
+                <!-- //navigation -->
+                <!-- 내용 -->
+                <div class="content">
+					<div id="content-title">
+						<span class="title">고객 정보 입력</span>
+						<div>
+                            <span class="subtitle-02">계좌 인증에 필요한 고객 정보를 입력해 주세요.</span>
+                        </div>
+                    </div>
+                    <div class="main auth_name">
+                        <table >
+                        	<tr>
+	                        	<th>출금 은행</th>
+								<td>
+	                           		<select name="paramBankCd" id="paramBankCd">
+	                                	<option value="">은행을 선택해주세요</option>
+	                                    <option value="004">국민은행</option>
+	                                    <option value="088">신한은행</option>     
+	                                    <option value="081">KEB하나은행</option>
+	                                    <option value="003">IBK기업은행</option>
+	                                    <option value="020">우리은행</option>                               
+	                                    <option value="090">카카오뱅크</option>
+	                                    <option value="089">케이뱅크</option>
+	                                    <option value="011">농협(중앙회)</option>
+	                                    <option value="012">농협(지역)</option>
+	                                    <option value="048">신협</option>
+	                                    <option value="105">웰컴저축은행</option>
+	                                    <option value="007">수협은행</option>
+	                                    <option value="071">우체국</option>
+	                                    <option value="023">SC은행</option>
+	                                    <option value="027">한국씨티은행</option>
+	                                    <option value="045">새마을금고</option>
+	                                    <option value="039">경남은행</option>
+	                                    <option value="031">대구은행</option>
+	                                    <option value="032">부산은행</option>
+	                                    <option value="034">광주은행</option>
+	                                    <option value="035">제주은행</option>
+	                                    <option value="037">전북은행</option>
+	                                    <option value="002">한국산업은행</option>
+	                                    <option value="050">상호저축은행</option>
+	                                    <option value="051">기타외국은행</option>
+	                                    <option value="052">모건스탠리</option>
+	                                    <option value="054">홍콩상하이은행</option>
+	                                    <option value="055">도이치은행</option>
+	                                    <option value="056">에이비엔암로은행</option>
+	                                    <option value="058">미즈호코퍼레이트은행</option>
+	                                    <option value="059">도쿄미쓰비시은행</option>
+	                                    <option value="060">뱅크오브아메리카</option>
+	                                    <option value="064">산림조합</option>
+	                                    <option value="209">유안타증권</option>
+	                                    <option value="218">현대증권</option>
+	                                    <option value="230">미래에셋증권</option>
+	                                    <option value="238">대우증권</option>
+	                                    <option value="240">삼성증권</option>
+	                                    <option value="243">한국투자증권</option>
+	                                    <option value="247">우리투자증권</option>
+	                                    <option value="261">교보증권</option>
+	                                    <option value="262">하이투자증권</option>
+	                                    <option value="263">에이치엠씨투자증권</option>
+	                                    <option value="264">키움증권</option>
+	                                    <option value="265">이트레이드증권</option>
+	                                    <option value="266">에스케이증권</option>
+	                                    <option value="267">대신증권</option>
+	                                    <option value="268">솔로몬투자증권</option>
+	                                    <option value="269">한화증권</option>
+	                                    <option value="270">하나대투증권</option>
+	                                    <option value="278">굿모닝신한증권</option>
+	                                    <option value="279">동부증권</option>
+	                                    <option value="280">유진투자증권</option>
+	                                    <option value="287">메리츠증권</option>
+	                                    <option value="289">엔에이치투자증권</option>
+	                                    <option value="290">부국증권</option>
+	                                    <option value="291">신영증권</option>
+	                                    <option value="292">엘아이지투자증권</option>
+	                                    <option value="288">카카오페이증권</option>
+									</select>
+								</td> 
+							</tr>
+                            <tr>
+                                <th>출금 계좌번호</th>
+                                <td><input name="paramAccount" id="paramAccount" type="number" maxlength="14" placeholder="출금 계좌번호 (-없이 입력)" oninput="checkMaxLength(this)"></td>
+                            </tr>
+                            <tr id="identityTr">
+                                <th>생년월일<br>(YYMMDD)</th>
+                                <td><input name="paramIdentity" id="paramIdentity" type="number" maxlength="6" value="" readonly></td>
+                            </tr>
+                            <tr>
+                                <th>예금주명</th>
+                                <td><input name="paramName" id="paramName" type="text" maxlength="30" value="" readonly></td>
+                            </tr>
+                            <tr>
+                                <th>휴대폰번호</th>
+                                <td><input name="paramPhoneNo" id="paramPhoneNo" type="number" maxlength="12" value="" readonly></td>
+                            </tr>
+						</table>
+
+                    </div>
+                    <div class="error_message" >
+	                	<span class="success">고객정보 입력을 해주세요.</span>
+	                </div>
+				</div>
+                <!-- //내용 -->
+			</div>
+            <!-- //container -->
+            <!-- footer -->
+			<div id="footer">
+                <button id="c3-btn-close" class="cancel">취소</button>
+                <button id="next" class="next active">다음</button>
+            </div>
+            <!-- //footer -->
+		</div>
+        <!-- //popup-layer -->
+	</body>
+	<script>
+       	var clickCheck = false;
+       	var count = 0;
+
+       	$("#next").on('click', function (event) {
+        	if($("select[id='paramBankCd']").val() == ""){
+        		$("div[class='error_message']").html('<span class="error">은행을 선택해주세요.</span>');
+        		$("select[id='paramBankCd']").focus();
+        		
+        		return false;
+        	}
+        	
+        	if($("input[id='paramAccount']").val() == ""){
+        		$("div[class='error_message']").html('<span class="error">계좌번호를 넣어주세요.</span>');
+        		$("input[id='paramAccount']").focus();
+        		
+        		return false;
+        	}
+        	
+        	if(clickCheck){
+        		return false;
+        	}else{
+        		clickCheck = true;
+        	}
+        	
+        	$("#holderNameForm > #bankCd").val($("select[id='paramBankCd']").val());
+        	$("#holderNameForm > #bankName").val($("select[id='paramBankCd'] option:checked").text());
+        	$("#holderNameForm > #account").val($("input[id='paramAccount']").val());
+        	$("#holderNameForm > #identity").val($("input[id='paramIdentity']").val());
+        	$("#holderNameForm > #name").val($("input[id='paramName']").val());
+        	$("#holderNameForm > #phoneNo").val($("input[id='paramPhoneNo']").val());
+        	$("#holderNameForm > #mchtId").val($("#initData > #initMchtId").val());
+        	$("#holderNameForm > #trackId").val($("#initData > #initTrackId").val());
+   
+        	$("div[class='error_message']").html('<span class="error">은행에 확인중입니다.</span>');
+        	$("button[id='next']").removeClass('active');
+
+        	var data = {"totalAuth" : $('#holderNameForm').serializeObject()};
+        	
+        	loading.start();
+        	
+   			$.ajax({
+   				type : 'POST', 
+   				url : '/api/account/holder', 
+   				data : JSON.stringify(data),
+   				dataType : 'json', 
+   				beforeSend : function(xhr){ 
+   		            xhr.setRequestHeader("Content-type", "application/json");
+   					xhr.setRequestHeader("Authorization", $("input[id='initPublicKey']").val());
+   				}, 
+   				success : function(json){
+   					loading.end();
+   					
+   					if("0000" == json.result.resultCd){
+						if(json.totalAuth.holder != $("#holderNameForm > #name").val()){
+							clickCheck = false;
+       						$("button[id='next']").addClass('active');
+       						$("div[class='error_message']").html('<span class="error">예금주명과 실명이 다릅니다.<br>3회실패시 인증이 취소됩니다. 고객정보를 확인해주세요.</span>');
+       						count++;
+	       						
+ 	       					if(count >= 3){
+ 	       						KWON.setErrMsg("9999", "예금주명상이", "[실명인증 오류]<br>예금주명과 실명이 다릅니다.<br>고객정보를 확인해주세요.");
+
+								$("#holderNameForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+							}
+						}else{
+							KWON.setConfigData(
+								$("#holderNameForm > #bankCd").val(),
+					        	$("#holderNameForm > #bankName").val(),
+					        	$("#holderNameForm > #account").val(),
+					        	$("#holderNameForm > #identity").val(),
+					        	$("#holderNameForm > #name").val(),
+					        	$("#holderNameForm > #phoneNo").val(),
+					        	json.totalAuth.totalAuthId
+							);
+        						
+							$("#holderNameForm").attr("action","/form/payment/total/step_03-1.html?token=" + $("input[id='initWebKey']").val()).submit();
+						}
+   					}else if("AAAA" == json.result.resultCd){
+   						KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, "[실명인증 오류]<br>" + json.result.resultMsg + "(" + json.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
+						$("#holderNameForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+		   			}else {
+   						clickCheck = false;
+   						$("button[id='next']").addClass('active');
+   						$("div[class='error_message']").html('<span class="error">' + json.result.resultMsg + ' [' + json.result.advanceMsg + ']<br>3회실패시 인증이 취소됩니다.</span>');
+						count++;
+			
+						if(count >= 3){	
+							KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, "[실명인증 오류]<br>" + json.result.resultMsg + "(" + json.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
+							$("#holderNameForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+						}
+   					}
+   				},
+   				error: function(xhr, status, error){ 
+   					loading.end();
+   					
+   					clickCheck = false;
+   					$("button[id='next']").addClass('active');
+   					$("div[class='error_message']").html('<span class="error">통신에러</span>');
+   					count++;
+		
+					if(count >= 3){
+						KWON.setErrMsg("9999", "실명인증 기타오류", "[실명인증 오류]<br>통신에러" + "<br>가맹점에 문의해 주세요.");
+						
+						$("#accountAuthForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+					}
+   				}
+   			});
+        });
+        
+        jQuery.fn.serializeObject = function() {
+	    	var obj = null;
+	        try {
+	            if (this[0].tagName && this[0].tagName.toUpperCase() == "FORM") {
+	                var arr = this.serializeArray();
+	                if (arr) {
+	                    obj = {};
+
+	                    jQuery.each(arr, function() {
+	                        obj[this.name] = this.value;
+	                    });
+	                }//if ( arr ) {
+	            }
+	        } catch (e) {
+	            alert(e.message);
+	        } finally {
+	        }
+	     
+	        return obj;
+	    };
+	</script>
+	<script src="/js/onlyAuthIndex.js?v=1" charset="utf-8"></script>
+	<script type="text/javascript" src="/js/common_mb.js"></script>
+</html>
