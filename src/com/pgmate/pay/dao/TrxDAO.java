@@ -4898,4 +4898,22 @@ public class TrxDAO extends DAO {
 			return false;
 		}
 	}
+
+	/**
+	 * 230112_PYS : 통합인증시 인증사용 체크
+	 */
+	public SharedMap<String, Object> getTotalAuth(String mchtId) {
+		super.setTable("PG_MCHT_TOTAL_AUTH");
+		super.setColumns("*");
+		super.addWhere("mchtId", mchtId);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
+
 }
