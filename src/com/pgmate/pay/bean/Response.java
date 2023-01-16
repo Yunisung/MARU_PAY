@@ -21,7 +21,8 @@ public class Response {
 	public Tmn tmn			= null;
 	// 통합인증
 	public TotalAuth totalAuth = null;
-
+	//230116_PYS : 가상계좌 상태추가
+	public VactStatus vactStatus = null;
 
 	public Response() {
 	}

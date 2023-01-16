@@ -179,6 +179,8 @@ public class Api {
 				process = new ProcOnlyAuthWidget();
 			}else if (uri.startsWith(PAYUNIT.API_ACCOUNT_HOLDER)) {
 				process = new ProcAccountHolder();
+			}else if (uri.startsWith(PAYUNIT.API_VACTV2_STATUS)) {
+				process = new VactStatusV2();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {

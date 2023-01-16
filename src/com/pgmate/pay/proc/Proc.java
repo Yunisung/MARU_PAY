@@ -66,7 +66,7 @@ public abstract class Proc {
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_W3D_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3D_MOBILE_WIDGET)
                 || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_STATUS)
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3DV2_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_SETTLE_BALANCE)
-				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_ONLY_AUTH_WIDGET)){
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_ONLY_AUTH_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACTV2_STATUS)){
 		}else{
 			if(request == null){
 				logger.info("request is null , payLoad : {}",sharedMap.getString(PAYUNIT.PAYLOAD));
