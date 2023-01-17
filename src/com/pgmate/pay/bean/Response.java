@@ -23,6 +23,8 @@ public class Response {
 	public TotalAuth totalAuth = null;
 	//230116_PYS : 가상계좌 상태추가
 	public VactStatus vactStatus = null;
+	//230117_PYS : 가상계좌 출금정보추가
+	public VactPayOut vactPayOut = null;
 
 	public Response() {
 	}

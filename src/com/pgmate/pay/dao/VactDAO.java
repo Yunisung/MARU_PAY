@@ -45,6 +45,15 @@ public class VactDAO extends DAO {
         return rset.getRows();
     }
 
+    public SharedMap<String, Object> getChargeSettleFirm(String trxId) {
+        super.setTable("PG_CHARGE_SETTLE_FIRM");
+        super.setColumns("*");
+        super.addWhere("trxId", trxId, eq);
+        RecordSet rset = super.search();
+        super.initRecord();
+        return rset.getRowFirst();
+    }
+
     public String getAESDec(String value){
         String query = "SELECT FN_AES_DEC('"+value+"') pw";
         RecordSet rset = super.query(query);
