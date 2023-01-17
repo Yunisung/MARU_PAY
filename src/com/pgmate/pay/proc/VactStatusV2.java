@@ -81,7 +81,7 @@ public class VactStatusV2 extends Proc {
         withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
 
         vactStatus.withDrawBankCd = withDrawBankCd;
-        vactStatus.wintDrawBankAccount = withDrawBankAccount;
+        vactStatus.withDrawBankAccount = withDrawBankAccount;
 
         //수취조회 체크
         List<SharedMap<String, Object>> vactIoMap = dao.getVactIO(account);
