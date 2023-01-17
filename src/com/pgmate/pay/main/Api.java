@@ -181,6 +181,8 @@ public class Api {
 				process = new ProcAccountHolder();
 			}else if (uri.startsWith(PAYUNIT.API_VACTV2_STATUS)) {
 				process = new VactStatusV2();
+			}else if (uri.startsWith(PAYUNIT.API_VACTV3_STATUS)) {
+				process = new VactStatusV3();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
