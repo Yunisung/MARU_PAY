@@ -8,7 +8,7 @@ public class VactStatus {
     public String account               = null;
     public String status                = null;
     public String withDrawBankCd        = null;
-    public String wintDrawBankAccount   = null;
+    public String withDrawBankAccount   = null;
 
     public List<VactRecption> reception = null;
 }
