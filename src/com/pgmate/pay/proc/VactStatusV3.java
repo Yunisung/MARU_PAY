@@ -35,7 +35,9 @@ public class VactStatusV3 extends Proc{
             return;
         }
 
-        SharedMap<String, Object> chargeSettle =  dao.getChargeSettleFirm(trxId);
+        String mchtId = mchtMap.getString("mchtId");
+
+        SharedMap<String, Object> chargeSettle =  dao.getChargeSettleFirm(mchtId, trxId);
 
         if(chargeSettle.size() == 0) {
             response.result = ResultUtil.getResult("9999", "검색실패","요청하신 거래번호로 검색된 출금내역이 없습니다.");
