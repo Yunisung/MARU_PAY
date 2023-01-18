@@ -15,10 +15,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VactStatusV2 extends Proc {
-    private static Logger logger = LoggerFactory.getLogger( com.pgmate.pay.proc.VactStatusV2.class );
+public class VactSearchError extends Proc {
+    private static Logger logger = LoggerFactory.getLogger( VactSearchError.class );
 
-    public VactStatusV2() {
+    public VactSearchError() {
 
     }
 
@@ -39,7 +39,7 @@ public class VactStatusV2 extends Proc {
         String resultMsg = "조회성공";
         String advanceMsg = "";
 
-        String issueId = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_VACTV2_STATUS+"/", "").trim();
+        String issueId = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_VACT_SEARCH_ERROR +"/", "").trim();
         if(CommonUtil.isNullOrSpace(issueId)){
             response.result = ResultUtil.getResult("9000", "필수값없음","가상계좌 발행번호 없음.");
             return;
