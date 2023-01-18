@@ -10,10 +10,10 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VactStatusV3 extends Proc{
-    private static Logger logger = LoggerFactory.getLogger( com.pgmate.pay.proc.VactStatusV3.class );
+public class VactSearchTrx extends Proc{
+    private static Logger logger = LoggerFactory.getLogger( VactSearchTrx.class );
 
-    public VactStatusV3() {
+    public VactSearchTrx() {
 
     }
 
@@ -29,7 +29,7 @@ public class VactStatusV3 extends Proc{
     public void valid() {
         VactDAO dao = new VactDAO();
 
-        String trxId = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_VACTV3_STATUS+"/", "").trim();
+        String trxId = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_VACT_SEARCH_TRX+"/", "").trim();
         if(CommonUtil.isNullOrSpace(trxId)){
             response.result = ResultUtil.getResult("9999", "필수값없음","가상계좌 거래번호 없음.");
             return;

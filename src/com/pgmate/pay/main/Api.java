@@ -179,10 +179,10 @@ public class Api {
 				process = new ProcOnlyAuthWidget();
 			}else if (uri.startsWith(PAYUNIT.API_ACCOUNT_HOLDER)) {
 				process = new ProcAccountHolder();
-			}else if (uri.startsWith(PAYUNIT.API_VACTV2_STATUS)) {
-				process = new VactStatusV2();
-			}else if (uri.startsWith(PAYUNIT.API_VACTV3_STATUS)) {
-				process = new VactStatusV3();
+			}else if (uri.startsWith(PAYUNIT.API_VACT_SEARCH_ERROR)) {
+				process = new VactSearchError();
+			}else if (uri.startsWith(PAYUNIT.API_VACT_SEARCH_TRX)) {
+				process = new VactSearchTrx();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
