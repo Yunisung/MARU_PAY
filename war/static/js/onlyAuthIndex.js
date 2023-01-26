@@ -201,13 +201,7 @@ var KWON = (function(win, doc) {
         document.getElementById('initArsAuth').value = config.arsAuth;
         document.getElementById('initWebKey').value = token;
 
-        console.log('mchtId', config.mchtId);
-        console.log('Identity', config.identityCheck);
-        console.log('ownerAuth', config.ownerAuth);
-        console.log('accountAuth', config.accountAuth);
-        console.log('arsAuth', config.arsAuth);
-        console.log('webKey', token);
-
+        //230119_PYS : 주민번호 표시 여부체크
         if(config.identityCheck === 'N') {
             $('#identityTr').attr('style', "display:none;");
         }

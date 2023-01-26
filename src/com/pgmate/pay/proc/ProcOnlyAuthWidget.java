@@ -32,6 +32,11 @@ public class ProcOnlyAuthWidget extends Proc {
 
 	@Override
 	public void valid() {
+		SharedMap<String, Object> totalAuth = trxDAO.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
+		if(totalAuth == null) {
+			response.result = ResultUtil.getResult("9999", "통합인증 사용중인 가맹점이 아닙니다.");
+			return;
+		}
 		
 		//KJM : GET 메소드 형식일 때
 		if(sharedMap.getString(PAYUNIT.METHOD).equalsIgnoreCase("GET")){
@@ -55,61 +60,43 @@ public class ProcOnlyAuthWidget extends Proc {
 				response.result = ResultUtil.getResult("9999", "요청 정보 없음","요청 데이터가 없습니다.Widget  오류");return;
 			}else{
 				// OSC : 설정 확인
-				//if(mchtTmnMap.isEquals("webPay", "사용")){
-					// KBR : key 생성 구간 
-					String widgetKey = "key_"+CommonUtil.toString(System.currentTimeMillis())+UUID.randomUUID().toString().substring(0, 7);
-					
-					response.widget = new SharedMap<String,Object>();
-					//response.widget.put("apiMaxInstall", mchtTmnMap.getInt("apiMaxInstall") );
-					//response.widget.put("nick", mchtMap.getString("nick"));
-					//response.widget.put("semiAuth",  mchtTmnMap.getString("semiAuth"));
-					//response.widget.put("tmnId", mchtTmnMap.getString("tmnId"));
-					response.widget.put("key", widgetKey);
-					response.widget.put("target", "AUTH");
-					response.widget.put("routeUrl", "/form/payment/total/step_01.html?token=" + widgetKey);
-					// 최대할수개월수
-					//request.widget.put("apiMaxInstall",mchtTmnMap.getInt("apiMaxInstall") );
-					// 사업자별칭
-					//request.widget.put("nick", mchtMap.getString("nick"));
-					// 구인증사용여부(비밀번호,생년월일)
-					//request.widget.put("semiAuth", mchtTmnMap.getString("semiAuth") );
-					request.widget.put("tmnId", mchtTmnMap.getString("tmnId"));
-					request.widget.put("mchtId", mchtTmnMap.getString("mchtId"));
-					// 온라인 결제키
-					request.widget.put("authorization", mchtTmnMap.getString("payKey"));
+				String widgetKey = "key_"+CommonUtil.toString(System.currentTimeMillis())+UUID.randomUUID().toString().substring(0, 7);
 
-					//230113_PYS : 통합인증 설정값 세팅
-					String identityCheck = "";
-					String ownerAuth = "";
-					String accountAuth = "";
-					String arsAuth = "";
+				response.widget = new SharedMap<String,Object>();
+				response.widget.put("key", widgetKey);
+				response.widget.put("target", "AUTH");
+				response.widget.put("routeUrl", "/form/payment/total/step_01.html?token=" + widgetKey);
+				request.widget.put("tmnId", mchtTmnMap.getString("tmnId"));
+				request.widget.put("mchtId", mchtTmnMap.getString("mchtId"));
+				// 온라인 결제키
+				request.widget.put("authorization", mchtTmnMap.getString("payKey"));
 
-					SharedMap<String, Object> totalAuth = trxDAO.getTotalAuth(mchtTmnMap.getString("mchtId"));
+				//230113_PYS : 통합인증 설정값 세팅
+				String identityCheck = "";
+				String ownerAuth = "";
+				String accountAuth = "";
+				String arsAuth = "";
 
-					if(totalAuth != null) {
-						identityCheck = totalAuth.getString("identityCheck");
-						ownerAuth = totalAuth.getString("ownerAuth");
-						accountAuth = totalAuth.getString("accountAuth");
-						arsAuth = totalAuth.getString("arsAuth");
-					}
-					request.widget.put("identityCheck", identityCheck);
-					request.widget.put("ownerAuth", ownerAuth);
-					request.widget.put("accountAuth", accountAuth);
-					request.widget.put("arsAuth", arsAuth);
+				if(totalAuth != null) {
+					identityCheck = totalAuth.getString("identityCheck");
+					ownerAuth = totalAuth.getString("ownerAuth");
+					accountAuth = totalAuth.getString("accountAuth");
+					arsAuth = totalAuth.getString("arsAuth");
+				}
+				request.widget.put("identityCheck", identityCheck);
+				request.widget.put("ownerAuth", ownerAuth);
+				request.widget.put("accountAuth", accountAuth);
+				request.widget.put("arsAuth", arsAuth);
 
-					String totalAuthId = TrxDAO.getTotalAuthId();
-					request.widget.put("totalAuthId", totalAuthId);
+				//위젯에서 통합인증ID세팅후 인증할때마다 공유
+				String totalAuthId = TrxDAO.getTotalAuthId();
+				request.widget.put("totalAuthId", totalAuthId);
 
+				logger.info("save as key : {}",response.widget.getString("key"));
+				PAYUNIT.cacheMap.put(response.widget.getString("key"), request.widget);
 
-					logger.info("save as key : {}",response.widget.getString("key"));
-					PAYUNIT.cacheMap.put(response.widget.getString("key"), request.widget);
-					
-					response.result = ResultUtil.getResult("0000", "정상","정상완료");
-					
-					
-//				}else{
-//					response.result = ResultUtil.getResult("9999", "호출실패","온라인 결제폼을 사용하지 않는 가맹점입니다.관리자에 문의바랍니다.");return;
-//				}
+				response.result = ResultUtil.getResult("0000", "정상","정상완료");
+
 			}
 		}else{
 			response.result = ResultUtil.getResult("9999", "호출실패","Invalid request method");return;

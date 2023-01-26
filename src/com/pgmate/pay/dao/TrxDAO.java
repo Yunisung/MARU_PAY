@@ -4902,7 +4902,7 @@ public class TrxDAO extends DAO {
 	/**
 	 * 230112_PYS : 통합인증시 인증사용 체크
 	 */
-	public SharedMap<String, Object> getTotalAuth(String mchtId) {
+	public SharedMap<String, Object> getMchtTotalAuth(String mchtId) {
 		super.setTable("PG_MCHT_TOTAL_AUTH");
 		super.setColumns("*");
 		super.addWhere("mchtId", mchtId);
@@ -4916,4 +4916,95 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	public SharedMap<String, Object> getTotalAuth(String authId) {
+		super.setTable("PG_TOTAL_AUTH");
+		super.setColumns("*");
+		super.addWhere("authId", authId);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
+
+	/**
+	 * 230118_PYS : 통합인증테이블 INSERT
+	 */
+	public boolean insertTotalAuth(String authId, String totalAuthId, String mchtId, String authType, String bankCd, String bankName, String bankAccount, String holderName,
+								   String authNo, String phoneNo, long authFee, long authFeeVat, String stlType, String stlUnit, String stlDay, String summary){
+		boolean insert = false;
+
+		try {
+			super.setTable("PG_TOTAL_AUTH");
+			super.setRecord("authId", authId);
+
+			if(!"".equals(totalAuthId)) {
+				super.setRecord("totalAuthId", totalAuthId);
+			}
+
+			super.setRecord("mchtId", mchtId);
+			super.setRecord("authType", authType);
+			super.setRecord("bankCd", bankCd);
+			super.setRecord("bankName", bankName);
+			super.setRecord("bankAccount", bankAccount);
+			super.setRecord("holderName", holderName);
+
+			if(!"".equals(authNo)) {
+				super.setRecord("authNo", authNo);
+			}
+
+			super.setRecord("phoneNo", phoneNo);
+
+			super.setRecord("authFee", authFee);
+			super.setRecord("authFeeVat", authFeeVat);
+
+			super.setRecord("stlType", stlType);
+			super.setRecord("stlUnit", stlUnit);
+			super.setRecord("stlStatus", "정산대기");
+			super.setRecord("stlDay", stlDay);
+
+			super.setRecord("summary", summary);
+
+			super.setRecord("regDay", CommonUtil.getCurrentDate("yyyyMMdd"));
+			super.setRecord("regTime", CommonUtil.getCurrentDate("HHmmss"));
+
+			insert = super.insert();
+			logger.info("set insert PG_TOTAL_AUTH insert : [{}][{}]", authId, insert);
+
+			super.initRecord();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error("insert PG_TOTAL_AUTH Exception : {}", ex.getMessage());
+		}
+
+		return insert ;
+	}
+
+	public boolean updateTotalAuthResult(String authId, String resultCd, String resultMsg) {
+		boolean result = false;
+
+		try {
+			super.setTable("PG_TOTAL_AUTH");
+
+			super.setRecord("resultCd", resultCd);
+			super.setRecord("resultMsg", resultMsg);
+
+			super.addWhere("authId", authId, eq);
+
+			result = super.update();
+
+			logger.info("set updateTotalAuthResult update : [{}][{}]", authId, result);
+
+			super.initRecord();
+
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error("updateTotalAuthResult Exception : {}", ex.getMessage());
+		}
+
+		return result;
+	}
 }

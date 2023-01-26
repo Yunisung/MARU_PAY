@@ -90,7 +90,11 @@ public class PAYUNIT {
 	public static String API_TMN					= "/api/tmn";
 
 	public static String API_ONLY_AUTH_WIDGET		= "/api/only/auth/widget";		// 통합인증 위젯
+	public static String API_ONLY_AUTH_DATA_WIDGET	= "/api/only/auth/data/widget";
+
 	public static String API_ACCOUNT_HOLDER			= "/api/account/holder";		// 계좌실명인증(FCS) 조회
+	public static String API_ACCOUNT_TRANSFER		= "/api/account/transfer";		// 계좌점유인증(1원인증)
+	public static String API_ACCOUNT_AUTH_CHECK		= "/api/account/auth/check";	// 1원인증번호체크
 
 	public static String API_VACT_SEARCH_ERROR 		= "/api/vact/search/error";		// 가상계좌 오류조회
 	public static String API_VACT_SEARCH_TRX		= "/api/vact/search/trx";		// 가상계좌 출금내역 조회
@@ -152,8 +156,9 @@ public class PAYUNIT {
 	
 	
 	public static double VAT						= 0.1;
-	  
-	public static SharedCacheMap cacheMap			= new SharedCacheMap(1);
+
+	//230125_PYS : 인증때문에 캐시 유효타임 5분으로 세팅
+	public static SharedCacheMap cacheMap			= new SharedCacheMap(5);
     public static SharedCacheMap cacheWithdrawMap    = new SharedCacheMap(10);
 	public static VactCache vactCacheMap			= new VactCache(5);
     public static VactCache vactWithdrawCacheMap    = new VactCache(1);

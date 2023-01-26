@@ -177,8 +177,14 @@ public class Api {
 				process = new ProcTmn();
 			}else if (uri.startsWith(PAYUNIT.API_ONLY_AUTH_WIDGET)) {
 				process = new ProcOnlyAuthWidget();
+			}else if (uri.startsWith(PAYUNIT.API_ONLY_AUTH_DATA_WIDGET)) {
+				process = new ProcOnlyAuthDataWidget();
 			}else if (uri.startsWith(PAYUNIT.API_ACCOUNT_HOLDER)) {
 				process = new ProcAccountHolder();
+			}else if (uri.startsWith(PAYUNIT.API_ACCOUNT_TRANSFER)) {
+				process = new ProcAccountTransfer();
+			}else if (uri.startsWith(PAYUNIT.API_ACCOUNT_AUTH_CHECK)) {
+				process = new ProcAccountAuthCheck();
 			}else if (uri.startsWith(PAYUNIT.API_VACT_SEARCH_ERROR)) {
 				process = new VactSearchError();
 			}else if (uri.startsWith(PAYUNIT.API_VACT_SEARCH_TRX)) {

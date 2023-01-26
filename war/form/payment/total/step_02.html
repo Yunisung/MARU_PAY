@@ -53,6 +53,7 @@
 			<input type="hidden" id="name" name="name" value="" />
 			<input type="hidden" id="phoneNo" name="phoneNo" value="" />
 			<input type="hidden" id="trackId" name="trackId" value="" />
+			<input type="hidden" id="totalAuthId" name="totalAuthId" value="" />
 		</form>
 		<form id="vactResForm" name="vactResForm" method = "POST" action="">
 			<input type="hidden" id="vactTotalAuthId" name="vactTotalAuthId" value="" />
@@ -265,12 +266,13 @@
         	$("#holderNameForm > #phoneNo").val($("input[id='paramPhoneNo']").val());
         	$("#holderNameForm > #mchtId").val($("#initData > #initMchtId").val());
         	$("#holderNameForm > #trackId").val($("#initData > #initTrackId").val());
-   
+        	$("#holderNameForm > #totalAuthId").val($("#vactResForm > #vactTotalAuthId").val());
+
         	$("div[class='error_message']").html('<span class="error">은행에 확인중입니다.</span>');
         	$("button[id='next']").removeClass('active');
 
         	var data = {"totalAuth" : $('#holderNameForm').serializeObject()};
-        	
+
         	loading.start();
         	
    			$.ajax({
@@ -305,12 +307,18 @@
 					        	$("#holderNameForm > #identity").val(),
 					        	$("#holderNameForm > #name").val(),
 					        	$("#holderNameForm > #phoneNo").val(),
-					        	json.totalAuth.totalAuthId
+								$("#holderNameForm > #totalAuthId").val()
 							);
         						
 							$("#holderNameForm").attr("action","/form/payment/total/step_03-1.html?token=" + $("input[id='initWebKey']").val()).submit();
 						}
-   					}else if("AAAA" == json.result.resultCd){
+   					} else if("0001" == json.result.resultCd) {
+						KWON.totalAuthConfirm(
+								"0000",
+								json.result.resultMsg,
+								"통합인증이 정상적으로 완료되었습니다."
+						);
+					} else if("AAAA" == json.result.resultCd){
    						KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, "[실명인증 오류]<br>" + json.result.resultMsg + "(" + json.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
 						$("#holderNameForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
 		   			}else {
