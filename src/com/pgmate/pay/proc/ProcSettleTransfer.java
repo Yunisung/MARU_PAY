@@ -199,10 +199,12 @@ public class ProcSettleTransfer extends Proc {
 		//PYS : IP체크로직 추가
 		//3.38.6.59 		: 에이블 라이브서버
 		//15.164.142.118 	: 에이블 개발서버
+		//230130_PYS : IP추가
+		//175.119.234.195	: 에이블 본사
 		boolean ipChecker = true;
 		String clientIp = VertXUtil.getClientIp(rc);
 
-		if(clientIp.indexOf("15.164.142.118") > -1 || clientIp.indexOf("3.38.6.59") > -1 ||
+		if(clientIp.indexOf("15.164.142.118") > -1 || clientIp.indexOf("3.38.6.59") > -1 || clientIp.indexOf("175.119.234.195") > -1 ||
 				clientIp.indexOf("192.168.") > -1 || clientIp.indexOf("10.100.100.") > -1){
 			ipChecker = false;
 		}
