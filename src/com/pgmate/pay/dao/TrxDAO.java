@@ -5007,4 +5007,45 @@ public class TrxDAO extends DAO {
 
 		return result;
 	}
+
+	/**
+	 * 출금요청시 IP 체크
+	 */
+	public SharedMap<String,Object> transferIpCheck(String ip) {
+		super.setTable("PG_TRANSFER_IP");
+		super.setColumns("*");
+		super.addWhere("ipAddress", ip, eq);
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
+
+	/**
+	 * 출금요청 IP 등록
+	 */
+	public boolean insertTransferIp(String ip){
+		boolean insert = false;
+
+		try {
+			super.setTable("PG_TRANSFER_IP");
+			super.setRecord("ipAddress", ip);
+			super.setRecord("useYn", "N");
+
+			insert = super.insert();
+			logger.info("set insert PG_TRANSFER_IP insert : [{}][{}]", ip, insert);
+
+			super.initRecord();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error("insert PG_TRANSFER_IP Exception : {}", ex.getMessage());
+		}
+
+		return insert ;
+	}
 }
