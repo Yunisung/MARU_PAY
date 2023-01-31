@@ -204,9 +204,14 @@ public class ProcSettleTransfer extends Proc {
 		boolean ipChecker = true;
 		String clientIp = VertXUtil.getClientIp(rc);
 
-		if(clientIp.indexOf("15.164.142.118") > -1 || clientIp.indexOf("3.38.6.59") > -1 ||
-				clientIp.indexOf("192.168.") > -1 || clientIp.indexOf("10.100.100.") > -1){
-			ipChecker = false;
+		//230131_PYS : IP체크로직변경. 등록안된 IP 들어올시 DB에 insert
+		SharedMap<String, Object> ipList = trxDAO.transferIpCheck(clientIp);
+		if(ipList != null) {
+			if(ipList.getString("useYn").equals("Y")) {
+				ipChecker = false;
+			}
+		} else {
+			trxDAO.insertTransferIp(clientIp);
 		}
 
 		if(ipChecker == true) {
