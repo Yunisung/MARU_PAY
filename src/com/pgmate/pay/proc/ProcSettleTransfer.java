@@ -203,7 +203,7 @@ public class ProcSettleTransfer extends Proc {
 		//175.119.234.195	: 에이블 본사
 		boolean ipChecker = true;
 		String clientIp = VertXUtil.getClientIp(rc);
-
+		logger.info("connect IP : [{}]", clientIp);
 		//230131_PYS : IP체크로직변경. 등록안된 IP 들어올시 DB에 insert
 		SharedMap<String, Object> ipList = trxDAO.transferIpCheck(clientIp);
 		if(ipList != null) {
@@ -211,7 +211,7 @@ public class ProcSettleTransfer extends Proc {
 				ipChecker = false;
 			}
 		} else {
-			trxDAO.insertTransferIp(clientIp);
+//			trxDAO.insertTransferIp(clientIp);
 		}
 
 		if(ipChecker == true) {
