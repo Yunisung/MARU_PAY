@@ -4902,7 +4902,7 @@ public class TrxDAO extends DAO {
 	/**
 	 * 230112_PYS : 통합인증시 인증사용 체크
 	 */
-	public SharedMap<String, Object> getTotalAuth(String mchtId) {
+	public SharedMap<String, Object> getMchtTotalAuth(String mchtId) {
 		super.setTable("PG_MCHT_TOTAL_AUTH");
 		super.setColumns("*");
 		super.addWhere("mchtId", mchtId);
