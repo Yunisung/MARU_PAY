@@ -189,6 +189,10 @@ public class Api {
 				process = new VactSearchError();
 			}else if (uri.startsWith(PAYUNIT.API_VACT_SEARCH_TRX)) {
 				process = new VactSearchTrx();
+			}else if (uri.startsWith(PAYUNIT.API_ARSV2_AUTH)) {
+				process = new ProcArsAuth();
+			}else if (uri.startsWith(PAYUNIT.API_ARSV2_CHECK)) {
+				process = new ProcArsAuthCheck();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {

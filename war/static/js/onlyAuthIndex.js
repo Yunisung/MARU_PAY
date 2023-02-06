@@ -254,7 +254,8 @@ var KWON = (function(win, doc) {
 			document.getElementById("phoneNoArea1").innerText = config.phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
 		}
         if(phoneNoArea2){
-			document.getElementById("phoneNoArea2").innerText = config.phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
+			// document.getElementById("phoneNoArea2").innerText = config.phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
+			document.getElementById("phoneNoArea2").innerText = config.identity.substring(0,2);
 		}
 		
         document.getElementById('vactTotalAuthId').value = config.totalAuthId;

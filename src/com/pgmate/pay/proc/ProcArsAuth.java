@@ -3,6 +3,7 @@ package com.pgmate.pay.proc;
 import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
+import com.pgmate.pay.bean.ARS;
 import com.pgmate.pay.bean.Request;
 import com.pgmate.pay.bean.TotalAuth;
 import com.pgmate.pay.conf.Firm;
@@ -25,23 +26,19 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.GregorianCalendar;
 
-public class ProcAccountTransfer extends Proc{
-    private static Logger logger 				= LoggerFactory.getLogger( ProcAccountTransfer.class );
-
-    public ProcAccountTransfer() {
-
-    }
+public class ProcArsAuth extends Proc {
+    private static Logger logger 				= LoggerFactory.getLogger( ProcArsAuth.class );
 
     @Override
     public void exec(RoutingContext rc, Request request, SharedMap<String, Object> sharedMap, SharedMap<String, SharedMap<String, Object>> sharedObject) throws Exception {
         set(rc,request,sharedMap,sharedObject);
 
         if(response.result != null) {
+            //검증에 문제생김
             sendResponse();
             return;
         } else {
-            // 예금주 체크
-            if (!accountTransfer(request)) {
+            if (!reqArsAuth(request)) {
                 sendResponse();
                 return;
             }
@@ -61,58 +58,56 @@ public class ProcAccountTransfer extends Proc{
             return;
         }
 
-        String accountAuth = totalAuth.getString("accountAuth");
-        if(accountAuth.equals("N")) {
-            response.result = ResultUtil.getResult("9999", "사용할수 없음", "계좌1원인증 사용중인 가맹점이 아닙니다.");
+        if(request.ars == null) {
+            response.result = ResultUtil.getResult("9999", "요청정보 없음", "요청 데이터가 없습니다. ars 오류");
             return;
         }
 
-        if(request.totalAuth == null) {
-            response.result = ResultUtil.getResult("9999", "요청정보 없음", "요청 데이터가 없습니다. totalAuth 오류");
+        String arsAuth = totalAuth.getString("arsAuth");
+        if(arsAuth.equals("N")) {
+            response.result = ResultUtil.getResult("9999", "사용할수 없음", "ARS인증 사용중인 가맹점이 아닙니다.");
             return;
         }
 
-        if(CommonUtil.isNullOrSpace(request.totalAuth.bankCd)) {
-            response.result = ResultUtil.getResult("9999", "필수값없음","출금은행코드 값이 없습니다.");
-            return;
+        String identityCheck = totalAuth.getString("identityCheck");
+
+        if(identityCheck.equals("Y")) {
+            if(CommonUtil.isNullOrSpace(request.ars.identity)) {
+                response.result = ResultUtil.getResult("9999", "필수값없음","생년월일 값이 없습니다.");
+                return;
+            }
+        } else {
+            response.result = ResultUtil.getResult("9999", "사용할수 없음", " 생년월일체크 사용중인 가맹점이 아닙니다.");
         }
 
-        if(CommonUtil.isNullOrSpace(request.totalAuth.account)) {
-            response.result = ResultUtil.getResult("9999", "필수값없음","출금계좌번호 값이 없습니다.");
-            return;
-        }
-
-        if(CommonUtil.isNullOrSpace(request.totalAuth.name)) {
-            response.result = ResultUtil.getResult("9999", "필수값없음","예금주명 값이 없습니다.");
-            return;
-        }
-
-        if(CommonUtil.isNullOrSpace(request.totalAuth.phoneNo)) {
+        if(CommonUtil.isNullOrSpace(request.ars.phoneNo)) {
             response.result = ResultUtil.getResult("9999", "필수값없음","휴대폰번호 값이 없습니다.");
             return;
         }
 
-        if(CommonUtil.isNullOrSpace(request.totalAuth.totalAuthId)) {
+        if(CommonUtil.isNullOrSpace(request.ars.totalAuthId)) {
             response.result = ResultUtil.getResult("9999", "필수값없음","통합인증 아이디 값이 없습니다.");
             return;
         }
     }
 
-    public boolean accountTransfer(Request request) {
-        logger.info("1원인증 시작");
-
+    /**
+     * ARS인증 : 수수료 자동 차감
+     */
+    public boolean reqArsAuth(Request request) {
         //데이터 세팅
-        String bankCd = request.totalAuth.bankCd.trim();
+        String totalAuthId = request.ars.totalAuthId;
+        String phoneNo = request.ars.phoneNo;
+        String authNo = request.ars.authNo;
+        String bankCd = request.ars.bankCd;
+        String account = request.ars.accountNo;
+        String holder = request.ars.mchtCustNm;
         String bankName = trxDAO.getBankName(bankCd).getString("codeName");
-        String account = request.totalAuth.account.trim();
-        String identity =  request.totalAuth.identity.trim();
-        String holderName = request.totalAuth.name.trim();
-        String phoneNo = request.totalAuth.phoneNo.trim();
-        String mchtId = request.totalAuth.mchtId;
-        String totalAuthId = request.totalAuth.totalAuthId;
-        String authId = TrxDAO.getAuthId();
 
-        SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
+        String mchtId = mchtMap.getString("mchtId");
+        SharedMap<String, Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
+
+        String authId = TrxDAO.getAuthId();
 
         String stlType = totalAuthMap.getString("settleType");
         String unitType = "";
@@ -133,70 +128,69 @@ public class ProcAccountTransfer extends Proc{
 
         String stlDay = calcDay(stlType, CommonUtil.getCurrentDate("yyyyMMdd"));
 
-        //계좌 1원 인증수수료값 조회
-        long authFee = totalAuthMap.getLong("accountAuthFee");
-        String authType = "account";
-        String summary = "계좌1원인증";
+        //ARS인증 수수료 조회
+        long authFee = totalAuthMap.getLong("arsAuthFee");
 
-        //랜덤4자리숫자 뽑기 BK****
-        String authNo = String.format("%04d", (int) (Math.random() * 9999));
-        String sendAuthNo = "BK"+authNo;
+        String authType = "ars";
+        String summary = "ARS인증";
 
-        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, authType, bankCd, bankName, account, holderName, authNo, phoneNo ,authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, authType, bankCd, bankName, account, holder, authNo, phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
-        //이체전문
-        FirmBean firmBean = balanceTransfer("089", bankCd, account, 1, sendAuthNo);
+        FirmBean firmBean = arsFirmBean(phoneNo, authNo);
 
         if(!firmBean.resultCd.equals("0000")) {
-            logger.info("1원인증 오류 [{}][{}][{}][{}][{}]", authId, bankCd, account, firmBean.resultCd, firmBean.resultMsg);
-
+            //ARS 인증 실패시
             if("".equals(firmBean.resultMsg)) {
-                response.result = ResultUtil.getResult("AAAA", "계좌1원 전송실패","서버 시스템 오류. 관리자에게 문의해주세요.");
+                response.result = ResultUtil.getResult("AAAA", "ARS인증 실패","서버 시스템 오류. 관리자에게 문의해주세요.");
             } else {
-                response.result = ResultUtil.getResult("AAAA", "계좌1원 전송실패",firmBean.resultMsg);
+                response.result = ResultUtil.getResult("AAAA", "ARS인증 실패",firmBean.resultMsg);
             }
+            trxDAO.updateTotalAuthResult(authId, "XXXX", firmBean.resultMsg);
 
-            //이체 실패시 DB 업데이트.
-            trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
-
+            logger.info("ARS인증 오류 [{}][{}][{}][{}]", phoneNo, authNo, firmBean.resultCd, firmBean.resultMsg);
             return false;
         } else {
-            logger.info("1원인증 완료 [{}][{}][{}]", authId, firmBean.resultCd, firmBean.resultMsg);
-            response.result = ResultUtil.getResult(firmBean.resultCd, "계좌1원 전송성공", "1원을 보냈습니다.");
-            response.totalAuth = new TotalAuth();
-            response.totalAuth.authId = authId;
+            logger.info("ARS인증 성공 : [{}][{}]", phoneNo, authNo);
 
-            //ProcAccountAuthCheck에서 DB업데이트 예정
+            trxDAO.updateTotalAuthResult(authId, "000", "ARS 인증 진행중");
+
+            response.result = ResultUtil.getResult(firmBean.resultCd, "ARS인증 요청성공", "ARS인증이 요청되었습니다.");
+
+            response.ars = new ARS();
+            response.ars.firmIdx = firmBean.data.getString("firmIdx");
+            response.ars.authId = authId;
             return true;
         }
 
-
     }
 
-    public FirmBean balanceTransfer(String sendBankCd, String recvBankCd, String recvAccount, long amount, String sender){
+    public FirmBean arsFirmBean(String phoneNo, String authNo) {
         FirmBean firmBean = new FirmBean();
-        firmBean.bankCd 	= sendBankCd;
-        firmBean.msgType 	= "0100100";
+        firmBean.bankCd 	= "ARS";
+        firmBean.msgType 	= "ARSAUTH";
         firmBean.userId		= "SYSTEM";
-        firmBean.data.put("amount",amount);
-        firmBean.data.put("recvBankCd",recvBankCd);
-        firmBean.data.put("recvAccount",recvAccount);
-        //PYS : sender를 안보내면  (주)부국위너스로 나오도록 세팅되있음.
-		firmBean.data.put("sender", sender);
-        firmBean.data.put("procType","AT");
+        firmBean.data.put("phoneNo", phoneNo.trim());
+        firmBean.data.put("authNo", authNo.trim());
 
         Firm firm = FirmLoader.getConfig();
         String host = firm.firmServer;
+//        String host = "10.100.200.10";
         int timeout = firm.firmTimeout;
         int port = firm.firmPort;
 
         firmBean = comm(firmBean, host, port, timeout);
-        logger.info("응답:{},{}",firmBean.resultCd,firmBean.resultMsg);
-        logger.info("idx:{},{}",firmBean.idx,firmBean.data.getLong("balance"));
-        logger.info("data : {}", GsonUtil.toJson(firmBean.data));
+
+        logger.info("ARS인증 응답 : [{}][{}][{}][{}]", phoneNo, authNo, firmBean.resultCd,firmBean.resultMsg);
+        logger.info("ARS인증 data : [{}]", GsonUtil.toJson(firmBean.data));
+
         return firmBean;
     }
 
+    /**
+     * KSNET FIRM 서버와 통신
+     * @param firmBean
+     * @return
+     */
     public FirmBean comm(FirmBean firmBean, String host, int port, int timeout){
         Socket socket = null;
         OutputStream output = null;
@@ -208,8 +202,12 @@ public class ProcAccountTransfer extends Proc{
         try{
             socket = new Socket(host, port);
             socket.setSoTimeout(timeout);
+//            socket = new Socket("10.100.200.10", 10006);
+//            socket.setSoTimeout(70000);
 
             output = socket.getOutputStream();
+//            output.write(reqJson.getBytes(Charset.forName("MS949")));
+//            output.write(reqJson.getBytes(Charset.forName("UTF-8")));
             output.write(reqJson.getBytes(Charset.forName("EUC-KR")));
             output.flush();
 
@@ -232,9 +230,11 @@ public class ProcAccountTransfer extends Proc{
             bout.flush();
             byte[] res = bout.toByteArray();
             bout.close();
+//            resJson = new String(res,"MS949");
+//            resJson = new String(res,"UTF-8");
             resJson = new String(res,"EUC-KR");
             if(!CommonUtil.isNullOrSpace(resJson)) {
-                firmBean = (com.pgmate.pay.firm.FirmBean)GsonUtil.fromJson(resJson, com.pgmate.pay.firm.FirmBean.class);
+                firmBean = (FirmBean)GsonUtil.fromJson(resJson, FirmBean.class);
             }else {
                 throw new Exception("서버응답없음");
             }
@@ -259,6 +259,12 @@ public class ProcAccountTransfer extends Proc{
     }
 
 
+    /**
+     * 정산예정일계산
+     * @param settleType
+     * @param today
+     * @return
+     */
     public String calcDay(String settleType,String today){
         try {
             if(settleType.equals("D+0") || settleType.equals("C+0")) {
@@ -337,5 +343,4 @@ public class ProcAccountTransfer extends Proc{
             return new Double(amount *10 /100).longValue();
         }
     }
-
 }

@@ -95,6 +95,8 @@ public class PAYUNIT {
 	public static String API_ACCOUNT_HOLDER			= "/api/account/holder";		// 계좌실명인증(FCS) 조회
 	public static String API_ACCOUNT_TRANSFER		= "/api/account/transfer";		// 계좌점유인증(1원인증)
 	public static String API_ACCOUNT_AUTH_CHECK		= "/api/account/auth/check";	// 1원인증번호체크
+	public static String API_ARSV2_AUTH				= "/api/ars/v2/auth/async";		// ARS인증 요청
+	public static String API_ARSV2_CHECK			= "/api/ars/v2/auth/check";		// ARS인증 확인
 
 	public static String API_VACT_SEARCH_ERROR 		= "/api/vact/search/error";		// 가상계좌 오류조회
 	public static String API_VACT_SEARCH_TRX		= "/api/vact/search/trx";		// 가상계좌 출금내역 조회

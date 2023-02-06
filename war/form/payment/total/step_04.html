@@ -41,11 +41,13 @@
     			
     			var data = {"ars" : $('#arsForm').serializeObject()};
 
+
         		if("REQ" == $("#arsType").val()){
         			$("#reqErrorTextArea").hide();
+
         			$.ajax({
         				type : 'POST', 
-        				url : '/api/ars/auth/async', 
+        				url : '/api/ars/v2/auth/async',
         				data : JSON.stringify(data),
         				dataType : 'json', 
         				beforeSend : function(xhr){ 
@@ -54,7 +56,7 @@
         				}, 
         				success : function(json){
         					//alert(json.result.resultCd);
-        					$("#trxId").val(json.ars.trxId);
+        					// $("#trxId").val(json.ars.trxId);
         					
         					if("0000" == json.result.resultCd){
         						// 요청 성공
@@ -63,6 +65,10 @@
         						
         						$("#arsReq").hide();
         						$("#arsChk").show();
+
+                                $("#arsForm > #authId").val(json.ars.authId);
+                                $("#arsForm > #firmIdx").val(json.ars.firmIdx);
+
         					}else if("AAAA" == json.result.resultCd){
         						KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, "[ARS인증 오류]<br>" + json.result.resultMsg + "(" + json.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
         						
@@ -82,7 +88,7 @@
     				$("#errorTextArea").hide();
     				$.ajax({
         				type : 'POST', 
-        				url : '/api/ars/auth/check', 
+        				url : '/api/ars/v2/auth/check',
         				data : JSON.stringify(data),
         				dataType : 'json', 
         				beforeSend : function(xhr){ 
@@ -186,6 +192,9 @@
 			
 			<input type="hidden" id="trxId" name="trxId" value="" />
 			<input type="hidden" id="totalAuthId" name="totalAuthId" value="" />
+
+            <input type="hidden" id="authId" name="authId" value="" />
+            <input type="hidden" id="firmIdx" name="firmIdx" value="" />
 		</form>
 		<form id="vactResForm" name="vactResForm" method = "POST" action="">
 			<input type="hidden" id="vactTotalAuthId" name="vactTotalAuthId" value="" />
