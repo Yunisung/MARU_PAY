@@ -1,6 +1,9 @@
 package com.pgmate.pay.proc;
 
+import com.pgmate.app.util.KSignUtil;
 import com.pgmate.lib.conf.ConfigLoader;
+import com.pgmate.lib.key.CPKEY;
+import com.pgmate.lib.key.GenKey;
 import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
@@ -161,6 +164,10 @@ public class ProcVactAuthOpen extends Proc{
             vact.put("udf1", request.vact.udf1);
             vact.put("udf2", request.vact.udf2);
             vact.put("depositLimitCnt", mchtVactMngMap.getInt("depositLimitCnt"));
+            //출금키 할당
+            String transferKey = GenKey.genKeys(CPKEY.CASH_TRANSFER, issueId);
+            String encTransferKey = KSignUtil.getInstance().Encrypt(transferKey);
+            vact.put("transferKey", encTransferKey);
 
             logger.info("VACT OPEN INFO : [{}]", GsonUtil.toJson(vact,true,""));
 
@@ -179,6 +186,9 @@ public class ProcVactAuthOpen extends Proc{
                 response.vact.issueId = vact.getString("issueId");
                 response.vact.expireAt = vact.getString("expireAt");
                 response.vact.status  = "발행";
+                //OSC: 개인정보유출 금지로 출금계좌는 보이지 않도록 처리 -> 라이브중이므로 차후 주석해제 예정
+                //response.auth.account = "";
+                response.vact.transferKey = transferKey;
                 response.result = ResultUtil.getResult("0000", "정상","가상계좌가 발행되었습니다."+vact.getString("issueId"));
             }else{
                 response.result = ResultUtil.getResult("9999", "발행오류","시스템 오류로 인한 가상계좌 발행 실패.");
@@ -463,10 +473,8 @@ public class ProcVactAuthOpen extends Proc{
                 name, regType, identity, phoneNo, bankCd);
 
         // 테스트용 - 임시
-//        if(firmBean.resultCd.equals("KS99")) {
-//            firmBean.resultCd = "0000";
-//            firmBean.resultMsg = "출금계좌 정보 등록 완료.";
-//        }
+//        firmBean.resultCd = "0000";
+//        firmBean.resultMsg = "출금계좌 정보 등록 완료.";
 
         if(!"0000".equals(firmBean.resultCd)) {
             if("".equals(firmBean.resultMsg)) {
