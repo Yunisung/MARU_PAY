@@ -3,6 +3,8 @@ package com.pgmate.pay.proc;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.bean.Request;
+import com.pgmate.pay.conf.Firm;
+import com.pgmate.pay.conf.FirmLoader;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.util.PAYUNIT;
 import io.vertx.ext.web.RoutingContext;
@@ -32,6 +34,13 @@ public class ProcOnlyAuthWidget extends Proc {
 
 	@Override
 	public void valid() {
+
+		int currentTime = CommonUtil.parseInt(CommonUtil.getCurrentDate("HHmmss"));
+		Firm firm = FirmLoader.getConfig();
+		if(currentTime > firm.firmEndTime || currentTime < firm.firmStartTime) {
+			response.result = ResultUtil.getResult("9999", "서비스시간아님","통합인증 가능한 시간이 아닙니다.");return;
+		}
+
 		SharedMap<String, Object> totalAuth = trxDAO.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
 		if(totalAuth == null) {
 			response.result = ResultUtil.getResult("9999", "통합인증 사용중인 가맹점이 아닙니다.");

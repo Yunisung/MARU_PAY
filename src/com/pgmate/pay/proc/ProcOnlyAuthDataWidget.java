@@ -33,7 +33,7 @@ public class ProcOnlyAuthDataWidget extends Proc {
             SharedMap<String, Object> widget = PAYUNIT.cacheMap.get(widgetKey);
 
             if(widget == null) {
-                response.result = ResultUtil.getResult("9999", "세션 만료","다시 시도해주세요.");
+                response.result = ResultUtil.getResult("AAAA", "세션 만료","세션이 만료되었습니다. 다시 시도해주세요.");
                 return;
             }
 
