@@ -171,23 +171,15 @@ public class ProcSettleTransferAccount extends Proc {
 		}
 		request.transfer.account = request.transfer.account.replace("-", "").trim();
 
-		String account = request.transfer.account;
-		SharedMap<String, Object> vactDtlMap = vactDAO.getVactDtl(account);
 
-		// 가상계좌상태 확인
-		if(!"발행".equals(vactDtlMap.getString("status"))) {
-			response.result = ResultUtil.getResult("9999", "계좌상태오류","가상계좌 발행상태가 아닙니다.");return;
-		}
+		String account = request.transfer.account;
+		SharedMap<String, Object> vactRegMap = vactDAO.getVactReg(account);
+		SharedMap<String, Object> vactDtlMap = vactDAO.getVactDtl(account);
+		String encKey = KSignUtil.getInstance().Encrypt(request.transfer.transferKey);
 
 		// 출금키 확인
 		if(CommonUtil.isNullOrSpace(request.transfer.transferKey)) {
 			response.result = ResultUtil.getResult("9999", "필수값없음","가상계좌 출금키가 존재하지 않습니다.");return;
-		}
-
-		// 출금키 암호화하고 비교하기
-		String key = KSignUtil.getInstance().Encrypt(request.transfer.transferKey);
-		if(!key.equals(vactDtlMap.getString("transferKey"))) {
-			response.result = ResultUtil.getResult("9999", "이용불가", "출금키가 일치하지 않습니다."); return;
 		}
 
 		// 주문번호 확인
@@ -207,14 +199,26 @@ public class ProcSettleTransferAccount extends Proc {
 			request.transfer.bankName = bank.getString("codeName");
 		}
 
+		// 가상계좌존재유무, 상태 확인
+		if(vactDtlMap == null || vactDtlMap.isEmpty()) {
+			response.result = ResultUtil.getResult("9999", "계좌상태오류","가상계좌가 존재하지 않습니다.");return;
+		}
+		if(!"발행".equals(vactDtlMap.getString("status"))) {
+			response.result = ResultUtil.getResult("9999", "계좌상태오류","가상계좌 발행상태가 아닙니다.");return;
+		}
+
 		// 등록계좌 확인
-		SharedMap<String, Object> vactRegMap = vactDAO.getVactReg(account);
 		if(vactRegMap == null || vactRegMap.isEmpty()) {
 			response.result = ResultUtil.getResult("9999", "출금등록계좌 오류","출금등록계좌가 아닙니다.");return;
 		}
 
+		// 출금키 암호화하고 비교하기
+		if(!encKey.equals(vactDtlMap.getString("transferKey"))) {
+			response.result = ResultUtil.getResult("9999", "이용불가", "출금키가 일치하지 않습니다."); return;
+		}
+
 		// 입금내역 확인 - 1건이라도 입금내역이 존재해야 출금허용
-		boolean depositYn = trxDAO.existsDepositVactTrx(account, key);
+		boolean depositYn = trxDAO.existsDepositVactTrx(account, encKey);
 		if(!depositYn) {
 			response.result = ResultUtil.getResult("9999", "입금내역 오류","입금내역이 존재하지 않습니다.");return;
 		}
