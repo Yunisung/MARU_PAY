@@ -67,6 +67,12 @@ public class ProcAccountHolder extends Proc {
 
 		String identityCheck = "";
 
+		int currentTime = CommonUtil.parseInt(CommonUtil.getCurrentDate("HHmmss"));
+		Firm firm = FirmLoader.getConfig();
+		if(currentTime > firm.firmEndTime || currentTime < firm.firmStartTime) {
+			response.result = ResultUtil.getResult("9999", "서비스시간아님","통합인증 가능한 시간이 아닙니다.");return;
+		}
+
 		if(totalAuth == null) {
 			response.result = ResultUtil.getResult("9999", "통합인증 사용중인 가맹점이 아닙니다.");
 			return;
