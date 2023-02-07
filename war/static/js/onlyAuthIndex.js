@@ -337,7 +337,11 @@ var KWON = (function(win, doc) {
 	        console.log(res);
 	        if (res.result.resultCd == '0000') {
 				
-	        } else {
+	        } else if("AAAA" == json.result.resultCd){
+                KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, json.result.resultMsg + "(" + json.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
+
+                $("#accountAuthForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+            } else {
 	            /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
 	        	alert(res.result.advanceMsg);
 	        	//postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
