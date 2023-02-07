@@ -1807,7 +1807,23 @@ public class TrxDAO extends DAO {
 		
 		return result;
 	}
-	
+
+	public boolean existsDepositVactTrx(String account,String transferKey) {
+		super.setTable("PG_VACT_TRX A, PG_VACT_DTL B");
+		super.setColumns("A.*");
+		super.setWhere("A.account = B.account ");
+		super.addWhere("A.account", account);
+		super.addWhere("A.trxType", "입금");
+		super.addWhere("B.transferKey", transferKey);
+		super.addWhere("B.status", "발행");
+		RecordSet rset = super.search();
+		super.initRecord();
+		if (rset.size() == 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 	
 	
 	public boolean patchVactDtl(SharedMap<String,Object> patchMap,String issueId){
