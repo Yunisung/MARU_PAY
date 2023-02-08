@@ -84,6 +84,7 @@ public class ProcArsAuth extends Proc {
             }
         } else {
             response.result = ResultUtil.getResult("9999", "사용할수 없음", " 생년월일체크 사용중인 가맹점이 아닙니다.");
+            return;
         }
 
         if(CommonUtil.isNullOrSpace(request.ars.phoneNo)) {
