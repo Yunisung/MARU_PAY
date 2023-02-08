@@ -165,7 +165,7 @@ public class ProcVactAuthOpen extends Proc{
             vact.put("udf2", request.vact.udf2);
             vact.put("depositLimitCnt", mchtVactMngMap.getInt("depositLimitCnt"));
             //출금키 할당
-            String transferKey = GenKey.genKeys(CPKEY.CASH_TRANSFER, issueId);
+            String transferKey = GenKey.genKeys(CPKEY.ACCNT, issueId);
             String encTransferKey = KSignUtil.getInstance().Encrypt(transferKey);
             vact.put("transferKey", encTransferKey);
 
