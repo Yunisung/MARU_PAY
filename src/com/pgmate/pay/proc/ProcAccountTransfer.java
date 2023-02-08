@@ -59,22 +59,22 @@ public class ProcAccountTransfer extends Proc{
         int currentTime = CommonUtil.parseInt(CommonUtil.getCurrentDate("HHmmss"));
         Firm firm = FirmLoader.getConfig();
         if(currentTime > firm.firmEndTime || currentTime < firm.firmStartTime) {
-            response.result = ResultUtil.getResult("9999", "서비스시간아님","통합인증 가능한 시간이 아닙니다.");return;
+            response.result = ResultUtil.getResult("AAAA", "서비스시간아님","통합인증 가능한 시간이 아닙니다.");return;
         }
 
         if(totalAuth == null) {
-            response.result = ResultUtil.getResult("9999", "통합인증 사용중인 가맹점이 아닙니다.");
+            response.result = ResultUtil.getResult("AAAA", "통합인증 사용중인 가맹점이 아닙니다.");
             return;
         }
 
         String accountAuth = totalAuth.getString("accountAuth");
         if(accountAuth.equals("N")) {
-            response.result = ResultUtil.getResult("9999", "사용할수 없음", "계좌1원인증 사용중인 가맹점이 아닙니다.");
+            response.result = ResultUtil.getResult("AAAA", "사용할수 없음", "계좌1원인증 사용중인 가맹점이 아닙니다.");
             return;
         }
 
         if(request.totalAuth == null) {
-            response.result = ResultUtil.getResult("9999", "요청정보 없음", "요청 데이터가 없습니다. totalAuth 오류");
+            response.result = ResultUtil.getResult("AAAA", "요청정보 없음", "요청 데이터가 없습니다. totalAuth 오류");
             return;
         }
 
@@ -99,7 +99,7 @@ public class ProcAccountTransfer extends Proc{
         }
 
         if(CommonUtil.isNullOrSpace(request.totalAuth.totalAuthId)) {
-            response.result = ResultUtil.getResult("9999", "필수값없음","통합인증 아이디 값이 없습니다.");
+            response.result = ResultUtil.getResult("AAAA", "필수값없음","통합인증 아이디 값이 없습니다.");
             return;
         }
     }
