@@ -5010,6 +5010,9 @@ public class TrxDAO extends DAO {
 
 			super.setRecord("resultCd", resultCd);
 			super.setRecord("resultMsg", resultMsg);
+			if(resultCd.equals("0000") || resultCd.equals("0001")) {
+				super.setRecord("resultStatus", "Y");
+			}
 
 			super.addWhere("authId", authId, eq);
 
