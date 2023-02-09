@@ -98,6 +98,14 @@ public class ProcAccountHolder extends Proc {
 			}
 		}
 
+		String arsAuth = totalAuth.getString("arsAuth");
+		if(arsAuth.equals("Y")) {
+			if(identityCheck.equals("N")) {
+				response.result = ResultUtil.getResult("AAAA", "필수값없음","ARS인증 사용시 생년월일을 입력해야합니다.");
+				return;
+			}
+		}
+
 
 		if(CommonUtil.isNullOrSpace(request.totalAuth.bankCd)) {
 			response.result = ResultUtil.getResult("9999", "필수값없음","출금은행코드 값이 없습니다.");

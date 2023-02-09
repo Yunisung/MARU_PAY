@@ -43,7 +43,7 @@ public class ProcOnlyAuthWidget extends Proc {
 
 		SharedMap<String, Object> totalAuth = trxDAO.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
 		if(totalAuth == null) {
-			response.result = ResultUtil.getResult("9999", "통합인증 사용중인 가맹점이 아닙니다.");
+			response.result = ResultUtil.getResult("9999", "통합인증 사용중인 가맹점이 아닙니다.", "통합인증 사용중인 가맹점이 아닙니다.");
 			return;
 		}
 		
