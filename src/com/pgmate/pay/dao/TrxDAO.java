@@ -5072,7 +5072,7 @@ public class TrxDAO extends DAO {
 	 * ARS 인증 결과 확인
 	 */
 	public FirmBean checkArsResult(long idx, FirmBean firmBean){
-		String query = " SELECT resultCd,resultMsg,resData FROM PG_FIRM_MASTER WHERE idx =?  AND procGb in ('N','Y') ";
+		String query = " SELECT resultCd,resultMsg,resData FROM PG_FIRM_ARS WHERE idx =?  AND procGb in ('N','Y') ";
 
 		DBManager db 	= null;
 		PreparedStatement pstmt	= null;
