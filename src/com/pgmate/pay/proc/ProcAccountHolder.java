@@ -150,6 +150,8 @@ public class ProcAccountHolder extends Proc {
 		String totalAuthId = request.totalAuth.totalAuthId;
 
 		String mchtId = mchtMap.getString("mchtId");
+		String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");
+
 		SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
 
 		//FIRM 실행전 수수료 차감
@@ -181,7 +183,7 @@ public class ProcAccountHolder extends Proc {
 		String authType = "owner";
 		String summary = "실명인증";
 
-		trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, authType, bankCd, bankName, account, holderName,"", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+		trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName,"", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
 		FirmBean firmBean = fcsFirmBean(bankCd, account, identity);
 

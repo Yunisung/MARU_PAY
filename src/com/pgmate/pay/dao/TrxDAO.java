@@ -150,19 +150,12 @@ public class TrxDAO extends DAO {
 	}
 
 	public SharedMap<String, Object> getMchtByMchtId(String mchtId) {
-		String key = "PG_MCHT_" + mchtId;
-		if (PAYUNIT.cacheMap.containsKey(key)) {
-			logger.debug("get key : {}", key);
-			return PAYUNIT.cacheMap.getUnchecked(key);
-		} else {
-			super.setTable("PG_MCHT");
-			super.setColumns("*");
-			super.addWhere("mchtId", mchtId, eq);
-			RecordSet rset = super.search();
-			super.initRecord();
-			logger.debug("load key : {}", key);
-			return PAYUNIT.cacheMap.put(key, rset.getRow(0));
-		}
+		super.setTable("PG_MCHT");
+		super.setColumns("*");
+		super.addWhere("mchtId", mchtId, eq);
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRow(0);
 	}
 
 	public SharedMap<String, Object> getMchtMngByMchtId(String mchtId) {
@@ -4953,7 +4946,7 @@ public class TrxDAO extends DAO {
 	/**
 	 * 230118_PYS : 통합인증테이블 INSERT
 	 */
-	public boolean insertTotalAuth(String authId, String totalAuthId, String mchtId, String authType, String bankCd, String bankName, String bankAccount, String holderName,
+	public boolean insertTotalAuth(String authId, String totalAuthId, String mchtId, String mchtName, String authType, String bankCd, String bankName, String bankAccount, String holderName,
 								   String authNo, String phoneNo, long authFee, long authFeeVat, String stlType, String stlUnit, String stlDay, String summary){
 		boolean insert = false;
 
@@ -4965,6 +4958,7 @@ public class TrxDAO extends DAO {
 			super.setRecord("authId", authId);
 			super.setRecord("totalAuthId", totalAuthId);
 			super.setRecord("mchtId", mchtId);
+			super.setRecord("mchtName", mchtName);
 			super.setRecord("authType", authType);
 			super.setRecord("bankCd", bankCd);
 			super.setRecord("bankName", bankName);

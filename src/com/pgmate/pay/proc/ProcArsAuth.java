@@ -112,6 +112,7 @@ public class ProcArsAuth extends Proc {
         String bankName = trxDAO.getBankName(bankCd).getString("codeName");
 
         String mchtId = mchtMap.getString("mchtId");
+        String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");
         SharedMap<String, Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
 
         String authId = TrxDAO.getAuthId();
@@ -141,7 +142,7 @@ public class ProcArsAuth extends Proc {
         String authType = "ars";
         String summary = "ARS인증";
 
-        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, authType, bankCd, bankName, account, holder, authNo, phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holder, authNo, phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
         FirmBean firmBean = arsFirmBean(phoneNo, authNo);
 

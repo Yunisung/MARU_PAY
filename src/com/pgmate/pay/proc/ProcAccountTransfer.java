@@ -115,6 +115,7 @@ public class ProcAccountTransfer extends Proc{
         String holderName = request.totalAuth.name.trim();
         String phoneNo = request.totalAuth.phoneNo.trim();
         String mchtId = request.totalAuth.mchtId;
+        String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");
         String totalAuthId = request.totalAuth.totalAuthId;
         String authId = TrxDAO.getAuthId();
 
@@ -148,7 +149,7 @@ public class ProcAccountTransfer extends Proc{
         String authNo = String.format("%04d", (int) (Math.random() * 9999));
         String sendAuthNo = "BK"+authNo;
 
-        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, authType, bankCd, bankName, account, holderName, authNo, phoneNo ,authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName, authNo, phoneNo ,authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
         //이체전문
         FirmBean firmBean = balanceTransfer("089", bankCd, account, 1, sendAuthNo);
