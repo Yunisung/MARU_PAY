@@ -139,8 +139,8 @@ public class ProcArsAuth extends Proc {
         //ARS인증 수수료 조회
         long authFee = totalAuthMap.getLong("arsAuthFee");
 
-        String authType = "ars";
-        String summary = "ARS인증";
+        String authType = "ARS인증";
+        String summary = "";
 
         trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holder, authNo, phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 

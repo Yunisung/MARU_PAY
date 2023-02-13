@@ -142,8 +142,8 @@ public class ProcAccountTransfer extends Proc{
 
         //계좌 1원 인증수수료값 조회
         long authFee = totalAuthMap.getLong("accountAuthFee");
-        String authType = "account";
-        String summary = "계좌1원인증";
+        String authType = "1원인증";
+        String summary = "";
 
         //랜덤4자리숫자 뽑기 BK****
         String authNo = String.format("%04d", (int) (Math.random() * 9999));

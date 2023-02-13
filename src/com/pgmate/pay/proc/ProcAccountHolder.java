@@ -180,8 +180,8 @@ public class ProcAccountHolder extends Proc {
 		//실명인증수수료값 조회
 		long authFee = totalAuthMap.getLong("ownerAuthFee");
 
-		String authType = "owner";
-		String summary = "실명인증";
+		String authType = "실명인증";
+		String summary = "";
 
 		trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName,"", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
