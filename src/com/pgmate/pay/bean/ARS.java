@@ -23,6 +23,9 @@ public class ARS {
 	public String custIp		= null;		// 고객 IP 주소
 	public String encryptYn		= null;		// 암호화 여부
 	public String totalAuthId	= null;		// 통합인증ID
+
+	public String authId		= null;
+	public String firmIdx		= null;
 }                                
                                  
                                  

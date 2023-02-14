@@ -26,6 +26,15 @@ public class VactDAO extends DAO {
         return rset.getRowFirst();
     }
 
+    public SharedMap<String, Object> getVactDtl(String account) {
+        super.setTable("PG_VACT_DTL");
+        super.setColumns("*");
+        super.addWhere("account", account, eq);
+        RecordSet rset = super.search();
+        super.initRecord();
+        return rset.getRowFirst();
+    }
+
     public SharedMap<String, Object> getVactReg(String account) {
         super.setTable("PG_VACT_REG");
         super.setColumns("*");

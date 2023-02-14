@@ -5,12 +5,10 @@ import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.bean.Request;
 import com.pgmate.pay.bean.TotalAuth;
-import com.pgmate.pay.bean.Vact;
 import com.pgmate.pay.conf.Firm;
 import com.pgmate.pay.conf.FirmLoader;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.firm.FirmBean;
-import com.pgmate.pay.util.PAYUNIT;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,24 +63,45 @@ public class ProcAccountHolder extends Proc {
 	public void valid() {
 		//230113_PYS : 가맹점 통합인증 정보로 검증처리
 		TrxDAO dao = new TrxDAO();
-		SharedMap<String, Object> totalAuth = dao.getTotalAuth(mchtTmnMap.getString("mchtId"));
+		SharedMap<String, Object> totalAuth = dao.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
 
 		String identityCheck = "";
 
-		if(totalAuth != null) {
-			String ownerAuth = totalAuth.getString("ownerAuth");
-
-			if(ownerAuth.equals("N")) {
-				response.result = ResultUtil.getResult("9999", "사용할수 없음", "실명인증 사용중인 가맹점이 아닙니다.");
-				return;
-			}
-
-			identityCheck = totalAuth.getString("identityCheck");
+		int currentTime = CommonUtil.parseInt(CommonUtil.getCurrentDate("HHmmss"));
+		Firm firm = FirmLoader.getConfig();
+		if(currentTime > firm.firmEndTime || currentTime < firm.firmStartTime) {
+			response.result = ResultUtil.getResult("AAAA", "서비스시간아님","통합인증 가능한 시간이 아닙니다.");return;
 		}
+
+		if(totalAuth == null) {
+			response.result = ResultUtil.getResult("AAAA", "통합인증 사용중인 가맹점이 아닙니다.");
+			return;
+		}
+
+		if(request.totalAuth == null) {
+			response.result = ResultUtil.getResult("AAAA", "요청정보 없음", "요청 데이터가 없습니다. totalAuth 오류");
+			return;
+		}
+
+		String ownerAuth = totalAuth.getString("ownerAuth");
+		if(ownerAuth.equals("N")) {
+			response.result = ResultUtil.getResult("AAAA", "사용할수 없음", "실명인증 사용중인 가맹점이 아닙니다.");
+			return;
+		}
+
+		identityCheck = totalAuth.getString("identityCheck");
 
 		if(identityCheck.equals("Y")) {
 			if(CommonUtil.isNullOrSpace(request.totalAuth.identity)) {
-				response.result = ResultUtil.getResult("9999", "필수값없음","생년월일 값이 없습니다.");
+				response.result = ResultUtil.getResult("AAAA", "필수값없음","생년월일 값이 없습니다.");
+				return;
+			}
+		}
+
+		String arsAuth = totalAuth.getString("arsAuth");
+		if(arsAuth.equals("Y")) {
+			if(identityCheck.equals("N")) {
+				response.result = ResultUtil.getResult("AAAA", "필수값없음","ARS인증 사용시 생년월일을 입력해야합니다.");
 				return;
 			}
 		}
@@ -98,10 +117,6 @@ public class ProcAccountHolder extends Proc {
 			return;
 		}
 
-
-
-
-
 		if(CommonUtil.isNullOrSpace(request.totalAuth.name)) {
 			response.result = ResultUtil.getResult("9999", "필수값없음","예금주명 값이 없습니다.");
 			return;
@@ -112,69 +127,67 @@ public class ProcAccountHolder extends Proc {
 			return;
 		}
 
+		if(CommonUtil.isNullOrSpace(request.totalAuth.totalAuthId)) {
+			response.result = ResultUtil.getResult("AAAA", "필수값없음","통합인증 아이디 값이 없습니다.");
+			return;
+		}
+
 	}
 
 	/**
 	 * FCS인증 체크 : 무인증시에만 체크, 수수료 자동차감
 	 */
 	public boolean FcsChecker(Request request) {
-		SharedMap<String,Object> mchtVactMngMap = trxDAO.getMchtMngVact(mchtMap.getString("mchtId"));
-		//SharedMap<String,Object> vact = trxDAO.getReadyVactDtl(request.totalAuth.account, mchtMap.getString("mchtId"));
-		//String issueId = vact.getString("issueId");
-
 		logger.info("FCS 인증 시작");
 
 		//데이터 세팅
 		String bankCd = request.totalAuth.bankCd.trim();
 		String account = request.totalAuth.account.trim();
-		String identity =  request.totalAuth.identity;
+		String identity =  request.totalAuth.identity.trim();
 		String holderName = request.totalAuth.name.trim();
+		String phoneNo = request.totalAuth.phoneNo.trim();
+		String bankName = trxDAO.getBankName(bankCd).getString("codeName");
+		String totalAuthId = request.totalAuth.totalAuthId;
 
-		/*
-		//PG_FIRM_ACCNT에 있는 계좌 조회
-		SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(bankCd, account).getRowFirst();
-		String dbName = firmAccntMap.getString("accntHolder");
+		String mchtId = mchtMap.getString("mchtId");
+		String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");
 
-		//PG_FIRM_ACCNT에 있는 계좌는 바로 리턴
-		if(dbName.equals(holderName)) {
-			return true;
-		}*/
+		SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
 
 		//FIRM 실행전 수수료 차감
 		String authId = TrxDAO.getAuthId();
-		String stlType = mchtVactMngMap.getString("settleType");
+//		String totalAuthId = TrxDAO.getTotalAuthId();
+
+		String stlType = totalAuthMap.getString("settleType");
 		String unitType = "";
-		if(mchtVactMngMap.getString("settleType").startsWith("D+0")){
+		if(totalAuthMap.getString("settleType").startsWith("D+0")){
 			unitType = "실시간정산";
-		}else if(mchtVactMngMap.getString("settleType").startsWith("D+")){
+		}else if(totalAuthMap.getString("settleType").startsWith("D+")){
 			unitType = "일반정산";
-		}else if(mchtVactMngMap.getString("settleType").startsWith("C+")){
+		}else if(totalAuthMap.getString("settleType").startsWith("C+")){
 			unitType = "충전정산";
-		}else if(mchtVactMngMap.getString("settleType").equals("A+1")){
+		}else if(totalAuthMap.getString("settleType").equals("A+1")){
 			unitType = "자동정산";
-		}else if(mchtVactMngMap.getString("settleType").equals("A+0") ||
-				mchtVactMngMap.getString("settleType").equals("A+2")){
+		}else if(totalAuthMap.getString("settleType").equals("A+0") ||
+				totalAuthMap.getString("settleType").equals("A+2")){
 			unitType = "당일정산";
+		}else if(totalAuthMap.getString("settleType").startsWith("B+")) {
+			unitType = "자동충전정산";
 		}
+
 		String stlDay = calcDay(stlType, CommonUtil.getCurrentDate("yyyyMMdd"));
 
 		//실명인증수수료값 조회
-		long fee = mchtVactMngMap.getLong("ownerAuthFee");
-		long orgFee = trxDAO.getAuthOrgFee("OWNER");
+		long authFee = totalAuthMap.getLong("ownerAuthFee");
 
-		//가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)
-//		trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"),
-//				"O", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
-//				request.vact.bankCd, request.vact.account, "");
-//
-//		//PG_VACT_AUTH_DTL에 INSERT
-//		trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay,"실명인증수수료", fee, calcVat(fee), orgFee, calcVat(orgFee));
+		String authType = "실명인증";
+		String summary = "";
 
-		//PG_FIRM_ACCNT에 없는 계좌는 FIRM으로 보냄
+		trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName,"", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+
 		FirmBean firmBean = fcsFirmBean(bankCd, account, identity);
 
-		//FIRM 결과값 PG_VACT_AUTH에 업데이트
-//		trxDAO.updatePgVactAuth(authId, firmBean.resultCd, firmBean.resultMsg);
+		trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
 
 		if(!firmBean.resultCd.equals("0000")) {
 			//FCS 인증 실패시
@@ -192,9 +205,6 @@ public class ProcAccountHolder extends Proc {
 
 			if(holderName.equals(accountName)) {
 				//이름같을때
-				//PG_FIRM_ACCNT에 INSERT
-				//FIRM에서 PG_FIRM_ACCNT에 INSERT 처리함.
-				//trxDAO.insertAccnt(bankCd, account, accountName);
 				logger.info("FCS 인증 완료");
 				response.result = ResultUtil.getResult(firmBean.resultCd, "계좌실명인증 성공", "예금주명 조회가 완료되었습니다.");
 				response.totalAuth = new TotalAuth();
@@ -206,7 +216,13 @@ public class ProcAccountHolder extends Proc {
 				response.totalAuth.holder = request.totalAuth.name;
 				response.totalAuth.phoneNo = request.totalAuth.phoneNo;
 				response.totalAuth.trackId = request.totalAuth.trackId;
-				response.totalAuth.totalAuthId = authId;
+				response.totalAuth.totalAuthId = totalAuthId;
+
+				//계좌1원인증을 사용안하면 바로 끝내기
+				SharedMap<String, Object> totalAuth = trxDAO.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
+				if(totalAuth.getString("accountAuth").equals("N")) {
+					response.result = ResultUtil.getResult("0001", "계좌실명인증 성공", "예금주명 조회가 완료되었습니다.");
+				}
 
 				return true;
 			} else {
@@ -322,9 +338,7 @@ public class ProcAccountHolder extends Proc {
 	public String calcDay(String settleType,String today){
 		try {
 			if(settleType.equals("D+0") || settleType.equals("C+0")) {
-				String day =  trxDAO.getSettleDay(today, 1);
-
-				return day;
+				return today;
 			}
 			int term = 1;
 			if(settleType.startsWith("D")){
@@ -368,8 +382,8 @@ public class ProcAccountHolder extends Proc {
 
 				return day;
 			}else if(settleType.startsWith("B")){
-				String day =  trxDAO.getSettleDay(today, 1);
-
+				term = CommonUtil.parseInt(settleType.replaceAll("B[+]", ""));
+				String day = CommonUtil.getOpDate(GregorianCalendar.DATE,term,today);
 				return day;
 			}else if(settleType.startsWith("M")){
 				term = CommonUtil.parseInt(settleType.replaceAll("M[+]", ""));

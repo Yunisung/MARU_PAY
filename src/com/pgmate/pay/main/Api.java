@@ -143,6 +143,8 @@ public class Api {
 				process = new ProcSettleAccnt();
 			}else if (uri.startsWith(PAYUNIT.API_SETTLE_BALANCE)) {
 				process = new ProcSettleBalance();
+			}else if (uri.startsWith(PAYUNIT.API_SETTLE_TRANSFER_ACCOUNT)) {
+				process = new ProcSettleTransferAccount();
 			}else if (uri.startsWith(PAYUNIT.API_SETTLE_TRANSFER)) {
 				process = new ProcSettleTransfer();
 			}else if (uri.startsWith(PAYUNIT.API_ARS_AUTH_ASYNC)) {
@@ -177,12 +179,22 @@ public class Api {
 				process = new ProcTmn();
 			}else if (uri.startsWith(PAYUNIT.API_ONLY_AUTH_WIDGET)) {
 				process = new ProcOnlyAuthWidget();
+			}else if (uri.startsWith(PAYUNIT.API_ONLY_AUTH_DATA_WIDGET)) {
+				process = new ProcOnlyAuthDataWidget();
 			}else if (uri.startsWith(PAYUNIT.API_ACCOUNT_HOLDER)) {
 				process = new ProcAccountHolder();
+			}else if (uri.startsWith(PAYUNIT.API_ACCOUNT_TRANSFER)) {
+				process = new ProcAccountTransfer();
+			}else if (uri.startsWith(PAYUNIT.API_ACCOUNT_AUTH_CHECK)) {
+				process = new ProcAccountAuthCheck();
 			}else if (uri.startsWith(PAYUNIT.API_VACT_SEARCH_ERROR)) {
 				process = new VactSearchError();
 			}else if (uri.startsWith(PAYUNIT.API_VACT_SEARCH_TRX)) {
 				process = new VactSearchTrx();
+			}else if (uri.startsWith(PAYUNIT.API_ARSV2_AUTH)) {
+				process = new ProcArsAuth();
+			}else if (uri.startsWith(PAYUNIT.API_ARSV2_CHECK)) {
+				process = new ProcArsAuthCheck();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {

@@ -181,7 +181,7 @@ public class ProcSettleTransfer extends Proc {
 		}
 		
 		SharedMap<String,Object> bank = trxDAO.getBankName(request.transfer.bankCd);
-		if(bank == null) {
+		if(bank == null || bank.isEmpty()) {
 			response.result = ResultUtil.getResult("9999", "유효성 오류","은행 코드값이 유효하지 않습니다.");return;
 		}else {
 			request.transfer.bankName = bank.getString("codeName");

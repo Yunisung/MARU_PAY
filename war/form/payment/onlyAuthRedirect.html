@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RedirectURL</title>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+<script>
+    var urlParams = window.location.search;
+    var decoded = decodeURIComponent(decodeURI(urlParams));
+    var trim = decoded.replace('?result=','');
+
+    var obj = JSON.parse(trim);
+
+    window.onload = function(){
+        document.writeln("<h3>Redirect Response</h3>");
+        document.writeln("[통합인증 결과]" + "<br>");
+        document.writeln("resultMsg : " + obj.result.resultMsg + "<br>");
+        document.writeln("resultCd : " + obj.result.resultCd + "<br>");
+        document.writeln("advanceMsg : " + obj.result.advanceMsg + "<br><br>");
+
+        document.writeln("통합인증번호 : " + obj.auth.totalAuthId + "<br>");
+        document.writeln("trackId : " + obj.auth.trackId + "<br>");
+        document.writeln("고객은행코드 : " + obj.auth.bankCd + "<br>");
+        document.writeln("고객계좌번호 : " + obj.auth.account + "<br><br>");
+
+        document.writeln("[통합인증전문]" + "<br>");
+        document.writeln(trim);
+    }
+</script>
+</body>
+</html>

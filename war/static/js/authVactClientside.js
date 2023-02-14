@@ -126,6 +126,15 @@ var KWON = (function (win, doc) {
 		doc.getElementById('c3pop_content_fixed').style.display = '';
 	}
 
+	function maruPop() {
+		console.log('c3pop', maruUrl + '/form/payment/vact/authVactLayout');
+
+		doc.getElementById('c3_pop_iframe').src = maruUrl + '/form/payment/vact/authVactLayout';
+		doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
+		doc.getElementById('c3_pop_overlay').style.display = '';
+		doc.getElementById('c3pop_content_fixed').style.display = '';
+	}
+
 	function onlyAuth(config) {
         //rediectURL, publicKey, responseFunction 따로저장
         //MARUConfig는 부국위너스 서버에 보낼 데이터 세팅 > 사용자가 입력한 값을 그대로 보내줌
