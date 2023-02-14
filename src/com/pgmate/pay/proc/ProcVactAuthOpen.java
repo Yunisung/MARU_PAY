@@ -184,7 +184,7 @@ public class ProcVactAuthOpen extends Proc{
                 response.vact.status  = "발행";
                 //OSC: 개인정보유출 금지로 출금계좌는 보이지 않도록 처리 -> 라이브중이므로 차후 주석해제 예정
                 //response.auth.account = "";
-                response.vact.transferKey = transferKey;
+
                 response.result = ResultUtil.getResult("0000", "정상","가상계좌가 발행되었습니다."+vact.getString("issueId"));
             }else{
                 response.result = ResultUtil.getResult("9999", "발행오류","시스템 오류로 인한 가상계좌 발행 실패.");

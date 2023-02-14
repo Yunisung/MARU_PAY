@@ -143,8 +143,6 @@ public class Api {
 				process = new ProcSettleAccnt();
 			}else if (uri.startsWith(PAYUNIT.API_SETTLE_BALANCE)) {
 				process = new ProcSettleBalance();
-			}else if (uri.startsWith(PAYUNIT.API_SETTLE_TRANSFER_ACCOUNT)) {
-				process = new ProcSettleTransferAccount();
 			}else if (uri.startsWith(PAYUNIT.API_SETTLE_TRANSFER)) {
 				process = new ProcSettleTransfer();
 			}else if (uri.startsWith(PAYUNIT.API_ARS_AUTH_ASYNC)) {
