@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0,maximum-scale=1.0, viewport-fit=cover">
+        <meta name="format-detection" content="telephone=no, address=no, email=no">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <link
+            href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css'
+            rel='stylesheet'
+            type='text/css'>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap"
+            rel="stylesheet">
+        <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+            integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"/>
+        <title>오류</title>
+    </head>
+
+    <body class="mb-register">
+    	<form id="initData" name="initData">
+			<input type="hidden" id="initMchtId" name="initMchtId" value="" />
+			<input type="hidden" id="initTrackId" name="initTrackId" value="" />
+			<input type="hidden" id="initIdentity" name="initIdentity" value="" />
+			<input type="hidden" id="initHolderName" name="initHolderName" value="" />
+			<input type="hidden" id="initPhoneNo" name="initPhoneNo" value="" />
+			<input type="hidden" id="initPublicKey" name="initPublicKey" value="" />
+			<input type="hidden" id="initRedirectUrl" name="initRedirectUrl" value="" />
+			<input type="hidden" id="initWebhookUrl" name="initWebhookUrl" value="" />
+			<input type="hidden" id="initWebKey" name="initWebKey" value="" />
+		</form>
+		<form id="userForm" name="userForm" method = "POST" action="">
+			<input type="hidden" id="userBankCd" name="userBankCd" value="" />
+			<input type="hidden" id="userBankName" name="userBankName" value="" />
+			<input type="hidden" id="userAccount" name="userAccount" value="" />
+			<input type="hidden" id="userIdentity" name="userIdentity" value="" />
+			<input type="hidden" id="userName" name="userName" value="" />
+			<input type="hidden" id="userPhoneNo" name="userPhoneNo" value="" />
+			<input type="hidden" id="userAuthId" name="userAuthId" value="" />
+		</form>
+	   	<form id="holderNameForm" name="holderNameForm" method = "POST" action="">
+	   		<input type="hidden" id="mchtId" name="mchtId" value="" />
+			<input type="hidden" id="bankCd" name="bankCd" value="" />
+			<input type="hidden" id="bankName" name="bankName" value="" />
+			<input type="hidden" id="account" name="account" value="" />
+			<input type="hidden" id="identity" name="identity" value="" />
+			<input type="hidden" id="name" name="name" value="" />
+			<input type="hidden" id="phoneNo" name="phoneNo" value="" />
+		</form>
+		<form id="vactResForm" name="vactResForm" method = "POST" action="">
+			<input type="hidden" id="vactTotalAuthId" name="vactTotalAuthId" value="" />
+		</form>
+	
+        <div class="popup-layer">
+
+            <div class="layer-container">
+                <!-- title -->
+                <div class="header-title">
+                    <span>
+                        인증 실패
+                    </span>
+                </div>
+                <!-- //title -->
+                <!-- 내용 -->
+                <div class="content">
+                    <!-- error-icon -->
+                    <div class="error01">
+                        <img
+                            src="/static/img/auth/icon_metro_warning.png"
+                            srcset="/static/img/auth/icon_metro_warning@2x.png 2x, /static/img/auth/icon_metro_warning@3x.png 3x"/>
+                    </div>
+                    <!-- //error-icon -->
+
+                    <!-- 내용 -->
+                    <div>
+                        <span id='errMsgArea' class="subtitle-02"></span>
+                    </div>
+                </div>
+                <!-- //내용 -->
+            </div>
+            <!-- //container -->
+            <!-- footer -->
+            <div id="footer">
+                <button class="next active" onclick="javascript:popClose();">확인</button>
+                <button id="c3-btn-close" style="display:none;"></button>
+            </div>
+            <!-- //footer -->
+        </div>
+        <!-- //popup-layer -->
+    </body>
+	<script type="text/javascript">
+		history.pushState(null, null, location.href);
+	    window.onpopstate = function () {
+	        history.go(1);
+		};
+	
+		function popClose(){
+			KWON.close();
+		}
+	</script>
+	<script src="/js/onlyAuthIndex.js?v=1" charset="utf-8"></script>
+	<script type="text/javascript" src="/js/common_mb.js"></script>
+</html>
