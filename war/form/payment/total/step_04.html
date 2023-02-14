@@ -1,0 +1,308 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0,maximum-scale=1.0, viewport-fit=cover">
+        <meta name="format-detection" content="telephone=no, address=no, email=no">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <link
+            href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css'
+            rel='stylesheet'
+            type='text/css'>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap"
+            rel="stylesheet">
+        <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+            integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"/>
+        <title>ARS 인증</title>
+	<script type="text/javascript">
+    	$(function(){
+    		$("#arsBtn").click(function(){
+    			
+    			/* DATA SET */
+    			$("#arsForm > #mchtId").val($("#initData > #initMchtId").val());
+    			
+    			$("#arsForm > #bankCd").val($("#userForm > #userBankCd").val());
+    			$("#arsForm > #accountNo").val($("#userForm > #userAccount").val());
+    			$("#arsForm > #mchtCustNm").val($("#userForm > #userName").val());
+    			
+    			var identity = $("#userForm > #userIdentity").val();
+    			var authNo =  identity.substring(0, 2);
+    			$("#arsForm > #authNo").val(authNo);
+    			
+    			$("#arsForm > #phoneNo").val($("#userForm > #userPhoneNo").val());
+    			$("#arsForm > #identity").val($("#userForm > #userIdentity").val());
+    			$("#arsForm > #totalAuthId").val($("#vactResForm > #vactTotalAuthId").val());
+    			$("#arsForm > #mchtTrxId").val($("#initData > #initTrackId").val());
+    			
+    			var data = {"ars" : $('#arsForm').serializeObject()};
+
+        		if("REQ" == $("#arsType").val()){
+        			$("#reqErrorTextArea").hide();
+        			$.ajax({
+        				type : 'POST', 
+        				url : '/api/ars/auth/async', 
+        				data : JSON.stringify(data),
+        				dataType : 'json', 
+        				beforeSend : function(xhr){ 
+        		            xhr.setRequestHeader("Content-type", "application/json");
+        					xhr.setRequestHeader("Authorization", $('#initPublicKey').val());
+        				}, 
+        				success : function(json){
+        					//alert(json.result.resultCd);
+        					$("#trxId").val(json.ars.trxId);
+        					
+        					if("0000" == json.result.resultCd){
+        						// 요청 성공
+        						$("#arsType").val("CHK");
+        						$("#arsBtn").text("인증 완료");
+        						
+        						$("#arsReq").hide();
+        						$("#arsChk").show();
+        					}else if("AAAA" == json.result.resultCd){
+        						KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, "[ARS인증 오류]<br>" + json.result.resultMsg + "(" + json.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
+        						
+    							$("#arsForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+          					} else {
+        						// 요청 실패
+        						$("#reqErrorTextArea").show();
+        					}
+        				},
+        				error: function(xhr, status, error){ 
+        					//alert(error);
+        					$("#reqErrorTextArea").show();
+        				}
+        			});
+    			} else if("CHK" == $("#arsType").val()){
+    				$("#reqErrorTextArea").hide();
+    				$("#errorTextArea").hide();
+    				$.ajax({
+        				type : 'POST', 
+        				url : '/api/ars/auth/check', 
+        				data : JSON.stringify(data),
+        				dataType : 'json', 
+        				beforeSend : function(xhr){ 
+        		            xhr.setRequestHeader("Content-type", "application/json");
+        					xhr.setRequestHeader("Authorization", $('#initPublicKey').val());
+        				},
+        				success : function(json){
+        					if("000" == json.result.resultCd){
+	        					// 인증 진행 중
+	        					$("#errorTextArea").show();
+        					} else if("0000" == json.result.resultCd){
+        						KWON.totalAuthConfirm(
+        								json.result.resultCd,
+        								json.result.resultMsg,
+        								"통합인증이 정상적으로 완료되었습니다."
+        						);
+        					} else {
+        						// 인증 실패
+        						KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, "[ARS인증 오류]<br>" + json.result.resultMsg + "<br>확인 후 다시 시도해 주세요.");
+        						
+        						$("#arsForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+        					}
+        				}, 
+        				error: function(xhr, status, error){ 
+        					KWON.setErrMsg("9999", "ARS인증 통신에러", "[ARS인증 오류]<br>통신에러" + "<br>가맹점에 문의해 주세요.");
+        					
+        					$("#arsForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+        				}
+        			});
+    			}
+    		});
+    	});
+    	
+    	jQuery.fn.serializeObject = function() {
+	    	var obj = null;
+	        try {
+	            if (this[0].tagName && this[0].tagName.toUpperCase() == "FORM") {
+	                var arr = this.serializeArray();
+	                if (arr) {
+	                    obj = {};
+	                    jQuery.each(arr, function() {
+	                        obj[this.name] = this.value;
+	                    });
+	                }//if ( arr ) {
+	            }
+	        } catch (e) {
+	            alert(e.message);
+	        } finally {
+	        }
+	     
+	        return obj;
+	    };
+    </script>
+    </head>
+ 
+    <body class="mb-register">
+	    <form id="initData" name="initData">
+			<input type="hidden" id="initMchtId" name="initMchtId" value="" />
+			<input type="hidden" id="initTrackId" name="initTrackId" value="" />
+			<input type="hidden" id="initIdentity" name="initIdentity" value="" />
+			<input type="hidden" id="initHolderName" name="initHolderName" value="" />
+			<input type="hidden" id="initPhoneNo" name="initPhoneNo" value="" />
+			<input type="hidden" id="initPublicKey" name="initPublicKey" value="" />
+			<input type="hidden" id="initRedirectUrl" name="initRedirectUrl" value="" />
+			<input type="hidden" id="initWebhookUrl" name="initWebhookUrl" value="" />
+			<input type="hidden" id="initWebKey" name="initWebKey" value="" />
+		</form>
+		<form id="userForm" name="userForm" method = "POST" action="">
+			<input type="hidden" id="userBankCd" name="userBankCd" value="" />
+			<input type="hidden" id="userBankName" name="userBankName" value="" />
+			<input type="hidden" id="userAccount" name="userAccount" value="" />
+			<input type="hidden" id="userIdentity" name="userIdentity" value="" />
+			<input type="hidden" id="userName" name="userName" value="" />
+			<input type="hidden" id="userPhoneNo" name="userPhoneNo" value="" />
+			<input type="hidden" id="userAuthId" name="userAuthId" value="" />
+		</form>
+		<form id="arsForm" name="arsForm" method = "POST" action="">
+			<input type="hidden" id="arsType" name="arsType" value="REQ" />
+			<input type="hidden" id="trxInfo" name="trxInfo" value="KWONPS_ARS00_1" />
+			<input type="hidden" id="mchtId" name="mchtId" value="" />
+			
+			<input type="hidden" id="mchtTrxId" name="mchtTrxId" value="" />
+			<input type="hidden" id="mchtSeqNo" name="mchtSeqNo" value="" />
+			<input type="hidden" id="mchtCustId" name="mchtCustId" value="" />
+			<input type="hidden" id="reqDt" name="reqDt" value="" />
+			<input type="hidden" id="reqTime" name="reqTime" value="" />
+			
+			<input type="hidden" id="bankCd" name="bankCd" value="" />
+			<input type="hidden" id="accountNo" name="accountNo" value="" />
+			<input type="hidden" id="mchtCustNm" name="mchtCustNm" value="" />
+			<input type="hidden" id="authNo" name="authNo" value="" />
+			<input type="hidden" id="phoneNo" name="phoneNo" value="" />
+			<input type="hidden" id="identity" name="identity" value="" />
+			
+			<input type="hidden" id="custIp" name="custIp" value="" />
+			<input type="hidden" id="encryptYn" name="encryptYn" value="N" />
+			
+			<input type="hidden" id="trxId" name="trxId" value="" />
+			<input type="hidden" id="totalAuthId" name="totalAuthId" value="" />
+		</form>
+		<form id="vactResForm" name="vactResForm" method = "POST" action="">
+			<input type="hidden" id="vactTotalAuthId" name="vactTotalAuthId" value="" />
+		</form>
+        <div class="popup-layer">
+
+            <div class="layer-container">
+                <!-- title -->
+                <div class="header-title">
+                    <span>
+                        ARS 인증
+                    </span>
+                </div>
+                <!-- //title -->
+                <!-- navigation -->
+                <div class="nav">
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_consent.png"
+                            srcset="/static/img/auth/nav/icon_consent@2x.png 2x, /static/img/auth/nav/icon_consent@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next.png"
+                            srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_name.png"
+                            srcset="/static/img/auth/nav/icon_name@2x.png 2x, /static/img/auth/nav/icon_name@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next.png"
+                            srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_occupy.png"
+                            srcset="/static/img/auth/nav/icon_occupy@2x.png 2x, /static/img/auth/nav/icon_occupy@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next.png"
+                            srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_ars_active.png"
+                            srcset="/static/img/auth/nav/icon_ars_active@2x.png 2x, /static/img/auth/nav/icon_ars_active@3x.png 3x"/>
+                    </div>
+                    <div class="arrow">
+                        <img
+                            src="/static/img/auth/nav/icon_next_active.png"
+                            srcset="/static/img/auth/nav/icon_next_active@2x.png 2x,/static/img/auth/nav/icon_next_active@3x.png 3x"/>
+                    </div>
+
+                    <div class="step">
+                        <img
+                            src="/static/img/auth/nav/icon_complet.png"
+                            srcset="/static/img/auth/nav/icon_complet@2x.png 2x, /static/img/auth/nav/icon_complet@3x.png 3x"/>
+                    </div>
+                </div>
+                <!-- //navigation -->
+                <!-- 내용 -->
+                <div id="arsReq" class="content step04-1" style="display:display;">
+                    <div class="bell">
+                        <img
+                            src="/static/img/auth/contents/icon_bell.png"
+                            srcset="/static/img/auth/contents/icon_bell@2x.png 2x, /static/img/auth/contents/icon_bell@3x.png 3x">
+                    </div>
+                    <div class="main step04-1">
+                        <span >
+                            전화 인증을 진행해주세요.<br/>
+                            아래 ARS 요청 버튼을 누르시면 <br/> 
+                            전화가 요청됩니다.
+                        </span>
+                        <div class="arsinfo step04-1">
+                            <span id="phoneNoArea1"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="arsChk" class="content step04-2" style="display:none;">
+                    <div>
+                        <span class="title">
+                            <span class="accent">ARS</span>본인 인증을 진행 중입니다.</span>
+                        <div class="call">
+                            <img src="/static/img/auth/contents/call_connection.gif">
+                        </div>
+                        <span id="phoneNoArea2" class="subphoneno"></span>
+                        <div class="bottom-text">
+                            <span>ARS 인증이 완료되면<br/>[인증 완료] 버튼을 눌러 주세요.</span>
+                        </div>
+                    </div>
+                    <div id="reqErrorTextArea" class="error_message" style="display:none;">
+		                <span class="error">ARS 요청이 실패하였습니다. 다시 시도해 주세요.</span>
+		            </div>
+					<div id="errorTextArea" class="error_message" style="display:none;">
+		                <span class="error">ARS인증이 진행중입니다. 인증 완료 후 다시 시도해 주세요.</span>
+		            </div>
+                </div>
+                <!-- //내용 -->
+            </div>
+            <!-- //container -->
+            <!-- footer -->
+            <div id="footer">
+	            <button id="c3-btn-close" class="cancel">취소</button>
+				<button id="arsBtn" class="next active" >ARS 전화 요청</button>
+            </div>
+            <!-- //footer -->
+        </div>
+        <!-- //popup-layer -->
+    </body>
+	<script src="/static/js/onlyAuthIndex.js?v=1" charset="utf-8"></script>
+	<script type="text/javascript" src="/static/js/common_mb.js"></script>
+</html>

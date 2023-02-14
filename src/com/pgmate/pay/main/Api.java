@@ -295,7 +295,8 @@ public class Api {
 		String authorization = VertXUtil.getHeader(rc, HttpHeaders.AUTHORIZATION);
 		////2018.03.16 WIGET GET  요청은 KEY 로 정보를 취득한다.
 		if(authorization.equals("") && (sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3D_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_W3D_WIDGET)
-				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3D_MOBILE_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3DV2_WIDGET))){
+				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3D_MOBILE_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3DV2_WIDGET)
+				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTH_WIDGET))){
 			
 			String widgetType = PAYUNIT.API_WIDGET;
 			
@@ -309,6 +310,8 @@ public class Api {
 				widgetType = PAYUNIT.API_W3D_WIDGET;
 			}else if(sharedMap.startsWith(PAYUNIT.URI,PAYUNIT.API_3DV2_WIDGET)) {
 				widgetType = PAYUNIT.API_3DV2_WIDGET;
+			}else if(sharedMap.startsWith(PAYUNIT.URI,PAYUNIT.API_ONLY_AUTH_WIDGET)) {
+				widgetType = PAYUNIT.API_ONLY_AUTH_WIDGET;
 			}
 			
 			String key = sharedMap.getString(PAYUNIT.URI).replaceAll(widgetType+"/", "");
