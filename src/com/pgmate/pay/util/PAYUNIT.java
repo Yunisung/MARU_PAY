@@ -67,6 +67,7 @@ public class PAYUNIT {
     public static String API_SETTLE_ACCNT            = "/api/settle/accnt";
     public static String API_SETTLE_BALANCE            = "/api/settle/balance";
     public static String API_SETTLE_TRANSFER        = "/api/settle/transfer";
+    public static String API_SETTLE_TRANSFER_ACCOUNT	= "/api/settle/transfer/account";		// 가상계좌번호로 출금
 //	public static String API_CHECK					= "/api/check";
 	
     public static String API_ARS_AUTH_ASYNC			= "/api/ars/auth/async";
@@ -90,7 +91,13 @@ public class PAYUNIT {
 	public static String API_TMN					= "/api/tmn";
 
 	public static String API_ONLY_AUTH_WIDGET		= "/api/only/auth/widget";		// 통합인증 위젯
+	public static String API_ONLY_AUTH_DATA_WIDGET	= "/api/only/auth/data/widget";
+
 	public static String API_ACCOUNT_HOLDER			= "/api/account/holder";		// 계좌실명인증(FCS) 조회
+	public static String API_ACCOUNT_TRANSFER		= "/api/account/transfer";		// 계좌점유인증(1원인증)
+	public static String API_ACCOUNT_AUTH_CHECK		= "/api/account/auth/check";	// 1원인증번호체크
+	public static String API_ARSV2_AUTH				= "/api/ars/v2/auth/async";		// ARS인증 요청
+	public static String API_ARSV2_CHECK			= "/api/ars/v2/auth/check";		// ARS인증 확인
 
 	public static String API_VACT_SEARCH_ERROR 		= "/api/vact/search/error";		// 가상계좌 오류조회
 	public static String API_VACT_SEARCH_TRX		= "/api/vact/search/trx";		// 가상계좌 출금내역 조회
@@ -152,8 +159,9 @@ public class PAYUNIT {
 	
 	
 	public static double VAT						= 0.1;
-	  
-	public static SharedCacheMap cacheMap			= new SharedCacheMap(1);
+
+	//230125_PYS : 인증때문에 캐시 유효타임 5분으로 세팅
+	public static SharedCacheMap cacheMap			= new SharedCacheMap(5);
     public static SharedCacheMap cacheWithdrawMap    = new SharedCacheMap(10);
 	public static VactCache vactCacheMap			= new VactCache(5);
     public static VactCache vactWithdrawCacheMap    = new VactCache(1);

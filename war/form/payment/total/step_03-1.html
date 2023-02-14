@@ -7,7 +7,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0,maximum-scale=1.0, viewport-fit=cover">
         <meta name="format-detection" content="telephone=no, address=no, email=no">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css' rel='stylesheet' type='text/css'>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap" rel="stylesheet">
         <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
@@ -26,6 +25,10 @@
 			<input type="hidden" id="initPublicKey" name="initPublicKey" value="" />
 			<input type="hidden" id="initRedirectUrl" name="initRedirectUrl" value="" />
 			<input type="hidden" id="initWebhookUrl" name="initWebhookUrl" value="" />
+            <input type="hidden" id="initIdentityCheck" name="initIdentityCheck" value="" />
+            <input type="hidden" id="initOwnerAuth" name="initOwnerAuth" value="" />
+            <input type="hidden" id="initAccountAuth" name="initAccountAuth" value="" />
+            <input type="hidden" id="initArsAuth" name="initArsAuth" value="" />
 			<input type="hidden" id="initWebKey" name="initWebKey" value="" />
 		</form>
 		<form id="userForm" name="userForm" method = "POST" action="">
@@ -258,6 +261,6 @@
 	        return obj;
 	    };
 	</script>    
-	<script src="/static/js/onlyAuthIndex.js?v=1" charset="utf-8"></script>
+	<script src="/js/onlyAuthIndex.js?v=1" charset="utf-8"></script>
 	<script type="text/javascript" src="/static/js/common_mb.js"></script>
 </html>

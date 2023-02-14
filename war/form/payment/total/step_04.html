@@ -9,10 +9,6 @@
         <meta name="format-detection" content="telephone=no, address=no, email=no">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <link
-            href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css'
-            rel='stylesheet'
-            type='text/css'>
-        <link
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap"
             rel="stylesheet">
         <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'>
@@ -45,11 +41,13 @@
     			
     			var data = {"ars" : $('#arsForm').serializeObject()};
 
+
         		if("REQ" == $("#arsType").val()){
         			$("#reqErrorTextArea").hide();
+
         			$.ajax({
         				type : 'POST', 
-        				url : '/api/ars/auth/async', 
+        				url : '/api/ars/v2/auth/async',
         				data : JSON.stringify(data),
         				dataType : 'json', 
         				beforeSend : function(xhr){ 
@@ -58,7 +56,7 @@
         				}, 
         				success : function(json){
         					//alert(json.result.resultCd);
-        					$("#trxId").val(json.ars.trxId);
+        					// $("#trxId").val(json.ars.trxId);
         					
         					if("0000" == json.result.resultCd){
         						// 요청 성공
@@ -67,6 +65,10 @@
         						
         						$("#arsReq").hide();
         						$("#arsChk").show();
+
+                                $("#arsForm > #authId").val(json.ars.authId);
+                                $("#arsForm > #firmIdx").val(json.ars.firmIdx);
+
         					}else if("AAAA" == json.result.resultCd){
         						KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, "[ARS인증 오류]<br>" + json.result.resultMsg + "(" + json.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
         						
@@ -86,7 +88,7 @@
     				$("#errorTextArea").hide();
     				$.ajax({
         				type : 'POST', 
-        				url : '/api/ars/auth/check', 
+        				url : '/api/ars/v2/auth/check',
         				data : JSON.stringify(data),
         				dataType : 'json', 
         				beforeSend : function(xhr){ 
@@ -152,6 +154,10 @@
 			<input type="hidden" id="initPublicKey" name="initPublicKey" value="" />
 			<input type="hidden" id="initRedirectUrl" name="initRedirectUrl" value="" />
 			<input type="hidden" id="initWebhookUrl" name="initWebhookUrl" value="" />
+            <input type="hidden" id="initIdentityCheck" name="initIdentityCheck" value="" />
+            <input type="hidden" id="initOwnerAuth" name="initOwnerAuth" value="" />
+            <input type="hidden" id="initAccountAuth" name="initAccountAuth" value="" />
+            <input type="hidden" id="initArsAuth" name="initArsAuth" value="" />
 			<input type="hidden" id="initWebKey" name="initWebKey" value="" />
 		</form>
 		<form id="userForm" name="userForm" method = "POST" action="">
@@ -186,6 +192,9 @@
 			
 			<input type="hidden" id="trxId" name="trxId" value="" />
 			<input type="hidden" id="totalAuthId" name="totalAuthId" value="" />
+
+            <input type="hidden" id="authId" name="authId" value="" />
+            <input type="hidden" id="firmIdx" name="firmIdx" value="" />
 		</form>
 		<form id="vactResForm" name="vactResForm" method = "POST" action="">
 			<input type="hidden" id="vactTotalAuthId" name="vactTotalAuthId" value="" />

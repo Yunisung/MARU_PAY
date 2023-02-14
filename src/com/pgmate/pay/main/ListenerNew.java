@@ -101,7 +101,71 @@ public class ListenerNew extends RouteWorkerNew {
 						VertXMessage.set500(fc);
 					}
 				});
+		//230202_PYS : ARS v2 등록
+		router.route(PAYUNIT.API_ARSV2_AUTH)
+				.handler(rc -> {
+					// poolSize defualt : 20
+					int poolSize = 100;
+					//long maxExecueTime = 120 *1000; // 2분
+					long maxExecueTime = 5 * 60 *1000; // 5분
+					WorkerExecutor executor = vertx.createSharedWorkerExecutor("API_ARSV2_AUTH", poolSize, maxExecueTime);
+					executor.executeBlocking(future -> {
+						log(rc);
+						logger.info("API_ARSV2_AUTH START!!!");
+
+						new Api().apiHandler(rc);
+
+						future.complete();
+					}, false, res ->{
+
+						//new Api().apiHandler(rc);
+
+						executor.close();
+						//logger.info("API_ARS_AUTH_ASYNC RESULT[{}}]", res.result());
+						logger.info("API_ARSV2_AUTH END!!!");
+					});
+				})
+				.failureHandler(fc -> {
+					if (fc.statusCode() == 404) {
+						logger.debug("{} not found ", fc.request().uri());
+					} else {
+						logger.error("{} error : {},{}", PAYUNIT.API_ARSV2_AUTH, fc.statusCode(), CommonUtil.getExceptionMessage(new Exception(fc.failure())));
+						VertXMessage.set500(fc);
+					}
+				});
 		
+		router.route(PAYUNIT.API_ARSV2_CHECK)
+				.handler(rc -> {
+					// poolSize defualt : 20
+					int poolSize = 100;
+					//long maxExecueTime = 120 *1000; // 2분
+					long maxExecueTime = 5 * 60 *1000; // 5분
+					WorkerExecutor executor = vertx.createSharedWorkerExecutor("API_ARSV2_CHECK", poolSize, maxExecueTime);
+					executor.executeBlocking(future -> {
+						log(rc);
+						logger.info("API_ARSV2_CHECK START!!!");
+
+						new Api().apiHandler(rc);
+
+						future.complete();
+					}, false, res ->{
+
+						//new Api().apiHandler(rc);
+
+						executor.close();
+						//logger.info("API_ARS_AUTH_ASYNC RESULT[{}}]", res.result());
+						logger.info("API_ARSV2_CHECK END!!!");
+					});
+				})
+				.failureHandler(fc -> {
+					if (fc.statusCode() == 404) {
+						logger.debug("{} not found ", fc.request().uri());
+					} else {
+						logger.error("{} error : {},{}", PAYUNIT.API_ARSV2_AUTH, fc.statusCode(), CommonUtil.getExceptionMessage(new Exception(fc.failure())));
+						VertXMessage.set500(fc);
+					}
+				});
+
 		// "/api/auth/ars/check" route
 		router.route(PAYUNIT.API_ARS_AUTH_CHECK)
 				.handler(rc -> {

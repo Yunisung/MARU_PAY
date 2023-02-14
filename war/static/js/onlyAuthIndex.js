@@ -201,13 +201,7 @@ var KWON = (function(win, doc) {
         document.getElementById('initArsAuth').value = config.arsAuth;
         document.getElementById('initWebKey').value = token;
 
-        console.log('mchtId', config.mchtId);
-        console.log('Identity', config.identityCheck);
-        console.log('ownerAuth', config.ownerAuth);
-        console.log('accountAuth', config.accountAuth);
-        console.log('arsAuth', config.arsAuth);
-        console.log('webKey', token);
-
+        //230119_PYS : 주민번호 표시 여부체크
         if(config.identityCheck === 'N') {
             $('#identityTr').attr('style', "display:none;");
         }
@@ -260,7 +254,8 @@ var KWON = (function(win, doc) {
 			document.getElementById("phoneNoArea1").innerText = config.phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
 		}
         if(phoneNoArea2){
-			document.getElementById("phoneNoArea2").innerText = config.phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
+			// document.getElementById("phoneNoArea2").innerText = config.phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
+			document.getElementById("phoneNoArea2").innerText = config.identity.substring(0,2);
 		}
 		
         document.getElementById('vactTotalAuthId').value = config.totalAuthId;
@@ -342,7 +337,11 @@ var KWON = (function(win, doc) {
 	        console.log(res);
 	        if (res.result.resultCd == '0000') {
 				
-	        } else {
+	        } else if("AAAA" == json.result.resultCd){
+                KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, json.result.resultMsg + "(" + json.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
+
+                $("#accountAuthForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+            } else {
 	            /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
 	        	alert(res.result.advanceMsg);
 	        	//postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.

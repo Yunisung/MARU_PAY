@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pgmate.pay.firm.FirmBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,19 +150,12 @@ public class TrxDAO extends DAO {
 	}
 
 	public SharedMap<String, Object> getMchtByMchtId(String mchtId) {
-		String key = "PG_MCHT_" + mchtId;
-		if (PAYUNIT.cacheMap.containsKey(key)) {
-			logger.debug("get key : {}", key);
-			return PAYUNIT.cacheMap.getUnchecked(key);
-		} else {
-			super.setTable("PG_MCHT");
-			super.setColumns("*");
-			super.addWhere("mchtId", mchtId, eq);
-			RecordSet rset = super.search();
-			super.initRecord();
-			logger.debug("load key : {}", key);
-			return PAYUNIT.cacheMap.put(key, rset.getRow(0));
-		}
+		super.setTable("PG_MCHT");
+		super.setColumns("*");
+		super.addWhere("mchtId", mchtId, eq);
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRow(0);
 	}
 
 	public SharedMap<String, Object> getMchtMngByMchtId(String mchtId) {
@@ -1635,6 +1629,7 @@ public class TrxDAO extends DAO {
 		super.setRecord("holderName", 		map.getString("holderName"));						// IR방식의 예금주명 기본값없으면 PG_MCHT_MNG_VACT.holderName 사용
 		super.setRecord("amount", 			CommonUtil.parseLong(map.getString("amount")));	// 입금 예상 금액 0 : 제한없음 , 그외는 금액 일치 시
 		super.setRecord("oper", 			map.getString("oper"));							// 0 이외의 금액에 대해서 eq, gt 보다클때,ge 크거나같을때,  lt 작을때,le 작거나 같을때
+		super.setRecord("transferKey", 	map.getString("transferKey"));
 		super.setRecord("trackId", 			map.getString("trackId"));							// 임시,영구의 경우 가맹점 주문번호, 월렛의 경우 터미널ID
 		super.setRecord("depositCnt", 		map.getInt("depositCnt"));							// 입금횟수
 		super.setRecord("depositLimitCnt", 	map.getInt("depositLimitCnt"));					// 입금제한횟수
@@ -1673,6 +1668,7 @@ public class TrxDAO extends DAO {
 		super.setRecord("holderName", vact.getString("holderName"));
 		super.setRecord("amount", 	CommonUtil.parseLong(vact.getString("amount")));
 		super.setRecord("oper", 	vact.getString("oper"));
+		super.setRecord("transferKey", 	vact.getString("transferKey"));
 		super.setRecord("trackId", 	vact.getString("trackId"));
 		super.setRecord("expireAt", vact.getString("expireAt"));
 		super.setRecord("udf1",		vact.getString("udf1"));
@@ -1695,6 +1691,7 @@ public class TrxDAO extends DAO {
 		super.setRecord("holderName", vact.getString("holderName"));
 		super.setRecord("amount", 	CommonUtil.parseLong(vact.getString("amount")));
 		super.setRecord("oper", 	vact.getString("oper"));
+		super.setRecord("transferKey", 	vact.getString("transferKey"));
 		super.setRecord("trackId", 	vact.getString("trackId"));
 		super.setRecord("expireAt", vact.getString("expireAt"));
 		super.setRecord("udf1",		vact.getString("udf1"));
@@ -1806,7 +1803,23 @@ public class TrxDAO extends DAO {
 		
 		return result;
 	}
-	
+
+	public boolean existsDepositVactTrx(String account,String transferKey) {
+		super.setTable("PG_VACT_TRX A, PG_VACT_DTL B");
+		super.setColumns("A.*");
+		super.setWhere("A.account = B.account ");
+		super.addWhere("A.account", account);
+		super.addWhere("A.trxType", "입금");
+		super.addWhere("B.transferKey", transferKey);
+		super.addWhere("B.status", "발행");
+		RecordSet rset = super.search();
+		super.initRecord();
+		if (rset.size() == 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 	
 	
 	public boolean patchVactDtl(SharedMap<String,Object> patchMap,String issueId){
@@ -3016,7 +3029,7 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRowFirst();
 	}
-	
+
 	public boolean deleteVactDtl(String issueId){
 		super.setTable("PG_VACT_DTL");
 		super.addWhere("issueId", issueId);
@@ -4933,30 +4946,30 @@ public class TrxDAO extends DAO {
 	/**
 	 * 230118_PYS : 통합인증테이블 INSERT
 	 */
-	public boolean insertTotalAuth(String authId, String totalAuthId, String mchtId, String authType, String bankCd, String bankName, String bankAccount, String holderName,
+	public boolean insertTotalAuth(String authId, String totalAuthId, String mchtId, String mchtName, String authType, String bankCd, String bankName, String bankAccount, String holderName,
 								   String authNo, String phoneNo, long authFee, long authFeeVat, String stlType, String stlUnit, String stlDay, String summary){
 		boolean insert = false;
 
 		try {
+			String encBankAccount = getAESEnc(bankAccount);
+			String encPhoneNo = getAESEnc(phoneNo);
+
 			super.setTable("PG_TOTAL_AUTH");
 			super.setRecord("authId", authId);
-
-			if(!"".equals(totalAuthId)) {
-				super.setRecord("totalAuthId", totalAuthId);
-			}
-
+			super.setRecord("totalAuthId", totalAuthId);
 			super.setRecord("mchtId", mchtId);
+			super.setRecord("mchtName", mchtName);
 			super.setRecord("authType", authType);
 			super.setRecord("bankCd", bankCd);
 			super.setRecord("bankName", bankName);
-			super.setRecord("bankAccount", bankAccount);
+			super.setRecord("bankAccount", encBankAccount);
 			super.setRecord("holderName", holderName);
 
 			if(!"".equals(authNo)) {
 				super.setRecord("authNo", authNo);
 			}
 
-			super.setRecord("phoneNo", phoneNo);
+			super.setRecord("phoneNo", encPhoneNo);
 
 			super.setRecord("authFee", authFee);
 			super.setRecord("authFeeVat", authFeeVat);
@@ -4991,6 +5004,9 @@ public class TrxDAO extends DAO {
 
 			super.setRecord("resultCd", resultCd);
 			super.setRecord("resultMsg", resultMsg);
+			if(resultCd.equals("0000") || resultCd.equals("0001")) {
+				super.setRecord("resultStatus", "Y");
+			}
 
 			super.addWhere("authId", authId, eq);
 
@@ -5047,5 +5063,72 @@ public class TrxDAO extends DAO {
 		}
 
 		return insert ;
+	}
+
+	/**
+	 * ARS 인증 결과 확인
+	 */
+	public FirmBean checkArsResult(long idx, FirmBean firmBean){
+		String query = " SELECT resultCd,resultMsg,resData FROM PG_FIRM_ARS WHERE idx =?  AND procGb in ('N','Y') ";
+
+		DBManager db 	= null;
+		PreparedStatement pstmt	= null;
+		Connection conn			= null;
+		ResultSet rset			= null;
+
+
+		try{
+			db 		= DBFactory.getInstance();
+			conn	= db.getConnection();
+			pstmt	= conn.prepareStatement(query);
+			pstmt.setLong(1, idx);
+			rset 	= pstmt.executeQuery();
+
+			while(rset.next()){
+				firmBean.resultCd = rset.getString("resultCd");
+				firmBean.resultMsg = rset.getString("resultMsg");
+				firmBean.idx  = idx;
+				if(firmBean.data == null){
+					firmBean.data = new SharedMap<String,Object>();
+				}
+				firmBean.data.put("resData", rset.getString("resData"));
+			}
+		}catch(Exception e){
+			logger.info("DB Error : {} , {} , [{}]",Thread.currentThread().getStackTrace()[1].getMethodName(),e.getMessage(),query);
+		}finally{
+			db.close(conn,pstmt,rset);
+		}
+		return firmBean;
+	}
+
+	public String getArsErrorMsg(String resultCd){
+
+		String query = " SELECT codeName FROM PG_CODE WHERE alias = 'ARS' AND code = ? ";
+
+		DBManager db 	= null;
+		PreparedStatement pstmt	= null;
+		Connection conn			= null;
+		ResultSet rset			= null;
+
+		String errorMsg = "";
+
+		try{
+			db 		= DBFactory.getInstance();
+			conn	= db.getConnection();
+			pstmt	= conn.prepareStatement(query);
+
+			pstmt.setString(1, resultCd);
+
+			rset 	= pstmt.executeQuery();
+
+			while(rset.next()){
+				errorMsg = CommonUtil.nToB(rset.getString("codeName"));
+			}
+		}catch(Exception e){
+			logger.info("DB Error : {} , {} , [{}]",Thread.currentThread().getStackTrace()[1].getMethodName(),e.getMessage(),query);
+		}finally{
+			db.close(conn,pstmt,rset);
+		}
+		return errorMsg;
 	}
 }
