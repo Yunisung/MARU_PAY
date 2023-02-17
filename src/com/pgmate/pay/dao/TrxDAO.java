@@ -1045,6 +1045,7 @@ public class TrxDAO extends DAO {
 	public void insertTrxWH(SharedMap<String, Object> sharedMap) {
 
 		super.setTable("PG_TRX_WH");
+		super.setXssChange(false);
 		super.setRecord("trxId", sharedMap.getString("trxId"));
 		super.setRecord("tmnId", sharedMap.getString("tmnId"));
 		super.setRecord("trxType", sharedMap.getString("trxType"));
@@ -1061,6 +1062,7 @@ public class TrxDAO extends DAO {
 	
 	public void updateTrxWH(SharedMap<String, Object> sharedMap) {
 		super.setTable("PG_TRX_WH");
+		super.setXssChange(false);
 		super.setRecord("trxId", sharedMap.getString("trxId"));
 		super.setRecord("tmnId", sharedMap.getString("tmnId"));
 		super.setRecord("resData", sharedMap.getString("resData"));
@@ -1261,6 +1263,7 @@ public class TrxDAO extends DAO {
 	public void insertTrxIO(SharedMap<String, Object> sharedMap,Pay pay) {
 
 		super.setTable("PG_TRX_IO");
+		super.setXssChange(false);
 
 		super.setRecord("trxId", sharedMap.getString("trxId"));
 		super.setRecord("trxType", pay.trxType);
@@ -1281,6 +1284,7 @@ public class TrxDAO extends DAO {
 	public void insertTrxIO(SharedMap<String, Object> sharedMap,Auth auth) {
 
 		super.setTable("PG_TRX_IO");
+		super.setXssChange(false);
 
 		super.setRecord("trxId", sharedMap.getString("trxId"));
 		super.setRecord("trxType", auth.trxType);
@@ -1301,6 +1305,7 @@ public class TrxDAO extends DAO {
 	public void insertTrxIO(SharedMap<String, Object> sharedMap,Vact vact) {
 
 		super.setTable("PG_TRX_IO");
+		super.setXssChange(false);
 
 		super.setRecord("trxId", sharedMap.getString("trxId"));
 		super.setRecord("trxType", "VACT");
@@ -1321,6 +1326,7 @@ public class TrxDAO extends DAO {
 	public void updateTrxIO(SharedMap<String, Object> sharedMap,String payLoad) {
 
 		super.setTable("PG_TRX_IO");
+		super.setXssChange(false);
 		super.setRecord("status", "응답");
 		super.setRecord("resDay", CommonUtil.getCurrentDate("yyyyMMdd"));
 		super.setRecord("resTime",CommonUtil.getCurrentDate("HHmmss"));
@@ -1417,6 +1423,7 @@ public class TrxDAO extends DAO {
 	public void insertTrxNTS(SharedMap<String, Object> sharedMap) {
 
 		super.setTable("PG_TRX_NTS");
+		super.setXssChange(false);
 
 		super.setRecord("trxId", sharedMap.getString("trxId"));
 		super.setRecord("trxType", sharedMap.getString("trxType"));
@@ -1440,6 +1447,7 @@ public class TrxDAO extends DAO {
 	public void insertTrxNTSPG(SharedMap<String, Object> ntsMap) {
 
 		super.setTable("PG_TRX_NTS_PG");
+		super.setXssChange(false);
 
 		super.setRecord("trxId", ntsMap.getString("trxId"));
 		super.setRecord("trxType", ntsMap.getString("trxType"));
@@ -1876,6 +1884,7 @@ public class TrxDAO extends DAO {
 	public void insertTrxIO3D(SharedMap<String, Object> ioMap) {
 
 		super.setTable("PG_TRX_IO_3D");
+		super.setXssChange(false);
 
 		super.setRecord("trxId"		, ioMap.getString("trxId"));
 		super.setRecord("widgetKey"	, ioMap.getString("widgetKey"));
@@ -1920,6 +1929,7 @@ public class TrxDAO extends DAO {
 	
 	public void updateTrxIO3D(SharedMap<String,Object> ioMap,String resData){
 		super.setTable("PG_TRX_IO_3D");
+		super.setXssChange(false);
 		super.setRecord("vanTrxId", 	ioMap.getString("vanTrxId"));
 		super.setRecord("vanResultCd", 	ioMap.getString("vanResultCd"));
 		super.setRecord("vanResultMsg", ioMap.getString("vanResultMsg"));
