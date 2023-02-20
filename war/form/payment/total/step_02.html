@@ -313,6 +313,17 @@
 							$("#holderNameForm").attr("action","/form/payment/total/step_03-1.html?token=" + $("input[id='initWebKey']").val()).submit();
 						}
    					} else if("0001" == json.result.resultCd) {
+
+						KWON.setConfigData3(
+								$("#holderNameForm > #bankCd").val(),
+								$("#holderNameForm > #bankName").val(),
+								$("#holderNameForm > #account").val(),
+								$("#holderNameForm > #identity").val(),
+								$("#holderNameForm > #name").val(),
+								$("#holderNameForm > #phoneNo").val(),
+								$("#holderNameForm > #totalAuthId").val()
+						);
+
 						KWON.totalAuthConfirm(
 								"0000",
 								json.result.resultMsg,
