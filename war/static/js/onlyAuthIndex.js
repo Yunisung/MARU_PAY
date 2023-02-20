@@ -374,6 +374,16 @@ var KWON = (function(win, doc) {
 	        alert('키가 올바르지 않습니다. ' + err);
 	    });
 	}
+
+    function setConfigData3(bankCd, bankName, account, identity, name, phoneNo, totalAuthId){
+        kwonConfig.bankCd = bankCd;
+        kwonConfig.bankName = bankName;
+        kwonConfig.account = account;
+        kwonConfig.identity = identity;
+        kwonConfig.name = name;
+        kwonConfig.phoneNo = phoneNo;
+        kwonConfig.totalAuthId = totalAuthId;
+    }
 	
 	function setErrMsg(errCode, errMsg, advanceMsg){
 		var token = window.location.search.split('=')[1];
@@ -464,6 +474,7 @@ var KWON = (function(win, doc) {
     var KWON = {
 		setConfigData: setConfigData,
 		setConfigData2: setConfigData2,
+        setConfigData3: setConfigData3,
 		getConfigData: getConfigData,
 		totalAuthConfirm: totalAuthConfirm,
 		setErrMsg: setErrMsg,
