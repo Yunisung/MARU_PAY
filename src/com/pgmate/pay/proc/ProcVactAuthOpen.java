@@ -734,9 +734,16 @@ public class ProcVactAuthOpen extends Proc{
 
         //데이터 세팅
         String bankCd = request.auth.bankCd.trim();
+        String bankName = trxDAO.getBankName(bankCd).getString("codeName");
         String account = request.auth.account.trim();
         String identity =  request.vact.identity;
         String holderName = request.vact.holderName.trim();
+        String phoneNo = request.vact.phoneNo;
+        String mchtId = mchtMap.getString("mchtId");
+        String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");
+        String totalAuthId = request.auth.totalAuthId;
+        String authId = TrxDAO.getAuthId();
+
 
         //PG_FIRM_ACCNT에 있는 계좌 조회
         SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(bankCd, account).getRowFirst();
@@ -748,27 +755,36 @@ public class ProcVactAuthOpen extends Proc{
         }
 
         //FIRM 실행전 수수료 차감
-        String authId = TrxDAO.getAuthId();
-        String stlType = mchtVactMngMap.getString("settleType");
+        //PYS : 통합인증 수수료 적용
+        SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
+        String stlType = totalAuthMap.getString("settleType");
         String unitType = "";
-        if(mchtVactMngMap.getString("settleType").startsWith("D+0")){
+        if(totalAuthMap.getString("settleType").startsWith("D+0")){
             unitType = "실시간정산";
-        }else if(mchtVactMngMap.getString("settleType").startsWith("D+")){
+        }else if(totalAuthMap.getString("settleType").startsWith("D+")){
             unitType = "일반정산";
-        }else if(mchtVactMngMap.getString("settleType").startsWith("C+")){
+        }else if(totalAuthMap.getString("settleType").startsWith("C+")){
             unitType = "충전정산";
-        }else if(mchtVactMngMap.getString("settleType").equals("A+1")){
+        }else if(totalAuthMap.getString("settleType").equals("A+1")){
             unitType = "자동정산";
-        }else if(mchtVactMngMap.getString("settleType").equals("A+0") ||
-                mchtVactMngMap.getString("settleType").equals("A+2")){
+        }else if(totalAuthMap.getString("settleType").equals("A+0") ||
+                totalAuthMap.getString("settleType").equals("A+2")){
             unitType = "당일정산";
+        }else if(totalAuthMap.getString("settleType").startsWith("B+")) {
+            unitType = "자동충전정산";
         }
+
         String stlDay = calcDay(stlType, CommonUtil.getCurrentDate("yyyyMMdd"));
 
         //실명인증수수료값 조회
-        fee = mchtVactMngMap.getLong("ownerAuthFee");
-        orgFee = trxDAO.getAuthOrgFee("OWNER");
+        long authFee = totalAuthMap.getLong("ownerAuthFee");
 
+        String authType = "실명인증";
+        String summary = "";
+
+        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName,"", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+
+        /*
         //가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)
         trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"),
                 "O", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
@@ -776,12 +792,18 @@ public class ProcVactAuthOpen extends Proc{
 
         //PG_VACT_AUTH_DTL에 INSERT
         trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay,"실명인증수수료", fee, calcVat(fee), orgFee, calcVat(orgFee));
+        */
+
 
         //PG_FIRM_ACCNT에 없는 계좌는 FIRM으로 보냄
         FirmBean firmBean = fcsFirmBean(bankCd, account, identity);
 
+        /*
         //FIRM 결과값 PG_VACT_AUTH에 업데이트
         trxDAO.updatePgVactAuth(authId, firmBean.resultCd, firmBean.resultMsg);
+        */
+
+        trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
 
         if(!firmBean.resultCd.equals("0000")) {
             //FCS 인증 실패시
@@ -869,8 +891,8 @@ public class ProcVactAuthOpen extends Proc{
 
                 return day;
             }else if(settleType.startsWith("B")){
-                String day =  trxDAO.getSettleDay(today, 1);
-
+                term = CommonUtil.parseInt(settleType.replaceAll("B[+]", ""));
+                String day = CommonUtil.getOpDate(GregorianCalendar.DATE,term,today);
                 return day;
             }else if(settleType.startsWith("M")){
                 term = CommonUtil.parseInt(settleType.replaceAll("M[+]", ""));
