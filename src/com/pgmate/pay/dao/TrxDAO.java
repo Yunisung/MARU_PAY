@@ -606,6 +606,7 @@ public class TrxDAO extends DAO {
 	public void insertTrxRES(SharedMap<String, Object> sharedMap, Response response) {
 
 		super.setTable("PG_TRX_RES");
+		super.setXssChange(false);
 		String curDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
 		if(sharedMap.getString("vanDate").length() == 14){
 			curDate = sharedMap.getString("vanDate");
@@ -638,6 +639,7 @@ public class TrxDAO extends DAO {
 	public void insertTrxRES(SharedMap<String, Object> sharedMap) {
 
 		super.setTable("PG_TRX_RES");
+		super.setXssChange(false);
 
 		super.setRecord("trxId", sharedMap.getString("trxId"));
 		super.setRecord("authCd", sharedMap.getString("authCd"));
@@ -903,6 +905,7 @@ public class TrxDAO extends DAO {
 	public void insertTrxRFD(SharedMap<String, Object> sharedMap, SharedMap<String, Object> payMap, Response response) {
 		String curDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
 		super.setTable("PG_TRX_RFD");
+		super.setXssChange(false);
 		long vat = new Double(response.refund.amount *10 /110).longValue();
 		super.setRecord("trxId", response.refund.trxId);
 		super.setRecord("mchtId", payMap.getString("mchtId"));
@@ -938,6 +941,7 @@ public class TrxDAO extends DAO {
 	//WH
 	public void insertTrxRFD(SharedMap<String, Object> sharedMap, SharedMap<String, Object> trxMap) {
 		super.setTable("PG_TRX_RFD");
+		super.setXssChange(false);
 		long vat = new Double(sharedMap.getLong("amount") *10 /110).longValue();
 		super.setRecord("trxId", sharedMap.getString("trxId"));
 		super.setRecord("mchtId", trxMap.getString("mchtId"));
@@ -976,6 +980,7 @@ public class TrxDAO extends DAO {
 	public void updateTrxRFD(SharedMap<String, Object> sharedMap, Response response) {
 		String curDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
 		super.setTable("PG_TRX_RFD");
+		super.setXssChange(false);
 		if (response.result.resultCd.equals("0000")) {
 			super.setRecord("status", "완료");
 		} else {
@@ -999,6 +1004,7 @@ public class TrxDAO extends DAO {
 	//WH
 	public void updateTrxRFD(SharedMap<String, Object> sharedMap) {
 		super.setTable("PG_TRX_RFD");
+		super.setXssChange(false);
 		if (sharedMap.getString("vanResultCd").equals("0000")) {
 			super.setRecord("status", "완료");
 		} else {
@@ -1035,6 +1041,7 @@ public class TrxDAO extends DAO {
 	public void updateTrxPay(String trxId) {
 
 		super.setTable("PG_TRX_PAY");
+		super.setXssChange(false);
 
 		super.setRecord("status", "승인취소");
 		super.addWhere("trxId", trxId);
@@ -1946,6 +1953,7 @@ public class TrxDAO extends DAO {
 	public void insertTrx3D(SharedMap<String, Object> ioMap) {
 
 		super.setTable("PG_TRX_REQ");
+		super.setXssChange(false);
 
 		super.setRecord("trxId", ioMap.getString("trxId"));
 		super.setRecord("trxType", ioMap.get("trxType"));
@@ -1973,6 +1981,8 @@ public class TrxDAO extends DAO {
 
 
 		super.setTable("PG_TRX_RES");
+		super.setXssChange(false);
+
 		super.setRecord("trxId", ioMap.getString("trxId"));
 		super.setRecord("authCd", ioMap.getString("authCd"));
 		super.setRecord("resultCd", ioMap.getString("vanResultCd"));
@@ -2000,6 +2010,7 @@ public class TrxDAO extends DAO {
 	public void insertTrx3D(SharedMap<String, Object> ioMap,SharedMap<String, Object> widgetMap) {
 
 		super.setTable("PG_TRX_REQ");
+		super.setXssChange(false);
 
 		super.setRecord("trxId", ioMap.getString("trxId"));
 		super.setRecord("trxType", "3DTR");
@@ -2027,6 +2038,8 @@ public class TrxDAO extends DAO {
 		
 		
 		super.setTable("PG_TRX_RES");
+		super.setXssChange(false);
+
 		super.setRecord("trxId", ioMap.getString("trxId"));
 		super.setRecord("authCd", ioMap.getString("authCd"));
 		super.setRecord("resultCd", ioMap.getString("vanResultCd"));
@@ -2054,6 +2067,7 @@ public class TrxDAO extends DAO {
 	public void updateTrx3D(SharedMap<String, Object> ioMap) {
 
 		super.setTable("PG_TRX_REQ");
+		super.setXssChange(false);
 
 //		super.setRecord("trxId", ioMap.getString("trxId"));
 		super.setRecord("trxType", ioMap.getString("trxType"));
@@ -2082,6 +2096,8 @@ public class TrxDAO extends DAO {
 
 
 		super.setTable("PG_TRX_RES");
+		super.setXssChange(false);
+
 //		super.setRecord("trxId", ioMap.getString("trxId"));
 		super.setRecord("authCd", ioMap.getString("authCd"));
 		super.setRecord("resultCd", ioMap.getString("vanResultCd"));
@@ -2113,6 +2129,7 @@ public class TrxDAO extends DAO {
 	public void updateTrx3D(SharedMap<String, Object> ioMap,SharedMap<String, Object> widgetMap) {
 		
 		super.setTable("PG_TRX_REQ");
+		super.setXssChange(false);
 		
 //		super.setRecord("trxId", ioMap.getString("trxId"));
 		super.setRecord("trxType", "3DTR");
@@ -2141,6 +2158,8 @@ public class TrxDAO extends DAO {
 		
 		
 		super.setTable("PG_TRX_RES");
+		super.setXssChange(false);
+
 //		super.setRecord("trxId", ioMap.getString("trxId"));
 		super.setRecord("authCd", ioMap.getString("authCd"));
 		super.setRecord("resultCd", ioMap.getString("vanResultCd"));
