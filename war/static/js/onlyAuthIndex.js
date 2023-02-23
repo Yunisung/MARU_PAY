@@ -337,8 +337,8 @@ var KWON = (function(win, doc) {
 	        console.log(res);
 	        if (res.result.resultCd == '0000') {
 				
-	        } else if("AAAA" == json.result.resultCd){
-                KWON.setErrMsg(json.result.resultCd, json.result.resultMsg, json.result.resultMsg + "(" + json.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
+	        } else if("AAAA" == res.result.resultCd){
+                KWON.setErrMsg(res.result.resultCd, res.result.resultMsg, res.result.resultMsg + "(" + res.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
 
                 $("#accountAuthForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
             } else {
