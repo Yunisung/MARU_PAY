@@ -160,8 +160,8 @@ public class PAYUNIT {
 	
 	public static double VAT						= 0.1;
 
-	//230125_PYS : 인증때문에 캐시 유효타임 5분으로 세팅
-	public static SharedCacheMap cacheMap			= new SharedCacheMap(5);
+	//230223_PYS : 인증때문에 캐시 유효타임 10분으로 세팅
+	public static SharedCacheMap cacheMap			= new SharedCacheMap(10);
     public static SharedCacheMap cacheWithdrawMap    = new SharedCacheMap(10);
 	public static VactCache vactCacheMap			= new VactCache(5);
     public static VactCache vactWithdrawCacheMap    = new VactCache(1);
