@@ -112,7 +112,7 @@ public class ProcAccountTransfer extends Proc{
         String bankName = trxDAO.getBankName(bankCd).getString("codeName");
         String account = request.totalAuth.account.trim();
         String identity =  request.totalAuth.identity.trim();
-        String holderName = request.totalAuth.name.trim();
+        String holderName = request.totalAuth.name;
         String phoneNo = request.totalAuth.phoneNo.trim();
         String mchtId = request.totalAuth.mchtId;
         String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");

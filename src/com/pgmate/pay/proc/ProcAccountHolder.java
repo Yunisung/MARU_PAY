@@ -144,7 +144,7 @@ public class ProcAccountHolder extends Proc {
 		String bankCd = request.totalAuth.bankCd.trim();
 		String account = request.totalAuth.account.trim();
 		String identity =  request.totalAuth.identity.trim();
-		String holderName = request.totalAuth.name.trim();
+		String holderName = request.totalAuth.name;
 		String phoneNo = request.totalAuth.phoneNo.trim();
 		String bankName = trxDAO.getBankName(bankCd).getString("codeName");
 		String totalAuthId = request.totalAuth.totalAuthId;
