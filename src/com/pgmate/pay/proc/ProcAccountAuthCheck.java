@@ -1,5 +1,7 @@
 package com.pgmate.pay.proc;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.bean.Request;
@@ -56,8 +58,8 @@ public class ProcAccountAuthCheck extends Proc {
             return;
         }
 
-        if(CommonUtil.isNullOrSpace(request.totalAuth.authId)) {
-            response.result = ResultUtil.getResult("9999", "필수값없음","인증 아이디 값이 없습니다.");
+        if(CommonUtil.isNullOrSpace(request.totalAuth.totalAuthId)) {
+            response.result = ResultUtil.getResult("9999", "필수값없음","통합인증 아이디 값이 없습니다.");
             return;
         }
     }
@@ -66,8 +68,14 @@ public class ProcAccountAuthCheck extends Proc {
         logger.info("1원인증 검증 시작");
 
         //데이터세팅
-        String authId = request.totalAuth.authId;
+        String totalAuthId = request.totalAuth.totalAuthId;
         String authNo = request.totalAuth.authNo;
+
+        //DB에서 값 들고오기
+        SharedMap<String, Object> ioMap = trxDAO.getTotalAuthIOByID(totalAuthId);
+        String jsonStr = ioMap.getString("reqJson");
+        SharedMap<String, Object> widgetMap = new GsonBuilder().create().fromJson(jsonStr, new TypeToken<SharedMap<String, Object>>(){}.getType());
+        String authId = widgetMap.getString("authId");
 
         SharedMap<String, Object> mchtTotalAuth = trxDAO.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
         SharedMap<String, Object> totalAuthMap = trxDAO.getTotalAuth(authId);
