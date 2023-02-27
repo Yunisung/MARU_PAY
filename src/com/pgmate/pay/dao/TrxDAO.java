@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.pay.firm.FirmBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -5159,5 +5160,79 @@ public class TrxDAO extends DAO {
 			db.close(conn,pstmt,rset);
 		}
 		return errorMsg;
+	}
+
+	/**
+	 * 통합인증 위젯
+	 */
+	public void insertTotalAuthIO(SharedMap<String, Object> ioMap) {
+
+		super.setTable("PG_TOTAL_AUTH_IO");
+		super.setXssChange(false);
+
+		super.setRecord("widgetKey"		, ioMap.getString("widgetKey"));
+		super.setRecord("totalAuthId"	, ioMap.getString("totalAuthId"));
+		super.setRecord("mchtId"			, ioMap.getString("mchtId"));
+		super.setRecord("mchtName"		, ioMap.getString("mchtName"));
+		super.setRecord("trackId"		, ioMap.getString("trackId"));
+		super.setRecord("device"			, ioMap.getString("device"));
+		super.setRecord("reqJson"		, ioMap.getString("reqJson"));
+		super.setRecord("resJson"		, ioMap.getString("resJson"));
+		super.setRecord("resultCd"		, ioMap.getString("resultCd"));
+		super.setRecord("resultMsg"		, ioMap.getString("resultMsg"));
+		super.setRecord("regDay"			, ioMap.getString("regDay"));
+		super.setRecord("regTime"	, ioMap.getString("regTime"));
+		logger.info("set PG_TOTAL_AUTH_IO : {}", super.insert());
+
+		super.initRecord();
+	}
+
+	public SharedMap<String,Object> getTotalAuthIO(String widgetKey) {
+		super.setTable("PG_TOTAL_AUTH_IO");
+		super.setColumns("*");
+		super.addWhere("widgetKey", widgetKey, eq);
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
+
+	public SharedMap<String,Object> getTotalAuthIOByID(String totalAuthId) {
+		super.setTable("PG_TOTAL_AUTH_IO");
+		super.setColumns("*");
+		super.addWhere("totalAuthId", totalAuthId, eq);
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
+
+	public void updateTotalAuthIO(SharedMap<String,Object> ioMap,String widgetKey){
+		super.setTable("PG_TOTAL_AUTH_IO");
+		super.setXssChange(false);
+		super.setRecord("reqJson", GsonUtil.toJson(ioMap));
+
+		if(!CommonUtil.isNullOrSpace(ioMap.getString("resultCd"))) {
+			super.setRecord("resultCd", ioMap.getString("resultCd"));
+		}
+		if(!CommonUtil.isNullOrSpace(ioMap.getString("resultMsg"))) {
+			super.setRecord("resultMsg", ioMap.getString("resultMsg"));
+		}
+
+		super.addWhere("widgetKey", 	widgetKey);
+		boolean update = super.update();
+		logger.info("set PG_TOTAL_AUTH_IO update : {}",update );
+
+		super.initRecord();
 	}
 }
