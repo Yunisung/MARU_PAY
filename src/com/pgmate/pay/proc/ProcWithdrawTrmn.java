@@ -105,12 +105,17 @@ public class ProcWithdrawTrmn extends Proc{
                     }*/
 
                     // DELETE - PG_VACT_DTL
-                    boolean executeDeleteVactDtl = trxDAO.deleteVactDtl(issueId);
-                    logger.info("PG_VACT_DTL DELETE : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
+                    //boolean executeDeleteVactDtl = trxDAO.deleteVactDtl(issueId);
+                    // OSC: 대기상태로 변경
+                    SharedMap<String,Object> vactMngMap = trxDAO.getMchtMngVact(mchtId);
+                    String mchtName = vactMngMap.getString("holderName");
+                    boolean executeDeleteVactDtl = trxDAO.updateVactDtlReady(issueId, mchtName);
+                    logger.info("PG_VACT_DTL UPDATE READY : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
 
                     if(executeDeleteVactDtl){
+                        trxDAO.insertHtVactDtl(issueId, bean.resultCd, bean.resultMsg);
                         response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+issueId);
-                        logger.info("PG_VACT_DTL DELETE : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
+                        logger.info("PG_VACT_DTL UPDATE READY : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
                     }else{
                         response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
                         sendResponse();
