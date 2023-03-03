@@ -167,7 +167,6 @@ var KWON = (function(win, doc) {
             xhr.open('GET', url);
             xhr.onload = success;
             xhr.onerror = error;
-            xhr.setRequestHeader("Authorization", kwonConfig.publicKey);
             xhr.send();
             return xhr;
         },
