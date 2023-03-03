@@ -1,5 +1,7 @@
 package com.pgmate.pay.main;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.pgmate.pay.proc.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -330,7 +332,17 @@ public class Api {
 			if(tempMap != null){
 				authorization = tempMap.getString("authorization");
 			}
-			
+
+			// 이중화로 인해 캐시에 온라인키를 제대로 가지고 못할 경우 토큰키로 온라인키를 가져온다.
+			if(authorization.equals("") && sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTH_WIDGET)) {
+				SharedMap<String, Object> ioMap = trxDAO.getTotalAuthIO(key);
+				if(ioMap != null) {
+					String jsonStr = ioMap.getString("reqJson");
+					SharedMap<String,Object> widget = new GsonBuilder().create().fromJson(jsonStr, new TypeToken<SharedMap<String, Object>>(){}.getType());
+					authorization = widget.getString("publicKey");
+				}
+			}
+
 		}
 			
 		if (CommonUtil.isNullOrSpace(authorization)) {
