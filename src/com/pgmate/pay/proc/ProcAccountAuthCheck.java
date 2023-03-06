@@ -101,9 +101,9 @@ public class ProcAccountAuthCheck extends Proc {
 
             //ARS인증 사용안하면 바로 끝내기
            if(arsAuth.equals("Y")) {
-                response.result = ResultUtil.getResult("0000", "인증성공", "계좌1원인증이 완료되었습니다.");
+                response.result = ResultUtil.getResult("0000", "1원인증성공", "계좌1원인증이 완료되었습니다.");
             } else {
-                response.result = ResultUtil.getResult("0001", "인증성공", "계좌1원인증이 완료되었습니다.");
+                response.result = ResultUtil.getResult("0001", "1원인증성공", "계좌1원인증이 완료되었습니다.");
             }
 
             trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
