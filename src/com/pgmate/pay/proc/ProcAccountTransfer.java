@@ -169,9 +169,11 @@ public class ProcAccountTransfer extends Proc{
             return false;
         } else {
             logger.info("1원인증 완료 [{}][{}][{}]", authId, firmBean.resultCd, firmBean.resultMsg);
-            response.result = ResultUtil.getResult(firmBean.resultCd, "계좌1원 전송성공", "1원을 보냈습니다.");
+            response.result = ResultUtil.getResult(firmBean.resultCd, "1원전송성공", "1원을 보냈습니다.");
             response.totalAuth = new TotalAuth();
             response.totalAuth.authId = authId;
+
+            trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
 
             //ProcAccountAuthCheck에서 DB업데이트 예정
             return true;
