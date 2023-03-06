@@ -5120,6 +5120,24 @@ public class TrxDAO extends DAO {
 	}
 
 	/**
+	 * PYS : 계좌인증시 authId 호출용
+	 */
+	public SharedMap<String, Object> getTotalAuth(String totalAuthId, String authType) {
+		super.setTable("PG_TOTAL_AUTH");
+		super.setColumns("*");
+		super.addWhere("totalAuthId", totalAuthId);
+		super.addWhere("authType", authType);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
+
+	/**
 	 * 230118_PYS : 통합인증테이블 INSERT
 	 */
 	public boolean insertTotalAuth(String authId, String totalAuthId, String mchtId, String mchtName, String authType, String bankCd, String bankName, String bankAccount, String holderName,
