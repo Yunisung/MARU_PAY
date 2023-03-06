@@ -190,9 +190,9 @@ public class ProcAccountHolder extends Proc {
 		if(!firmBean.resultCd.equals("0000")) {
 			//FCS 인증 실패시
 			if("".equals(firmBean.resultMsg)) {
-				response.result = ResultUtil.getResult(firmBean.resultCd, "계좌실명인증 실패","서버 시스템 오류. 관리자에게 문의해주세요.");
+				response.result = ResultUtil.getResult(firmBean.resultCd, "실명인증실패","서버 시스템 오류. 관리자에게 문의해주세요.");
 			} else {
-				response.result = ResultUtil.getResult(firmBean.resultCd, "계좌실명인증 실패",firmBean.resultMsg);
+				response.result = ResultUtil.getResult(firmBean.resultCd, "실명인증실패",firmBean.resultMsg);
 			}
 
 			trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
@@ -206,7 +206,7 @@ public class ProcAccountHolder extends Proc {
 			if(holderName.equals(accountName)) {
 				//이름같을때
 				logger.info("FCS 인증 완료");
-				response.result = ResultUtil.getResult(firmBean.resultCd, "계좌실명인증 성공", "예금주명 조회가 완료되었습니다.");
+				response.result = ResultUtil.getResult(firmBean.resultCd, "실명인증성공", "예금주명 조회가 완료되었습니다.");
 				response.totalAuth = new TotalAuth();
 				response.totalAuth.account = request.totalAuth.account;
 				response.totalAuth.bankCd = request.totalAuth.bankCd;
@@ -221,7 +221,7 @@ public class ProcAccountHolder extends Proc {
 				//계좌1원인증을 사용안하면 바로 끝내기
 				SharedMap<String, Object> totalAuth = trxDAO.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
 				if(totalAuth.getString("accountAuth").equals("N")) {
-					response.result = ResultUtil.getResult("0001", "계좌실명인증 성공", "예금주명 조회가 완료되었습니다.");
+					response.result = ResultUtil.getResult("0001", "실명인증성공", "예금주명 조회가 완료되었습니다.");
 				}
 
 				trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
@@ -229,7 +229,7 @@ public class ProcAccountHolder extends Proc {
 				return true;
 			} else {
 				//이름이 다를때
-				response.result = ResultUtil.getResult("9999", "계좌실명인증 오류", "이름이 올바르지 않습니다.");
+				response.result = ResultUtil.getResult("9999", "실명인증실패", "이름이 올바르지 않습니다.");
 
 				trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
 

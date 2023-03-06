@@ -158,9 +158,9 @@ public class ProcAccountTransfer extends Proc{
             logger.info("1원인증 오류 [{}][{}][{}][{}][{}]", authId, bankCd, account, firmBean.resultCd, firmBean.resultMsg);
 
             if("".equals(firmBean.resultMsg)) {
-                response.result = ResultUtil.getResult("AAAA", "계좌1원 전송실패","서버 시스템 오류. 관리자에게 문의해주세요.");
+                response.result = ResultUtil.getResult("AAAA", "1원전송실패","서버 시스템 오류. 관리자에게 문의해주세요.");
             } else {
-                response.result = ResultUtil.getResult("AAAA", "계좌1원 전송실패",firmBean.resultMsg);
+                response.result = ResultUtil.getResult("AAAA", "1원전송실패",firmBean.resultMsg);
             }
 
             //이체 실패시 DB 업데이트.
