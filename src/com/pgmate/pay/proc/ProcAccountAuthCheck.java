@@ -77,7 +77,16 @@ public class ProcAccountAuthCheck extends Proc {
         SharedMap<String, Object> widgetMap = new GsonBuilder().create().fromJson(jsonStr, new TypeToken<SharedMap<String, Object>>(){}.getType());
         String authId = widgetMap.getString("authId");
 
+        logger.info("Auth ID : {}", authId);
+
         SharedMap<String, Object> mchtTotalAuth = trxDAO.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
+
+        //230306_PYS : 인증ID 못가져올때 DB에서 다시 가져오기
+        if(CommonUtil.isNullOrSpace(authId)) {
+            SharedMap<String, Object> totalAuth = trxDAO.getTotalAuth(totalAuthId, "1원인증");
+            authId = totalAuth.getString("authId");
+        }
+
         SharedMap<String, Object> totalAuthMap = trxDAO.getTotalAuth(authId);
 
         if(totalAuthMap == null) {
