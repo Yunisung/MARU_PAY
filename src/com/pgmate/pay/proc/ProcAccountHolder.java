@@ -1,5 +1,7 @@
 package com.pgmate.pay.proc;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
@@ -217,6 +219,26 @@ public class ProcAccountHolder extends Proc {
 				response.totalAuth.phoneNo = request.totalAuth.phoneNo;
 				response.totalAuth.trackId = request.totalAuth.trackId;
 				response.totalAuth.totalAuthId = totalAuthId;
+
+				//230307_PYS : 입력받은거 DB에 저장
+				SharedMap<String, Object> ioMap = trxDAO.getTotalAuthIOByID(totalAuthId);
+				if(ioMap != null) {
+					String widgetKey = ioMap.getString("widgetKey");
+					String jsonStr = ioMap.getString("reqJson");
+					SharedMap<String, Object> reqJson = new GsonBuilder().create().fromJson(jsonStr, new TypeToken<SharedMap<String, Object>>(){}.getType());
+
+					reqJson.put("totalAuthId", totalAuthId);
+					reqJson.put("bankCd", bankCd);
+					reqJson.put("bankName", bankName);
+					reqJson.put("account", account);
+					reqJson.put("identity", identity);
+					reqJson.put("name", holderName);
+					reqJson.put("phoneNo", phoneNo);
+					reqJson.put("authId", authId);
+
+					trxDAO.updateTotalAuthIO(reqJson, widgetKey);
+				}
+
 
 				//계좌1원인증을 사용안하면 바로 끝내기
 				SharedMap<String, Object> totalAuth = trxDAO.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
