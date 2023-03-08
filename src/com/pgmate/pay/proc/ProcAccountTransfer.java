@@ -1,5 +1,7 @@
 package com.pgmate.pay.proc;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
@@ -172,6 +174,18 @@ public class ProcAccountTransfer extends Proc{
             response.result = ResultUtil.getResult(firmBean.resultCd, "1원전송성공", "1원을 보냈습니다.");
             response.totalAuth = new TotalAuth();
             response.totalAuth.authId = authId;
+
+            //230308_PYS : 위젯에 authId 갱신이 안되는 문제 발견
+            SharedMap<String, Object> ioMap = trxDAO.getTotalAuthIOByID(totalAuthId);
+            if(ioMap != null) {
+                String widgetKey = ioMap.getString("widgetKey");
+                String jsonStr = ioMap.getString("reqJson");
+                SharedMap<String, Object> reqJson = new GsonBuilder().create().fromJson(jsonStr, new TypeToken<SharedMap<String, Object>>(){}.getType());
+
+                reqJson.put("authId", authId);
+
+                trxDAO.updateTotalAuthIO(reqJson, widgetKey);
+            }
 
             trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
 
