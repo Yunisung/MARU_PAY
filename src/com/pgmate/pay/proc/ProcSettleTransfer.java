@@ -58,9 +58,12 @@ public class ProcSettleTransfer extends Proc {
 		long fee = chargeMng.getLong("withdrawFee");
 		long feeVat = calcVat(fee);
 
+		long transferLimit = chargeMng.getLong("transferLimit");
+
 		long netAmount = request.transfer.amount + fee + feeVat;
-		if(netAmount > balance) {
-			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {}",balance,netAmount);
+		long checkAmount = netAmount + transferLimit;
+		if(checkAmount > balance) {
+			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {},보류금액:{}",balance,netAmount,transferLimit);
 			response.result = ResultUtil.getResult("9999", "잔액부족","잔액이 부족합니다.");
 			sendResponse();
 			return;
