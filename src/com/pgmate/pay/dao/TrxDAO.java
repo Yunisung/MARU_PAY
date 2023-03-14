@@ -3207,6 +3207,8 @@ public class TrxDAO extends DAO {
 	public boolean updateVactDtlReady(String issueId, String holderName) {
 		super.setTable("PG_VACT_DTL");
 
+		//230313_PYS : 만료기간 갱신
+		String expire = (Integer.parseInt(CommonUtil.getCurrentDate("yyyy")) + 1) + CommonUtil.getCurrentDate("MMdd")+"00";
 		super.setRecord("status", "대기");
 		super.setRecord("amount", 0);
 		super.setRecord("oper", "ge");
@@ -3216,6 +3218,7 @@ public class TrxDAO extends DAO {
 		super.setRecord("holderName", holderName);
 		super.setRecord("udf1", "");
 		super.setRecord("udf2", "");
+		super.setRecord("expireAt", expire);
 		super.setRecord("regDay", 	CommonUtil.getCurrentDate("yyyyMMdd"));
 		super.addWhere("issueId", 	issueId);
 		boolean update = super.update();
