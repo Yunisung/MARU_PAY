@@ -164,10 +164,11 @@ public class ProcVactAuthOpen extends Proc{
             vact.put("udf1", request.vact.udf1);
             vact.put("udf2", request.vact.udf2);
             vact.put("depositLimitCnt", mchtVactMngMap.getInt("depositLimitCnt"));
-            //출금키 할당
+            // 출금키 할당
+            // 2023-03-20: 출금키 테이블을 따로 생성했으므로 VACT_DTL에 출금키를 set하지 않는다.
             String transferKey = GenKey.genKeys(CPKEY.ACCNT, issueId);
             String encTransferKey = KSignUtil.getInstance().Encrypt(transferKey);
-            vact.put("transferKey", encTransferKey);
+            //vact.put("transferKey", encTransferKey);
 
             logger.info("VACT OPEN INFO : [{}]", GsonUtil.toJson(vact,true,""));
 
@@ -189,7 +190,7 @@ public class ProcVactAuthOpen extends Proc{
                 String withdrawBankCd = request.auth.bankCd;
                 String withdrawAccount = request.auth.account;
                 String holderName = request.vact.holderName;
-                trxDAO.insertVactTransferKey(account, withdrawBankCd, withdrawAccount, holderName, transferKey);
+                trxDAO.insertVactTransferKey(account, withdrawBankCd, withdrawAccount, holderName, encTransferKey);
 
                 response.vact.issueId = vact.getString("issueId");
                 response.vact.expireAt = vact.getString("expireAt");
