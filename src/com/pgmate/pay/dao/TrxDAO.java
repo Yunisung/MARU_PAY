@@ -5423,4 +5423,31 @@ public class TrxDAO extends DAO {
 
 		super.initRecord();
 	}
+
+	public boolean insertVactTransferKey(String account, String withdrawBankCd, String withdrawAccount, String holderName, String transferKey){
+		boolean insert = false;
+
+		try {
+			String encAccnt = getAESEnc(withdrawAccount);
+
+			super.setTable("PG_VACT_TRANSFER_KEY");
+			super.setRecord("account", account);
+			super.setRecord("withdrawBankCd", withdrawBankCd);
+			super.setRecord("withdrawAccount", encAccnt);
+			super.setRecord("holderName", holderName);
+			super.setRecord("transferKey", transferKey);
+			super.setRecord("regDay", CommonUtil.getCurrentDate("yyyyMMdd"));
+			super.setRecord("regTime", CommonUtil.getCurrentDate("HHmmss"));
+
+			insert = super.insert();
+			logger.info("INSERT insertVactTransferKey : [{}][{}][{}][{}]", account,withdrawBankCd,withdrawAccount,transferKey);
+
+			super.initRecord();
+		}catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error("insertVactTransferKey Exception : {}", ex.getMessage());
+		}
+
+		return insert;
+	}
 }

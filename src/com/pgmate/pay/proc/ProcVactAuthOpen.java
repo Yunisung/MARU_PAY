@@ -183,11 +183,22 @@ public class ProcVactAuthOpen extends Proc{
             }
 
             if(execute){
+
+                // 출금키 테이블에 저장
+                String account = request.vact.account;
+                String withdrawBankCd = request.auth.bankCd;
+                String withdrawAccount = request.auth.account;
+                String holderName = request.vact.holderName;
+                trxDAO.insertVactTransferKey(account, withdrawBankCd, withdrawAccount, holderName, transferKey);
+
                 response.vact.issueId = vact.getString("issueId");
                 response.vact.expireAt = vact.getString("expireAt");
                 response.vact.status  = "발행";
                 //OSC: 개인정보유출 금지로 출금계좌는 보이지 않도록 처리 -> 라이브중이므로 차후 주석해제 예정
-                //response.auth.account = "";
+                //String withDrawBankAccount = response.auth.account;
+                //int accountLen = withDrawBankAccount.length();
+                //withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
+                //response.auth.account = withDrawBankAccount;
                 response.vact.transferKey = transferKey;
 
                 response.result = ResultUtil.getResult("0000", "정상","가상계좌가 발행되었습니다."+vact.getString("issueId"));
@@ -474,10 +485,8 @@ public class ProcVactAuthOpen extends Proc{
                 name, regType, identity, phoneNo, bankCd);
 
         // 테스트용 - 임시
-//        if(firmBean.resultCd.equals("KS99")) {
-//            firmBean.resultCd = "0000";
-//            firmBean.resultMsg = "출금계좌 정보 등록 완료.";
-//        }
+//        firmBean.resultCd = "0000";
+//        firmBean.resultMsg = "출금계좌 정보 등록 완료.";
 
         if(!"0000".equals(firmBean.resultCd)) {
             if("".equals(firmBean.resultMsg)) {
