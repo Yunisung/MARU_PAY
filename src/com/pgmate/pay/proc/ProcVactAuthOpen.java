@@ -183,6 +183,14 @@ public class ProcVactAuthOpen extends Proc{
             }
 
             if(execute){
+
+                // 출금키 테이블에 저장
+                String account = request.vact.account;
+                String withdrawBankCd = request.auth.bankCd;
+                String withdrawAccount = request.auth.account;
+                String holderName = request.vact.holderName;
+                trxDAO.insertVactTransferKey(account, withdrawBankCd, withdrawAccount, holderName, transferKey);
+
                 response.vact.issueId = vact.getString("issueId");
                 response.vact.expireAt = vact.getString("expireAt");
                 response.vact.status  = "발행";
@@ -192,7 +200,8 @@ public class ProcVactAuthOpen extends Proc{
                 //withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
                 //response.auth.account = withDrawBankAccount;
                 response.vact.transferKey = transferKey;
-                response.result = ResultUtil.getResult("0000", "정상","가상계좌가 발행되었습니다."+vact.getString("issueId"));
+
+                response.result = ResultUtil.getResult("0000", "정상", "가상계좌가 발행되었습니다." + vact.getString("issueId"));
             }else{
                 response.result = ResultUtil.getResult("9999", "발행오류","시스템 오류로 인한 가상계좌 발행 실패.");
             }
