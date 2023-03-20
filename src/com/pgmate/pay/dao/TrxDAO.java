@@ -5450,4 +5450,31 @@ public class TrxDAO extends DAO {
 
 		return insert;
 	}
+
+	public boolean updateVactTransferKey(String account, String transferKey) {
+		String curDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
+		String query = "UPDATE PG_VACT_TRANSFER_KEY SET reqCount = reqCount + 1" +
+				", reqDate='" + curDate + "' WHERE account = '"+ account +"' AND transferKey = '" + transferKey + "'";
+		logger.info("update PG_VACT_TRANSFER_KEY");
+
+		boolean result = super.update(query);
+		super.initRecord();
+		return result;
+	}
+
+	public SharedMap<String,Object> getVactTransferKey(String account) {
+		super.setTable("PG_VACT_TRANSFER_KEY");
+		super.setColumns("*");
+		super.addWhere("account", account, eq);
+		super.setOrderBy("idx desc");
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
 }

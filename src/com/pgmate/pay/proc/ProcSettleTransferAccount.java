@@ -132,6 +132,10 @@ public class ProcSettleTransferAccount extends Proc {
 		trxMap.put("regId", mchtId);
 		trxMap.put("regDay", regDate.substring(0, 8));
 
+		// 출금이력 업데이트
+		String encAccountKey = KSignUtil.getInstance().Encrypt(request.transfer.accountTransferKey);
+		trxDAO.updateVactTransferKey(account, encAccountKey);
+
 		// 펌뱅킹내역 등록
 		trxDAO.insertChargeSettleFirm(trxMap);
 		
@@ -202,24 +206,26 @@ public class ProcSettleTransferAccount extends Proc {
 			request.transfer.bankName = bank.getString("codeName");
 		}
 
-		String account = request.transfer.account;
-		SharedMap<String, Object> vactRegMap = vactDAO.getVactReg(account);
-		SharedMap<String, Object> vactDtlMap = vactDAO.getVactDtl(account);
 		String encKey = KSignUtil.getInstance().Encrypt(request.transfer.transferKey);
 		String encAccountKey = KSignUtil.getInstance().Encrypt(request.transfer.accountTransferKey);
+		String account = request.transfer.account;
+		// 2023-03-20: 가상계좌 상태와 상관없이 출금이 될수 있도록 변경요청(주석처리)
+//		SharedMap<String, Object> vactDtlMap = vactDAO.getVactDtl(account);
+//		SharedMap<String, Object> vactRegMap = vactDAO.getVactReg(account);
+		SharedMap<String, Object> vactTransferKeyMap = trxDAO.getVactTransferKey(account);
 
 		// 가상계좌존재유무, 상태 확인
-		if(vactDtlMap == null || vactDtlMap.isEmpty()) {
+		if(vactTransferKeyMap == null || vactTransferKeyMap.isEmpty()) {
 			response.result = ResultUtil.getResult("9999", "계좌상태오류","가상계좌가 존재하지 않습니다.");return;
 		}
-		if(!"발행".equals(vactDtlMap.getString("status"))) {
-			response.result = ResultUtil.getResult("9999", "계좌상태오류","가상계좌 발행상태가 아닙니다.");return;
-		}
+//		if(!"발행".equals(vactDtlMap.getString("status"))) {
+//			response.result = ResultUtil.getResult("9999", "계좌상태오류","가상계좌 발행상태가 아닙니다.");return;
+//		}
 
 		// 등록계좌 확인
-		if(vactRegMap == null || vactRegMap.isEmpty()) {
-			response.result = ResultUtil.getResult("9999", "출금등록계좌 오류","출금등록계좌가 아닙니다.");return;
-		}
+//		if(vactRegMap == null || vactRegMap.isEmpty()) {
+//			response.result = ResultUtil.getResult("9999", "출금등록계좌 오류","출금등록계좌가 아닙니다.");return;
+//		}
 
 		// 가맹점 출금키 비교
 		if(!encKey.equals(chargeMng.getString("transferKey"))) {
@@ -227,15 +233,15 @@ public class ProcSettleTransferAccount extends Proc {
 		}
 
 		// 계좌 출금키 암호화하고 비교하기
-		if(!encAccountKey.equals(vactDtlMap.getString("transferKey"))) {
+		if(!encAccountKey.equals(vactTransferKeyMap.getString("transferKey"))) {
 			response.result = ResultUtil.getResult("9999", "이용불가", "가상계좌 출금키가 일치하지 않습니다."); return;
 		}
 
 		// 입금내역 확인 - 1건이라도 입금내역이 존재해야 출금허용
-		boolean depositYn = trxDAO.existsDepositVactTrx(account, encAccountKey);
-		if(!depositYn) {
-			response.result = ResultUtil.getResult("9999", "입금내역 오류","입금내역이 존재하지 않습니다.");return;
-		}
+//		boolean depositYn = trxDAO.existsDepositVactTrx(account, encAccountKey);
+//		if(!depositYn) {
+//			response.result = ResultUtil.getResult("9999", "입금내역 오류","입금내역이 존재하지 않습니다.");return;
+//		}
 
 		// 금액 확인
 		if(request.transfer.amount < 1){
