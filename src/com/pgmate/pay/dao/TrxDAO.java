@@ -5462,19 +5462,45 @@ public class TrxDAO extends DAO {
 		return result;
 	}
 
-	public SharedMap<String,Object> getVactTransferKey(String account) {
+	public SharedMap<String,Object> getVactTransferKey(String account, String encTransferKey) {
+		super.setTable("PG_VACT_TRANSFER_KEY");
+		super.setColumns("*");
+		super.addWhere("account", account, eq);
+		super.addWhere("transferKey", encTransferKey, eq);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRowFirst();
+	}
+
+	public boolean existsVactTransferKey(String account) {
 		super.setTable("PG_VACT_TRANSFER_KEY");
 		super.setColumns("*");
 		super.addWhere("account", account, eq);
 		super.setOrderBy("idx desc");
-		super.setLimit(1);
 
 		RecordSet rset = super.search();
 		super.initRecord();
-		if(rset.size() == 0) {
-			return null;
+		if (rset.size() == 0) {
+			return false;
 		} else {
-			return rset.getRow(0);
+			return true;
 		}
 	}
+
+	public boolean existsVactTransferKey(String account, String encTransferKey) {
+		super.setTable("PG_VACT_TRANSFER_KEY");
+		super.setColumns("*");
+		super.addWhere("account", account, eq);
+		super.addWhere("transferKey", encTransferKey, eq);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if (rset.size() == 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 }
