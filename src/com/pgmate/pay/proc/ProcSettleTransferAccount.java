@@ -1,5 +1,6 @@
 package com.pgmate.pay.proc;
 
+import com.pgmate.lib.dao.RecordSet;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.lib.vertx.main.VertXUtil;
@@ -47,10 +48,16 @@ public class ProcSettleTransferAccount extends Proc {
 		SharedMap<String, Object> chargeMng = trxDAO.getMchtChargeMng(mchtId);
 		VactDAO vactDAO = new VactDAO();
 		String account = request.transfer.account;
-		SharedMap<String, Object> vactRegMap = vactDAO.getVactReg(account);
-		String withDrawBankAccount = vactDAO.getAESDec(vactRegMap.getString("withdrawAccount"));
+		//SharedMap<String, Object> vactRegMap = vactDAO.getVactReg(account);
+		//SharedMap<String, Object> vactRegMap = trxDAO.getVactTransferKey(account, encAccountKey);
+		String encAccountKey = KSignUtil.getInstance().Encrypt(request.transfer.accountTransferKey);
+		SharedMap<String, Object> vactTransferKeyMap = trxDAO.getVactTransferKey(account, encAccountKey);
+		String withDrawBankAccount = vactDAO.getAESDec(vactTransferKeyMap.getString("withdrawAccount"));
+		String bankCd = vactTransferKeyMap.getString("withdrawBankCd");
+		String bankName = trxDAO.getBankName(bankCd).getString("codeName");
+		String holderName = vactTransferKeyMap.getString("holderName");
 
-		logger.info("충전정산 가상계좌번호, 출금계좌 : [{}][{}]", account, vactRegMap.getString("withdrawAccount"));
+		logger.info("충전정산 가상계좌번호, 출금계좌 : [{}][{}]", account, vactTransferKeyMap.getString("withdrawAccount"));
 
 		// 비지니스 로직
 		String trxId = "CS"+sharedMap.getString(PAYUNIT.TRX_ID).substring(1);
@@ -76,7 +83,7 @@ public class ProcSettleTransferAccount extends Proc {
 		long transferFee = fee + feeVat;
 		long transferBalance = sumMap.getLong("balance") - netAmount;
 
-		SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(request.transfer.bankCd, withDrawBankAccount).getRowFirst();
+		SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(bankCd, withDrawBankAccount).getRowFirst();
 
 		//response.transfer = 응답 object로 사용
 //		response.transfer = request.transfer;
@@ -88,10 +95,10 @@ public class ProcSettleTransferAccount extends Proc {
 		response.transfer.balance = transferBalance;
 
 		response.transfer.account = request.transfer.account;
-		response.transfer.bankCd = request.transfer.bankCd;
+		response.transfer.bankCd = bankCd;
 		response.transfer.trackId = request.transfer.trackId;
 		response.transfer.amount = request.transfer.amount;
-		response.transfer.bankName = request.transfer.bankName;
+		response.transfer.bankName = bankName;
 
 		SharedMap<String, Object> trxMap = new SharedMap<String,Object>();
 		trxMap.put("trxId", trxId);
@@ -114,11 +121,11 @@ public class ProcSettleTransferAccount extends Proc {
 		trxMap.put("netAmount", transferNetAmount);
 		trxMap.put("balance", transferBalance);
 		trxMap.put("trackId", request.transfer.trackId);
-		trxMap.put("bankCd", request.transfer.bankCd);
-		trxMap.put("bankName", request.transfer.bankName);
+		trxMap.put("bankCd", bankCd);
+		trxMap.put("bankName", bankName);
 //		trxMap.put("account", trxDAO.getAESEnc(request.transfer.account));
 		trxMap.put("account", trxDAO.getAESEnc(withDrawBankAccount));
-		trxMap.put("holder", trxDAO.getAESEnc(firmAccntMap.getString("accntHolder")));
+		trxMap.put("holder", trxDAO.getAESEnc(holderName));
 		
 		String recordInfo = "";
 		
@@ -133,7 +140,6 @@ public class ProcSettleTransferAccount extends Proc {
 		trxMap.put("regDay", regDate.substring(0, 8));
 
 		// 출금이력 업데이트
-		String encAccountKey = KSignUtil.getInstance().Encrypt(request.transfer.accountTransferKey);
 		trxDAO.updateVactTransferKey(account, encAccountKey);
 
 		// 펌뱅킹내역 등록
@@ -199,12 +205,12 @@ public class ProcSettleTransferAccount extends Proc {
 		}
 
 		// 은행코드 확인
-		SharedMap<String,Object> bank = trxDAO.getBankName(request.transfer.bankCd);
-		if(bank == null || bank.isEmpty()) {
-			response.result = ResultUtil.getResult("9999", "유효성 오류","은행 코드값이 유효하지 않습니다.");return;
-		}else {
-			request.transfer.bankName = bank.getString("codeName");
-		}
+//		SharedMap<String,Object> bank = trxDAO.getBankName(request.transfer.bankCd);
+//		if(bank == null || bank.isEmpty()) {
+//			response.result = ResultUtil.getResult("9999", "유효성 오류","은행 코드값이 유효하지 않습니다.");return;
+//		}else {
+//			request.transfer.bankName = bank.getString("codeName");
+//		}
 
 		String encKey = KSignUtil.getInstance().Encrypt(request.transfer.transferKey);
 		String encAccountKey = KSignUtil.getInstance().Encrypt(request.transfer.accountTransferKey);
@@ -212,12 +218,13 @@ public class ProcSettleTransferAccount extends Proc {
 		// 2023-03-20: 가상계좌 상태와 상관없이 출금이 될수 있도록 변경요청(주석처리)
 //		SharedMap<String, Object> vactDtlMap = vactDAO.getVactDtl(account);
 //		SharedMap<String, Object> vactRegMap = vactDAO.getVactReg(account);
-		SharedMap<String, Object> vactTransferKeyMap = trxDAO.getVactTransferKey(account);
 
 		// 가상계좌존재유무, 상태 확인
-		if(vactTransferKeyMap == null || vactTransferKeyMap.isEmpty()) {
-			response.result = ResultUtil.getResult("9999", "계좌상태오류","가상계좌가 존재하지 않습니다.");return;
+		if (!trxDAO.existsVactTransferKey(account)) {
+			response.result = ResultUtil.getResult("9999", "계좌상태오류", "가상계좌가 존재하지 않습니다.");
+			return;
 		}
+
 //		if(!"발행".equals(vactDtlMap.getString("status"))) {
 //			response.result = ResultUtil.getResult("9999", "계좌상태오류","가상계좌 발행상태가 아닙니다.");return;
 //		}
@@ -233,8 +240,9 @@ public class ProcSettleTransferAccount extends Proc {
 		}
 
 		// 계좌 출금키 암호화하고 비교하기
-		if(!encAccountKey.equals(vactTransferKeyMap.getString("transferKey"))) {
-			response.result = ResultUtil.getResult("9999", "이용불가", "가상계좌 출금키가 일치하지 않습니다."); return;
+		if (!trxDAO.existsVactTransferKey(account, encAccountKey)) {
+			response.result = ResultUtil.getResult("9999", "이용불가", "가상계좌 출금키가 일치하지 않습니다.");
+			return;
 		}
 
 		// 입금내역 확인 - 1건이라도 입금내역이 존재해야 출금허용
