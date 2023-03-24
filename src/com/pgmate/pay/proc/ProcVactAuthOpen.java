@@ -83,9 +83,11 @@ public class ProcVactAuthOpen extends Proc{
                             response.result = ResultUtil.getResult("9999", "가상계좌오류","요청하신 가맹점의 가상계좌가 아닙니다.");
                         }else if(!"대기".equals(dtlMap.getString("status"))) {
                             if("사용만료".equals(dtlMap.getString("status")) || "사용자만료".equals(dtlMap.getString("status"))) {
-                                response.result = ResultUtil.getResult("9999", "계좌상태오류","만료된 가상계좌 입니다.");
+                                response.result = ResultUtil.getResult("9999", "계좌상태오류","사용만료된 가상계좌 입니다.");
                             }else if("발행".equals(dtlMap.getString("status"))) {
                                 response.result = ResultUtil.getResult("9999", "계좌상태오류","발행상태의 가상계좌 입니다.");
+                            }else if("만료".equals(dtlMap.getString("status"))) {
+                                response.result = ResultUtil.getResult("9999", "계좌상태오류","만료된 가상계좌 입니다.");
                             }
                         }
                     }else{
