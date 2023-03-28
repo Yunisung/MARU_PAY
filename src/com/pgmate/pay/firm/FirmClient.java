@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.Charset;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,8 @@ import com.pgmate.pay.conf.FirmLoader;
 public class FirmClient {
 
 	private static Logger logger = LoggerFactory.getLogger( com.pgmate.pay.firm.FirmClient.class );
-	private static String host 	= "pgwas2";
-	private static int port 	= 10026;
+	private static String host 	= "10.100.100.13";
+	private static int port 	= 10006;
 	private static int timeout  = 70000;
 	
 
@@ -138,7 +139,7 @@ public class FirmClient {
 			socket.setSoTimeout(timeout);
 			
 			output = socket.getOutputStream();
-			output.write(reqJson.getBytes());
+			output.write(reqJson.getBytes(Charset.forName("EUC-KR")));
 			output.flush();
 			
 			input = socket.getInputStream();
@@ -160,7 +161,7 @@ public class FirmClient {
 			bout.flush();
 			byte[] res = bout.toByteArray();
 			bout.close();
-			resJson = new String(res,"MS949");
+			resJson = new String(res,"EUC-KR");
 			if(!CommonUtil.isNullOrSpace(resJson)) {
 				firmBean = (FirmBean)GsonUtil.fromJson(resJson, FirmBean.class);
 			}else {
@@ -191,7 +192,7 @@ public class FirmClient {
 	
 	public static void main(String[] args){
 		FirmClient client = new FirmClient();
-		
+		client.holderFCS("090", "3333064866173");
 		//client.trasfer("020","020", "94000006218719", 5200);//가상계좌거래내역
 		/*
 		
