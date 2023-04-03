@@ -109,7 +109,11 @@ public class TrxDAO extends DAO {
 	public synchronized static String getTotalAuthId() {
 		return "TA" + getFunction("FN_NEXTVAL2", "TOTAL_AUTH");
 	}
-	
+
+	public synchronized static String getRebillOrderId() {
+		return "RB" + getFunction("FN_NEXTVAL2", "REBILL");
+	}
+
 	//WH
 	public SharedMap<String, Object> getMchtTmnByTmnId(String tmnId) {
 		/*String key = "PG_MCHT_TMN_" + tmnId;
@@ -5503,4 +5507,102 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	public void insertRebillReg(SharedMap<String, Object> ioMap) {
+
+		super.setTable("PG_REBILL_REG");
+		super.setXssChange(false);
+
+		super.setRecord("rebillId"			, ioMap.getString("rebillId"));
+		super.setRecord("trxId"				, ioMap.getString("trxId"));
+		super.setRecord("cardId"				, ioMap.getString("cardId"));
+		super.setRecord("mchtId"				, ioMap.getString("mchtId"));
+		super.setRecord("tmnId"				, ioMap.getString("tmnId"));
+		super.setRecord("amount"				, ioMap.getLong("amount"));
+		super.setRecord("status"				, ioMap.getString("status"));
+		super.setRecord("trackId"			, ioMap.getString("trackId"));
+		super.setRecord("payerName"			, ioMap.getString("payerName"));
+		super.setRecord("payerEmail"			, ioMap.getString("payerEmail"));
+		super.setRecord("payerTel"			, ioMap.getString("payerTel"));
+		super.setRecord("productId"			, ioMap.getString("productId"));
+		super.setRecord("productName"		, ioMap.getString("productName"));
+		super.setRecord("rebillCycleType"	, ioMap.getString("rebillCycleType"));
+		super.setRecord("rebillCount"		, ioMap.getString("rebillCount"));
+		super.setRecord("rebillSmsUse"		, ioMap.getString("rebillSmsUse"));
+		super.setRecord("hookAddr"			, ioMap.getString("hookAddr"));
+		super.setRecord("nextPayDay"			, ioMap.getString("nextPayDay"));
+		super.setRecord("expireDay"			, ioMap.getString("expireDay"));
+		super.setRecord("regDay"				, ioMap.getString("regDay"));
+		super.setRecord("regTime"			, ioMap.getString("regTime"));
+
+		logger.info("set PG_REBILL_REG : {}", super.insert());
+
+		super.initRecord();
+	}
+
+	public void insertRebillPAY(String trxId) {
+
+		String q = "INSERT INTO PG_REBILL_PAY  " + " SELECT A.trxId,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,issuer,acquirer,"
+				+ " A.regDay,A.regTime,authCd,resultCd,resultMsg,van,vanId,vanTrxId,B.regDay,B.regTime,B.regDate " + " FROM PG_TRX_REQ A, PG_TRX_RES B WHERE A.trxId = B.trxId AND A.trxId = '" + trxId + "'";
+		logger.info("set REBILL_PAY : {}", super.update(q));
+		super.initRecord();
+
+	}
+
+	public void insertRebillERR(String trxId) {
+
+		String q = "INSERT INTO PG_REBILL_ERR  " + " SELECT A.trxId,trxType,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,issuer,acquirer,prodId,"
+				+ " A.regDay,A.regTime,resultCd,resultMsg,van,vanId,vanTrxId,vanResultCd,vanResultMsg,B.regDay,B.regTime,B.regDate " + " FROM PG_TRX_REQ A, PG_TRX_RES B WHERE A.trxId = B.trxId AND A.trxId = '" + trxId + "'";
+		logger.info("set TRX_ERR : {}", super.update(q));
+		super.initRecord();
+
+	}
+
+	public SharedMap<String, Object> getRebillData(String id) {
+		super.setTable("PG_REBILL_REG");
+		super.setColumns("*");
+		super.addWhere("rebillId", id, eq);
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
+
+	public void updateRebillREG(String id, SharedMap<String, Object> map) {
+		super.setTable("PG_REBILL_REG");
+		super.setXssChange(false);
+
+		super.setRecord("status"			, map.getString("status"));
+		super.setRecord("nextPayDay"		, map.getString("nextPayDay"));
+
+		if(map.getInt("rebillCount") > 0) {
+			super.setRecord("rebillCount"	, map.getInt("rebillCount"));
+		}
+
+
+		super.addWhere("rebillId", id);
+		boolean update = super.update();
+		logger.info("set PG_REBILL_REG update : {}",update );
+
+		super.initRecord();
+	}
+
+	public SharedMap<String, Object> getProduct(String prodId) {
+		super.setTable("PG_TRX_PRD");
+		super.setColumns("*");
+		super.addWhere("prodId", prodId, eq);
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
 }
