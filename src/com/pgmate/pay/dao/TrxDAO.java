@@ -109,7 +109,11 @@ public class TrxDAO extends DAO {
 	public synchronized static String getTotalAuthId() {
 		return "TA" + getFunction("FN_NEXTVAL2", "TOTAL_AUTH");
 	}
-	
+
+	public synchronized static String getRebillOrderId() {
+		return "RB" + getFunction("FN_NEXTVAL2", "REBILL");
+	}
+
 	//WH
 	public SharedMap<String, Object> getMchtTmnByTmnId(String tmnId) {
 		/*String key = "PG_MCHT_TMN_" + tmnId;
