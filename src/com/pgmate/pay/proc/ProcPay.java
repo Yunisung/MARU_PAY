@@ -155,12 +155,14 @@ public class ProcPay extends Proc {
 
 				if (response.result.resultCd.equals("0000")) {
 					//결제 성공시 로직
-					//PG_REBILL_PAY에 INSERT
-					trxDAO.insertRebillPAY(response.pay.trxId);
 
-					//데이터 세팅
+					//정기결제 아이디 생성
 					String rebillId = GenKey.genKeys(CPKEY.REBILL, sharedMap.getString(PAYUNIT.TRX_ID));
 
+					//PG_REBILL_PAY에 INSERT
+					trxDAO.insertRebillPAY(response.pay.trxId, rebillId);
+
+					//데이터 세팅
 					SharedMap<String, Object> rebillMap = new SharedMap<>();
 					rebillMap.put("rebillId", rebillId);
 					rebillMap.put("trxId", request.pay.trxId);
@@ -214,7 +216,7 @@ public class ProcPay extends Proc {
 					//정기결제성공
 
 					//PG_REBILL_PAY에 INSERT
-					trxDAO.insertRebillPAY(response.pay.trxId);
+					trxDAO.insertRebillPAY(response.pay.trxId, rebillId);
 
 					//다음결제일 수정, rebillCount 증가
 

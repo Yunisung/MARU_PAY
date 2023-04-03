@@ -5543,9 +5543,9 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 
-	public void insertRebillPAY(String trxId) {
+	public void insertRebillPAY(String trxId, String rebillId) {
 
-		String q = "INSERT INTO PG_REBILL_PAY  " + " SELECT A.trxId,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,issuer,acquirer,"
+		String q = "INSERT INTO PG_REBILL_PAY  " + " SELECT A.trxId,'" + rebillId + "',mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,issuer,acquirer,"
 				+ " A.regDay,A.regTime,authCd,resultCd,resultMsg,van,vanId,vanTrxId,B.regDay,B.regTime,B.regDate " + " FROM PG_TRX_REQ A, PG_TRX_RES B WHERE A.trxId = B.trxId AND A.trxId = '" + trxId + "'";
 		logger.info("set REBILL_PAY : {}", super.update(q));
 		super.initRecord();
@@ -5561,6 +5561,12 @@ public class TrxDAO extends DAO {
 
 	}
 
+	public void insertRebillRFD(String trxId) {
+		String q = "INSERT INTO PG_REBILL_RFD  " + " SELECT * FROM PG_TRX_RFD WHERE trxId='" + trxId + "'";
+		logger.info("set REBILL_RFD : {}", super.update(q));
+		super.initRecord();
+	}
+
 	public SharedMap<String, Object> getRebillData(String id) {
 		super.setTable("PG_REBILL_REG");
 		super.setColumns("*");
@@ -5573,6 +5579,19 @@ public class TrxDAO extends DAO {
 			return null;
 		} else {
 			return rset.getRow(0);
+		}
+	}
+
+	public String getRebillId(String trxId) {
+		super.setTable("PG_REBILL_PAY");
+		super.setColumns("rebillId");
+		super.addWhere("trxId", trxId, eq);
+
+		RecordSet rset = super.search();
+		if(rset.size() == 0) {
+			return "";
+		} else {
+			return rset.getRow(0).getString("rebillId");
 		}
 	}
 
@@ -5614,6 +5633,21 @@ public class TrxDAO extends DAO {
 			return null;
 		} else {
 			return rset.getRow(0);
+		}
+	}
+
+	public boolean isRebillPayTrxId(String trxId) {
+		super.setTable("PG_REBILL_PAY");
+		super.setColumns("*");
+		super.addWhere("trxId", trxId, eq);
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() > 0) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 }
