@@ -1,6 +1,11 @@
 package com.pgmate.pay.proc;
 
 import java.text.DecimalFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.GregorianCalendar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,7 +146,42 @@ public class ProcRefund extends Proc {
 			if(!CommonUtil.isNullOrSpace(request.refund.webhookUrl)){
 				new ThreadWebHook(request.pay.webhookUrl,response).start();
 			}
-			
+
+			//정상 승인취소시
+			if(response.result.resultCd.equals("0000")) {
+
+				//정기결제 거래건인지 확인
+				if(trxDAO.isRebillPayTrxId(request.refund.rootTrxId)) {
+					logger.info("REBILL REFUND START");
+
+					//정기결제 승인취소 추가
+					//PG_REBILL_RFD INSERT
+					trxDAO.insertRebillRFD(response.refund.trxId);
+
+					String rebillId = trxDAO.getRebillId(request.refund.rootTrxId);
+					String currentDate = CommonUtil.getCurrentDate("yyyyMMdd");
+
+					//정기결제 정보 SELECT
+					SharedMap<String, Object> rebillData = trxDAO.getRebillData(rebillId);
+
+					//정기결제 정보 업데이트할 데이터 생성
+					SharedMap<String, Object> updateMap = new SharedMap<>();
+
+					//승인취소 => 결제횟수 감소
+					int rebillCount = rebillData.getInt("rebillCount") - 1;
+					updateMap.put("rebillCount", rebillCount);
+
+					//다음 결제일을 승인취소 다음날로 설정
+					String nextPayDay = calcRebillDay("D+1", currentDate);
+					updateMap.put("nextPayDay", nextPayDay);
+					updateMap.put("status", "승인");
+
+					//REBILL_REG UPDATE
+					trxDAO.updateRebillREG(rebillId, updateMap);
+
+				}
+			}
+
 			// 월렛 분리정산 추가
 			//PYS : WL_TRX_CAP테이블이 없어 의미없는코드
 //			SharedMap<String, Object> rootTrxCapMap = trxDAO.getWalletTrxCap(trxMap.getString("trxId"));
@@ -522,6 +562,47 @@ public class ProcRefund extends Proc {
 			return -new Double(-amount *10 /110).longValue();
 		}else{
 			return new Double(amount *10 /110).longValue();
+		}
+	}
+
+	public String calcRebillDay(String settleType,String today){
+		try {
+			int term = 1;
+			if(settleType.startsWith("D")){
+				term = CommonUtil.parseInt(settleType.replaceAll("D[+]", ""));
+
+				String day = CommonUtil.getOpDate(GregorianCalendar.DATE,term,today);
+				return day;
+			}else if(settleType.startsWith("W")){
+				term = CommonUtil.parseInt(settleType.replaceAll("W[+]", ""));
+
+				LocalDate localDate = LocalDate.parse(today, DateTimeFormatter.ofPattern("yyyyMMdd"));
+				localDate = localDate.plusWeeks(1).with(DayOfWeek.MONDAY).with(TemporalAdjusters.nextOrSame(DayOfWeek.of(term)));
+
+				String day = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+				return day;
+			}else if(settleType.startsWith("M")){
+				term = CommonUtil.parseInt(settleType.replaceAll("M[+]", ""));
+
+				String nextMonth = CommonUtil.getOpDate(GregorianCalendar.MONTH,1,today).substring(0,6);
+
+				LocalDate localDate = LocalDate.parse(nextMonth+"01", DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+				if(term > localDate.lengthOfMonth()) {
+					localDate = localDate.withDayOfMonth(localDate.lengthOfMonth());
+				}else {
+					localDate = localDate.withDayOfMonth(term);
+				}
+
+				String day = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+				return day;
+			}else{
+				return "";
+			}
+		}catch(Exception e) {
+			logger.error("calcDay Error : [{}][{}]", e.getMessage(), e.getStackTrace());
+
+			return "";
 		}
 	}
 	public static void main(String[] args){
