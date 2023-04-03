@@ -197,6 +197,8 @@ public class Api {
 				process = new ProcArsAuth();
 			}else if (uri.startsWith(PAYUNIT.API_ARSV2_CHECK)) {
 				process = new ProcArsAuthCheck();
+			}else if (uri.startsWith(PAYUNIT.API_REBILL_PAY)) {
+				process = new ProcRebillPay();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
