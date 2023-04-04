@@ -26,13 +26,17 @@ public class ProcRebillPay extends Proc {
     public void exec(RoutingContext rc, Request request, SharedMap<String, Object> sharedMap, SharedMap<String, SharedMap<String, Object>> sharedObject) throws Exception {
         set(rc,request,sharedMap,sharedObject);
 
-        SharedMap<String, Object> rebillData = trxDAO.getRebillData(rebillId);
+        if(response.result != null) {
+            setResponse();
+            return;
+        } else {
+            SharedMap<String, Object> rebillData = trxDAO.getRebillData(rebillId);
 
-        if(rebillData != null) {
-            excutePay(rebillData, rc, sharedMap, sharedObject);
+            if(rebillData != null) {
+                excutePay(rebillData, rc, sharedMap, sharedObject);
+            }
         }
 
-//        setResponse();
         return;
 
     }
@@ -44,12 +48,24 @@ public class ProcRebillPay extends Proc {
         logger.info("정기결제 결제요청 ID : {}", id);
 
         if(CommonUtil.isNullOrSpace(id)){
-            response.result = ResultUtil.getResult("9999", "필수값없음","정기결제 아이디가 없습니다.");return;
+            response.result = ResultUtil.getResult("9999", "필수값없음","정기결제 아이디가 없습니다.");
+            return;
         }
 
         rebillId = id;
 
+        SharedMap<String, Object> rebillRegMap = trxDAO.getRebillData(rebillId);
 
+        if(rebillRegMap != null) {
+            String status = rebillRegMap.getString("status");
+            if(!status.equals("승인")) {
+                response.result = ResultUtil.getResult("9999", "에러","승인 상태인 정기결제만 결제가 가능합니다.");
+                return;
+            }
+        } else {
+            response.result = ResultUtil.getResult("9999", "데이터없음","조건에 만족하는 정기결제 목록이 없습니다.");
+            return;
+        }
 
 
     }
