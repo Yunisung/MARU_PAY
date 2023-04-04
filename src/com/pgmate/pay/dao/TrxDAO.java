@@ -5576,8 +5576,15 @@ public class TrxDAO extends DAO {
 		super.setTable("PG_REBILL_REG");
 		super.setXssChange(false);
 
-		super.setRecord("status"			, map.getString("status"));
-		super.setRecord("nextPayDay"		, map.getString("nextPayDay"));
+
+
+		if(!CommonUtil.isNullOrSpace(map.getString("status"))) {
+			super.setRecord("status"			, map.getString("status"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("nextPayDay"))) {
+			super.setRecord("nextPayDay"		, map.getString("nextPayDay"));
+		}
 
 		if(map.getInt("rebillCount") > 0) {
 			super.setRecord("rebillCount"	, map.getInt("rebillCount"));
