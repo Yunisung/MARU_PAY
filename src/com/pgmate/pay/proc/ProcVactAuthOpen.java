@@ -556,6 +556,12 @@ public class ProcVactAuthOpen extends Proc{
                 firmBean.data.put("customerName",name);
             } else if(firmBean.bankCd.equals("039")) {
                 firmBean.data.put("trxType", "1");
+                
+                if(CommonUtil.isNullOrSpace(regType))
+                    regType = "1";
+                if(CommonUtil.isNullOrSpace(identity))
+                    identity = "8901021";
+
                 firmBean.data.put("regType", regType);
                 firmBean.data.put("identity", identity);
             }
