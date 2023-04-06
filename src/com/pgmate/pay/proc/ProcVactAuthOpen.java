@@ -549,16 +549,16 @@ public class ProcVactAuthOpen extends Proc{
         firmBean.data.put("withdrawBankCd",withdrawBankCd);
         firmBean.data.put("withdrawAccount",withdrawAccount);
 
-        if("089".equals(firmBean.bankCd)) {
-            //케이뱅크일 경우
-            //출금계좌 등록 trxType => 부국 : "0" / 하이픈 : "1"
-            if("0".equals(trxType)) {
+        //230406_PYS : 로직변경
+        if(trxType.equals("0")) {
+            if(firmBean.bankCd.equals("089")) {
                 firmBean.data.put("trxType","1");
                 firmBean.data.put("customerName",name);
-            //이 전 로직에서 trxType!=0인 경우 리턴 처리 하기 때문에 주석 처리 함
-            }/*else if("1".equals(trxType)) {
-                firmBean.data.put("trxType","2");
-            }*/
+            } else if(firmBean.bankCd.equals("039")) {
+                firmBean.data.put("trxType", "1");
+                firmBean.data.put("regType", regType);
+                firmBean.data.put("identity", identity);
+            }
         }
 
         firmBean = comm(firmBean);
