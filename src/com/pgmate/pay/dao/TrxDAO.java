@@ -3241,17 +3241,20 @@ public class TrxDAO extends DAO {
 	 * @param udf2
 	 * @return
 	 */
-	public boolean insertVactReg(String mchtId, String bankCd, String account, String withdrawBankCd, String withdrawAccount, 
+	public boolean insertVactReg(String mchtId, String bankCd, String account, String regType, String identity, String withdrawBankCd, String withdrawAccount,
 								 String holderName,String trackId, String udf1, String udf2){
 		boolean insert = false;
 				
 		try {
 			String encAccnt = getAESEnc(withdrawAccount);
+			String encIden = getAESEnc(identity);
 			
 			super.setTable("PG_VACT_REG");
 			super.setRecord("mchtId", mchtId);
 			super.setRecord("bankCd", bankCd);
 			super.setRecord("account", account);
+			super.setRecord("regType", regType);
+			super.setRecord("identity", encIden);
 			super.setRecord("withdrawBankCd", withdrawBankCd);
 			super.setRecord("withdrawAccount", encAccnt);
 			super.setRecord("holderName", holderName);
@@ -3542,18 +3545,20 @@ public class TrxDAO extends DAO {
 	 * @param resultMsg
 	 * @return
 	 */
-	public boolean insertHtVactReg(String mchtId, String bankCd, String account, String trxType, String withdrawBankCd, String withdrawAccount, 
+	public boolean insertHtVactReg(String mchtId, String bankCd, String account, String trxType, String regType, String identity,  String withdrawBankCd, String withdrawAccount,
 			 String holderName,String trackId, String udf1, String udf2, String resultCd, String resultMsg){
 		boolean insert = false;
 		
 		try {
 			String encAccnt = getAESEnc(withdrawAccount);
-			
+			String encIden = getAESEnc(identity);
 			super.setTable("HT_VACT_REG");
 			super.setRecord("mchtId", mchtId);
 			super.setRecord("bankCd", bankCd);
 			super.setRecord("account", account);
 			super.setRecord("trxType", trxType);
+			super.setRecord("regType", regType);
+			super.setRecord("identity", encIden);
 			super.setRecord("withdrawBankCd", withdrawBankCd);
 			super.setRecord("withdrawAccount", encAccnt);
 			super.setRecord("holderName", holderName);
@@ -4093,7 +4098,7 @@ public class TrxDAO extends DAO {
 	 * @param vactAccount
 	 * @return
 	 */
-	public boolean insertPgVactAuth(String authId, String issueId, String totalAuthId, String trackId, String mchtId, String authType, String regType, String bankCd, String account,
+	public boolean insertPgVactAuth(String authId, String issueId, String totalAuthId, String trackId, String mchtId, String authType, String bankCd, String account,
 									String identity, String phoneNo, String vactBankCd, String vactAccount, String authNo){
 		boolean insert = false;
 		
@@ -4109,10 +4114,6 @@ public class TrxDAO extends DAO {
 			 
 			 if(!"".equals(totalAuthId)) {
 				 super.setRecord("totalAuthId", totalAuthId);	 
-			 }
-
-			 if(!"".equals(regType)) {
-				 super.setRecord("regType", regType);
 			 }
 			 
 			 super.setRecord("mchtId", mchtId);

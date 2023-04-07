@@ -222,13 +222,13 @@ public class VactRegV2 extends Proc {
 
                 logger.info("가상계좌 출금정보 " + type + " 응답 : [{}][{}][{}][{}]", trxType, account, bean.resultCd, bean.resultMsg);
 
-                trxDAO.insertHtVactReg(mchtId, bankCd, account, trxType, withdrawBankCd, withdrawAccount, request.vact.holderName,
+                trxDAO.insertHtVactReg(mchtId, bankCd, account, trxType, regType, identity, withdrawBankCd, withdrawAccount, request.vact.holderName,
                         request.vact.trackId, request.vact.udf1, request.vact.udf2, bean.resultCd, bean.resultMsg);
 
                 if("0000".equals(bean.resultCd)) {
                     //신규일 경우
                     if("0".equals(trxType)) {
-                        trxDAO.insertVactReg(mchtId, bankCd, account, withdrawBankCd, withdrawAccount, request.vact.holderName,
+                        trxDAO.insertVactReg(mchtId, bankCd, account, regType, identity, withdrawBankCd, withdrawAccount, request.vact.holderName,
                                 request.vact.trackId, request.vact.udf1, request.vact.udf2);
 
 
