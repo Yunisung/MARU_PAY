@@ -89,7 +89,7 @@ public class ProcWithdrawTrmn extends Proc{
 
                 // INSERT - HT_VACT_REG
                 // 로그성 데이터 남기기
-                trxDAO.insertHtVactReg(mchtId, bankCd, account, trxType, withdrawBankCd, withdrawAccount, request.vact.holderName,
+                trxDAO.insertHtVactReg(mchtId, bankCd, account, trxType, regType, identity, withdrawBankCd, withdrawAccount, request.vact.holderName,
                         request.vact.trackId, request.vact.udf1, request.vact.udf2, bean.resultCd, bean.resultMsg);
 
                 // INSERT - HT_VACT_DTL

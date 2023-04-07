@@ -309,7 +309,7 @@ public class VactOpen extends Proc {
 				}
 		
 				//가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)
-				trxDAO.insertPgVactAuth(authId, issueId, "", request.vact.trackId, mchtMap.getString("mchtId"), "O", "", request.vact.authBankCd, request.vact.authAccount,
+				trxDAO.insertPgVactAuth(authId, issueId, "", request.vact.trackId, mchtMap.getString("mchtId"), "O", request.vact.authBankCd, request.vact.authAccount,
 										request.vact.identity, request.vact.phoneNo, request.vact.bankCd, request.vact.account, "");
 		
 				fee = mchtVactMngMap.getLong("ownerAuthFee");
@@ -352,7 +352,7 @@ public class VactOpen extends Proc {
 					String authNo = request.vact.identity.substring(0, 2);
 					KsnetBean ksnetBean = vactArsDataSet(ksnet, request.vact.phoneNo, request.vact.identity, authNo, request.vact.name);
 					
-					trxDAO.insertPgVactAuth(authId, issueId, "", request.vact.trackId, mchtMap.getString("mchtId"), "R", "", request.vact.authBankCd, request.vact.authAccount,
+					trxDAO.insertPgVactAuth(authId, issueId, "", request.vact.trackId, mchtMap.getString("mchtId"), "R", request.vact.authBankCd, request.vact.authAccount,
 											request.vact.identity, request.vact.phoneNo, request.vact.bankCd, request.vact.account, "");
 		
 					fee = mchtVactMngMap.getLong("arsAuthFee");
