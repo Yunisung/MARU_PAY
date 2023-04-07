@@ -186,7 +186,7 @@ public class VactReg extends Proc {
 						unitType = "당일정산";
 					}
 
-					trxDAO.insertPgVactAuth(authId, issueId, "", request.vact.trackId, mchtMap.getString("mchtId"), "O", withdrawBankCd, withdrawAccount,
+					trxDAO.insertPgVactAuth(authId, issueId, "", request.vact.trackId, mchtMap.getString("mchtId"), "O", "", withdrawBankCd, withdrawAccount,
 											identity, phoneNo, bankCd, account, "");
 
 					fee = mchtVactMngMap.getLong("ownerAuthFee");
@@ -233,7 +233,7 @@ public class VactReg extends Proc {
 							
 							KsnetBean ksnetBean = vactArsDataSet(ksnet, phoneNo, identity, authNo, name);
 							
-							trxDAO.insertPgVactAuth(authId, issueId, "", request.vact.trackId, mchtMap.getString("mchtId"), "R", withdrawBankCd, withdrawAccount,
+							trxDAO.insertPgVactAuth(authId, issueId, "", request.vact.trackId, mchtMap.getString("mchtId"), "R", "", withdrawBankCd, withdrawAccount,
 													identity, phoneNo, bankCd, account, "");
 
 							fee = mchtVactMngMap.getLong("arsAuthFee");

@@ -129,7 +129,7 @@ public class ARSAsync extends Proc{
 				return;
 			}
 			
-			trxDAO.insertPgVactAuth(authId, "", totalAuthId, mchtTrxId, mchtMap.getString("mchtId"), "R", bankCd, decAccount, identity, decPhoneNo, mchtVactMngMap.getString("authBankCd"), "", "");
+			trxDAO.insertPgVactAuth(authId, "", totalAuthId, mchtTrxId, mchtMap.getString("mchtId"), "R", "", bankCd, decAccount, identity, decPhoneNo, mchtVactMngMap.getString("authBankCd"), "", "");
 
 			fee = mchtVactMngMap.getLong("arsAuthFee");
 			orgFee = trxDAO.getAuthOrgFee("ARS");
