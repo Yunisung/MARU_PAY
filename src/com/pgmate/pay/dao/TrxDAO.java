@@ -4093,7 +4093,7 @@ public class TrxDAO extends DAO {
 	 * @param vactAccount
 	 * @return
 	 */
-	public boolean insertPgVactAuth(String authId, String issueId, String totalAuthId, String trackId, String mchtId, String authType, String bankCd, String account,
+	public boolean insertPgVactAuth(String authId, String issueId, String totalAuthId, String trackId, String mchtId, String authType, String regType, String bankCd, String account,
 									String identity, String phoneNo, String vactBankCd, String vactAccount, String authNo){
 		boolean insert = false;
 		
@@ -4109,6 +4109,10 @@ public class TrxDAO extends DAO {
 			 
 			 if(!"".equals(totalAuthId)) {
 				 super.setRecord("totalAuthId", totalAuthId);	 
+			 }
+
+			 if(!"".equals(regType)) {
+				 super.setRecord("regType", regType);
 			 }
 			 
 			 super.setRecord("mchtId", mchtId);
