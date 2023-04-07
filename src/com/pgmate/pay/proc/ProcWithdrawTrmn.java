@@ -188,6 +188,8 @@ public class ProcWithdrawTrmn extends Proc{
             return;
         }
 
+
+
         SharedMap<String, Object> accountData = trxDAO.vactAccountData(request.vact.account);
 
         if(accountData.isNullOrSpace("account")) {
@@ -209,8 +211,16 @@ public class ProcWithdrawTrmn extends Proc{
         firmBean.data.put("virtualAccount", account);
         firmBean.data.put("withdrawBankCd", withdrawBankCd);
         firmBean.data.put("withdrawAccount", withdrawAccount);
-        firmBean.data.put("trxType", trxType);
+
+        if(bankCd.equals("089")) {
+            firmBean.data.put("trxType", 2);
+        }else if(bankCd.equals("039")){
+            firmBean.data.put("trxType", 3);
+        }
+
         firmBean.data.put("customerName", name);
+        firmBean.data.put("regType", regType);
+        firmBean.data.put("identity", identity);
 
         firmBean = comm(firmBean);
 
