@@ -460,6 +460,13 @@ public class ProcVactAuthOpen extends Proc{
     //MARU_FIRM -> 하이픈 서버 거쳐 등록
     private boolean withdrawReg(Request request) {
         Firm firm = FirmLoader.getConfig();
+
+        //PYS : 데이터없을때 임시 세팅
+        if(CommonUtil.isNullOrSpace(request.vact.regType))
+            request.vact.regType = "1";
+        if(CommonUtil.isNullOrSpace(request.vact.identity))
+            request.vact.identity = "8901021";
+
         FirmBean firmBean = new FirmBean();
         String mchtId = mchtMap.getString("mchtId");
         String bankCd = request.vact.bankCd;
@@ -476,6 +483,8 @@ public class ProcVactAuthOpen extends Proc{
 //        if("2".equals(trxType)) {
 //            type = "변경";
 //        }
+
+
 
         host = firm.firmServer;
         timeout = firm.firmTimeout;
@@ -556,12 +565,6 @@ public class ProcVactAuthOpen extends Proc{
                 firmBean.data.put("customerName",name);
             } else if(firmBean.bankCd.equals("039")) {
                 firmBean.data.put("trxType", "1");
-                
-                if(CommonUtil.isNullOrSpace(regType))
-                    regType = "1";
-                if(CommonUtil.isNullOrSpace(identity))
-                    identity = "8901021";
-
                 firmBean.data.put("regType", regType);
                 firmBean.data.put("identity", identity);
             }
@@ -683,7 +686,7 @@ public class ProcVactAuthOpen extends Proc{
             //PYS : 출금계좌정보 추가
             logger.info("가상계좌 출금계좌 정보 : [{}][{}][{}]", request.vact.account, request.auth.bankCd, request.auth.account);
             trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"),
-                    "O", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
+                    "O", request.vact.regType, request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
                     request.vact.bankCd, request.vact.account, "");
 
             //출금계좌정보 등록 내역 추가
