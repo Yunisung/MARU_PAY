@@ -213,9 +213,9 @@ public class ProcWithdrawTrmn extends Proc{
         firmBean.data.put("withdrawAccount", withdrawAccount);
 
         if(bankCd.equals("089")) {
-            firmBean.data.put("trxType", 2);
+            firmBean.data.put("trxType", "2");
         }else if(bankCd.equals("039")){
-            firmBean.data.put("trxType", 3);
+            firmBean.data.put("trxType", "3");
         }
 
         firmBean.data.put("customerName", name);
