@@ -197,11 +197,11 @@ public class ProcVactAuthOpen extends Proc{
                 response.vact.issueId = vact.getString("issueId");
                 response.vact.expireAt = vact.getString("expireAt");
                 response.vact.status  = "발행";
-                //OSC: 개인정보유출 금지로 출금계좌는 보이지 않도록 처리 -> 라이브중이므로 차후 주석해제 예정
-                //String withDrawBankAccount = response.auth.account;
-                //int accountLen = withDrawBankAccount.length();
-                //withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
-                //response.auth.account = withDrawBankAccount;
+                //OSC: 개인정보유출 금지로 출금계좌는 보이지 않도록 처리
+                String withDrawBankAccount = response.auth.account;
+                int accountLen = withDrawBankAccount.length();
+                withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
+                response.auth.account = withDrawBankAccount;
                 response.vact.transferKey = transferKey;
 
                 response.result = ResultUtil.getResult("0000", "정상", "가상계좌가 발행되었습니다." + vact.getString("issueId"));
