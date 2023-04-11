@@ -10,10 +10,6 @@
         <meta name="format-detection" content="telephone=no, address=no, email=no">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <link
-            href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css'
-            rel='stylesheet'
-            type='text/css'>
-        <link
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap"
             rel="stylesheet">
         <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'>
@@ -38,6 +34,10 @@
 		<input type="hidden" id="initPublicKey" name="initPublicKey" value="" />
 		<input type="hidden" id="initRedirectUrl" name="initRedirectUrl" value="" />
 		<input type="hidden" id="initWebhookUrl" name="initWebhookUrl" value="" />
+		<input type="hidden" id="initIdentityCheck" name="initIdentityCheck" value="" />
+		<input type="hidden" id="initOwnerAuth" name="initOwnerAuth" value="" />
+		<input type="hidden" id="initAccountAuth" name="initAccountAuth" value="" />
+		<input type="hidden" id="initArsAuth" name="initArsAuth" value="" />
 		<input type="hidden" id="initWebKey" name="initWebKey" value="" />
 	</form>
 	<form id="userForm" name="userForm" method = "POST" action="">
@@ -167,6 +167,18 @@
 						<div class="agree_text">
 							<p id="provision2"></p>
 						</div>
+						<div class="agree">
+							<input type="checkbox" id="agree_03">
+							<label for="agree_03">
+								<span>
+									가상계좌 발급 고객동의 및 안내확인에 동의합니다. (필수)
+								</span>
+							</label>
+							<span class="detail"></span>
+						</div>
+						<div class="agree_text">
+							<p id="provision3"></p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -203,7 +215,7 @@
        });
 	
        $("#next").on('click', function (event) {
-			if($("input[id='agree_01']").is(":checked") && $("input[id='agree_02']").is(":checked")){
+			if($("input[id='agree_01']").is(":checked") && $("input[id='agree_02']").is(":checked") && $("input[id='agree_03']").is(":checked")){
            	location.href='/form/payment/total/step_02.html?token=' + $("input[id='initWebKey']").val();
            }
        });
@@ -214,7 +226,7 @@
 				if (!checked) {
 					$("input[id='confirm']").prop('checked', false);
 					
-				if(!$("input[id='agree_01']").is(":checked") || !$("input[id='agree_02']").is(":checked")){
+				if(!$("input[id='agree_01']").is(":checked") || !$("input[id='agree_02']").is(":checked") || !$("input[id='agree_03']").is(":checked")){
 					$("button[id='next']").removeClass('active');
 				}
 				}else {
@@ -228,7 +240,7 @@
 					is_checked = is_checked && $(this).is(":checked");
 				}
 				
-				if($("input[id='agree_01']").is(":checked") && $("input[id='agree_02']").is(":checked")){
+				if($("input[id='agree_01']").is(":checked") && $("input[id='agree_02']").is(":checked") && $("input[id='agree_03']").is(":checked")){
 					$("button[id='next']").addClass('active');
 				}
 			

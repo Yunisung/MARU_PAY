@@ -16,8 +16,9 @@ public class Transfer {
 	public long netAmount	= 0;		 
 	public long balance		= 0;		 
 	public String trackId	= "";
-	public String transferKey = "";
-	public String recordInfo= "";		
+	public String transferKey = "";				// 가맹점 출금키
+	public String accountTransferKey = "";		// 가상계좌 출금키
+	public String recordInfo= "";
 	
 	
 	public Transfer() {

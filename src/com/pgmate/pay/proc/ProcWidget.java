@@ -78,7 +78,15 @@ public class ProcWidget extends Proc {
 					request.widget.put("tmnId", mchtTmnMap.getString("tmnId"));
 					// 온라인 결제키
 					request.widget.put("authorization", mchtTmnMap.getString("payKey"));
-					
+
+					//230322_PYS : 정기결제용 데이터 추가
+					response.widget.put("rebillProcess", request.widget.getString("rebillProcess"));
+					response.widget.put("rebillCycleType", request.widget.getString("rebillCycleType"));
+					response.widget.put("rebillCycle", request.widget.getString("rebillCycle"));
+					response.widget.put("rebillExpire", request.widget.getString("rebillExpire"));
+					response.widget.put("rebillSmsUse", request.widget.getString("rebillSmsUse"));
+
+
 					logger.info("save as key : {}",response.widget.getString("key"));
 					PAYUNIT.cacheMap.put(response.widget.getString("key"), request.widget);
 					

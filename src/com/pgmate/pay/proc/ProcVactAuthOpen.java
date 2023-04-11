@@ -1,6 +1,9 @@
 package com.pgmate.pay.proc;
 
+import com.pgmate.app.util.KSignUtil;
 import com.pgmate.lib.conf.ConfigLoader;
+import com.pgmate.lib.key.CPKEY;
+import com.pgmate.lib.key.GenKey;
 import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
@@ -80,9 +83,11 @@ public class ProcVactAuthOpen extends Proc{
                             response.result = ResultUtil.getResult("9999", "가상계좌오류","요청하신 가맹점의 가상계좌가 아닙니다.");
                         }else if(!"대기".equals(dtlMap.getString("status"))) {
                             if("사용만료".equals(dtlMap.getString("status")) || "사용자만료".equals(dtlMap.getString("status"))) {
-                                response.result = ResultUtil.getResult("9999", "계좌상태오류","만료된 가상계좌 입니다.");
+                                response.result = ResultUtil.getResult("9999", "계좌상태오류","사용만료된 가상계좌 입니다.");
                             }else if("발행".equals(dtlMap.getString("status"))) {
                                 response.result = ResultUtil.getResult("9999", "계좌상태오류","발행상태의 가상계좌 입니다.");
+                            }else if("만료".equals(dtlMap.getString("status"))) {
+                                response.result = ResultUtil.getResult("9999", "계좌상태오류","만료된 가상계좌 입니다.");
                             }
                         }
                     }else{
@@ -161,6 +166,11 @@ public class ProcVactAuthOpen extends Proc{
             vact.put("udf1", request.vact.udf1);
             vact.put("udf2", request.vact.udf2);
             vact.put("depositLimitCnt", mchtVactMngMap.getInt("depositLimitCnt"));
+            // 출금키 할당
+            // 2023-03-20: 출금키 테이블을 따로 생성했으므로 VACT_DTL에 출금키를 set하지 않는다.
+            String transferKey = GenKey.genKeys(CPKEY.ACCNT, issueId);
+            String encTransferKey = KSignUtil.getInstance().Encrypt(transferKey);
+            //vact.put("transferKey", encTransferKey);
 
             logger.info("VACT OPEN INFO : [{}]", GsonUtil.toJson(vact,true,""));
 
@@ -176,10 +186,25 @@ public class ProcVactAuthOpen extends Proc{
             }
 
             if(execute){
+
+                // 출금키 테이블에 저장
+                String account = request.vact.account;
+                String withdrawBankCd = request.auth.bankCd;
+                String withdrawAccount = request.auth.account;
+                String holderName = request.vact.holderName;
+                trxDAO.insertVactTransferKey(account, withdrawBankCd, withdrawAccount, holderName, encTransferKey);
+
                 response.vact.issueId = vact.getString("issueId");
                 response.vact.expireAt = vact.getString("expireAt");
                 response.vact.status  = "발행";
-                response.result = ResultUtil.getResult("0000", "정상","가상계좌가 발행되었습니다."+vact.getString("issueId"));
+                //OSC: 개인정보유출 금지로 출금계좌는 보이지 않도록 처리 -> 라이브중이므로 차후 주석해제 예정
+                //String withDrawBankAccount = response.auth.account;
+                //int accountLen = withDrawBankAccount.length();
+                //withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
+                //response.auth.account = withDrawBankAccount;
+                response.vact.transferKey = transferKey;
+
+                response.result = ResultUtil.getResult("0000", "정상", "가상계좌가 발행되었습니다." + vact.getString("issueId"));
             }else{
                 response.result = ResultUtil.getResult("9999", "발행오류","시스템 오류로 인한 가상계좌 발행 실패.");
             }
@@ -431,6 +456,13 @@ public class ProcVactAuthOpen extends Proc{
     //MARU_FIRM -> 하이픈 서버 거쳐 등록
     private boolean withdrawReg(Request request) {
         Firm firm = FirmLoader.getConfig();
+
+        //PYS : 데이터없을때 임시 세팅
+        if(CommonUtil.isNullOrSpace(request.vact.regType))
+            request.vact.regType = "1";
+        if(CommonUtil.isNullOrSpace(request.vact.identity))
+            request.vact.identity = "8901021";
+
         FirmBean firmBean = new FirmBean();
         String mchtId = mchtMap.getString("mchtId");
         String bankCd = request.vact.bankCd;
@@ -448,6 +480,8 @@ public class ProcVactAuthOpen extends Proc{
 //            type = "변경";
 //        }
 
+
+
         host = firm.firmServer;
         timeout = firm.firmTimeout;
         port = firm.firmPort;
@@ -459,10 +493,8 @@ public class ProcVactAuthOpen extends Proc{
                 name, regType, identity, phoneNo, bankCd);
 
         // 테스트용 - 임시
-//        if(firmBean.resultCd.equals("KS99")) {
-//            firmBean.resultCd = "0000";
-//            firmBean.resultMsg = "출금계좌 정보 등록 완료.";
-//        }
+//        firmBean.resultCd = "0000";
+//        firmBean.resultMsg = "출금계좌 정보 등록 완료.";
 
         if(!"0000".equals(firmBean.resultCd)) {
             if("".equals(firmBean.resultMsg)) {
@@ -522,16 +554,16 @@ public class ProcVactAuthOpen extends Proc{
         firmBean.data.put("withdrawBankCd",withdrawBankCd);
         firmBean.data.put("withdrawAccount",withdrawAccount);
 
-        if("089".equals(firmBean.bankCd)) {
-            //케이뱅크일 경우
-            //출금계좌 등록 trxType => 부국 : "0" / 하이픈 : "1"
-            if("0".equals(trxType)) {
+        //230406_PYS : 로직변경
+        if(trxType.equals("0")) {
+            if(firmBean.bankCd.equals("089")) {
                 firmBean.data.put("trxType","1");
                 firmBean.data.put("customerName",name);
-            //이 전 로직에서 trxType!=0인 경우 리턴 처리 하기 때문에 주석 처리 함
-            }/*else if("1".equals(trxType)) {
-                firmBean.data.put("trxType","2");
-            }*/
+            } else if(firmBean.bankCd.equals("039")) {
+                firmBean.data.put("trxType", "1");
+                firmBean.data.put("regType", regType);
+                firmBean.data.put("identity", identity);
+            }
         }
 
         firmBean = comm(firmBean);
@@ -656,11 +688,11 @@ public class ProcVactAuthOpen extends Proc{
 
             //출금계좌정보 등록 내역 추가
             //HT_VACT_REG
-            trxDAO.insertHtVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.vact.trxType, request.auth.bankCd, request.auth.account,
-                    request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2, request.result.resultCd, request.result.resultMsg);
+            trxDAO.insertHtVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.vact.trxType, request.vact.regType, request.vact.identity,
+                    request.auth.bankCd, request.auth.account, request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2, request.result.resultCd, request.result.resultMsg);
             //PG_VACT_REG
-            trxDAO.insertVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.auth.bankCd, request.auth.account,
-                    request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2);
+            trxDAO.insertVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.vact.regType, request.vact.identity, request.auth.bankCd,
+                    request.auth.account, request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2);
 
 
             //통합인증 수수료계산
@@ -725,9 +757,16 @@ public class ProcVactAuthOpen extends Proc{
 
         //데이터 세팅
         String bankCd = request.auth.bankCd.trim();
+        String bankName = trxDAO.getBankName(bankCd).getString("codeName");
         String account = request.auth.account.trim();
         String identity =  request.vact.identity;
         String holderName = request.vact.holderName.trim();
+        String phoneNo = request.vact.phoneNo;
+        String mchtId = mchtMap.getString("mchtId");
+        String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");
+        String totalAuthId = request.auth.totalAuthId;
+        String authId = TrxDAO.getAuthId();
+
 
         //PG_FIRM_ACCNT에 있는 계좌 조회
         SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(bankCd, account).getRowFirst();
@@ -739,27 +778,36 @@ public class ProcVactAuthOpen extends Proc{
         }
 
         //FIRM 실행전 수수료 차감
-        String authId = TrxDAO.getAuthId();
-        String stlType = mchtVactMngMap.getString("settleType");
+        //PYS : 통합인증 수수료 적용
+        SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
+        String stlType = totalAuthMap.getString("settleType");
         String unitType = "";
-        if(mchtVactMngMap.getString("settleType").startsWith("D+0")){
+        if(totalAuthMap.getString("settleType").startsWith("D+0")){
             unitType = "실시간정산";
-        }else if(mchtVactMngMap.getString("settleType").startsWith("D+")){
+        }else if(totalAuthMap.getString("settleType").startsWith("D+")){
             unitType = "일반정산";
-        }else if(mchtVactMngMap.getString("settleType").startsWith("C+")){
+        }else if(totalAuthMap.getString("settleType").startsWith("C+")){
             unitType = "충전정산";
-        }else if(mchtVactMngMap.getString("settleType").equals("A+1")){
+        }else if(totalAuthMap.getString("settleType").equals("A+1")){
             unitType = "자동정산";
-        }else if(mchtVactMngMap.getString("settleType").equals("A+0") ||
-                mchtVactMngMap.getString("settleType").equals("A+2")){
+        }else if(totalAuthMap.getString("settleType").equals("A+0") ||
+                totalAuthMap.getString("settleType").equals("A+2")){
             unitType = "당일정산";
+        }else if(totalAuthMap.getString("settleType").startsWith("B+")) {
+            unitType = "자동충전정산";
         }
+
         String stlDay = calcDay(stlType, CommonUtil.getCurrentDate("yyyyMMdd"));
 
         //실명인증수수료값 조회
-        fee = mchtVactMngMap.getLong("ownerAuthFee");
-        orgFee = trxDAO.getAuthOrgFee("OWNER");
+        long authFee = totalAuthMap.getLong("ownerAuthFee");
 
+        String authType = "실명인증";
+        String summary = "";
+
+        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName,"", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+
+        /*
         //가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)
         trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"),
                 "O", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
@@ -767,12 +815,18 @@ public class ProcVactAuthOpen extends Proc{
 
         //PG_VACT_AUTH_DTL에 INSERT
         trxDAO.insertPgVactAuthDtl(authId, stlType, unitType, "정산대기", stlDay,"실명인증수수료", fee, calcVat(fee), orgFee, calcVat(orgFee));
+        */
+
 
         //PG_FIRM_ACCNT에 없는 계좌는 FIRM으로 보냄
         FirmBean firmBean = fcsFirmBean(bankCd, account, identity);
 
+        /*
         //FIRM 결과값 PG_VACT_AUTH에 업데이트
         trxDAO.updatePgVactAuth(authId, firmBean.resultCd, firmBean.resultMsg);
+        */
+
+        trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
 
         if(!firmBean.resultCd.equals("0000")) {
             //FCS 인증 실패시
@@ -860,8 +914,8 @@ public class ProcVactAuthOpen extends Proc{
 
                 return day;
             }else if(settleType.startsWith("B")){
-                String day =  trxDAO.getSettleDay(today, 1);
-
+                term = CommonUtil.parseInt(settleType.replaceAll("B[+]", ""));
+                String day = CommonUtil.getOpDate(GregorianCalendar.DATE,term,today);
                 return day;
             }else if(settleType.startsWith("M")){
                 term = CommonUtil.parseInt(settleType.replaceAll("M[+]", ""));

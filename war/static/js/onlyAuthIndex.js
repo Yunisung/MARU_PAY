@@ -195,7 +195,17 @@ var KWON = (function(win, doc) {
         document.getElementById('initPublicKey').value = config.publicKey;
         document.getElementById('initRedirectUrl').value = config.redirectUrl;
         document.getElementById('initWebhookUrl').value = config.webhookUrl;
+        document.getElementById('initIdentityCheck').value = config.identityCheck;
+        document.getElementById('initOwnerAuth').value = config.ownerAuth;
+        document.getElementById('initAccountAuth').value = config.accountAuth;
+        document.getElementById('initArsAuth').value = config.arsAuth;
         document.getElementById('initWebKey').value = token;
+
+        //230119_PYS : 주민번호 표시 여부체크
+        if(config.identityCheck === 'N') {
+            $('#identityTr').attr('style', "display:none;");
+        }
+
         
         /** 사용자 입력 내용 */
         document.getElementById('userBankCd').value = config.bankCd;
@@ -244,7 +254,8 @@ var KWON = (function(win, doc) {
 			document.getElementById("phoneNoArea1").innerText = config.phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
 		}
         if(phoneNoArea2){
-			document.getElementById("phoneNoArea2").innerText = config.phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
+			// document.getElementById("phoneNoArea2").innerText = config.phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
+			document.getElementById("phoneNoArea2").innerText = config.identity.substring(0,2);
 		}
 		
         document.getElementById('vactTotalAuthId').value = config.totalAuthId;
@@ -326,7 +337,11 @@ var KWON = (function(win, doc) {
 	        console.log(res);
 	        if (res.result.resultCd == '0000') {
 				
-	        } else {
+	        } else if("AAAA" == res.result.resultCd){
+                KWON.setErrMsg(res.result.resultCd, res.result.resultMsg, res.result.resultMsg + "(" + res.result.advanceMsg + ")<br>확인 후 다시 시도해 주세요.");
+
+                $("#accountAuthForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+            } else {
 	            /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
 	        	alert(res.result.advanceMsg);
 	        	//postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
@@ -359,6 +374,16 @@ var KWON = (function(win, doc) {
 	        alert('키가 올바르지 않습니다. ' + err);
 	    });
 	}
+
+    function setConfigData3(bankCd, bankName, account, identity, name, phoneNo, totalAuthId){
+        kwonConfig.bankCd = bankCd;
+        kwonConfig.bankName = bankName;
+        kwonConfig.account = account;
+        kwonConfig.identity = identity;
+        kwonConfig.name = name;
+        kwonConfig.phoneNo = phoneNo;
+        kwonConfig.totalAuthId = totalAuthId;
+    }
 	
 	function setErrMsg(errCode, errMsg, advanceMsg){
 		var token = window.location.search.split('=')[1];
@@ -437,7 +462,9 @@ var KWON = (function(win, doc) {
         var token = window.location.search.split('=')[1];
         getConfigByToken(token, function(res) {
             kwonConfig = JSON.parse(res.target.responseText).widget;
-            
+
+            console.log('config : ', kwonConfig);
+
             setForm(kwonConfig, token);
         }, function(err) {
             console.log('TOKEN ERROR  ', err);
@@ -447,6 +474,7 @@ var KWON = (function(win, doc) {
     var KWON = {
 		setConfigData: setConfigData,
 		setConfigData2: setConfigData2,
+        setConfigData3: setConfigData3,
 		getConfigData: getConfigData,
 		totalAuthConfirm: totalAuthConfirm,
 		setErrMsg: setErrMsg,
@@ -454,6 +482,7 @@ var KWON = (function(win, doc) {
 		okBtnExit: okBtnExit,
 		close: close
   	}
+
   	window.KWON = KWON
   	return KWON
 })(window, document);

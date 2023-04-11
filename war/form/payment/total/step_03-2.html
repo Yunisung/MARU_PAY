@@ -10,10 +10,6 @@
         <meta name="format-detection" content="telephone=no, address=no, email=no">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <link
-            href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css'
-            rel='stylesheet'
-            type='text/css'>
-        <link
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap"
             rel="stylesheet">
         <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'>
@@ -35,6 +31,10 @@
 			<input type="hidden" id="initPublicKey" name="initPublicKey" value="" />
 			<input type="hidden" id="initRedirectUrl" name="initRedirectUrl" value="" />
 			<input type="hidden" id="initWebhookUrl" name="initWebhookUrl" value="" />
+            <input type="hidden" id="initIdentityCheck" name="initIdentityCheck" value="" />
+            <input type="hidden" id="initOwnerAuth" name="initOwnerAuth" value="" />
+            <input type="hidden" id="initAccountAuth" name="initAccountAuth" value="" />
+            <input type="hidden" id="initArsAuth" name="initArsAuth" value="" />
 			<input type="hidden" id="initWebKey" name="initWebKey" value="" />
 		</form>
 		<form id="userForm" name="userForm" method = "POST" action="">
@@ -61,6 +61,7 @@
 		<form id="accountAuthForm" name="accountAuthForm" method = "POST" action="">
 			<input type="hidden" id="authNo" name="authNo" value="" />
 			<input type="hidden" id="authId" name="authId" value="" />
+            <input type="hidden" id="totalAuthId" name="totalAuthId" value="" />
 		</form>
 		
         <div class="popup-layer">
@@ -176,11 +177,11 @@
                                         oninput="checkMaxLength(this)">
                                 </div>
                             </div>
-                            <div class="bankinfo">
+                            <div class="bankinfo info2">
                                 <table>
                                     <tr>
                                         <th>보낸사람</th>
-                                        <td>KWONPS
+                                        <td>BK
                                             <span class="authno">1</span>
                                             <span class="authno">2</span>
                                             <span class="authno">3</span>
@@ -254,6 +255,7 @@
 			
 			$("#accountAuthForm > #authId").val($("#userForm > #userAuthId").val());
 	    	$("#accountAuthForm > #authNo").val(authNo);
+            $("#accountAuthForm > #totalAuthId").val($("#vactResForm > #vactTotalAuthId").val());
 	    	
 	    	$("div[class='error_message']").html('<span class="error">계좌점유 인증중입니다.</span>');
 	    	$("button[id='next']").removeClass('active');

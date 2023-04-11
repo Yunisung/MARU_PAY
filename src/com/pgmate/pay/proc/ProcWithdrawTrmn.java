@@ -90,7 +90,7 @@ public class ProcWithdrawTrmn extends Proc{
 
                 // INSERT - HT_VACT_REG
                 // 로그성 데이터 남기기
-                trxDAO.insertHtVactReg(mchtId, bankCd, account, trxType, withdrawBankCd, withdrawAccount, request.vact.holderName,
+                trxDAO.insertHtVactReg(mchtId, bankCd, account, trxType, regType, identity, withdrawBankCd, withdrawAccount, request.vact.holderName,
                         request.vact.trackId, request.vact.udf1, request.vact.udf2, bean.resultCd, bean.resultMsg);
 
                 // INSERT - HT_VACT_DTL
@@ -106,12 +106,17 @@ public class ProcWithdrawTrmn extends Proc{
                     }*/
 
                     // DELETE - PG_VACT_DTL
-                    boolean executeDeleteVactDtl = trxDAO.deleteVactDtl(issueId);
-                    logger.info("PG_VACT_DTL DELETE : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
+                    //boolean executeDeleteVactDtl = trxDAO.deleteVactDtl(issueId);
+                    // OSC: 대기상태로 변경
+                    SharedMap<String,Object> vactMngMap = trxDAO.getMchtMngVact(mchtId);
+                    String mchtName = vactMngMap.getString("holderName");
+                    boolean executeDeleteVactDtl = trxDAO.updateVactDtlReady(issueId, mchtName);
+                    logger.info("PG_VACT_DTL UPDATE READY : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
 
                     if(executeDeleteVactDtl){
+                        trxDAO.insertHtVactDtl(issueId, bean.resultCd, bean.resultMsg);
                         response.result = ResultUtil.getResult("0000", "정상","가상계좌 출금정보가 해지되었습니다."+issueId);
-                        logger.info("PG_VACT_DTL DELETE : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
+                        logger.info("PG_VACT_DTL UPDATE READY : [{}][{}][{}]", issueId, account, executeDeleteVactDtl);
                     }else{
                         response.result = ResultUtil.getResult("9999", "해지오류","시스템 오류로 인한 가상계좌 출금정보 해지 실패.");
                         sendResponse();
@@ -184,6 +189,8 @@ public class ProcWithdrawTrmn extends Proc{
             return;
         }
 
+
+
         SharedMap<String, Object> accountData = trxDAO.vactAccountData(request.vact.account);
 
         if(accountData.isNullOrSpace("account")) {
@@ -205,8 +212,16 @@ public class ProcWithdrawTrmn extends Proc{
         firmBean.data.put("virtualAccount", account);
         firmBean.data.put("withdrawBankCd", withdrawBankCd);
         firmBean.data.put("withdrawAccount", withdrawAccount);
-        firmBean.data.put("trxType", trxType);
+
+        if(bankCd.equals("089")) {
+            firmBean.data.put("trxType", "2");
+        }else if(bankCd.equals("039")){
+            firmBean.data.put("trxType", "3");
+        }
+
         firmBean.data.put("customerName", name);
+        firmBean.data.put("regType", regType);
+        firmBean.data.put("identity", identity);
 
         firmBean = comm(firmBean);
 

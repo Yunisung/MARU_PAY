@@ -1,0 +1,95 @@
+package com.pgmate.pay.proc;
+
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.pgmate.lib.util.lang.CommonUtil;
+import com.pgmate.lib.util.map.SharedMap;
+import com.pgmate.pay.bean.Request;
+import com.pgmate.pay.dao.TrxDAO;
+import com.pgmate.pay.util.PAYUNIT;
+import io.vertx.ext.web.RoutingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
+
+public class ProcOnlyAuthDataWidget extends Proc {
+    private static Logger logger 				= LoggerFactory.getLogger( ProcOnlyAuthDataWidget.class );
+
+    @Override
+    public void exec(RoutingContext rc, Request request, SharedMap<String, Object> sharedMap, SharedMap<String, SharedMap<String, Object>> sharedObject) throws Exception {
+        set(rc,request,sharedMap,sharedObject);
+        setResponse();
+        return;
+    }
+
+    @Override
+    public void valid() {
+        if(request.widget == null){
+            response.result = ResultUtil.getResult("9999", "요청 정보 없음","요청 데이터가 없습니다. Widget 오류");return;
+        }else{
+            String widgetKey = sharedMap.getString(PAYUNIT.URI).replaceAll(PAYUNIT.API_ONLY_AUTH_DATA_WIDGET+"/", "").trim();
+
+            logger.info("widgetKey : [{}]", widgetKey);
+            SharedMap<String, Object> ioMap = trxDAO.getTotalAuthIO(widgetKey);
+
+            if(ioMap == null) {
+                response.result = ResultUtil.getResult("AAAA", "세션 만료","세션이 만료되었습니다. 다시 시도해주세요.");
+                return;
+            }
+
+            String jsonStr = ioMap.getString("reqJson");
+            response.widget = new GsonBuilder().create().fromJson(jsonStr, new TypeToken<SharedMap<String, Object>>(){}.getType());
+
+            if(!CommonUtil.isNullOrSpace(request.widget.getString("totalAuthId"))) {
+                response.widget.put("totalAuthId", request.widget.getString("totalAuthId"));
+            }
+
+            if(!CommonUtil.isNullOrSpace(request.widget.getString("bankCd"))) {
+                response.widget.put("bankCd", request.widget.getString("bankCd"));
+            }
+
+            if(!CommonUtil.isNullOrSpace(request.widget.getString("bankName"))) {
+                response.widget.put("bankName", request.widget.getString("bankName"));
+            }
+
+            if(!CommonUtil.isNullOrSpace(request.widget.getString("account"))) {
+                response.widget.put("account", request.widget.getString("account"));
+            }
+
+            if(!CommonUtil.isNullOrSpace(request.widget.getString("identity"))) {
+                response.widget.put("identity", request.widget.getString("identity"));
+            }
+
+            if(!CommonUtil.isNullOrSpace(request.widget.getString("name"))) {
+                response.widget.put("name", request.widget.getString("name"));
+            }
+
+            if(!CommonUtil.isNullOrSpace(request.widget.getString("phoneNo"))) {
+                response.widget.put("phoneNo", request.widget.getString("phoneNo"));
+            }
+
+            if(!CommonUtil.isNullOrSpace(request.widget.getString("authId"))) {
+                response.widget.put("authId", request.widget.getString("authId"));
+            }
+
+            //에러페이지 표시용
+            if(!CommonUtil.isNullOrSpace(request.widget.getString("resultCd")) &&
+                    !CommonUtil.isNullOrSpace(request.widget.getString("resultMsg")) &&
+                    !CommonUtil.isNullOrSpace(request.widget.getString("advanceMsg"))) {
+                String resultCd = request.widget.getString("resultCd");
+                String resultMsg = request.widget.getString("resultMsg");
+                String advanceMsg = request.widget.getString("advanceMsg");
+
+                response.widget.put("resultCd", resultCd);
+                response.widget.put("resultMsg", resultMsg);
+                response.widget.put("advanceMsg", advanceMsg);
+            }
+
+            trxDAO.updateTotalAuthIO(response.widget, widgetKey);
+
+            response.result = ResultUtil.getResult("0000", "정상","정상완료");
+
+        }
+    }
+}

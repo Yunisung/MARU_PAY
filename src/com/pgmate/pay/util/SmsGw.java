@@ -56,6 +56,10 @@ public class SmsGw{
 		}
 		
 	}
+
+	public void sendSmsMessage(String telNum, String msg) {
+		SmsUtil.sendSms(SmsUtil.LMS_URL, telNum, msg);
+	}
 	
 	private void smsSend(String msg) {
 		try {

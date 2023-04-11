@@ -1,7 +1,9 @@
 package com.pgmate.pay.van;
 
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +74,17 @@ public class Kspay implements Van {
 		ksHeader.setRetry("0");
 		ksHeader.setTrnDate(CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		ksHeader.setMerchantId(TID);
-		ksHeader.setPayName(tmnId);
+		// OSC: 실주문자명, 실제품명으로 세팅
+		//ksHeader.setPayName(tmnId);
+		if(!CommonUtil.isNullOrSpace(response.pay.payerName)) {
+			ksHeader.setPayName(response.pay.payerName);
+		} else {
+			ksHeader.setPayName(tmnId);
+		}
+		if(response.pay.products != null && response.pay.products.size() > 0) {
+			ksHeader.setPdtName(response.pay.products.get(0).name);
+		}
+
 		ksHeader.setTrnsNo(response.pay.trxId);
 		// KEYIN여부  S:SWAP, K:KEYIN
 		ksHeader.setTrxType("K");
@@ -388,7 +400,7 @@ public class Kspay implements Van {
 		byte[] response = null;
 		
 		try{
-			byte[] request = head.getHeader(credit.getKSNETCredit()).getBytes();
+			byte[] request = head.getHeader(credit.getKSNETCredit()).getBytes("euc-kr");
 			//KJM : ksnet ip 세팅
 			// KBR : Socket 생성시 필요한 필수값 설정 
 			tcp.setSocketProperty(KSNET_HOST_PROD, port, timeout);
@@ -428,7 +440,7 @@ public class Kspay implements Van {
 		return res;
 		
 	}
-	
+
 	//KJM : 결제 취소 통신
 	public KspayResponse comm(KspayHead head,KspayRefund kVoid){
 		
@@ -492,8 +504,8 @@ public class Kspay implements Van {
 		}
 		return sb.toString();
 	}
-	
-	
+
+
 	
 
 }

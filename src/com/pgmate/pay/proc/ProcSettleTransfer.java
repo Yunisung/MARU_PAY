@@ -58,9 +58,12 @@ public class ProcSettleTransfer extends Proc {
 		long fee = chargeMng.getLong("withdrawFee");
 		long feeVat = calcVat(fee);
 
+		long transferLimit = chargeMng.getLong("transferLimit");
+
 		long netAmount = request.transfer.amount + fee + feeVat;
-		if(netAmount > balance) {
-			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {}",balance,netAmount);
+		long checkAmount = netAmount + transferLimit;
+		if(checkAmount > balance) {
+			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {},보류금액:{}",balance,netAmount,transferLimit);
 			response.result = ResultUtil.getResult("9999", "잔액부족","잔액이 부족합니다.");
 			sendResponse();
 			return;
@@ -181,7 +184,7 @@ public class ProcSettleTransfer extends Proc {
 		}
 		
 		SharedMap<String,Object> bank = trxDAO.getBankName(request.transfer.bankCd);
-		if(bank == null) {
+		if(bank == null || bank.isEmpty()) {
 			response.result = ResultUtil.getResult("9999", "유효성 오류","은행 코드값이 유효하지 않습니다.");return;
 		}else {
 			request.transfer.bankName = bank.getString("codeName");
@@ -199,12 +202,19 @@ public class ProcSettleTransfer extends Proc {
 		//PYS : IP체크로직 추가
 		//3.38.6.59 		: 에이블 라이브서버
 		//15.164.142.118 	: 에이블 개발서버
+		//230130_PYS : IP추가
+		//175.119.234.195	: 에이블 본사
 		boolean ipChecker = true;
 		String clientIp = VertXUtil.getClientIp(rc);
-
-		if(clientIp.indexOf("15.164.142.118") > -1 || clientIp.indexOf("3.38.6.59") > -1 ||
-				clientIp.indexOf("192.168.") > -1 || clientIp.indexOf("10.100.100.") > -1){
-			ipChecker = false;
+		logger.info("connect IP : [{}]", clientIp);
+		//230131_PYS : IP체크로직변경. 등록안된 IP 들어올시 DB에 insert
+		SharedMap<String, Object> ipList = trxDAO.transferIpCheck(clientIp);
+		if(ipList != null) {
+			if(ipList.getString("useYn").equals("Y")) {
+				ipChecker = false;
+			}
+		} else {
+//			trxDAO.insertTransferIp(clientIp);
 		}
 
 		if(ipChecker == true) {

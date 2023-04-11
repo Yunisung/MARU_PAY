@@ -39,7 +39,7 @@ public class ProcSettleAccnt extends Proc {
 //		firmBean.resultCd = "0000";
 //		firmBean.data.put("name","테스트");
 		if(firmBean.resultCd.equals("0000") ) {
-			request.accnt.holder = firmBean.data.getString("name");
+			request.accnt.holder = firmBean.data.getString("accountName");
 			response.result = ResultUtil.getResult("0000", "조회완료","예금주명 조회가 완료되었습니다.");
 		}else {
 			response.result = ResultUtil.getResult("9999", "계좌 오류","기관으로부터 확인된 계좌번호가 아닙니다. "+firmBean.resultMsg);setResponse();return;
@@ -55,7 +55,7 @@ public class ProcSettleAccnt extends Proc {
 		int currentTime = CommonUtil.parseInt(CommonUtil.getCurrentDate("HHmmss"));
 		
 		//매일 23:30~00:30분까지는 은행 점검시간이라서 기능막음
-		if(currentTime > 233000 || currentTime < 3000) {
+		if(currentTime > 232500 || currentTime < 3000) {
 			logger.info("- -- --- ---- ---- ---- 은행점검 시간입니다. ---- ---- ---- --- -- -");
 			response.result = ResultUtil.getResult("9999", "조회실패","은행점검 시간입니다.");return;
 		}
