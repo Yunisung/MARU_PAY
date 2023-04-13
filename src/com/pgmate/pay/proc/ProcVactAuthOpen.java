@@ -686,16 +686,16 @@ public class ProcVactAuthOpen extends Proc{
             //PYS : 출금계좌정보 추가
             logger.info("가상계좌 출금계좌 정보 : [{}][{}][{}]", request.vact.account, request.auth.bankCd, request.auth.account);
             trxDAO.insertPgVactAuth(authId, issueId, request.auth.totalAuthId, request.vact.trackId, mchtMap.getString("mchtId"),
-                    "O", request.vact.regType, request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
+                    "O", request.auth.bankCd, request.auth.account, request.vact.identity, request.vact.phoneNo,
                     request.vact.bankCd, request.vact.account, "");
 
             //출금계좌정보 등록 내역 추가
             //HT_VACT_REG
-            trxDAO.insertHtVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.vact.trxType, request.auth.bankCd, request.auth.account,
-                    request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2, request.result.resultCd, request.result.resultMsg);
+            trxDAO.insertHtVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.vact.trxType, request.vact.regType, request.vact.identity,
+                    request.auth.bankCd, request.auth.account, request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2, request.result.resultCd, request.result.resultMsg);
             //PG_VACT_REG
-            trxDAO.insertVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.auth.bankCd, request.auth.account,
-                    request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2);
+            trxDAO.insertVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.vact.regType, request.vact.identity, request.auth.bankCd,
+                    request.auth.account, request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2);
 
 
             //통합인증 수수료계산
