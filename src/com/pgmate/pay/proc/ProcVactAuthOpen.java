@@ -345,6 +345,44 @@ public class ProcVactAuthOpen extends Proc{
                 return;
             }
 
+            //230413_PYS : 경남은행일때 regType, identity예외 추가
+            if(request.vact.bankCd.equals("039")) {
+                if(CommonUtil.isNullOrSpace(request.vact.regType)){
+                    response.result = ResultUtil.getResult("9999", "필수값없음","가상계좌번호의 등록유형이 존재하지 않습니다.");
+                    return;
+                }
+
+                if(CommonUtil.isNullOrSpace(request.vact.identity)){
+                    response.result = ResultUtil.getResult("9999", "필수값없음","가상계좌번호의 실명번호가 존재하지 않습니다.");
+                    return;
+                }
+
+                //등록유형 1,2,3,4 아니면 리턴
+                //1:개인, 2:법인, 3:미성년자, 4:외국인
+                if(request.vact.regType.equals("1") || request.vact.regType.equals("2") || request.vact.regType.equals("3") || request.vact.regType.equals("4")) {
+
+                } else {
+                    response.result = ResultUtil.getResult("9999", "필수값 잘못입력","가상계좌번호의 등록유형이 잘못입력됐습니다.");
+                    return;
+                }
+
+
+                //법인은 사업자번호 10자리, 나머진 생년월일 6자리 + 성별 1자리
+                if(!request.vact.regType.equals("2")) {
+                    if(request.vact.identity.length() != 7) {
+                        response.result = ResultUtil.getResult("9999", "필수값 잘못입력","가상계좌번호의 실명번호가 7자리가 아닙니다.");
+                        return;
+                    }
+                }else {
+                    if(request.vact.identity.length() != 10) {
+                        response.result = ResultUtil.getResult("9999", "필수값 잘못입력","가상계좌번호의 실명번호가 10자리가 아닙니다.");
+                        return;
+                    }
+                }
+
+
+            }
+
         }
 
         //230105_PYS : 주민번호 빠지면 공백으로 처리
