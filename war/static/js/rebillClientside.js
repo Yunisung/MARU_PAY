@@ -19,7 +19,7 @@ var MARU = (function (win, doc) {
 
     /* GLOBAL */
     var routeUrls = {
-        sandbox: 'https://devapi.bkwinners.kr',
+        // sandbox: 'https://devapi.bkwinners.kr',
         live: 'https://api.bkwinners.kr',
         local: 'http://127.0.0.1:10002'
 
