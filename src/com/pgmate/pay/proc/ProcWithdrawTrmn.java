@@ -214,13 +214,15 @@ public class ProcWithdrawTrmn extends Proc{
 
         if(bankCd.equals("089")) {
             firmBean.data.put("trxType", "2");
+            firmBean.data.put("customerName", name);
         }else if(bankCd.equals("039")){
             firmBean.data.put("trxType", "3");
+            firmBean.data.put("regType", regType);
+            firmBean.data.put("identity", identity);
         }
 
-        firmBean.data.put("customerName", name);
-        firmBean.data.put("regType", regType);
-        firmBean.data.put("identity", identity);
+
+
 
         firmBean = comm(firmBean);
 
