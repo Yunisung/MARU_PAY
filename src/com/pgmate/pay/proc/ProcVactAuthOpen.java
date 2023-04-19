@@ -345,6 +345,14 @@ public class ProcVactAuthOpen extends Proc{
                 return;
             }
 
+            //가상계좌 은행코드 검증
+            String vactBankCd = mchtVactMngMap.getString("vactBankCd");
+            if(!vactBankCd.equals(request.vact.bankCd)) {
+                response.result = ResultUtil.getResult("9999", "사용불가","사용할수 없는 가상계좌은행입니다.");
+                return;
+            }
+
+
             //230413_PYS : 경남은행일때 regType, identity예외 추가
             if(request.vact.bankCd.equals("039")) {
                 if(CommonUtil.isNullOrSpace(request.vact.regType)){

@@ -23,7 +23,8 @@ var KWON = (function (win, doc) {
         oper: '',
 		companyName: '',
 		withdrawBankCd: '',
-		withdrawAccount: ''
+		withdrawAccount: '',
+		regType: ''
 	}
 
     var MaruConfig = {
@@ -50,13 +51,15 @@ var KWON = (function (win, doc) {
         oper: '',
 		companyName: '',
 		withdrawBankCd: '',
-		withdrawAccount: ''
+		withdrawAccount: '',
+		regType: ''
 	}
 
  	/* GLOBAL */
   	var routeUrls = {
     	test: 'https://svcapidev.mtouch.com',
-    	live: 'https://svcapi.mtouch.com'
+    	live: 'https://svcapi.mtouch.com',
+		local: 'http://127.0.0.1:10002'
   	}
     //부국위너스 URL주소
     //var maruUrl = 'http://127.0.0.1:10002'; //local
@@ -88,7 +91,8 @@ var KWON = (function (win, doc) {
             holderName: MaruConfig.holderName,
             phoneNo: MaruConfig.phoneNo,
             identity: MaruConfig.identity,
-			companyName: MaruConfig.companyName
+			companyName: MaruConfig.companyName,
+			regType: MaruConfig.regType
         }
         sendVactData = {result: data.result, auth: data.auth, vact: vact, publicKey : MaruConfig.publicKey};
         console.log('sendData : ', sendVactData);
