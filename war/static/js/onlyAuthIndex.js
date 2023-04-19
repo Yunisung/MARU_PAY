@@ -222,7 +222,7 @@ var KWON = (function(win, doc) {
         var paramPhoneNo = !!document.getElementById("paramPhoneNo");
         
         if(paramIdentity){
-			document.getElementById("paramIdentity").value = config.identity;
+			//document.getElementById("paramIdentity").value = config.identity.substring(0,6);
 		}
        	if(paramName){
 			document.getElementById("paramName").value = config.holderName;

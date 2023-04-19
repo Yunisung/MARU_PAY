@@ -21,7 +21,8 @@ var KWON = (function (win, doc) {
         account: '',
         amount: '',
         oper: '',
-        companyName: ''
+        companyName: '',
+        regType: ''
     }
 
     var MaruConfig = {
@@ -46,27 +47,22 @@ var KWON = (function (win, doc) {
         account: '',
         amount: '',
         oper: '',
-        companyName: ''
+        companyName: '',
+        regType: ''
     }
 
     /* GLOBAL */
     var routeUrls = {
         test: 'https://devapi.bkwinners.kr',
-        live: 'https://api.bkwinners.kr'
+        live: 'https://api.bkwinners.kr',
+        local: 'http://127.0.0.1:10002',
     }
     //부국위너스 URL주소
-    //var maruUrl = 'http://127.0.0.1:10002'; //local
+    // var maruUrl = 'http://127.0.0.1:10002'; //local
     var maruUrl = 'https://devapi.bkwinners.kr'; //dev
     // var maruUrl = 'https://api.bkwinners.kr'; //live
 
-    var maruUrls = {
-        test: 'https://devapi.bkwinners.kr',
-        live: 'https://api.bkwinners.kr'
-    }
-
-
     var routeDomain = routeUrls[c3Config.debugMode];
-    var maruDomain = maruUrls[c3Config.debugMode];
     var layerInited = false;
     var layerLoaded = false;
     var sendedIdArray = [];
@@ -91,7 +87,8 @@ var KWON = (function (win, doc) {
             holderName: MaruConfig.holderName,
             phoneNo: MaruConfig.phoneNo,
             identity: MaruConfig.identity,
-            companyName: MaruConfig.companyName
+            companyName: MaruConfig.companyName,
+            regType: MaruConfig.regType
         }
         sendVactData = {result: data.result, auth: data.auth, vact: vact, publicKey : MaruConfig.publicKey};
         console.log('sendData : ', sendVactData);
