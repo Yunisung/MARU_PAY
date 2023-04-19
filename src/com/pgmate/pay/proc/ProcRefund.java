@@ -158,6 +158,9 @@ public class ProcRefund extends Proc {
 					//PG_REBILL_RFD INSERT
 					trxDAO.insertRebillRFD(response.refund.trxId);
 
+					//PG_REBILL_PAY status = '승인취소' UPDATE
+					trxDAO.updateRebillPay(request.refund.rootTrxId);
+
 					String rebillId = trxDAO.getRebillId(request.refund.rootTrxId);
 					String currentDate = CommonUtil.getCurrentDate("yyyyMMdd");
 
