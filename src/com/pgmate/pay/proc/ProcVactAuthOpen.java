@@ -507,12 +507,6 @@ public class ProcVactAuthOpen extends Proc{
     private boolean withdrawReg(Request request) {
         Firm firm = FirmLoader.getConfig();
 
-        //PYS : 데이터없을때 임시 세팅
-        if(CommonUtil.isNullOrSpace(request.vact.regType))
-            request.vact.regType = "1";
-        if(CommonUtil.isNullOrSpace(request.vact.identity))
-            request.vact.identity = "8901021";
-
         FirmBean firmBean = new FirmBean();
         String mchtId = mchtMap.getString("mchtId");
         String bankCd = request.vact.bankCd;
@@ -520,10 +514,12 @@ public class ProcVactAuthOpen extends Proc{
         String withdrawBankCd = request.auth.bankCd;
         String withdrawAccount = request.auth.account;
         String name = request.vact.holderName;
-        String regType = request.vact.regType;
-        String identity = request.vact.identity;
         String phoneNo = request.vact.phoneNo;
         String trxType = request.vact.trxType;
+
+        String regType = request.vact.regType;
+        String identity = request.vact.identity;
+
         String type = "등록";
 
 //        if("2".equals(trxType)) {
