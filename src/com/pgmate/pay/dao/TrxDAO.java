@@ -5568,6 +5568,16 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 	}
 
+	public void updateRebillPay(String trxId) {
+		super.setTable("PG_REBILL_PAY");
+		super.setRecord("status", "승인취소");
+		super.addWhere("trxId", trxId, eq);
+		boolean update = super.update();
+		logger.info("set PG_REBILL_PAY update : {}",update );
+
+		super.initRecord();
+	}
+
 	public SharedMap<String, Object> getRebillData(String id) {
 		super.setTable("PG_REBILL_REG");
 		super.setColumns("*");
