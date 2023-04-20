@@ -602,14 +602,14 @@ public class ProcVactAuthOpen extends Proc{
 
         //230406_PYS : 로직변경
         if(trxType.equals("0")) {
-            if(firmBean.bankCd.equals("089")) {
-                firmBean.data.put("trxType","1");
-                firmBean.data.put("customerName",name);
-            } else if(firmBean.bankCd.equals("039")) {
-                firmBean.data.put("trxType", "1");
+            firmBean.data.put("trxType","1");
+            firmBean.data.put("customerName",name);
+
+            if(firmBean.bankCd.equals("039")) {
                 firmBean.data.put("regType", regType);
                 firmBean.data.put("identity", identity);
             }
+
         }
 
         firmBean = comm(firmBean);
