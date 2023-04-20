@@ -88,4 +88,16 @@ public class VactDAO extends DAO {
         return rset.getRowFirst();
     }
 
+    public String getVactBank(String mchtId) {
+        String query = "SELECT vactBankCd FROM PG_MCHT_MNG_VACT WHERE mchtId='"+mchtId+"'";
+        RecordSet rset = super.query(query);
+        super.initRecord();
+
+        if(rset.size() ==0) {
+            return "";
+        } else {
+            rset.next();
+            return rset.getString("vactBankCd");
+        }
+    }
 }
