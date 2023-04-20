@@ -111,13 +111,23 @@ public class ProcSettleTransferAccount extends Proc {
 		trxMap.put("amount", request.transfer.amount);
 		trxMap.put("fee", fee);
 		trxMap.put("feeVat", feeVat);
-		// 모계좌(케이뱅크,케이에스넷) 출금수수료 변경(90원 VAT포함 99원)
-		trxMap.put("bankFee", 99);
-//		if(response.transfer.bankCd.equals("020")) {
-//			trxMap.put("bankFee", 50);
-//		}else {
-//			trxMap.put("bankFee", 100);
-//		}
+
+		//230420_PYS : 출금수수료 세팅
+		//케이뱅크 : 90
+		//경남은행 : 당행(100), 타행(200)
+		VactDAO vactDAO = new VactDAO();
+		String vactBankCd = vactDAO.getVactBank(mchtId);
+
+		if(vactBankCd.equals("089")) {
+			trxMap.put("bankFee", 99);
+		}else if(vactBankCd.equals("039")) {
+			if(request.transfer.bankCd.equals("039")) {
+				trxMap.put("bankFee", 110);
+			} else {
+				trxMap.put("bankFee", 220);
+			}
+		}
+
 		trxMap.put("netAmount", transferNetAmount);
 		trxMap.put("balance", transferBalance);
 		trxMap.put("trackId", request.transfer.trackId);
