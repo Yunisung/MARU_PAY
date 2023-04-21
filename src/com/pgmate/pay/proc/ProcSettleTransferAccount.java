@@ -56,8 +56,11 @@ public class ProcSettleTransferAccount extends Proc {
 		String bankCd = vactTransferKeyMap.getString("withdrawBankCd");
 		String bankName = trxDAO.getBankName(bankCd).getString("codeName");
 		String holderName = vactTransferKeyMap.getString("holderName");
+		String vactBankCd = vactDAO.getVactBank(mchtId);
 
 		logger.info("충전정산 가상계좌번호, 출금계좌 : [{}][{}]", account, vactTransferKeyMap.getString("withdrawAccount"));
+
+
 
 		// 비지니스 로직
 		String trxId = "CS"+sharedMap.getString(PAYUNIT.TRX_ID).substring(1);
@@ -115,9 +118,6 @@ public class ProcSettleTransferAccount extends Proc {
 		//230420_PYS : 출금수수료 세팅
 		//케이뱅크 : 90
 		//경남은행 : 당행(100), 타행(200)
-		VactDAO vactDAO = new VactDAO();
-		String vactBankCd = vactDAO.getVactBank(mchtId);
-
 		if(vactBankCd.equals("089")) {
 			trxMap.put("bankFee", 99);
 		}else if(vactBankCd.equals("039")) {
