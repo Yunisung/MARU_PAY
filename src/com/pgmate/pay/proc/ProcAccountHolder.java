@@ -134,6 +134,17 @@ public class ProcAccountHolder extends Proc {
 			return;
 		}
 
+		//230509_PYS : 블랙리스트 로직 추가
+		boolean blackList = trxDAO.blackListCheck(request.totalAuth.bankCd, request.totalAuth.account);
+
+		if(blackList) {
+			response.result = ResultUtil.getResult("9999", "계좌오류","해당계좌는 이용하실 수 없습니다. 관리자에 문의 바랍니다");
+
+			logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]",request.auth.bankCd, request.auth.account);
+
+			return;
+		}
+
 	}
 
 	/**
