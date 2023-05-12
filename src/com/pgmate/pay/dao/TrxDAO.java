@@ -5185,6 +5185,23 @@ public class TrxDAO extends DAO {
 	}
 
 	/**
+	 * OSC : 1일 인증횟수
+	 */
+	public int getTotalAuthDayCnt(String regDay, String bankCd, String bankAccount) {
+		String encBankAccount = getAESEnc(bankAccount);
+
+		super.setTable("PG_TOTAL_AUTH");
+		super.setColumns(" COUNT(*) AS CNT ");
+		super.addWhere("regDay", regDay);
+		super.addWhere("bankCd", bankCd);
+		super.addWhere("bankAccount", encBankAccount);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRowFirst().getInt("CNT");
+	}
+
+	/**
 	 * 230118_PYS : 통합인증테이블 INSERT
 	 */
 	public boolean insertTotalAuth(String authId, String totalAuthId, String mchtId, String mchtName, String authType, String bankCd, String bankName, String bankAccount, String holderName,
