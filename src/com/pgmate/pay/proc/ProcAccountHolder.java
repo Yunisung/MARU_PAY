@@ -145,14 +145,17 @@ public class ProcAccountHolder extends Proc {
 			return;
 		}
 
-		// OSC : 1일 실명인증 최대횟수 100회 체크
-		int dayCnt = trxDAO.getTotalAuthDayCnt("실명인증", CommonUtil.getCurrentDate("yyyyMMdd"), request.totalAuth.bankCd, request.totalAuth.account);
-		if(dayCnt >= 100) {
-			response.result = ResultUtil.getResult("9999", "계좌오류","1일 실명인증 최대횟수를 초과하였습니다. 관리자에 문의 바랍니다");
+		// OSC : 1일 인증 제한횟수 체크
+		int limitDayCnt = totalAuth.getInt("limitDayCnt");
+		if(limitDayCnt > 0) {
+			int dayCnt = trxDAO.getTotalAuthDayCnt(CommonUtil.getCurrentDate("yyyyMMdd"), request.totalAuth.bankCd, request.totalAuth.account);
+			if (dayCnt >= limitDayCnt) {
+				response.result = ResultUtil.getResult("9999", "계좌오류", "1일 인증 제한횟수를 초과하였습니다. 관리자에 문의 바랍니다");
 
-			logger.info("1일 인증횟수 초과 계좌 입니다. [{}][{}]",request.auth.bankCd, request.auth.account);
+				logger.info("1일 인증 제한횟수 초과 계좌 입니다. [{}][{}]", request.auth.bankCd, request.auth.account);
 
-			return;
+				return;
+			}
 		}
 
 	}
