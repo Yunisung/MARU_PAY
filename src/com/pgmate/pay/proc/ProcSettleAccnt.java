@@ -33,18 +33,23 @@ public class ProcSettleAccnt extends Proc {
 			setResponse();
 			return;
 		}
-		
-		FirmBean firmBean = new FirmClient().holderFCS(request.accnt.bankCd, request.accnt.account); 
-//		FirmBean firmBean = new FirmBean();
-//		firmBean.resultCd = "0000";
-//		firmBean.data.put("name","테스트");
+		SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(request.accnt.bankCd, request.accnt.account).getRowFirst();
+		if(firmAccntMap.size() > 1) {
+			response.accnt.holder = firmAccntMap.getString("accntHolder");
+			response.result = ResultUtil.getResult("0000", "조회완료","예금주명 조회가 완료되었습니다.");
+		} else {
+			response.result = ResultUtil.getResult("9999", "계좌 오류","기관으로부터 확인된 계좌번호가 아닙니다.");
+		}
+
+		/*
+		FirmBean firmBean = new FirmClient().holderFCS(request.accnt.bankCd, request.accnt.account);
 		if(firmBean.resultCd.equals("0000") ) {
 			request.accnt.holder = firmBean.data.getString("accountName");
 			response.result = ResultUtil.getResult("0000", "조회완료","예금주명 조회가 완료되었습니다.");
 		}else {
 			response.result = ResultUtil.getResult("9999", "계좌 오류","기관으로부터 확인된 계좌번호가 아닙니다. "+firmBean.resultMsg);setResponse();return;
 		}
-		
+		*/
 		setResponse();
 		return;
 	}
