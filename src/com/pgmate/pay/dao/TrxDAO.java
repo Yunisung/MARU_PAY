@@ -5543,4 +5543,177 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	public void insertRebillReg(SharedMap<String, Object> ioMap) {
+
+		super.setTable("PG_REBILL_REG");
+		super.setXssChange(false);
+
+		super.setRecord("rebillId"			, ioMap.getString("rebillId"));
+		super.setRecord("trxId"				, ioMap.getString("trxId"));
+		super.setRecord("cardId"				, ioMap.getString("cardId"));
+		super.setRecord("mchtId"				, ioMap.getString("mchtId"));
+		super.setRecord("tmnId"				, ioMap.getString("tmnId"));
+		super.setRecord("amount"				, ioMap.getLong("amount"));
+		super.setRecord("status"				, ioMap.getString("status"));
+		super.setRecord("trackId"			, ioMap.getString("trackId"));
+		super.setRecord("payerName"			, ioMap.getString("payerName"));
+		super.setRecord("payerEmail"			, ioMap.getString("payerEmail"));
+		super.setRecord("payerTel"			, ioMap.getString("payerTel"));
+		super.setRecord("productId"			, ioMap.getString("productId"));
+		super.setRecord("productName"		, ioMap.getString("productName"));
+		super.setRecord("rebillCycleType"	, ioMap.getString("rebillCycleType"));
+		super.setRecord("rebillCount"		, ioMap.getString("rebillCount"));
+		super.setRecord("rebillSmsUse"		, ioMap.getString("rebillSmsUse"));
+		super.setRecord("hookAddr"			, ioMap.getString("hookAddr"));
+		super.setRecord("nextPayDay"			, ioMap.getString("nextPayDay"));
+		super.setRecord("expireDay"			, ioMap.getString("expireDay"));
+		super.setRecord("regDay"				, ioMap.getString("regDay"));
+		super.setRecord("regTime"			, ioMap.getString("regTime"));
+
+		logger.info("set PG_REBILL_REG : {}", super.insert());
+
+		super.initRecord();
+	}
+
+	public void insertRebillPAY(String trxId, String rebillId) {
+
+		String q = "INSERT INTO PG_REBILL_PAY  " + " SELECT A.trxId,'" + rebillId + "',mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,issuer,acquirer,"
+				+ " A.regDay,A.regTime,authCd,resultCd,resultMsg,van,vanId,vanTrxId,B.regDay,B.regTime,B.regDate " + " FROM PG_TRX_REQ A, PG_TRX_RES B WHERE A.trxId = B.trxId AND A.trxId = '" + trxId + "'";
+		logger.info("set REBILL_PAY : {}", super.update(q));
+		super.initRecord();
+
+	}
+
+	public void insertRebillERR(String trxId) {
+
+		String q = "INSERT INTO PG_REBILL_ERR  " + " SELECT A.trxId,trxType,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,issuer,acquirer,prodId,"
+				+ " A.regDay,A.regTime,resultCd,resultMsg,van,vanId,vanTrxId,vanResultCd,vanResultMsg,B.regDay,B.regTime,B.regDate " + " FROM PG_TRX_REQ A, PG_TRX_RES B WHERE A.trxId = B.trxId AND A.trxId = '" + trxId + "'";
+		logger.info("set TRX_ERR : {}", super.update(q));
+		super.initRecord();
+
+	}
+
+	public void insertRebillRFD(String trxId) {
+		String q = "INSERT INTO PG_REBILL_RFD  " + " SELECT * FROM PG_TRX_RFD WHERE trxId='" + trxId + "'";
+		logger.info("set REBILL_RFD : {}", super.update(q));
+		super.initRecord();
+	}
+
+	public void updateRebillPay(String trxId) {
+		super.setTable("PG_REBILL_PAY");
+		super.setRecord("status", "승인취소");
+		super.addWhere("trxId", trxId, eq);
+		boolean update = super.update();
+		logger.info("set PG_REBILL_PAY update : {}",update );
+
+		super.initRecord();
+	}
+
+	public SharedMap<String, Object> getRebillData(String id) {
+		super.setTable("PG_REBILL_REG");
+		super.setColumns("*");
+		super.addWhere("rebillId", id, eq);
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
+
+	public String getRebillId(String trxId) {
+		super.setTable("PG_REBILL_PAY");
+		super.setColumns("rebillId");
+		super.addWhere("trxId", trxId, eq);
+
+		RecordSet rset = super.search();
+		if(rset.size() == 0) {
+			return "";
+		} else {
+			return rset.getRow(0).getString("rebillId");
+		}
+	}
+
+	public void updateRebillREG(String id, SharedMap<String, Object> map) {
+		super.setTable("PG_REBILL_REG");
+		super.setXssChange(false);
+
+
+
+		if(!CommonUtil.isNullOrSpace(map.getString("status"))) {
+			super.setRecord("status"			, map.getString("status"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("nextPayDay"))) {
+			super.setRecord("nextPayDay"		, map.getString("nextPayDay"));
+		}
+
+		if(map.getInt("rebillCount") > 0) {
+			super.setRecord("rebillCount"	, map.getInt("rebillCount"));
+		}
+
+
+		super.addWhere("rebillId", id);
+		boolean update = super.update();
+		logger.info("set PG_REBILL_REG update : {}",update );
+
+		super.initRecord();
+	}
+
+	public SharedMap<String, Object> getProduct(String prodId) {
+		super.setTable("PG_TRX_PRD");
+		super.setColumns("*");
+		super.addWhere("prodId", prodId, eq);
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() == 0) {
+			return null;
+		} else {
+			return rset.getRow(0);
+		}
+	}
+
+	public boolean isRebillPayTrxId(String trxId) {
+		super.setTable("PG_REBILL_PAY");
+		super.setColumns("*");
+		super.addWhere("trxId", trxId, eq);
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean updateTotalAuthVactAccount(String vactAccount, String totalAuthId) {
+		boolean result = false;
+
+		try {
+			super.setTable("PG_TOTAL_AUTH");
+
+			super.setRecord("vactAccount", vactAccount);
+
+			super.addWhere("totalAuthId", totalAuthId, eq);
+
+			result = super.update();
+
+			logger.info("set PG_TOTAL_AUTH update : [{}][{}][{}]", vactAccount, totalAuthId, result);
+
+			super.initRecord();
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			logger.error("updateTotalAuth  Exception : {}", ex.getMessage());
+		}
+
+		return result;
+	}
 }
