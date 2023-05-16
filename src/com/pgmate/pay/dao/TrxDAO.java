@@ -5696,4 +5696,28 @@ public class TrxDAO extends DAO {
 			return false;
 		}
 	}
+
+	public boolean updateTotalAuthVactAccount(String vactAccount, String totalAuthId) {
+		boolean result = false;
+
+		try {
+			super.setTable("PG_TOTAL_AUTH");
+
+			super.setRecord("vactAccount", vactAccount);
+
+			super.addWhere("totalAuthId", totalAuthId, eq);
+
+			result = super.update();
+
+			logger.info("set PG_TOTAL_AUTH update : [{}][{}][{}]", vactAccount, totalAuthId, result);
+
+			super.initRecord();
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			logger.error("updateTotalAuth  Exception : {}", ex.getMessage());
+		}
+
+		return result;
+	}
 }
