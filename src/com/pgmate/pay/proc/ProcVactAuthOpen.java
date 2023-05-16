@@ -739,6 +739,8 @@ public class ProcVactAuthOpen extends Proc{
             trxDAO.insertVactReg(mchtMap.getString("mchtId"), request.vact.bankCd, request.vact.account, request.vact.regType, request.vact.identity, request.auth.bankCd,
                     request.auth.account, request.vact.holderName, request.vact.trackId, request.vact.udf1, request.vact.udf2);
 
+            //230516_PYS : TOTAL_AUTH에 가상계좌번호 추가
+            trxDAO.updateTotalAuthVactAccount(request.vact.account, request.auth.totalAuthId);
 
             //통합인증 수수료계산
             fee = mchtVactMngMap.getLong("totalAuthFee");
