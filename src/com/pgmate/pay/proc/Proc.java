@@ -105,7 +105,8 @@ public abstract class Proc {
 		if(sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_PAY) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_OPEN) 
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_PATCH) 
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_AUTHOPEN)
-		 		|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_WITHDRAW_TRMN)){
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_REBILL_REG)
+		){
 					
 			trxDAO.updateTrxIO(sharedMap,res);
 		}
