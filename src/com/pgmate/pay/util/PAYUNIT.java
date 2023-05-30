@@ -106,6 +106,7 @@ public class PAYUNIT {
 	public static String API_REBILL_CANCEL			= "/api/rebill/cancel";			//정기결제 해지
 	public static String API_REBILL_STOP			= "/api/rebill/stop";			//정기결제 일시정지
 	public static String API_REBILL_START			= "/api/rebill/start";			//정기결제 다시시작
+	public static String API_REBILL_REG				= "/api/rebill/reg";			//정기결제 등록
 
 
 

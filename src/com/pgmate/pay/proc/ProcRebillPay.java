@@ -84,10 +84,12 @@ public class ProcRebillPay extends Proc {
         pay.payerEmail	= map.getString("payerEmail");
         pay.payerTel	= map.getString("payerTel");
         pay.card		= new Card();
-        String cardValue = trxDAO.getByCardId(map.getString("cardId")).getString("value");
-        String s = SeedKisa.decryptAsString(Base64.decode(cardValue), ByteUtil.toBytes(PAYUNIT.ENCRYPT_KEY, 16));
-        Card c = (Card)GsonUtil.fromJson(s, Card.class);
-        pay.card = c;
+//        String cardValue = trxDAO.getByCardId(map.getString("cardId")).getString("value");
+//        String s = SeedKisa.decryptAsString(Base64.decode(cardValue), ByteUtil.toBytes(PAYUNIT.ENCRYPT_KEY, 16));
+//        Card c = (Card)GsonUtil.fromJson(s, Card.class);
+//        pay.card = c;
+
+        pay.card.cardId = map.getString("cardId");
 
         pay.products 	= new ArrayList<Product>();
         Product product = new Product();
