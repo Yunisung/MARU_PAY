@@ -205,6 +205,8 @@ public class Api {
 				process = new ProcRebillStop();
 			}else if (uri.startsWith(PAYUNIT.API_REBILL_START)) {
 				process = new ProcRebillStart();
+			}else if (uri.startsWith(PAYUNIT.API_REBILL_REG)) {
+				process = new ProcRebillReg();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {

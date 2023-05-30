@@ -1,6 +1,5 @@
 package com.pgmate.pay.proc;
 
-import com.pgmate.app.util.InfoBankSMS;
 import com.pgmate.pay.bean.Product;
 import com.pgmate.pay.bean.Rebill;
 import com.pgmate.pay.util.SmsGw;
@@ -56,11 +55,6 @@ public class ProcPay extends Proc {
 		//KJM : 가맹점, 결제 정보가 승인될 수 있는 정보 인지 확인
 		set(rc,request,sharedMap,sharedObject);
 
-		//PYS : 정기결제일때 trxType 변경
-		if(!CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillProcess"))) {
-			request.pay.trxType = "REBILL";
-		}
-
 		response.pay = request.pay;
 		//KJM : 결제 요청내용 추가
 		// KBR : 결제 요청 내역 PG_TRX_REQ 테이블 insert
@@ -89,6 +83,7 @@ public class ProcPay extends Proc {
 		
 		//PYS : 정확한 터미널ID를 가져오기위해서 tmnVanMap에 mchtTmnMap을 덮어씌움
 		tmnVanMap.put("tmnId", mchtTmnMap.getString("tmnId"));
+		tmnVanMap.put("trxType", request.pay.trxType);
 		
 		Van van = null;
 		
@@ -143,7 +138,7 @@ public class ProcPay extends Proc {
 		trxDAO.insertTrxRES(sharedMap, response);
 
 		//230324_PYS : 정기결제 로직 추가
-		if(!CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillProcess"))) {
+		if(request.pay.metadata != null && !CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillProcess"))) {
 			if(request.pay.metadata.getString("rebillProcess").equals("REG")) {
 				//정기결제 등록 로직
 				//위젯 데이터 로드
@@ -161,6 +156,7 @@ public class ProcPay extends Proc {
 
 					//PG_REBILL_PAY에 INSERT
 					trxDAO.insertRebillPAY(response.pay.trxId, rebillId);
+
 
 					//데이터 세팅
 					SharedMap<String, Object> rebillMap = new SharedMap<>();
@@ -427,58 +423,110 @@ public class ProcPay extends Proc {
 		
 		sharedMap.put(PAYUNIT.KEY_PROD, GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
 
-		//PYS : 정기결제 예외추가
-		if(request.pay.metadata != null && request.pay.metadata.isEquals("rebillProcess", "PAY")) {
+		//230526_PYS : 정기결제 카드ID 결제 로직
+		if(request.pay.trxType.equals("REBILL")) {
+			if(CommonUtil.isNullOrSpace(request.pay.card.cardId)) {
+				response.result = ResultUtil.getResult("9999", "필수값 없음","카드ID가 없습니다.");return;
+			}
+
+			if(CommonUtil.isNullOrSpace(request.pay.webhookUrl)) {
+				request.pay.webhookUrl = "";
+			}
+
 			sharedMap.put(PAYUNIT.KEY_CARD, request.pay.card.cardId);
-			sharedMap.put(PAYUNIT.KEY_PROD, request.pay.products.get(0).prodId);
-			sharedMap.put("rebillProcess", "PAY");
+
+			SharedMap<String,Object> rebillCardMap = trxDAO.getRebillCard(request.pay.card.cardId, sharedMap.getString(PAYUNIT.MCHTID));
+			if(rebillCardMap.isNullOrSpace("authKey")) {
+				response.result = ResultUtil.getResult("9999", "등록오류","등록된 카드정보를 찾을 수 없습니다.");return;
+			}else {
+				sharedMap.put("authKey",rebillCardMap.getString("authKey"));
+				logger.info("REBILL AUTH KEY  : {}",rebillCardMap.getString("authKey"));
+			}
+
+			//정기결제 파라미터 체크
+			if(request.pay.metadata != null && !CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillProcess"))) {
+				sharedMap.put("rebillProcess", request.pay.metadata.getString("rebillProcess"));
+
+				if(request.pay.metadata.getString("rebillProcess").equals("REG")) {
+					//정기결제 등록 로직 valid
+					if(CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillCycleType"))) {
+						response.result = ResultUtil.getResult("9999", "필수값 없음", "정기결제 주기가 없습니다.");
+						return;
+					}
+
+					if(CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillCycle"))) {
+						response.result = ResultUtil.getResult("9999", "필수값 없음", "정기결제 결제일이 없습니다.");
+						return;
+					}
+
+					if(CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillExpire"))) {
+						response.result = ResultUtil.getResult("9999", "필수값 없음", "정기결제 만료일이 없습니다.");
+						return;
+					}
+
+					if(CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillSmsUse"))) {
+						//SMS발송은 초기값 세팅
+						request.pay.metadata.put("rebillSmsUse", "N");
+					}
+
+
+				} else if(request.pay.metadata.getString("rebillProcess").equals("PAY")) {
+					//정기결제 결제 로직 valid
+					if(CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillId"))) {
+						response.result = ResultUtil.getResult("9999", "필수값 없음", "정기결제 아이디가 없습니다.");
+						return;
+					}
+
+					sharedMap.put(PAYUNIT.KEY_PROD, request.pay.products.get(0).prodId);
+				}
+
+			}
+
+		} else {
+			//KJM : card.encTrackI가 빈값일 경우
+			if(request.pay.card.encTrackI.equals("")){
+				int cardLength =  request.pay.card.number.length();	//KJM : 카드번호 길이 확인
+				if(cardLength < 14 || 16 < cardLength){
+					response.result = ResultUtil.getResult("9999", "카드번호가 잘못되었습니다.","카드번호는 14~16자리만 허용합니다.");return;
+				}
+				if(request.pay.card.expiry.length() != 4){	//KJM : 카드 유효기간 확인
+					response.result = ResultUtil.getResult("9999", "유효기간이 잘못되었습니다.","YYMM 포맷이 아닙니다.");return;
+				}
+				if(request.pay.card.installment > 12){	//KJM : 할부기간 확인
+					response.result = ResultUtil.getResult("9999", "할부기간이 잘못되었습니다.","최대 12개월 초과입니다.");return;
+				}
+				//KJM : 유효기간 년수, 월 현재 날짜 기준으로 확인
+				if(CommonUtil.parseInt(request.pay.card.expiry.substring(0,2)) < CommonUtil.parseInt(CommonUtil.getCurrentDate("yy"))){
+					response.result = ResultUtil.getResult("9999", "유효기간이 잘못되었습니다.","유효년수가 경과된 카드입니다.");return;
+				}
+				if(CommonUtil.parseInt(request.pay.card.expiry.substring(2,4)) > 12){
+					response.result = ResultUtil.getResult("9999", "유효기간이 잘못되었습니다.","유효월 입력이 잘못되었습니다.");return;
+				}
+
+				//KJM : 카드 마지막4자리, bin
+				request.pay.card.last4 = request.pay.card.number.substring(cardLength-4, cardLength);
+				request.pay.card.bin   = request.pay.card.number.substring(0,6);
+
+				SharedMap<String,Object> issuerMap = trxDAO.getDBIssuer(request.pay.card.bin);	//KJM : 카드회사 정보
+				if(issuerMap != null){
+					request.pay.card.cardType = issuerMap.getString("type") ;
+					request.pay.card.issuer = issuerMap.getString("issuer");	//카드회사
+					request.pay.card.acquirer = issuerMap.getString("acquirer");//카드회사
+				}
+				request.pay.card.cardId = sharedMap.getString(PAYUNIT.KEY_CARD);
+
+				//KJM : 카드정보 암호화
+				String encrypted = Base64.encodeToString(SeedKisa.encrypt(GsonUtil.toJson(request.pay.card), ByteUtil.toBytes(PAYUNIT.ENCRYPT_KEY, 16)));
+				if(!sharedMap.isEquals("recurring", "pay")) {	//20190604 추가 저장하지 않도록 수정
+					trxDAO.insertCard(sharedMap.getString(PAYUNIT.KEY_CARD),encrypted);
+				}
+
+				sharedMap.put("CARD_INSERTED",true);//카드정보가 이미 등록되었는지 여부
+			}
 		}
+
 		
-		//KJM : card.encTrackI가 빈값일 경우
-		if(request.pay.card.encTrackI.equals("")){
-			int cardLength =  request.pay.card.number.length();	//KJM : 카드번호 길이 확인
-			if(cardLength < 14 || 16 < cardLength){
-				response.result = ResultUtil.getResult("9999", "카드번호가 잘못되었습니다.","카드번호는 14~16자리만 허용합니다.");return;
-			}
-			if(request.pay.card.expiry.length() != 4){	//KJM : 카드 유효기간 확인
-				response.result = ResultUtil.getResult("9999", "유효기간이 잘못되었습니다.","YYMM 포맷이 아닙니다.");return;
-			}
-			if(request.pay.card.installment > 12){	//KJM : 할부기간 확인
-				response.result = ResultUtil.getResult("9999", "할부기간이 잘못되었습니다.","최대 12개월 초과입니다.");return;
-			}
-			//KJM : 유효기간 년수, 월 현재 날짜 기준으로 확인
-			if(CommonUtil.parseInt(request.pay.card.expiry.substring(0,2)) < CommonUtil.parseInt(CommonUtil.getCurrentDate("yy"))){
-				response.result = ResultUtil.getResult("9999", "유효기간이 잘못되었습니다.","유효년수가 경과된 카드입니다.");return;
-			}
-			if(CommonUtil.parseInt(request.pay.card.expiry.substring(2,4)) > 12){
-				response.result = ResultUtil.getResult("9999", "유효기간이 잘못되었습니다.","유효월 입력이 잘못되었습니다.");return;
-			}
-			
-			//KJM : 카드 마지막4자리, bin
-			request.pay.card.last4 = request.pay.card.number.substring(cardLength-4, cardLength);
-			request.pay.card.bin   = request.pay.card.number.substring(0,6);
-			
-			SharedMap<String,Object> issuerMap = trxDAO.getDBIssuer(request.pay.card.bin);	//KJM : 카드회사 정보
-			if(issuerMap != null){
-				request.pay.card.cardType = issuerMap.getString("type") ;
-				request.pay.card.issuer = issuerMap.getString("issuer");	//카드회사
-				request.pay.card.acquirer = issuerMap.getString("acquirer");//카드회사
-			}
-			request.pay.card.cardId = sharedMap.getString(PAYUNIT.KEY_CARD);
-			
-			//KJM : 카드정보 암호화
-			String encrypted = Base64.encodeToString(SeedKisa.encrypt(GsonUtil.toJson(request.pay.card), ByteUtil.toBytes(PAYUNIT.ENCRYPT_KEY, 16)));
-//			if(!sharedMap.isEquals("recurring", "pay")) {	//20190604 추가 저장하지 않도록 수정
-//				trxDAO.insertCard(sharedMap.getString(PAYUNIT.KEY_CARD),encrypted);
-//			}
 
-			//PYS : 위에 로직 주석하고 이걸로 변경
-			if(!sharedMap.isEquals("rebillProcess", "PAY")) {
-				trxDAO.insertCard(sharedMap.getString(PAYUNIT.KEY_CARD),encrypted);
-			}
-
-			sharedMap.put("CARD_INSERTED",true);//카드정보가 이미 등록되었는지 여부
-		}
 		
 		//KJM : 결제주문내역 추가
 		if(request.pay.products != null){
@@ -496,7 +544,7 @@ public class ProcPay extends Proc {
 		}
 		
 		//semiAuth 즉 생년월일/카드비번2자리 꼭 사용하는 가맹점 2017-08-01
-		if(mchtTmnMap.getString("semiAuth").equals("Y")){
+		if(request.pay.trxType.equals("ONTR") && mchtTmnMap.getString("semiAuth").equals("Y")){
             logger.info("semiAuth 사용 가맹점 {}",mchtTmnMap.getString("semiAuth"));
 			if(request.pay.metadata != null){
 				if(request.pay.metadata.getString("authPw").length() !=2){

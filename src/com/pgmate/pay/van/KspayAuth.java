@@ -54,7 +54,7 @@ public class KspayAuth {
 		ksHeader.setRetry("0");
 		ksHeader.setTrnDate(CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		ksHeader.setMerchantId(TID);
-		ksHeader.setTrnsNo(response.auth.trxId);
+		ksHeader.setTrnsNo(response.rebill.trxId);
 		ksHeader.setTrxType("K");
 		ksHeader.setTrnAccess("0");
 		//ksHeader.setPayTel(tBean.getPayTelNo());
@@ -65,12 +65,12 @@ public class KspayAuth {
 		
 		credit.setReqType("1400");			//승인구분
 		credit.setPayCondition("1");		//1:일반,2:무이자
-		credit.setCardTrack(response.auth.card.number+"="+response.auth.card.expiry);	//카드번호=유효기간 or 거래번호
+		credit.setCardTrack(response.rebill.cardNumber+"="+response.rebill.cardExpireDate);	//카드번호=유효기간 or 거래번호
 		//logger.info("expiry ={},len={}",response.pay.card.expiry,response.pay.card.expiry.length());
 		credit.setPeriod("00");				//00:일시불
-		credit.setAmount("1000");			
-		credit.setCardPass(sharedMap.getString("authPw"));		//비밀번호 앞 2자리
-		credit.setPayIdentity(sharedMap.getString("authDob"));	//생년월일 YYMMDD
+		credit.setAmount("0");
+		credit.setCardPass(response.rebill.cardPassword);		//비밀번호 앞 2자리
+		credit.setPayIdentity(response.rebill.socialNumber);	//생년월일 YYMMDD
 		credit.setIsBatch("1");				//*배치사용구분 = 0:미사용,1:사용
 		credit.setCurrency("0");			//통화구분 = 0:원화,1:미화
 		credit.setCardType("2");			//*카드정보전송 = 0:미전송 1: 카드번호,유효기간,할부,금액,가맹점 번호,2:카드번호 앞14자리 'XXXX,유효기간,할부,금액,가맹점번호
@@ -79,10 +79,8 @@ public class KspayAuth {
 		credit.setIpAddress(sharedMap.getString(PAYUNIT.REMOTEIP));	//IP ADDRESS
 		credit.setCompanyCode("");			//사업자번호
 		credit.setCertType("");				//I:ISP거래,M: MPI거래,SPACE:일반거래
-		if(sharedMap.isEquals("recurring", "set")) {
-			credit.setExtra("VCP");    			//카드등록을 위하여
-		}
-		
+		credit.setExtra("VCP");    			//카드등록을 위하여
+
 		//logger.info(GsonUtil.toJson(ksHeader, true, ""));
 		//logger.info(GsonUtil.toJson(credit, true, ""));
 		// KBR : 데이터 소켓 통신을 위한 바이터 단위 변환
@@ -99,12 +97,10 @@ public class KspayAuth {
 			sharedMap.put("vanTrxId",res.getKsnetTrnId());
 			sharedMap.put("vanResultCd","0000");
 			sharedMap.put("vanResultMsg","정상승인");
-			if(sharedMap.isEquals("recurring", "set")) {
-				sharedMap.put("authKey",res.getExtra().substring(3));
-			}
+			sharedMap.put("authKey",res.getExtra().substring(3));
 			sharedMap.put("vanDate",res.getTrnDay()+res.getTrnTime());
 			sharedMap.put("cardAcquirer", KspayUtil.getAcquirer(res.getBuyerCode()));
-			
+
 		}else if(res.getResponseCode().equals("X")){	
 			String vanMessage = (res.getMessage1()+" "+res.getMessage2()).replaceAll("^\\s+","").replaceAll("\\s+$","");
 			response.result 	= ResultUtil.getResult(res.getApprovalNo(),"승인실패",vanMessage);
