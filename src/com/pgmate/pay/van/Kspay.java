@@ -115,7 +115,7 @@ public class Kspay implements Van {
                     credit.setPayIdentity(response.pay.metadata.getString("authDob"));    //생년월일 YYMMDD
                 }
                 response.pay.metadata = null;
-		}
+			}
         }
 		
 		credit.setIsBatch("0");				//배치사용구분 = 0:미사용,1:사용
@@ -133,6 +133,14 @@ public class Kspay implements Van {
 			credit.setCardType("2");		//2:마스킹 카드번호
 			credit.setVisa3d("7");			//비자인증유무 7
 		}
+
+		//230530_PYS : 정기결제 로직추가
+		if(response.pay.trxType.equals("REBILL")) {
+			credit.setCardTrack("V"+sharedMap.getString("authKey"));	//KSPAY 등록된 KEY로 거래
+			credit.setCardType("2");		//2:마스킹 카드번호
+			credit.setVisa3d("7");			//비자인증유무 7
+		}
+
 		
 		credit.setDomain("");				//도메인
 		credit.setIpAddress(sharedMap.getString(PAYUNIT.REMOTEIP));	//IP ADDRESS

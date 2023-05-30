@@ -3,9 +3,6 @@ package com.pgmate.pay.van;
 import java.io.File;
 import java.util.Calendar;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpSession;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +15,7 @@ import com.pgmate.pay.dao.CodeDAO;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.proc.ResultUtil;
 import com.pgmate.pay.util.GalaxiaUtil;
-import com.pgmate.pay.util.KspayUtil;
 import com.pgmate.pay.util.PAYUNIT;
-import com.galaxia.api.util.*;
 import com.galaxia.api.merchant.*;
 import com.galaxia.api.crypto.*;
 import com.galaxia.api.*;
@@ -38,6 +33,7 @@ public class Galaxia implements Van{
 	private String VAN = "";
 	private String VANID = "";
 	private String tmnID = "";
+	private String trxType = "";
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
@@ -52,6 +48,7 @@ public class Galaxia implements Van{
 		VANID =  tmnVanMap.getString("vanId").trim();
 		VAN = tmnVanMap.getString("van");
 		tmnID = tmnVanMap.getString("tmnId");
+		trxType = tmnVanMap.getString("trxType");
 	}
 	
 	private GalaxiaCipher getCipher(String serviceId) throws Exception {
@@ -167,6 +164,114 @@ public class Galaxia implements Van{
 		return responseMsg;
 	}
 
+	// 월 자동 과금 인증 요청
+	public Message autoBillCertifyProcess(SharedMap<String, Object> sharedMap) throws Exception {
+		String serviceId 			= (String)sharedMap.getString("serviceId");
+		String orderId 				= ""; // 인증 시에는 주문 번호를 처리하지 않는다.
+		String orderDate 			= (String)sharedMap.getString("orderDate");
+		String userId 				= (String)sharedMap.getString("userId");
+		String userName 			= (String)sharedMap.getString("userName");
+		String itemCode 			= (String)sharedMap.getString("itemCode");
+		String itemName 		    = (String)sharedMap.getString("itemName");
+		String userIp 				= (String)sharedMap.getString("userIp");
+		String pinNumber 		    = (String)sharedMap.getString("pinNumber");
+		String expireDate 		    = (String)sharedMap.getString("expireDate");
+		String password 			= (String)sharedMap.getString("password");
+		String cvc2 				= (String)sharedMap.getString("cvc2");
+		String socialNumber 	    = (String)sharedMap.getString("socialNumber");
+		String dealAmount 		    = "0"; //인증 시에는 결제 금액을 0 으로 해야 한다.
+		String dealType 			= (String)sharedMap.getString("dealType");
+		String usingType 		    = (String)sharedMap.getString("usingType");
+		String currency			    = (String)sharedMap.getString("currency");
+		String extraData 			= (String)sharedMap.getString("extraData");
+
+		Message requestMsg = new Message(VERSION, serviceId,
+				ServiceCode.CREDIT_CARD,
+				"2010",
+				orderId,
+				orderDate,
+				getCipher(serviceId));
+
+		Message responseMsg = null;
+
+		if(userId != null)				requestMsg.put(MessageTag.USER_ID, userId);
+		if(userName != null)			requestMsg.put(MessageTag.USER_NAME, userName);
+		if(itemCode != null) 		requestMsg.put(MessageTag.ITEM_CODE, itemCode);
+		if(itemName != null)		requestMsg.put(MessageTag.ITEM_NAME, itemName);
+		if(userIp != null)				requestMsg.put(MessageTag.USER_IP, userIp);
+		if(pinNumber != null)		requestMsg.put(MessageTag.PIN_NUMBER, pinNumber);
+		if(expireDate != null)		requestMsg.put(MessageTag.EXPIRE_DATE, expireDate);
+		if(password != null)			requestMsg.put(MessageTag.PASSWORD, password);
+		if(cvc2 != null)					requestMsg.put(MessageTag.CVC2, cvc2);
+		if(socialNumber != null)	requestMsg.put(MessageTag.SOCIAL_NUMBER, socialNumber);
+		if(dealAmount != null)	requestMsg.put(MessageTag.DEAL_AMOUNT, dealAmount);
+		if(dealType != null)			requestMsg.put(MessageTag.DEAL_TYPE, dealType);
+		if(usingType != null)		requestMsg.put(MessageTag.USING_TYPE, usingType);
+		if(currency != null)			requestMsg.put(MessageTag.CURRENCY, currency);
+		if(extraData != null)			requestMsg.put("5015", extraData);
+
+		logger.info("Galaxia requestMsg : {}",requestMsg);
+
+		ServiceBroker sb = new ServiceBroker(configLoad, ServiceCode.CREDIT_CARD);
+		responseMsg = sb.invoke(requestMsg);
+
+		return responseMsg;
+	}
+
+	// 월 자동 과금 승인 요청
+	public Message autoBillAuthProcess(SharedMap<String, Object> sharedMap) throws Exception {
+		String serviceId 			= (String)sharedMap.getString("serviceId");
+		String orderId 				= (String)sharedMap.getString("orderId");
+		String orderDate 			= (String)sharedMap.getString("orderDate");
+		String userId 				= (String)sharedMap.getString("userId");
+		String userName 			= (String)sharedMap.getString("userName");
+		String itemCode 			= (String)sharedMap.getString("itemCode");
+		String itemName 		= (String)sharedMap.getString("itemName");
+		String userEmail 			= (String)sharedMap.getString("userEmail");
+		String userIp 				= (String)sharedMap.getString("userIp");
+		String cvc2 					= (String)sharedMap.getString("cvc2");
+		String socialNumber 	= (String)sharedMap.getString("socialNumber");
+		String quota				= (String)sharedMap.getString("quota");
+		String dealAmount 		= (String)sharedMap.getString("dealAmount");
+		String dealType 			= (String)sharedMap.getString("dealType");
+		String usingType 		= (String)sharedMap.getString("usingType");
+		String currency			= (String)sharedMap.getString("currency");
+		String extraData 			= (String)sharedMap.getString("extraData");
+		String sessionKey 		= (String)sharedMap.getString("sessionKey");
+
+		Message requestMsg = new Message(VERSION, serviceId,
+				ServiceCode.CREDIT_CARD,
+				"3070",
+				orderId,
+				orderDate,
+				getCipher(serviceId));
+
+		Message responseMsg = null;
+
+		if(userId != null)				requestMsg.put(MessageTag.USER_ID, userId);
+		if(userName != null)			requestMsg.put(MessageTag.USER_NAME, userName);
+		if(itemCode != null) 		requestMsg.put(MessageTag.ITEM_CODE, itemCode);
+		if(itemName != null)		requestMsg.put(MessageTag.ITEM_NAME, itemName);
+		if(userEmail != null)			requestMsg.put(MessageTag.USER_EMAIL, userEmail);
+		if(userIp != null)				requestMsg.put(MessageTag.USER_IP, userIp);
+		if(cvc2 != null)					requestMsg.put(MessageTag.CVC2, cvc2);
+		if(socialNumber != null)	requestMsg.put(MessageTag.SOCIAL_NUMBER, socialNumber);
+		if(quota != null)				requestMsg.put(MessageTag.QUOTA, quota);
+		if(dealAmount != null)		requestMsg.put(MessageTag.DEAL_AMOUNT, dealAmount);
+		if(dealType != null)			requestMsg.put(MessageTag.DEAL_TYPE, dealType);
+		if(usingType != null)		requestMsg.put(MessageTag.USING_TYPE, usingType);
+		if(currency != null)			requestMsg.put(MessageTag.CURRENCY, currency);
+		if(extraData != null)			requestMsg.put("5015", extraData);
+		if(sessionKey != null)			requestMsg.put(MessageTag.SESSION_KEY, sessionKey);
+
+		logger.info("Galaxia requestMsg : {}",requestMsg);
+
+		ServiceBroker sb = new ServiceBroker(configLoad, ServiceCode.CREDIT_CARD);
+		responseMsg = sb.invoke(requestMsg);
+
+		return responseMsg;
+	}
+
 	@Override
 	public SharedMap<String, Object> sales(TrxDAO trxDAO, SharedMap<String, Object> sharedMap, Response response) {
 		// TODO Auto-generated method stub
@@ -235,6 +340,11 @@ public class Galaxia implements Van{
                 response.pay.metadata = null;
             }
 		}
+
+		//230526_PYS : 정기결제일때 구인증으로 보내야됨
+		if(trxType.equals("REBILL")) {
+			dealType = "0014";
+		}
 		
 		String usingType = "0000";															//국내카드
 		String currency	= "0000";															//승인통화(원화)
@@ -269,7 +379,17 @@ public class Galaxia implements Van{
 		
 		try {
 			//승인요청
-			Message respMsg = offlineProcess(salesMap);
+			//230524_PYS : 정기결제로 들어올경우 다른로직
+			Message respMsg = null;
+			if(trxType.equals("REBILL")) {
+				salesMap.put("sessionKey", sharedMap.getString("authKey"));
+
+				respMsg = autoBillAuthProcess(salesMap);
+			}else {
+				respMsg = offlineProcess(salesMap);
+			}
+
+
 			
 			//승인요청에 대한 응답 결과 설정
 			String serviceCode = respMsg.getServiceCode();		
@@ -429,6 +549,111 @@ public class Galaxia implements Van{
 		responseMsg = sb.invoke(requestMsg);
 
 		return responseMsg;
+	}
+
+	// 월 자동 과금 인증
+	public SharedMap<String, Object> autoBillCertify(TrxDAO trxDAO, SharedMap<String, Object> sharedMap, Response response) {
+		Calendar today = Calendar.getInstance();
+		String year = Integer.toString(today.get(Calendar.YEAR));
+		String month = Integer.toString(today.get(Calendar.MONTH) + 1);
+		String date = Integer.toString(today.get(Calendar.DATE));
+		String hour = Integer.toString(today.get(Calendar.HOUR_OF_DAY));
+		String minute = Integer.toString(today.get(Calendar.MINUTE));
+		String second = Integer.toString(today.get(Calendar.SECOND));
+
+		if(today.get(Calendar.MONTH)+1 < 10) month = "0" + month ;
+		if(today.get(Calendar.DATE) < 10) date = "0" + date ;
+		if(today.get(Calendar.HOUR) < 10) hour = "0" + hour ;
+		if(today.get(Calendar.MINUTE) < 10) minute = "0" + minute ;
+		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;
+
+		String serviceId = VANID; 															//[필수] 가맹점ID(빌게이트 발급)
+		String orderDate = year + month + date + hour + minute + second ; 					//[필수] 가맹점 주문일시
+		String userId = CommonUtil.nToB(response.rebill.userId, "userId");		//고객 아이디
+		String userName = CommonUtil.nToB(response.rebill.userName, "payerName");	//결제 고객명
+		String itemCode = CommonUtil.nToB(response.rebill.itemCode,"itemCode");	//[필수] 가맹점 측 상품코드
+		String itemName = CommonUtil.nToB(response.rebill.itemName, "itemName");		//가맹점 측 상품명
+		String userIp = sharedMap.getString(PAYUNIT.REMOTEIP);								//고객 아이피
+		String pinNumber = response.rebill.cardNumber;										//[필수] 카드번호(16자리)
+		String expireDate = response.rebill.cardExpireDate;									//[필수] 유효기간(YYMM)
+		String password = response.rebill.cardPassword;										//비밀번호 앞2자리
+		String cvc2 = "";																	//CVC2 : 공백처리
+		String socialNumber = response.rebill.socialNumber;									//주민번호(앞6자리), 법인번호(10자리)
+		//-----------고정 값 수정 불가------------
+		String dealAmount = "0";															//인증시 요청금액 : 0
+		String dealType = "0014";															//인증방식 0011비인증 / 0014구인증
+		String usingType = "0000";															//국내카드
+		String currency	= "0000";															//승인통화(원화)
+		//-----------고정 값 수정 불가-----------
+		String extra = CommonUtil.nToB(response.rebill.extra, "");					//부가정보
+
+		//월 자동 과금 인증 요청 데이터 세팅
+		SharedMap<String, Object> autobillMap = new SharedMap<String, Object>();
+		autobillMap.put("serviceId", serviceId);
+		autobillMap.put("orderId", "");
+		autobillMap.put("orderDate", orderDate);
+		autobillMap.put("userId", userId);
+		autobillMap.put("userName", userName);
+		autobillMap.put("itemCode", itemCode);
+		autobillMap.put("itemName", itemName);
+		autobillMap.put("userIp", userIp);
+		autobillMap.put("pinNumber", pinNumber);
+		autobillMap.put("expireDate", expireDate);
+		autobillMap.put("password", password);
+		autobillMap.put("cvc2", cvc2);
+		autobillMap.put("socialNumber", socialNumber);
+		autobillMap.put("dealAmount", dealAmount);
+		autobillMap.put("dealType", dealType);
+		autobillMap.put("usingType", usingType);
+		autobillMap.put("currency", currency);
+		autobillMap.put("extraData", extra);
+
+		try {
+			//인증 요청
+			Message respMsg = autoBillCertifyProcess(autobillMap);
+
+			//인증 요청에 대한 응답 결과 설정
+			String responseCode = respMsg.get(MessageTag.RESPONSE_CODE);
+			String responseMessage = respMsg.get(MessageTag.RESPONSE_MESSAGE);
+			String detailResponseCode = respMsg.get(MessageTag.DETAIL_RESPONSE_CODE);
+			String detailResponseMessage = respMsg.get(MessageTag.DETAIL_RESPONSE_MESSAGE);
+			String transactionId = respMsg.get(MessageTag.TRANSACTION_ID); //빌게이트 거래번호
+			String sessionKey = respMsg.get(MessageTag.SESSION_KEY); //생성된 정기과금key
+			String extraData = respMsg.get("5015"); //부가정보
+			String issueCompanyCode = respMsg.get(MessageTag.ISSUE_COMPANY_CODE); //발급사코드
+			String issueCompanyName = respMsg.get("5009"); // 발급사 명칭
+			String buyCompanyCode = respMsg.get(MessageTag.BUY_COMPANY_CODE); //매입사코드
+			String buyCompanyName = respMsg.get("5010"); // 매입사 명칭
+
+			logger.info("responseCode : {}", responseCode);
+			logger.info("responseMessage : {}", responseMessage);
+			logger.info("detailResponseCode : {}", detailResponseCode);
+			logger.info("detailResponseMessage : {}", detailResponseMessage);
+			logger.info("transactionId : {}", transactionId);
+			logger.info("sessionKey : {}", sessionKey);
+
+			response.result 	= ResultUtil.getResult(responseCode, responseMessage ,detailResponseMessage);
+			sharedMap.put("vanTrxId",transactionId);
+			sharedMap.put("vanResultCd",responseCode);
+			sharedMap.put("vanResultMsg",responseMessage);
+			sharedMap.put("van",VAN);
+			sharedMap.put("vanId",VANID);
+
+			//인증 성공인 경우
+			if(responseCode.equals("0000") && detailResponseCode.equals("00")) {
+				//response.rebill.sessionKey = sessionKey;
+				//response.rebill.extra = extraData;
+
+				sharedMap.put("vanResultCd","0000");
+				sharedMap.put("vanResultMsg","정상승인");
+				sharedMap.put("authKey", sessionKey);
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return sharedMap;
 	}
 
 }

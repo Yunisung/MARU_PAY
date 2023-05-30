@@ -80,7 +80,7 @@ public class ProcWithdrawTrmn extends Proc{
                 }
 
                 // FIRM 통신
-                bean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
+                bean = vactReg("MBR00246", trxType, account, withdrawBankCd, withdrawAccount,
                         name, regType, identity, phoneNo, bankCd);
 
                 //bean.resultCd = "0000";
