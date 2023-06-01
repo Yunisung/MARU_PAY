@@ -186,7 +186,7 @@ public class Galaxia implements Van{
 
 		Message requestMsg = new Message(VERSION, serviceId,
 				ServiceCode.CREDIT_CARD,
-				"2010",
+				Command.ID_CERTIFY_REQUEST,
 				orderId,
 				orderDate,
 				getCipher(serviceId));
