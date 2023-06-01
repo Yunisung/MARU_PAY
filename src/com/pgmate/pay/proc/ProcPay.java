@@ -441,6 +441,15 @@ public class ProcPay extends Proc {
 			}else {
 				sharedMap.put("authKey",rebillCardMap.getString("authKey"));
 				logger.info("REBILL AUTH KEY  : {}",rebillCardMap.getString("authKey"));
+
+				//카드정보 추가
+				request.pay.card.expiry = rebillCardMap.getString("expiry");
+				request.pay.card.cardType = rebillCardMap.getString("cardType");
+				request.pay.card.bin = rebillCardMap.getString("unit").substring(0, 6);
+				request.pay.card.last4 = rebillCardMap.getString("unit").substring(rebillCardMap.getString("unit").length()-4);
+				request.pay.card.issuer = rebillCardMap.getString("issuer");
+				request.pay.card.acquirer = rebillCardMap.getString("acquirer");
+
 			}
 
 			//정기결제 파라미터 체크
