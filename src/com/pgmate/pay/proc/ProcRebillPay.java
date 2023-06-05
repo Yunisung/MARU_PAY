@@ -127,7 +127,7 @@ public class ProcRebillPay extends Proc {
 //            response.result = ResultUtil.getResult(process.response.result.resultCd, process.response.result.resultMsg);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("ProcRebillPay ERROR : [{}][{}]", e.getMessage(), e.getStackTrace());
         }
     }
 

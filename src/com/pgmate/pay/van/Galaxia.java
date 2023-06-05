@@ -66,6 +66,7 @@ public class Galaxia implements Van{
 			cipher.setKey(key.getBytes());
 			cipher.setIV(iv.getBytes());
 		} catch(Exception e) {
+			logger.error("getCipher ERROR : [{}][{}]", e.getMessage(), e.getStackTrace());
 			throw e;
 		}
 		
@@ -436,7 +437,7 @@ public class Galaxia implements Van{
 	 		
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Galaxia Sales ERROR : [{}][{}]", e.getMessage(), e.getStackTrace());
 		}
 		
 		
@@ -510,7 +511,7 @@ public class Galaxia implements Van{
 			
 			
 		} catch (Exception e){
-			e.printStackTrace();
+			logger.error("Galaxia refund ERROR : [{}][{}]", e.getMessage(), e.getStackTrace());
 		}
 		
 		return sharedMap;
@@ -650,7 +651,7 @@ public class Galaxia implements Van{
 
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Galaxia autoBillCertify : [{}][{}]", e.getMessage(), e.getStackTrace());
 		}
 
 		return sharedMap;
