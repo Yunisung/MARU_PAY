@@ -155,6 +155,7 @@ public class ProcAccountTransfer extends Proc{
 
         //이체전문
         FirmBean firmBean = null;
+        logger.info("mchtID : {}", mchtId);
         if(mchtId.equals("bktest003")) {
             firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
         } else {
