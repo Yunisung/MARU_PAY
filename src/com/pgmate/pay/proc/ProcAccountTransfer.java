@@ -158,7 +158,9 @@ public class ProcAccountTransfer extends Proc{
         logger.info("mchtID : {}", mchtId);
         if(mchtId.equals("bktest003")) {
             firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
-        } else {
+        } else if(mchtId.equals("abletest2")) {
+            firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
+        }else {
             firmBean = balanceTransfer("089", bankCd, account, 1, sendAuthNo);
         }
 
