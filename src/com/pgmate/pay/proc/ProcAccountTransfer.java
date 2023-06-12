@@ -165,8 +165,7 @@ public class ProcAccountTransfer extends Proc{
 //        }
 
         //230612_이체전문 로직 변경
-        String vactBankCd = trxDAO.getMchtMngVact(mchtId).getString("vactBankCd");
-        FirmBean firmBean = balanceTransfer(vactBankCd, bankCd, account, 1, sendAuthNo);
+        FirmBean firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
 
 
         if(!firmBean.resultCd.equals("0000")) {
