@@ -154,7 +154,13 @@ public class ProcAccountTransfer extends Proc{
         trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName, authNo, phoneNo ,authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
         //이체전문
-        FirmBean firmBean = balanceTransfer("089", bankCd, account, 1, sendAuthNo);
+        FirmBean firmBean = null;
+        if(mchtId == "bktest003") {
+            firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
+        } else {
+            firmBean = balanceTransfer("089", bankCd, account, 1, sendAuthNo);
+        }
+
 
         if(!firmBean.resultCd.equals("0000")) {
             logger.info("1원인증 오류 [{}][{}][{}][{}][{}]", authId, bankCd, account, firmBean.resultCd, firmBean.resultMsg);
