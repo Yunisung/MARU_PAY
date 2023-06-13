@@ -25,6 +25,8 @@ public class Response {
 	public VactStatus vactStatus = null;
 	//230117_PYS : 가상계좌 출금정보추가
 	public VactPayOut vactPayOut = null;
+	//230328_PYS : 정기결제 정보
+	public Rebill rebill = null;
 
 	public Response() {
 	}
