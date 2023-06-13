@@ -19,7 +19,6 @@ import com.pgmate.pay.util.PAYUNIT;
 import com.galaxia.api.merchant.*;
 import com.galaxia.api.crypto.*;
 import com.galaxia.api.*;
-import com.galaxia.api.cashreceipt.ServiceBroker;
 
 public class Galaxia implements Van{
 

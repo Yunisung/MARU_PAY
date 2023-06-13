@@ -395,15 +395,12 @@ function kspayToParent() {
             console.log('SEND POSTMESSAGE TO PARENT', obj);
             window.parent.postMessage(JSON.stringify(obj), "*");
         }
-
         setTimeout(function () {
             if (self.opener) {
-                console.log('self close');
                 self.opener = self;
                 self.close();
             } else {
                 window.close();
-                //self.close();
             }
         }, 500);
     }, 500);

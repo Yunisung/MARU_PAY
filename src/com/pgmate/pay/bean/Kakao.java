@@ -31,7 +31,9 @@ public class Kakao {
         this.ordernumber = ordernumber;
     }
 
-    public String getOrdername() { return ordername; }
+    public String getOrdername() {
+        return ordername;
+    }
     public void setOrdername(String ordername) {
         this.ordername = ordername;
     }

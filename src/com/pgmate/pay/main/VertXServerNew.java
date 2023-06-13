@@ -2,7 +2,6 @@ package com.pgmate.pay.main;
 
 import java.util.Iterator;
 
-import com.pgmate.pay.util.PAYUNIT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,8 +84,8 @@ public class VertXServerNew extends AbstractVerticle {
 			logger.info("VertXServer start [{},{}]",vertxConfig.getHost(),vertxConfig.getPort());
 			logger.info("VertXServer module [{}]",vertxConfig.getModule());
 			logger.info("VertXServer route [{}]",vertxConfig.getRouteClass());
-
-			PAYUNIT.cacheMap.cleanUp();;
+			
+			
 			
 			//VertX Thread 감시 실행
 			new VertXSharedWatcher().start();

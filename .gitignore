@@ -1,15 +1,2 @@
 classes/
-.settings/org.eclipse.jdt.core.prefs
-lib/MARU_pay.jar
 logs/
-conf/service.json
-.classpath
-conf/logback.xml
-
-conf/config.ini
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr

@@ -9,7 +9,7 @@ import com.pgmate.lib.util.map.SharedCacheMap;
 public class PAYUNIT {
 
 	
-	public static final String PAY_HOST_LIVE 		= "devapi.bkwinners.kr";
+	public static final String PAY_HOST_LIVE 		= "api.bkwinners.kr";
 	public static final String PAY_HOST_DEV 		= "devapi.bkwinners.kr";
 //	public static final String PAY_HOST_DEV 		= "127.0.0.1:10002";
 
@@ -101,14 +101,6 @@ public class PAYUNIT {
 
 	public static String API_VACT_SEARCH_ERROR 		= "/api/vact/search/error";		// 가상계좌 오류조회
 	public static String API_VACT_SEARCH_TRX		= "/api/vact/search/trx";		// 가상계좌 출금내역 조회
-
-	public static String API_REBILL_PAY				= "/api/rebill/pay";			//정기결제 결제요청
-	public static String API_REBILL_CANCEL			= "/api/rebill/cancel";			//정기결제 해지
-	public static String API_REBILL_STOP			= "/api/rebill/stop";			//정기결제 일시정지
-	public static String API_REBILL_START			= "/api/rebill/start";			//정기결제 다시시작
-	public static String API_REBILL_REG				= "/api/rebill/reg";			//정기결제 등록
-
-
 
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
     public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook",};    

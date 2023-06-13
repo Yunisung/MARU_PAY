@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.galaxia.api.MessageTag;
 import com.pgmate.lib.util.map.SharedMap;
 
+import javax.net.ssl.HttpsURLConnection;
+
 public class Galaxia3D {
 
 	private static Logger logger 	= LoggerFactory.getLogger( com.pgmate.pay.van.Galaxia3D.class ); 
@@ -39,7 +41,9 @@ public class Galaxia3D {
 		reqData.append("&ORDER_DATE=").append(requestMap.getString("ORDER_DATE"));
 		reqData.append("&PAY_MESSAGE=").append(requestMap.getString("PAY_MESSAGE"));
 		
+		
 		URL url = null;
+//		HttpURLConnection conn = null;
 		HttpsURLConnection conn = null;
 		
 		try {
@@ -88,9 +92,9 @@ public class Galaxia3D {
             while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
-            
-            logger.info("sb : [{}]", sb.toString() );
-            
+            logger.info("##############################");
+            logger.info(sb.toString());
+            logger.info("##############################");
             Object jsonobject = JSONValue.parse(sb.toString());
             JSONObject jsonobj = (JSONObject)jsonobject;
             
@@ -103,6 +107,7 @@ public class Galaxia3D {
     		requestMap.put("dtlMsg", jsonobj.get("DETAIL_RESPONSE_MESSAGE"));
 			
 		} catch(Exception e) {
+			logger.info("갤럭시아 통신 error : " + e.getMessage());
 			result ="CONNECT ERROR ["+e.getMessage()+"] "+Galaxia3D.GALAXIA_WEB_URL;
 		} finally {
 			conn.disconnect();

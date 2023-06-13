@@ -9,7 +9,7 @@ var MARU = (function (win, doc) {
     webhookUrl: '',
     widgetLogoUrl: '',
     mode: 'layer',
-    debugMode: 'sandbox'
+    debugMode: 'live'
   }
 
   /* GLOBAL */

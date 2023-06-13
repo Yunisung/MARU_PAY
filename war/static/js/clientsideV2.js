@@ -10,13 +10,13 @@ var MARU = (function (win, doc) {
     webhookUrl: '',
     widgetLogoUrl: '',
     mode: 'layer',
-    debugMode: 'sandbox'
+    debugMode: 'live'
   }
 
   /* GLOBAL */
   var routeUrls = {
-    sandbox: 'https://devapi.bkwinners.kr',
     // sandbox: 'http://127.0.0.1:10002',
+    sandbox: 'https://devapi.bkwinners.kr',
     live: 'https://api.bkwinners.kr'
   }
   var paykey = '';

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pgmate.lib.util.gson.GsonUtil;
-import com.pgmate.pay.bean.*;
 import com.pgmate.pay.firm.FirmBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,12 @@ import com.pgmate.lib.util.db.DBManager;
 import com.pgmate.lib.util.lang.ByteUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
+import com.pgmate.pay.bean.Auth;
+import com.pgmate.pay.bean.Pay;
+import com.pgmate.pay.bean.Product;
+import com.pgmate.pay.bean.Response;
+import com.pgmate.pay.bean.Vact;
+import com.pgmate.pay.bean.VactHookBean;
 import com.pgmate.pay.util.PAYUNIT;
 
 /**
@@ -104,11 +109,7 @@ public class TrxDAO extends DAO {
 	public synchronized static String getTotalAuthId() {
 		return "TA" + getFunction("FN_NEXTVAL2", "TOTAL_AUTH");
 	}
-
-	public synchronized static String getRebillOrderId() {
-		return "RB" + getFunction("FN_NEXTVAL2", "REBILL");
-	}
-
+	
 	//WH
 	public SharedMap<String, Object> getMchtTmnByTmnId(String tmnId) {
 		/*String key = "PG_MCHT_TMN_" + tmnId;
@@ -5714,54 +5715,5 @@ public class TrxDAO extends DAO {
 		}
 
 		return result;
-	}
-
-	public void insertRebillCard(SharedMap<String,Object> sharedMap, Rebill rebill) {
-		super.setTable("PG_REBILL_CARD");
-		super.setRecord("cardId", sharedMap.getString(PAYUNIT.KEY_CARD));//1개
-		super.setRecord("trxId", sharedMap.getString(PAYUNIT.TRX_ID));
-		super.setRecord("mchtId", sharedMap.getString(PAYUNIT.MCHTID));
-		super.setRecord("trackId", rebill.trackId);
-		super.setRecord("authKey", sharedMap.getString("authKey"));
-		super.setRecord("unit",rebill.cardNumber);
-		super.setRecord("expiry",rebill.cardExpireDate);
-		super.setRecord("issuer",rebill.issueCompanyName);
-		super.setRecord("cardType",rebill.cardType);
-		super.setRecord("acquirer",rebill.buyCompanyName);
-		super.setRecord("van",sharedMap.getString("van"));
-		super.setRecord("vanTrxId",sharedMap.getString("vanTrxId"));
-		super.setRecord("resultCd",sharedMap.getString("vanResultCd"));
-		super.setRecord("resultMsg",sharedMap.getString("vanResultMsg"));
-		super.setRecord("regDay",sharedMap.getString(PAYUNIT.REG_DATE).substring(0, 8));
-
-		logger.info("set card : {}", super.insert());
-		super.initRecord();
-	}
-
-	public void insertTrxIO(SharedMap<String, Object> sharedMap, Rebill rebill) {
-
-		super.setTable("PG_TRX_IO");
-		super.setXssChange(false);
-
-		super.setRecord("trxId", sharedMap.getString("trxId"));
-		super.setRecord("trxType", "REBILL");
-		super.setRecord("mchtId", sharedMap.getString(PAYUNIT.MCHTID));
-		super.setRecord("tmnId", sharedMap.getString("tmnId"));
-		super.setRecord("trackId", CommonUtil.nToB(rebill.trackId));
-		super.setRecord("status", sharedMap.getString("수신"));
-		super.setRecord("message", sharedMap.getString("수신"));
-		super.setRecord("regDay", sharedMap.getString(PAYUNIT.REG_DATE).substring(0, 8));
-		super.setRecord("regTime", sharedMap.getString(PAYUNIT.REG_DATE).substring(8));
-		super.setRecord("regData", sharedMap.getString(PAYUNIT.PAYLOAD));
-		super.setRecord("regDate", sharedMap.getString(PAYUNIT.REG_DATE));
-		logger.info("set TRX_IO : {}", super.insert());
-		super.initRecord();
-
-	}
-
-	public SharedMap<String,Object> getRebillCard(String cardId,String mchtId) {
-		RecordSet rset = super.query("SELECT * FROM PG_REBILL_CARD WHERE cardId ='"+cardId+"' AND mchtId ='"+mchtId+"' AND resultCd ='0000'");
-		super.initRecord();
-		return rset.getRow(0);
 	}
 }

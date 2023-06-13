@@ -89,8 +89,6 @@ public class Api {
 			logger.info("MCHTID: {}", sharedMap.getString(PAYUNIT.MCHTID));
 			Proc process = null;
 
-			logger.info("url : {}", uri);
-
 			if (uri.startsWith(PAYUNIT.API_PAY) && !uri.contains("payco")) {
 				process = new ProcPay();
 			} else if (uri.startsWith(PAYUNIT.API_REFUND)) {
@@ -199,16 +197,6 @@ public class Api {
 				process = new ProcArsAuth();
 			}else if (uri.startsWith(PAYUNIT.API_ARSV2_CHECK)) {
 				process = new ProcArsAuthCheck();
-			}else if (uri.startsWith(PAYUNIT.API_REBILL_PAY)) {
-				process = new ProcRebillPay();
-			}else if (uri.startsWith(PAYUNIT.API_REBILL_CANCEL)) {
-				process = new ProcRebillCancel();
-			}else if (uri.startsWith(PAYUNIT.API_REBILL_STOP)) {
-				process = new ProcRebillStop();
-			}else if (uri.startsWith(PAYUNIT.API_REBILL_START)) {
-				process = new ProcRebillStart();
-			}else if (uri.startsWith(PAYUNIT.API_REBILL_REG)) {
-				process = new ProcRebillReg();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {

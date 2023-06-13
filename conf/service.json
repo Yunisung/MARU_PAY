@@ -11,13 +11,14 @@
 //    "jdbcUrl": "jdbc:mariadb://127.0.0.1:3306/CP_MARU_TEST",
 //    "userName": "root",
 //    "passWord": "1234",
+    "passWord": "2021bk06&*(db2",
     "maxConnection": 20,
     "minConnection": 10,
     "partitionCount": 1
   },
   "vertx": {
-//    "host": "10.100.200.10",
-    "host": "10.100.100.101",
+    "host": "10.100.200.10",
+//    "host": "127.0.0.1",
     "port": 10002,
     "idleTimeout": 120000,
     "receiveBufferSize": 4096000,
@@ -25,8 +26,8 @@
     "tcpKeepAlive": false,
     "soLinger": 0,
     "module": "MARU_PAY",
-//    "webroot": "../war",
-    "webroot": "C:/MARU_GITHUB/MARU_PAY/war",
+    "webroot": "../war",
+//    "webroot": "C:/git/MARU/MARU_PAY/war",
     "disableCaching":true,
     "ssl": {
       "ssl": false,

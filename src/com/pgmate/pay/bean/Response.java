@@ -19,15 +19,12 @@ public class Response {
 	public SharedMap<String,Object> widget = null;
 	public ARS ars			= null;
 	public Tmn tmn			= null;
-
 	// 통합인증
 	public TotalAuth totalAuth = null;
 	//230116_PYS : 가상계좌 상태추가
 	public VactStatus vactStatus = null;
 	//230117_PYS : 가상계좌 출금정보추가
 	public VactPayOut vactPayOut = null;
-	//230328_PYS : 정기결제 정보
-	public Rebill rebill = null;
 
 	public Response() {
 	}

@@ -18,8 +18,6 @@ public class Request {
 	public ARS ars			= null;
 	// 통합인증
 	public TotalAuth totalAuth = null;
-	// 정기결제
-	public Rebill rebill = null;
 
 	public Result result	= null;
 

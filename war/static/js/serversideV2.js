@@ -275,10 +275,8 @@ function openPayment(config) {
         if (res.result.resultCd == '0000') {
             var url = window.location.protocol + "//" + window.location.host + res.widget.routeUrl;
             ServerUtil.resizeWindow(res);
-            console.log('url : '+ url);
-            console.log('mode : ' + config.c3Config.mode);
-            if (config.c3Config.mode === 'popup') {
 
+            if (config.c3Config.mode == 'popup') {
                 popup(url);
             } else {
                 if(res.widget.target == 'REGULAR') document.getElementById('iframe-payment').style.backgroundColor = 'whitesmoke';

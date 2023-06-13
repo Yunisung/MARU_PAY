@@ -257,8 +257,8 @@ public class ProcPay3DV2Widget extends Proc {
 				}
 				else if(request.widget.isEquals("payRoute", "simple")) {
 					widgetKey = "key_"+CommonUtil.toString(System.currentTimeMillis())+UUID.randomUUID().toString().substring(0, 7);
+
 					SharedMap<String,Object> ioMap = new SharedMap<String,Object>();
-					logger.info("###################################", sharedMap.getString(PAYUNIT.TRX_ID));
 					ioMap.put("trxId", sharedMap.getString(PAYUNIT.TRX_ID));
 					ioMap.put("widgetKey", widgetKey);
 					ioMap.put("mchtId", mchtTmnMap.getString("mchtId"));
