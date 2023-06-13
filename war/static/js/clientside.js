@@ -9,14 +9,15 @@ var MARU = (function (win, doc) {
     webhookUrl: '',
     widgetLogoUrl: '',
     mode: 'layer',
-    debugMode: 'live'
+    debugMode: 'sandbox'
   }
 
   /* GLOBAL */
   var routeUrls = {
-    // sandbox: 'https://devapi.bkwinners.kr',
-	sandbox: 'http://127.0.0.1:10002',
-    live: 'https://api.bkwinners.kr'
+    sandbox: 'https://devapi.bkwinners.kr',
+	  live: 'https://api.bkwinners.kr',
+    local: 'htts://127.0.0.1:10002'
+
   }
 
   //api/echo를 clientside에서 사용하기위해 만듬

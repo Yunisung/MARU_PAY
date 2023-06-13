@@ -225,6 +225,9 @@ public class ProcAccountTransfer extends Proc{
         int timeout = firm.firmTimeout;
         int port = firm.firmPort;
 
+        //PYS : 개발쪽에선 안되니 운영IP로 변경
+        host = "10.100.100.13";
+
         firmBean = comm(firmBean, host, port, timeout);
         logger.info("응답:{},{}",firmBean.resultCd,firmBean.resultMsg);
         logger.info("idx:{},{}",firmBean.idx,firmBean.data.getLong("balance"));

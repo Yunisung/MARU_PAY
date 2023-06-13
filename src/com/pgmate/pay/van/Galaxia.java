@@ -19,6 +19,7 @@ import com.pgmate.pay.util.PAYUNIT;
 import com.galaxia.api.merchant.*;
 import com.galaxia.api.crypto.*;
 import com.galaxia.api.*;
+import com.galaxia.api.cashreceipt.ServiceBroker;
 
 public class Galaxia implements Van{
 
@@ -65,6 +66,7 @@ public class Galaxia implements Van{
 			cipher.setKey(key.getBytes());
 			cipher.setIV(iv.getBytes());
 		} catch(Exception e) {
+			logger.error("getCipher ERROR : [{}][{}]", e.getMessage(), e.getStackTrace());
 			throw e;
 		}
 		
@@ -112,8 +114,8 @@ public class Galaxia implements Van{
 		if(userName != null)			requestMsg.put(MessageTag.USER_NAME, userName);
 		if(itemCode != null) 			requestMsg.put(MessageTag.ITEM_CODE, itemCode);
 		if(itemName != null)			requestMsg.put(MessageTag.ITEM_NAME, itemName);
-		if(userIp != null)				requestMsg.put(MessageTag.USER_IP, userIp);
 		if(userEmail != null)			requestMsg.put(MessageTag.USER_EMAIL, userEmail);
+		if(userIp != null)				requestMsg.put(MessageTag.USER_IP, userIp);
 		if(dealAmount != null)			requestMsg.put(MessageTag.DEAL_AMOUNT, dealAmount);
 		if(pinNumber != null)			requestMsg.put(MessageTag.PIN_NUMBER, pinNumber);
 		if(expireDate != null)			requestMsg.put(MessageTag.EXPIRE_DATE, expireDate);
@@ -297,7 +299,7 @@ public class Galaxia implements Van{
 		if(today.get(Calendar.MINUTE) < 10) minute = "0" + minute ;	
 		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;
 		
-		String serviceId = VANID; 														//[필수] 수기거래용 테스트 아이디 : S1600881
+		String serviceId = VANID; 														//[필수] 수기거래용 테스트 아이디 : S1600881 
 		String orderDate = year + month + date + hour + minute + second ; 					//[필수]주문일시
 		String orderId = response.pay.trxId;  											//[필수] 주문번호
 		String userId = tmnID; 																//고객아이디
@@ -435,7 +437,7 @@ public class Galaxia implements Van{
 	 		
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Galaxia Sales ERROR : [{}][{}]", e.getMessage(), e.getStackTrace());
 		}
 		
 		
@@ -509,7 +511,7 @@ public class Galaxia implements Van{
 			
 			
 		} catch (Exception e){
-			e.printStackTrace();
+			logger.error("Galaxia refund ERROR : [{}][{}]", e.getMessage(), e.getStackTrace());
 		}
 		
 		return sharedMap;
@@ -649,7 +651,7 @@ public class Galaxia implements Van{
 
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Galaxia autoBillCertify : [{}][{}]", e.getMessage(), e.getStackTrace());
 		}
 
 		return sharedMap;

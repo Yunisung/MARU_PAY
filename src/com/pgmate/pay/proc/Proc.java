@@ -67,7 +67,9 @@ public abstract class Proc {
                 || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_STATUS)
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_3DV2_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_SETTLE_BALANCE)
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_ONLY_AUTH_WIDGET) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_SEARCH_ERROR)
-				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_SEARCH_TRX)
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_SEARCH_TRX) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_REBILL_PAY)
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_REBILL_CANCEL) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_REBILL_STOP)
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_REBILL_START)
 		){
 		}else{
 			if(request == null){
@@ -103,7 +105,8 @@ public abstract class Proc {
 		if(sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_PAY) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_OPEN) 
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_PATCH) 
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_AUTHOPEN)
-		 		|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_WITHDRAW_TRMN)){
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_REBILL_REG)
+		){
 					
 			trxDAO.updateTrxIO(sharedMap,res);
 		}
@@ -129,8 +132,7 @@ public abstract class Proc {
 		//KJM : 결제 관련 기능 수행 시에만 서버 통신 이력 추가
 		if(sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_PAY) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_OPEN)
 				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_CLOSE) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_PATCH)
-				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_AUTHOPEN)
-				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_WITHDRAW_TRMN)){
+				|| sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_AUTH) || sharedMap.getString(PAYUNIT.URI).startsWith(PAYUNIT.API_VACT_AUTHOPEN)){
 
 			trxDAO.updateTrxIO(sharedMap,res);
 		}
