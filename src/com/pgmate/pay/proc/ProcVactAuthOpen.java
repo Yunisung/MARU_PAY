@@ -354,7 +354,7 @@ public class ProcVactAuthOpen extends Proc{
 
 
             //230413_PYS : 경남은행일때 regType, identity예외 추가
-            if(request.vact.bankCd.equals("039") && !request.vact.mchtId.equals("bktest003")) {
+            /*if(request.vact.bankCd.equals("039")) {
                 if(CommonUtil.isNullOrSpace(request.vact.regType)){
                     response.result = ResultUtil.getResult("9999", "필수값없음","가상계좌번호의 등록유형이 존재하지 않습니다.");
                     return;
@@ -389,7 +389,7 @@ public class ProcVactAuthOpen extends Proc{
                 }
 
 
-            }
+            }*/
 
         }
 
