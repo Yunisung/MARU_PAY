@@ -5764,4 +5764,41 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRow(0);
 	}
+
+	public int getEqAccountIssueCnt(String bankCd, String account, String mchtId) {
+		int count = 0;
+
+		String query = "SELECT COUNT(*) as cnt"
+				+ "  FROM PG_VACT_REG "
+				+ " WHERE withdrawBankCd = ? and withdrawAccount = ? AND mchtId = ?";
+
+		String encAccount = getAESEnc(account);
+
+		DBManager db = null;
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		ResultSet rset = null;
+
+		try {
+			db = DBFactory.getInstance();
+			conn = db.getConnection();
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, bankCd);
+			pstmt.setString(2, encAccount);
+			pstmt.setString(3, mchtId);
+
+			rset = pstmt.executeQuery();
+
+			while (rset.next()) {
+				count = rset.getInt("cnt");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("getEqAccountVactAccountCnt ERROR : {}, query : {}", e.getMessage(), query);
+		} finally {
+			db.close(conn, pstmt, rset);
+		}
+
+		return count;
+	}
 }
