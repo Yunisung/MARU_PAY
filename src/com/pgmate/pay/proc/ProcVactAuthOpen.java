@@ -1,19 +1,14 @@
 package com.pgmate.pay.proc;
 
 import com.pgmate.app.util.KSignUtil;
-import com.pgmate.lib.conf.ConfigLoader;
 import com.pgmate.lib.key.CPKEY;
 import com.pgmate.lib.key.GenKey;
 import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
-import com.pgmate.pay.bean.KsnetBean;
-import com.pgmate.pay.bean.KsnetResultBean;
 import com.pgmate.pay.bean.Request;
 import com.pgmate.pay.conf.Firm;
 import com.pgmate.pay.conf.FirmLoader;
-import com.pgmate.pay.conf.Ksnet;
-import com.pgmate.pay.conf.KsnetLoader;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.firm.FirmBean;
 import com.pgmate.pay.util.AccountUtil;
@@ -32,7 +27,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class ProcVactAuthOpen extends Proc{
@@ -134,6 +128,12 @@ public class ProcVactAuthOpen extends Proc{
 
             // 공통 validation 처리 - 블랙리스트체크, 발급계좌체크, 인증10회인지 체크
             if(!regValid(request)) {
+                sendResponse();
+                return;
+            }
+
+            //230615_PYS : 동일출금계좌 발급제한 체크
+            if(!IssueLimitChecker(request)) {
                 sendResponse();
                 return;
             }
@@ -990,6 +990,25 @@ public class ProcVactAuthOpen extends Proc{
             return -new Double(-amount *10 /100).longValue();
         }else{
             return new Double(amount *10 /100).longValue();
+        }
+    }
+
+    public boolean IssueLimitChecker(Request request) {
+        String bankCd = request.auth.bankCd;
+        String account = request.auth.account;
+        String mchtId = mchtMap.getString("mchtId");
+
+        int limitCnt = mchtVactMngMap.getInt("eqAccntIssueLimitCnt");
+        if(limitCnt == 0) {
+            return true;
+        }
+
+        int issueCount = trxDAO.getEqAccountIssueCnt(bankCd, account, mchtId);
+        if(issueCount >= limitCnt) {
+            response.result = ResultUtil.getResult("9999", "동일 출금계좌 가상계좌 발급횟수초과","해당 출금계좌로 발급할수 있는 가상계좌 횟수를 초과하였습니다. 관리자에 문의 바랍니다");
+            return false;
+        } else {
+            return true;
         }
     }
 }
