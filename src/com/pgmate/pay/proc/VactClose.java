@@ -26,7 +26,7 @@ public class VactClose extends Proc {
 	@Override
 	public void exec(RoutingContext rc,Request request,SharedMap<String,Object> sharedMap,SharedMap<String,SharedMap<String,Object>> sharedObject) {
 		set(rc,request,sharedMap,sharedObject);
-		setResponse();
+		sendResponse();
 		return;
 		
 	}
