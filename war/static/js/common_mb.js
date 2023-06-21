@@ -64,21 +64,18 @@ function provisionStyling() {
     if (!KWON.util.isMobile() || ($(window).width() >= 960)) {
         $("#provision-area").addClass("agree-area");
     }
-    $("span.detail").each(function () {
+    $("div.detail").each(function () {
         let anchor = null;
-        if (KWON.util.isMobile()) {
-            // anchor = $(document.createElement('a')).prop({
-            //     target: '_blank',
-            //     // target: '#',
-            //     href: "/form/payment/auth/step_01_provision" + i + ".html",
-            //     innerText: '약관보기'
-            // })
-            var div = $(document.createElement('div'));
-            anchor = $(div).append($(document.createElement('a')).prop({href: '#', innerText: '약관보기'}));
-
-        } else {
-            anchor = $(document.createElement('a')).prop({href: '#', innerText: '약관보기'})
-        }
+        /*if (KWON.util.isMobile()) {
+            anchor = $(document.createElement('a')).prop({
+                target: '_blank',
+                // target: '#',
+                href: "/form/payment/auth/step_01_provision" + i + ".html",
+                innerText: '약관보기'
+            })
+        } else {*/
+            anchor = $(document.createElement('a')).prop({href: '#', innerText: '약관보기'});
+        // }
         $(this).append(anchor);
         i = i + 1;
     });
