@@ -64,7 +64,7 @@ function provisionStyling() {
     if (!KWON.util.isMobile() || ($(window).width() >= 960)) {
         $("#provision-area").addClass("agree-area");
     }
-    $("div.detail").each(function () {
+    $("span.detail").each(function () {
         let anchor = null;
         /*if (KWON.util.isMobile()) {
             anchor = $(document.createElement('a')).prop({
