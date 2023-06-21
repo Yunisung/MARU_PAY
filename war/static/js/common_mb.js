@@ -68,8 +68,9 @@ function provisionStyling() {
         let anchor = null;
         if (KWON.util.isMobile()) {
             anchor = $(document.createElement('a')).prop({
-                target: '_blank',
-                href: "/form/payment/auth/step_01_provision" + i + ".html",
+                // target: '_blank',
+                target: '#',
+                // href: "/form/payment/auth/step_01_provision" + i + ".html",
                 innerText: '약관보기'
             })
         } else {
