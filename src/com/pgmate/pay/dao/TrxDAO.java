@@ -1933,7 +1933,7 @@ public class TrxDAO extends DAO {
 				
 			}
 		}catch(Exception e){
-			System.out.println(e.getMessage());
+			logger.error(e.getMessage());
 		}finally{
 			db.close(conn,pstmt,rset);
 		}
