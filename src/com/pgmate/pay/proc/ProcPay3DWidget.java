@@ -92,8 +92,7 @@ public class ProcPay3DWidget extends Proc {
 						if(response.widget == null){response.widget = new SharedMap<String,Object>();}
 						
 						response.widget.put("device", ioMap.getString("device"));
-						
-						System.out.println("van :: " + vanMap.getString("van"));
+
 						//KJM : kspay, daou van에 대해서만 사용가능
 						//KJM : kspay일 때
 						if(vanMap.startsWith("van", "KSPAY")){
@@ -212,8 +211,8 @@ public class ProcPay3DWidget extends Proc {
 	 * @param vanMap
 	 */
 	public void setKspay(SharedMap<String,Object> vanMap){
-		
-		System.out.println("widgetkey : " + widgetKey);
+
+		logger.info("widgetkey : " + widgetKey);
 		request.widget.put("key", widgetKey);
 		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
 		
