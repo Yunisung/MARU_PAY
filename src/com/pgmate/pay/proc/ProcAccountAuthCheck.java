@@ -106,13 +106,13 @@ public class ProcAccountAuthCheck extends Proc {
                 response.result = ResultUtil.getResult("0001", "1원인증성공", "계좌1원인증이 완료되었습니다.");
             }
 
-            trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
+            trxDAO.updateTotalAuthResult(authId, 0, response.result.resultCd, response.result.resultMsg);
 
             return true;
         } else {
             response.result = ResultUtil.getResult("9999", "인증번호틀림", "인증번호가 틀렸습니다.");
 
-            trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
+            trxDAO.updateTotalAuthResult(authId, 0, response.result.resultCd, response.result.resultMsg);
             return false;
         }
 

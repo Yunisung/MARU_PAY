@@ -167,7 +167,6 @@ public class ProcAccountTransfer extends Proc{
         //230612_이체전문 로직 변경
         FirmBean firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
 
-
         if(!firmBean.resultCd.equals("0000")) {
             logger.info("1원인증 오류 [{}][{}][{}][{}][{}]", authId, bankCd, account, firmBean.resultCd, firmBean.resultMsg);
 
@@ -178,7 +177,7 @@ public class ProcAccountTransfer extends Proc{
             }
 
             //이체 실패시 DB 업데이트.
-            trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
+            trxDAO.updateTotalAuthResult(authId, firmBean.idx, firmBean.resultCd, firmBean.resultMsg);
 
             return false;
         } else {
@@ -199,7 +198,7 @@ public class ProcAccountTransfer extends Proc{
                 trxDAO.updateTotalAuthIO(reqJson, widgetKey);
             }
 
-            trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
+            trxDAO.updateTotalAuthResult(authId, firmBean.idx, response.result.resultCd, response.result.resultMsg);
 
             //ProcAccountAuthCheck에서 DB업데이트 예정
             return true;

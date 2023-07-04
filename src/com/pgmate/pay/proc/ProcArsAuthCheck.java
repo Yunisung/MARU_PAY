@@ -55,7 +55,7 @@ public class ProcArsAuthCheck extends Proc {
 
         if(firmBean.resultCd.equals("0000")) {
             //ARS인증완료
-            trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
+            trxDAO.updateTotalAuthResult(authId, 0, firmBean.resultCd, firmBean.resultMsg);
             response.result = ResultUtil.getResult(firmBean.resultCd, "통합인증 성공", "통합인증이 완료되었습니다.");
         } else {
             //ARS인증실패
@@ -71,7 +71,7 @@ public class ProcArsAuthCheck extends Proc {
                     firmBean.resultMsg = trxDAO.getArsErrorMsg(firmBean.resultCd);
                 }
 
-                trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
+                trxDAO.updateTotalAuthResult(authId, 0, firmBean.resultCd, firmBean.resultMsg);
                 response.result = ResultUtil.getResult(firmBean.resultCd, firmBean.resultMsg, "통합인증 오류");
             }
 
