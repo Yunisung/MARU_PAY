@@ -873,7 +873,7 @@ public class ProcVactAuthOpen extends Proc{
         trxDAO.updatePgVactAuth(authId, firmBean.resultCd, firmBean.resultMsg);
         */
 
-        trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
+        trxDAO.updateTotalAuthResult(authId, 0, firmBean.resultCd, firmBean.resultMsg);
 
         if(!firmBean.resultCd.equals("0000")) {
             //FCS 인증 실패시
