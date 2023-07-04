@@ -221,7 +221,7 @@ public class ProcAccountHolder extends Proc {
 				response.result = ResultUtil.getResult(firmBean.resultCd, "실명인증실패",firmBean.resultMsg);
 			}
 
-			trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
+			trxDAO.updateTotalAuthResult(authId, firmBean.idx, firmBean.resultCd, firmBean.resultMsg);
 
 			logger.info("FCS인증 오류 [{}][{}][{}][{}][{}]", bankCd, account, identity, firmBean.resultCd, firmBean.resultMsg);
 			return false;
@@ -270,14 +270,14 @@ public class ProcAccountHolder extends Proc {
 					response.result = ResultUtil.getResult("0001", "실명인증성공", "예금주명 조회가 완료되었습니다.");
 				}
 
-				trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
+				trxDAO.updateTotalAuthResult(authId, firmBean.idx, response.result.resultCd, response.result.resultMsg);
 
 				return true;
 			} else {
 				//이름이 다를때
 				response.result = ResultUtil.getResult("9999", "실명인증실패", "이름이 올바르지 않습니다.");
 
-				trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
+				trxDAO.updateTotalAuthResult(authId, firmBean.idx, response.result.resultCd, response.result.resultMsg);
 
 				logger.info("FCS인증 이름 오류 [{}][{}][{}][{}]", bankCd, account, accountName, holderName);
 				return false;
