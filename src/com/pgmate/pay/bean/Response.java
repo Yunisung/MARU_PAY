@@ -2,6 +2,8 @@ package com.pgmate.pay.bean;
 
 import com.pgmate.lib.util.map.SharedMap;
 
+import java.util.List;
+
 /**
  * @author Administrator
  *
@@ -19,6 +21,7 @@ public class Response {
 	public SharedMap<String,Object> widget = null;
 	public ARS ars			= null;
 	public Tmn tmn			= null;
+	public List<SharedMap<String,Object>> trxCap = null;	// PG_TRX_CAP 조회
 
 	// 통합인증
 	public TotalAuth totalAuth = null;

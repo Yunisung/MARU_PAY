@@ -69,6 +69,8 @@ public class PAYUNIT {
     public static String API_SETTLE_TRANSFER        = "/api/settle/transfer";
     public static String API_SETTLE_TRANSFER_ACCOUNT	= "/api/settle/transfer/account";		// 가상계좌번호로 출금
 //	public static String API_CHECK					= "/api/check";
+
+	public static String API_TRX_CAP				= "/api/trx/cap";		// PG_TRX_CAP 조회
 	
     public static String API_ARS_AUTH_ASYNC			= "/api/ars/auth/async";
 	public static String API_ARS_AUTH_CHECK			= "/api/ars/auth/check";

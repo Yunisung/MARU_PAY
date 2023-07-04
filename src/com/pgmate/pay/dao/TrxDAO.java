@@ -872,7 +872,19 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRow(0);
 
-	} 
+	}
+
+	// 23.07.03 추가 yjahn PG_TRX_CAP 조회
+	public List<SharedMap<String, Object>> getTrxCap(String mchtId, String tmnId) {
+		super.setTable("PG_TRX_CAP");
+		super.setColumns("*");
+		super.addWhere("mchtId", mchtId, eq);
+		super.addWhere("tmnId", tmnId, eq);
+		super.setOrderBy("regDay desc, regTime desc");
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRows();
+	}
 
 	public long getTrxRefundSumByTrxId(String trxId) {
 
