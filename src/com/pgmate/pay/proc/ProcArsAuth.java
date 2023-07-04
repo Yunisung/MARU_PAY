@@ -153,14 +153,14 @@ public class ProcArsAuth extends Proc {
             } else {
                 response.result = ResultUtil.getResult("AAAA", "ARS인증 실패",firmBean.resultMsg);
             }
-            trxDAO.updateTotalAuthResult(authId, "XXXX", firmBean.resultMsg);
+            trxDAO.updateTotalAuthResult(authId, firmBean.idx,"XXXX", firmBean.resultMsg);
 
             logger.info("ARS인증 오류 [{}][{}][{}][{}]", phoneNo, authNo, firmBean.resultCd, firmBean.resultMsg);
             return false;
         } else {
             logger.info("ARS인증 성공 : [{}][{}]", phoneNo, authNo);
 
-            trxDAO.updateTotalAuthResult(authId, "000", "ARS 인증 진행중");
+            trxDAO.updateTotalAuthResult(authId, firmBean.idx, "000", "ARS 인증 진행중");
 
             response.result = ResultUtil.getResult(firmBean.resultCd, "ARS인증 요청성공", "ARS인증이 요청되었습니다.");
 

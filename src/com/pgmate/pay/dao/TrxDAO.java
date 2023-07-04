@@ -5265,11 +5265,15 @@ public class TrxDAO extends DAO {
 		return insert ;
 	}
 
-	public boolean updateTotalAuthResult(String authId, String resultCd, String resultMsg) {
+	public boolean updateTotalAuthResult(String authId, long refId, String resultCd, String resultMsg) {
 		boolean result = false;
 
 		try {
 			super.setTable("PG_TOTAL_AUTH");
+
+			if(refId > 0) {
+				super.setRecord("refId", refId);
+			}
 
 			super.setRecord("resultCd", resultCd);
 			super.setRecord("resultMsg", resultMsg);
