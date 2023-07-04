@@ -149,6 +149,8 @@ public class Api {
 				process = new ProcSettleTransferAccount();
 			}else if (uri.startsWith(PAYUNIT.API_SETTLE_TRANSFER)) {
 				process = new ProcSettleTransfer();
+			}else if (uri.startsWith(PAYUNIT.API_TRX_CAP)) {
+				process = new ProcTrxCap();
 			}else if (uri.startsWith(PAYUNIT.API_ARS_AUTH_ASYNC)) {
 				process = new ARSAsync();
 			}else if (uri.startsWith(PAYUNIT.API_ARS_AUTH_CHECK)) {
