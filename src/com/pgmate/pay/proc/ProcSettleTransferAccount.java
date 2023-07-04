@@ -82,11 +82,20 @@ public class ProcSettleTransferAccount extends Proc {
 			return;
 		}
 
+		//블랙리스트 확인
+		boolean blackList = trxDAO.blackListCheck(bankCd, withDrawBankAccount);
+		if(blackList) {
+			response.result = ResultUtil.getResult("9999", "계좌오류","해당 출금계좌로 출금하실 수 없습니다. 관리자에 문의 바랍니다");
+			logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]", bankCd, withDrawBankAccount);
+			sendResponse();
+			return;
+		}
+
 		long transferNetAmount = netAmount;
 		long transferFee = fee + feeVat;
 		long transferBalance = sumMap.getLong("balance") - netAmount;
 
-		SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(bankCd, withDrawBankAccount).getRowFirst();
+		//SharedMap<String, Object> firmAccntMap = trxDAO.getFirmAccnt(bankCd, withDrawBankAccount).getRowFirst();
 
 		//response.transfer = 응답 object로 사용
 //		response.transfer = request.transfer;
@@ -121,7 +130,7 @@ public class ProcSettleTransferAccount extends Proc {
 		if(vactBankCd.equals("089")) {
 			trxMap.put("bankFee", 99);
 		}else if(vactBankCd.equals("039")) {
-			if(request.transfer.bankCd.equals("039")) {
+			if(bankCd.equals("039")) {
 				trxMap.put("bankFee", 110);
 			} else {
 				trxMap.put("bankFee", 220);
@@ -287,7 +296,8 @@ public class ProcSettleTransferAccount extends Proc {
 		if(ipChecker == true) {
 			response.result = ResultUtil.getResult("9999", "허용된 IP 아님","접근 가능한 IP가 아닙니다.");return;
 		}
-		
+
+
 
 	}
 	

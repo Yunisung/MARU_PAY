@@ -239,6 +239,13 @@ public class ProcSettleTransfer extends Proc {
 		if(ipChecker == true) {
 			response.result = ResultUtil.getResult("9999", "허용된 IP 아님","접근 가능한 IP가 아닙니다.");return;
 		}
+
+		//블랙리스트 확인
+		boolean blackList = trxDAO.blackListCheck(request.transfer.bankCd, request.transfer.account);
+		if(blackList) {
+			response.result = ResultUtil.getResult("9999", "계좌오류","해당 출금계좌로 출금하실 수 없습니다. 관리자에 문의 바랍니다");
+			logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]", request.transfer.bankCd, request.transfer.account);
+		}
 		
 
 	}
