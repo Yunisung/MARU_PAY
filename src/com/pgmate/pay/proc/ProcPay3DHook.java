@@ -241,7 +241,10 @@ public class ProcPay3DHook extends Proc {
 			ioMap.put("installment",requestMap.getString("RESERVED3"));
 			ioMap.put("authCd",requestMap.getString("authNum"));
 			ioMap.put("vanTrxId",requestMap.getString("vanTrxId"));
-			
+
+
+			logger.info("CardNum", requestMap.getString("pinNum"));
+
 			//KJM : 카드번호 길이
 			int cardLen = requestMap.getString("pinNum").length();
 			
