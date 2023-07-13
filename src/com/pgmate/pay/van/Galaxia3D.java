@@ -16,6 +16,7 @@ import javax.net.ssl.SSLSession;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,8 +96,8 @@ public class Galaxia3D {
             logger.info("##############################");
             logger.info(sb.toString());
             logger.info("##############################");
-            Object jsonobject = JSONValue.parse(sb.toString());
-            JSONObject jsonobj = (JSONObject)jsonobject;
+
+			JSONObject jsonobj = (JSONObject)JSONValue.parse(sb.toString());
             
             requestMap.put("pinNum", jsonobj.get("PIN_NUMBER"));
     		requestMap.put("authNum", jsonobj.get("AUTH_NUMBER"));
