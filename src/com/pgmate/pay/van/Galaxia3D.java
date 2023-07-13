@@ -102,6 +102,7 @@ public class Galaxia3D {
     		requestMap.put("authNum", jsonobj.get("AUTH_NUMBER"));
     		requestMap.put("vanTrxId", jsonobj.get("TRANSACTION_ID"));
     		requestMap.put("resCode", jsonobj.get("RESPONSE_CODE"));
+			requestMap.put("resMsg", jsonobj.get("RESPONSE_MESSAGE"));
     		requestMap.put("installment", jsonobj.get("QUOTA"));
     		requestMap.put("dtlCode", jsonobj.get("DETAIL_RESPONSE_CODE"));
     		requestMap.put("dtlMsg", jsonobj.get("DETAIL_RESPONSE_MESSAGE"));

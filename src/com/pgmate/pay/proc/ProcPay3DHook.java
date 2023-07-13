@@ -260,10 +260,10 @@ public class ProcPay3DHook extends Proc {
 		
 		//인증 실패 시
 		} else {
-			ioMap.put("vanResultCd","XXXX");
-			ioMap.put("vanResultMsg","거래정보 미확인");
+			ioMap.put("vanResultCd", requestMap.getString("resCode"));
+			ioMap.put("vanResultMsg",requestMap.getString("resMsg"));
 			ioMap.put("resultCd", "XXXX");
-			ioMap.put("resultMsg", "거래정보 미확인");
+			ioMap.put("resultMsg", "신용카드 거래실패");
 			ioMap.put("vanTrxId",requestMap.getString("vanTrxId"));
 			ioMap.put("authCd","");
 			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
