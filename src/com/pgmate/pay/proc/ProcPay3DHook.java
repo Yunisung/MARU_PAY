@@ -475,7 +475,7 @@ public class ProcPay3DHook extends Proc {
 		}
 		
 		response.pay = new Pay();
-		
+		response.pay.card = card;
 		response.pay.products 	= products;
 		response.pay.authCd		= ioMap.getString("authCd");
 		response.pay.webhookUrl	= widgetMap.getString("webhookurl");
