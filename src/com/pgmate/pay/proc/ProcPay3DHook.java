@@ -418,6 +418,7 @@ public class ProcPay3DHook extends Proc {
 		product.name = widgetMap.getString("itemName");
 		product.qty = (int) 1.0;
 		product.desc = "deq-scription";
+		products.add(product);
 		
 		//cardId와 prodId는 여기서 생성 되어 저장
 		ioMap.put("cardId", GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
