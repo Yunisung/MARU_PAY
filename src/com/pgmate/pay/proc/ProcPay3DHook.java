@@ -224,16 +224,14 @@ public class ProcPay3DHook extends Proc {
 		//갤럭시아 모듈 사용하여 승인정보 가져와 requestMap에 세팅
 		Galaxia3D galaxia3d = new Galaxia3D();
 		galaxia3d.comm(requestMap);
-		
-		logger.info("reCommType : [{}]",requestMap.getString("reCommType"));	//[WH]
-		logger.info("reHash : [{}]",requestMap.getString("reHash"));
+
 		logger.info("trxId : [{}]",trxId);
 		
 		// KBR : 3D위젯 정보 거래번호로 조회
 		ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
 		
 		//인증 성공 시
-		if(requestMap.isEquals("dtlCode", "00")) {
+		if(requestMap.isEquals("resCode", "0000")) {
 			ioMap.put("vanResultCd","0000");
 			ioMap.put("vanResultMsg","정상승인");
 			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
@@ -263,7 +261,7 @@ public class ProcPay3DHook extends Proc {
 			ioMap.put("vanResultCd", requestMap.getString("resCode"));
 			ioMap.put("vanResultMsg",requestMap.getString("resMsg"));
 			ioMap.put("resultCd", "XXXX");
-			ioMap.put("resultMsg", "신용카드 거래실패");
+			ioMap.put("resultMsg", requestMap.getString("dtlMsg"));
 			ioMap.put("vanTrxId",requestMap.getString("vanTrxId"));
 			ioMap.put("authCd","");
 			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
@@ -375,7 +373,7 @@ public class ProcPay3DHook extends Proc {
 		if(ioMap.isEquals("vanResultCd", "0000")){
 			response.result 	= ResultUtil.getResult("0000","정상","정상승인");
 		}else{
-			response.result 	= ResultUtil.getResult(ioMap.getString("vanResultCd"),"승인실패",ioMap.getString("vanResultMsg"));
+			response.result 	= ResultUtil.getResult(ioMap.getString("vanResultCd"),"승인실패",ioMap.getString("resultMsg"));
 		}
 		
 		// KBR: pay 생성하여 카드정보 제품정보 및 결제정보를 모두 셋팅
@@ -473,7 +471,7 @@ public class ProcPay3DHook extends Proc {
 		if(ioMap.isEquals("vanResultCd", "0000")){
 			response.result 	= ResultUtil.getResult("0000","정상","정상승인");
 		}else{
-			response.result 	= ResultUtil.getResult(ioMap.getString("vanResultCd"),"승인실패",ioMap.getString("vanResultMsg"));
+			response.result 	= ResultUtil.getResult(ioMap.getString("resultCd"),"승인실패",ioMap.getString("vanResultMsg"));
 		}
 		
 		response.pay = new Pay();
