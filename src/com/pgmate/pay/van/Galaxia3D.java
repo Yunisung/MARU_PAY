@@ -102,7 +102,12 @@ public class Galaxia3D {
     		requestMap.put("installment", jsonobj.get("QUOTA"));
     		requestMap.put("dtlCode", jsonobj.get("DETAIL_RESPONSE_CODE"));
     		requestMap.put("dtlMsg", jsonobj.get("DETAIL_RESPONSE_MESSAGE"));
-			
+
+			logger.info("RESPONSE_CODE : {}", requestMap.getString("resCode"));
+			logger.info("RESPONSE_MESSAGE : {}", requestMap.getString("resMsg"));
+			logger.info("DETAIL_RESPONSE_CODE : {}", requestMap.getString("dtlCode"));
+			logger.info("DETAIL_RESPONSE_MESSAGE : {}", requestMap.getString("dtlMsg"));
+
 		} catch(Exception e) {
 			result ="CONNECT ERROR ["+e.getMessage()+"] "+Galaxia3D.GALAXIA_WEB_URL;
 		} finally {
