@@ -231,7 +231,7 @@ public class ProcPay3DHook extends Proc {
 		ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
 		
 		//인증 성공 시
-		if(requestMap.isEquals("resCode", "0000")) {
+		if(requestMap.isEquals("RESPONSE_CODE", "0000")) {
 			ioMap.put("vanResultCd","0000");
 			ioMap.put("vanResultMsg","정상승인");
 			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
@@ -258,10 +258,10 @@ public class ProcPay3DHook extends Proc {
 		
 		//인증 실패 시
 		} else {
-			ioMap.put("vanResultCd", requestMap.getString("resCode"));
-			ioMap.put("vanResultMsg",requestMap.getString("resMsg"));
+			ioMap.put("vanResultCd", requestMap.getString("RESPONSE_CODE"));
+			ioMap.put("vanResultMsg",requestMap.getString("RESPONSE_MESSAGE"));
 			ioMap.put("resultCd", "XXXX");
-			ioMap.put("resultMsg", requestMap.getString("dtlMsg"));
+			ioMap.put("resultMsg", requestMap.getString("DETAIL_RESPONSE_MESSAGE"));
 			ioMap.put("vanTrxId",requestMap.getString("vanTrxId"));
 			ioMap.put("authCd","");
 			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
