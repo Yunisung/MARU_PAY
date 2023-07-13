@@ -402,7 +402,6 @@ public class ProcPay3DWidget extends Proc {
 		form.put("DIRECT_USE", request.widget.getString("directUse"));
 		form.put("CARD_TYPE", request.widget.getString("cardType"));
 		form.put("WEBAPI_FLAG", "Y");	//인증 응답시 pay_message 전달 여부(y:전달/n:미전달) web-api 방식 사용 시 y 필수
-		form.put("CANCEL_FLAG", "Y");
 		
 		//api/3d/hook(결제 정보 저장)으로 들어가는 url 세팅
 		//https://127.0.0.1:10002/api/3d/hook/{van}/{trxId}
