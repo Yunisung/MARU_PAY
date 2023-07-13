@@ -375,7 +375,7 @@ public class ProcPay3DWidget extends Proc {
 		if(request.widget.isEquals("device", "mobile")){
 			request.widget.put("targetUrl", "http://pay.billgate.net/credit/smartphone/certify.jsp");
 		}else{
-			request.widget.put("targetUrl", "http://pay.billgate.net/credit/certify.jsp");
+			request.widget.put("targetUrl", "https://pay.billgate.net/credit/certify.jsp");
 		}
 		
 		if(request.widget.isEquals("device", "MSIE")){
@@ -386,7 +386,7 @@ public class ProcPay3DWidget extends Proc {
 		}
 		
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
-		form.put("SERVICE_ID", request.widget.getString("serviceId"));
+		form.put("SERVICE_ID", vanMap.getString("vanId"));
 		form.put("ORDER_ID", request.widget.getString("trackId"));
 		form.put("ORDER_DATE", request.widget.getString("orderDate"));
 		form.put("USER_ID", request.widget.getString("userId"));
@@ -398,14 +398,17 @@ public class ProcPay3DWidget extends Proc {
 		form.put("CURRENCY", request.widget.getString("usingType"));
 		form.put("ITEM_NAME", request.widget.getString("itemName")); //상품명
 		form.put("RESERVED1", request.widget.getString("publicKey"));
+		form.put("DIRECT_USE", request.widget.getString("directUse"));
+		form.put("CARD_TYPE", request.widget.getString("cardType"));
 		form.put("WEBAPI_FLAG", "Y");	//인증 응답시 pay_message 전달 여부(y:전달/n:미전달) web-api 방식 사용 시 y 필수
+		form.put("CANCEL_FLAG", "Y");
 		
 		//api/3d/hook(결제 정보 저장)으로 들어가는 url 세팅
 		//https://127.0.0.1:10002/api/3d/hook/{van}/{trxId}
 		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
 			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}else{
-			form.put("RETURN_URL", String.format("http://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 		
 		//form 처리
