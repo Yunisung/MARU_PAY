@@ -234,7 +234,7 @@ public class ProcPay3DHook extends Proc {
 		if(requestMap.isEquals("RESPONSE_CODE", "0000")) {
 			ioMap.put("vanResultCd","0000");
 			ioMap.put("vanResultMsg","정상승인");
-			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
+			ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 			ioMap.put("issuer","기타");
 			ioMap.put("installment",requestMap.getString("RESERVED3"));
 			ioMap.put("authCd",requestMap.getString("authNum"));
@@ -264,7 +264,7 @@ public class ProcPay3DHook extends Proc {
 			ioMap.put("resultMsg", requestMap.getString("DETAIL_RESPONSE_MESSAGE"));
 			ioMap.put("vanTrxId",requestMap.getString("vanTrxId"));
 			ioMap.put("authCd","");
-			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
+			ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 			ioMap.put("issuer","");
 			ioMap.put("installment",requestMap.getString("RESERVED3"));
 			
