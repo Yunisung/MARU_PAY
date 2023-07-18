@@ -209,6 +209,8 @@ public class Api {
 				process = new ProcRebillStart();
 			}else if (uri.startsWith(PAYUNIT.API_REBILL_REG)) {
 				process = new ProcRebillReg();
+			}else if (uri.startsWith(PAYUNIT.API_GALAXIA_MOBILE_RETURN)) {
+				process = new ProcGalaxiaMobileReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
