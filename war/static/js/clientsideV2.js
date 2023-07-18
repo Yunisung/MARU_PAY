@@ -17,7 +17,8 @@ var MARU = (function (win, doc) {
   var routeUrls = {
     sandbox: 'https://devapi.bkwinners.kr',
     // sandbox: 'http://127.0.0.1:10002',
-    live: 'https://api.bkwinners.kr'
+    live: 'https://api.bkwinners.kr',
+    local: 'http://127.0.0.1:10002'
   }
   var paykey = '';
   var echoSuccess;
