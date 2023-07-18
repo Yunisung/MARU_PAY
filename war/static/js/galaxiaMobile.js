@@ -1,4 +1,4 @@
-console.log('IMPORT KAKAOMobile.JS FILE!');
+console.log('IMPORT GALAIXA MOBILE.JS FILE!');
 var c3_Config = {
     debug: true
 };
@@ -285,9 +285,7 @@ var C3MOD = (function (win, doc) {
     function validation(config) {
         c3_Config = JSON.parse(config).widget;
         c3_Config.form = JSON.parse(c3_Config.form);
-        c3_Config.authForm = JSON.parse(c3_Config.authForm);
 
-//       c3_Config.targetUrl = c3_Config.targetUrl.replace('\u003d', '=');
         console.log('c3_Config', c3_Config);
 
         //간편결제 모바일때만 redirectURL 사용
