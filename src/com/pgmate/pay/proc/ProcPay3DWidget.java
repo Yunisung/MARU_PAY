@@ -373,7 +373,7 @@ public class ProcPay3DWidget extends Proc {
 		
 		//van의 결제모듈 url 설정
 		if(request.widget.isEquals("device", "mobile")){
-			request.widget.put("targetUrl", "http://pay.billgate.net/credit/smartphone/certify.jsp");
+			request.widget.put("targetUrl", "https://pay.billgate.net/credit/smartphone/certify.jsp");
 		}else{
 			request.widget.put("targetUrl", "https://pay.billgate.net/credit/certify.jsp");
 		}
