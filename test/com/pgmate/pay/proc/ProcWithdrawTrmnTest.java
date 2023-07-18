@@ -107,7 +107,7 @@ public class ProcWithdrawTrmnTest {
         SharedMap<String, Object> mchtTmn = trxDAO.getMchtTmnByTmnId(tmnId);
         SharedMap<String, Object> mcht = trxDAO.getMchtByMchtId(mchtTmn.getString("mchtId"));
         SharedMap<String, Object> mchtMng = trxDAO.getMchtMngByMchtId(mchtTmn.getString("mchtId"));
-        List<SharedMap<String,Object>> vactDtls = trxDAO.getVactDtlList(mchtTmn.getString("mchtId"), "발행");
+        List<SharedMap<String,Object>> vactDtls = trxDAO.getVactDtlList(mchtTmn.getString("mchtId"), "발행", "039");
 
         Request request = new Request();
 
@@ -140,7 +140,7 @@ public class ProcWithdrawTrmnTest {
         SharedMap<String, Object> mchtTmn = trxDAO.getMchtTmnByTmnId(tmnId);
         SharedMap<String, Object> mcht = trxDAO.getMchtByMchtId(mchtTmn.getString("mchtId"));
         SharedMap<String, Object> mchtMng = trxDAO.getMchtMngByMchtId(mchtTmn.getString("mchtId"));
-        List<SharedMap<String,Object>> vactDtls = trxDAO.getVactDtlList(mchtTmn.getString("mchtId"), "발행");
+        List<SharedMap<String,Object>> vactDtls = trxDAO.getVactDtlList(mchtTmn.getString("mchtId"), "발행", "039");
 
         logger.debug("전체건수: {}", vactDtls.size());
         for(SharedMap<String,Object> list : vactDtls) {
