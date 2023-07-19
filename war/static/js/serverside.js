@@ -172,9 +172,15 @@ var postMessages = {
         util.sendMessageToParent(revcObj);
     },
     echoResult: function(res) {
-        console.log(res);
         var obj = {
             type: 'ECHO_RESULT',
+            data: res
+        }
+        util.sendMessageToParent(obj);
+    },
+    refundResult: function(res) {
+        var obj = {
+            type: 'REFUND_RESULT',
             data: res
         }
         util.sendMessageToParent(obj);
@@ -336,6 +342,36 @@ function echoPayment(recv) {
     
 }
 
+function refund(recv) {
+    refundData = recv.refundData;
+
+    var result = new Object;
+    result.refund = refundData;
+
+    console.log('SEND REFUND DATA : ', JSON.stringify(result));
+
+    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+    xhr.open('POST', '/api/refund');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState > 3) {
+            if(xhr.status == 200) {
+                console.log(JSON.parse(xhr.responseText));
+                postMessages.refundResult(JSON.parse(xhr.responseText));
+            } else {
+                var res = {result : {resultCd: 'xxxx', resultMsg: 'refund', advanceMsg: '실패'}};
+                postMessages.refundResult(res);
+            }
+
+        }
+    };
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Accept-Language", "ko_KR");
+    xhr.setRequestHeader("Authorization", refundData.paykey);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify(result));
+
+}
+
 /* 클라이언트(Parent window)로 부터 받은 PoseMessage */
 util.addEventListener(window, 'message', function(e) {
     //console.log(e.source);
@@ -353,8 +389,9 @@ util.addEventListener(window, 'message', function(e) {
     } else if (recv.type === 'PAY_CLOSE') {
         closePayment(recv.data);
     } else if (recv.type === 'ECHO') {
-        console.log(recv);
         echoPayment(recv);
+    } else if(recv.type === 'REFUND') {
+        refund(recv);
     }
 });
 

@@ -22,6 +22,14 @@ var MARU = (function (win, doc) {
   var paykey = '';
   var echoSuccess;
   var echoFail;
+
+  var refundData = {
+    paykey: '',
+    trackId: '',
+    rootTrxId: '',
+    responseFunction: ''
+  }
+
   var routeDomain = routeUrls[c3Config.debugMode];
   var layerInited = false;            // 레이어 생성이 완료되었는지
   var layerLoaded = false;            // 레이어가 로드 되었는지
@@ -186,6 +194,10 @@ var MARU = (function (win, doc) {
     echo: function() {
       var obj = { type: 'ECHO', key : paykey };
       util.sendMessageToFrame(obj);
+    },
+    refund: function() {
+      var obj = { type: 'REFUND', refundData : refundData };
+      util.sendMessageToFrame(obj);
     }
 
   }
@@ -276,6 +288,13 @@ var MARU = (function (win, doc) {
     }
   }
 
+  function refundResult(data) {
+    var resFunc = refundData.responseFunction;
+    if(resFunc && typeof resFunc == 'function') {
+      resFunc(data);
+    }
+  }
+
 
   /*==== 실행 구문 ====*/
   function init() {
@@ -301,6 +320,8 @@ var MARU = (function (win, doc) {
         payResult(recv.data);
       } else if (recv.type === 'ECHO_RESULT') {
         echoResult(recv.data.result);
+      } else if (recv.type === 'REFUND_RESULT') {
+        refundResult(recv.data);
       }
     });
 
@@ -359,6 +380,30 @@ function requestPayOpen() {
     }, 200);
   }
 
+  function refundPop() {
+    console.log('c3pop', routeDomain + '/form/payment/layoutV3');
+    doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV3'; // 정해지면 변경...
+    doc.getElementById('c3pop_pop_overlay_wrap').style.display = 'none';
+    doc.getElementById('c3_pop_overlay').style.display = 'none';
+    doc.getElementById('c3pop_content_fixed').style.display = 'none';
+  }
+
+  function refund(key, trackId, rootTrxId, response) {
+    refundPop();
+
+    refundData['paykey'] = key;
+    refundData['trackId'] = trackId;
+    refundData['rootTrxId'] = rootTrxId;
+    refundData['responseFunction'] = response;
+
+    console.log('paykey : ', paykey);
+    console.log('refund Data : ', refundData);
+
+    setTimeout(function() {
+      postMessages.refund();
+    }, 200);
+  }
+
   function setDebug(bool) {
     debug = bool;
   }
@@ -369,7 +414,8 @@ function requestPayOpen() {
     c3pop: c3pop,
     removec3pop: removePop,
     pay: pay,
-    echo : echo
+    echo : echo,
+    refund: refund
   }
 
   util.documentReady(init)
