@@ -139,10 +139,10 @@ public class ProcGalaxiaReturn extends Proc {
 
             int cardLen = pinNumber.length();
             if(cardLen > 6){
-                ioMap.put("bin", requestMap.getString("pinNum").substring(0, 6));
+                ioMap.put("bin", pinNumber.substring(0, 6));
             }
             if(cardLen > 14){
-                ioMap.put("last4", requestMap.getString("pinNum").substring(cardLen-4, cardLen));
+                ioMap.put("last4", pinNumber.substring(cardLen-4, cardLen));
             }
         }else {
             ioMap.put("vanResultCd", RESPONSE_CODE);
