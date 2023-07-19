@@ -110,12 +110,12 @@ public class PAYUNIT {
 	public static String API_REBILL_START			= "/api/rebill/start";			//정기결제 다시시작
 	public static String API_REBILL_REG				= "/api/rebill/reg";			//정기결제 등록
 
-	public static String API_GALAXIA_MOBILE_RETURN  = "/api/galaxia/mobile/return";
+	public static String API_GALAXIA_RETURN  		= "/api/galaxia/return";
 
 
 
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
-    public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook","galaxia/mobile/return"};
+    public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook","galaxia/return"};
 	
 	public static String ROUTE_ROOT					= "/";
 	public static String ROUTE_CROSSDOMAIN 			= "/crossdomain.xml";

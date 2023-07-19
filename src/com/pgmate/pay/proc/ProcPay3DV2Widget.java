@@ -210,7 +210,7 @@ public class ProcPay3DV2Widget extends Proc {
 								if(request.widget.isEquals("device", "mobile")){
 									response.widget.put("routeUrl", "/form/payment/galaxia/galaxiaMobile.html?token=" + widgetKey);
 								}else {
-									response.widget.put("routeUrl", "/form/payment/galaxia/index.html?token=" + widgetKey);
+									response.widget.put("routeUrl", "/form/payment/galaxia/galaxiaWeb.html?token=" + widgetKey);
 								}
 
 								setGalaxia(vanMap);
@@ -984,14 +984,12 @@ public class ProcPay3DV2Widget extends Proc {
 
 		if(request.widget.isEquals("device", "mobile")) {
 			form.put("CANCEL_FLAG", "Y");
-			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_GALAXIA_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+		}
 
-		} else {
-			if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
-				form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-			}else{
-				form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-			}
+		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
+			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+		}else{
+			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 
 		//form 처리
