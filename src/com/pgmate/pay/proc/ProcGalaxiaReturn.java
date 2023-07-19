@@ -266,7 +266,7 @@ public class ProcGalaxiaReturn extends Proc {
         response.pay.card 		= card;
         response.pay.products 	= products;
         response.pay.authCd		= ioMap.getString("authCd");
-        response.pay.webhookUrl	= widgetMap.getString("webhookurl");
+        response.pay.webhookUrl	= widgetMap.getString("webhookUrl");
         response.pay.trxId		= ioMap.getString("trxId");
         response.pay.trxType	= "3DTR";
         response.pay.tmnId		= ioMap.getString("tmnId");
