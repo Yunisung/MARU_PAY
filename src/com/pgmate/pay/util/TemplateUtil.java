@@ -149,7 +149,7 @@ public class TemplateUtil {
 				" <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/index.css\">",
 				" <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/spinner.css\">",
 				"<head><body>",
-				" <form action=\""+url+"\" name=\"frm\" method=\"POST\" target=\"_self\">",
+				" <form action=\""+url+"\" name=\"frm\" target=\"_self\">",
 				"   <textarea name=\"data\">"+resData+"</textarea>",
 				" </form>",
 				" <div id=\"c3-loading\" style=\"display: block;\">",
