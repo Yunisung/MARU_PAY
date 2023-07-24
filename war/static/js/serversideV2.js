@@ -284,6 +284,8 @@ function openPayment(config) {
                 document.getElementById('iframe-payment-containner').style.width = ServerUtil.layerWidth;
                 document.getElementById('iframe-payment').src = url;
                 document.getElementById('iframe-payment').style.display = 'block';
+                document.getElementById('iframe-payment').style.height = ServerUtil.layerHeigth;
+                document.getElementById('iframe-payment').style.width = ServerUtil.layerWidth;
             }
         } else {
             /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
