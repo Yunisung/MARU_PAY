@@ -4,11 +4,10 @@
 <meta http-equiv="cache-control" content="private"/>
 <meta http-equiv="content-language" content="euc-kr"/>
 <meta name="language" content="ko" />
-<meta name="viewport" content="initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0; width=350; height=610; />
+<meta name="viewport" content="initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0; width=device-width; />
 
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://pay.billgate.net/paygate/plugin/gx_web_client.js"></script>
     <!--    <meta http-equiv="Content-Type" content="text/html; charset=euc-kr">-->
     <meta charset="utf-8">
     <title>CREDITOP 모바일 </title>
@@ -23,10 +22,8 @@
     <script language="javascript">
 
         function _submit() {
-            // var vfrm = document.payment;
-            // vfrm.submit();
-
-            GX_pay("payment", "submit", "https_pay");
+            var vfrm = document.payment;
+            vfrm.submit();
         }
 
     </script>
