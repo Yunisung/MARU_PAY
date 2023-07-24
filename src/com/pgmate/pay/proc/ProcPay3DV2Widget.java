@@ -965,8 +965,6 @@ public class ProcPay3DV2Widget extends Proc {
 
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
 		form.put("SERVICE_ID", vanMap.getString("vanId"));
-		form.put("SERVICE_CODE", "0900");
-		form.put("SERVICE_TYPE", "0000");
 		form.put("ORDER_ID", request.widget.getString("trackId"));
 		form.put("ORDER_DATE", request.widget.getString("orderDate"));
 		form.put("USER_ID", request.widget.getString("userId"));

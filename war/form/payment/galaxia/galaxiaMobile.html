@@ -8,7 +8,6 @@
 
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://pay.billgate.net/paygate/plugin/gx_web_client.js"></script>
     <!--    <meta http-equiv="Content-Type" content="text/html; charset=euc-kr">-->
     <meta charset="utf-8">
     <title>CREDITOP 모바일 </title>
@@ -23,10 +22,8 @@
     <script language="javascript">
 
         function _submit() {
-            // var vfrm = document.payment;
-            // vfrm.submit();
-
-            GX_pay("payment", "submit", "https_pay");
+            var vfrm = document.payment;
+            vfrm.submit();
         }
 
     </script>
