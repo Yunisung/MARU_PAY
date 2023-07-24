@@ -236,7 +236,7 @@ var C3MOD = (function (win, doc) {
         var f = doc.createElement("form");
         f.setAttribute("name", "payment");
         f.setAttribute("method", "post");
-        // f.setAttribute("action",config.targetUrl);
+        f.setAttribute("action",config.targetUrl);
         document.body.appendChild(f);
 
         for (key in config.form) {
