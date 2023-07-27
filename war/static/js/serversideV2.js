@@ -228,25 +228,7 @@ function PopupCenter(url, title, w, h) {
     var newWindow = null;
     console.log('Window Open!');
 
-    var f = document.createElement('form')
-    f.setAttribute('method', 'get')
-    f.setAttribute('target', 'thepayone-payment')
-    f.setAttribute('action', url)
-    var i = document.createElement("input"); //input element, text
-    i.setAttribute('type', "text");
-    i.setAttribute('name', "token");
-    i.setAttribute('value', url.split('?token=')[1]);
-    var s = document.createElement("input"); //input element, Submit button
-    s.setAttribute('type', "submit");
-    s.setAttribute('value', "Submit");
-    f.appendChild(i);
-    f.appendChild(s);
-    document.getElementsByTagName('body')[0].appendChild(f);
-    f.style.display = 'none';
-    f.submit();
-
-
-    /*if (util.isMobile()) {
+    if (util.isMobile()) {
         console.log('Mobile Open!');
         newWindow = window.open('about:blank', title);
     } else {
@@ -275,7 +257,7 @@ function PopupCenter(url, title, w, h) {
         if (window.focus) {
             newWindow.focus();
         }
-    }*/
+    }
 }
 
 
