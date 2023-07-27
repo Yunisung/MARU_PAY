@@ -249,7 +249,7 @@ var C3MOD = (function (win, doc) {
             f.appendChild(elem);
         }
 
-        _submit();
+        f.submit();
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
