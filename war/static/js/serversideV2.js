@@ -211,25 +211,31 @@ var ServerUtil = {
     }
 }
 
-var popupUrl;
-
 var popup = function(url) {
-    popupUrl = url;
-    createPayButton();
-    // PopupCenter(url, 'thepayone-payment', ServerUtil.popupWidth, ServerUtil.popupHeigth);
+    PopupCenter(url, 'thepayone-payment', ServerUtil.popupWidth, ServerUtil.popupHeigth);
 }
 
 function createPayButton() {
     const span = document.querySelector("#payment-button span:first-child");
-    const button = document.createElement("button");
-    button.innerText = "결제모듈호출";
-    button.setAttribute("style", "width: 100%");
-    button.addEventListener("click", PopupHelper);
-    span.appendChild(button);
+    const button1 = document.createElement("button");
+    const button2 = document.createElement("button");
+    button1.innerText = "결제모듈호출";
+    button1.setAttribute("style", "width: 100%");
+    button1.addEventListener("click", PopupHelper);
+    button2.innerText = "닫기";
+    button2.setAttribute("style", "width: 100%");
+    button2.addEventListener("click", PopupClose);
+
+    span.appendChild(button1);
+    span.appendChild(button2);
 }
 
 function PopupHelper() {
     PopupCenter(popupUrl,'thepayone-payment', ServerUtil.popupWidth, ServerUtil.popupHeigth);
+}
+
+function PopupClose() {
+    postMessages.layerClosed();
 }
 
 function PopupCenter(url, title, w, h) {
@@ -374,30 +380,3 @@ util.addEventListener(window, 'message', function(e) {
 util.documentReady(function() {
     postMessages.layerLoaded();
 });
-
-function onLoad() {
-
-    document.addEventListener("deviceready", onDeviceReady, false);
-
-}
-
-function onDeviceReady() {
-
-    document.addEventListener("backbutton", onBackKeyDown, false);
-
-}
-
-function onBackKeyDown() {
-
-    navigator.notification.confirm('종료하시겠습니까?', onBackKeyDownMsg, '종료', '취소, 종료');
-
-}
-
-function onBackKeyDownMsg(button) {
-
-    if(button == 2) {
-
-        navigator.app.exitApp();
-
-    }
-}
