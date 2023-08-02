@@ -211,8 +211,25 @@ var ServerUtil = {
     }
 }
 
+var popupUrl;
+
 var popup = function(url) {
-    PopupCenter(url, 'thepayone-payment', ServerUtil.popupWidth, ServerUtil.popupHeigth);
+    popupUrl = url;
+    createPayButton();
+    // PopupCenter(url, 'thepayone-payment', ServerUtil.popupWidth, ServerUtil.popupHeigth);
+}
+
+function createPayButton() {
+    const span = document.querySelector("#payment-button span:first-child");
+    const button = document.createElement("button");
+    button.innerText = "결제모듈호출";
+    button.setAttribute("style", "width: 100%");
+    button.addEventListener("click", PopupHelper);
+    span.appendChild(button);
+}
+
+function PopupHelper() {
+    PopupCenter(popupUrl,'thepayone-payment', ServerUtil.popupWidth, ServerUtil.popupHeigth);
 }
 
 function PopupCenter(url, title, w, h) {
@@ -234,6 +251,7 @@ function PopupCenter(url, title, w, h) {
     } else {
         newWindow = window.open('about:blank', title, 'location=no, resizable=no, fullscreen=no, menubar=no, status=no, toolbar=no, scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
     }
+
     if (newWindow == null || typeof(newWindow) == 'undefined') {
         alert('팝업 차단 기능이 설정되어 있습니다.\n\n차단 기능을 해제 한 후 다시 시도해 주십시오.');
     } else {
@@ -258,6 +276,7 @@ function PopupCenter(url, title, w, h) {
             newWindow.focus();
         }
     }
+    
 }
 
 
@@ -279,7 +298,6 @@ function openPayment(config) {
             console.log('url : '+ url);
             console.log('mode : ' + config.c3Config.mode);
             if (config.c3Config.mode === 'popup') {
-
                 popup(url);
             } else {
                 if(res.widget.target == 'REGULAR') document.getElementById('iframe-payment').style.backgroundColor = 'whitesmoke';
