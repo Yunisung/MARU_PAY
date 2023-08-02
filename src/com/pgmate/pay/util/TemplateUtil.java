@@ -161,7 +161,6 @@ public class TemplateUtil {
 				"   </div>",
 				"   <div class=\"de-msg loading-tag\">결제가 진행중입니다.</div>",
 				" </div>",
-				"<script src=\"/static/js/kspay.js\"></script>",
 				"<script>setTimeout(function() { document.forms.frm.submit(); },200);</script>",
 				"</body></html>");
 
