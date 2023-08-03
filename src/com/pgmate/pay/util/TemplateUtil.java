@@ -170,7 +170,6 @@ public class TemplateUtil {
 		.putHeader(HttpHeaders.EXPIRES, "-1")
 		.putHeader(HttpHeaders.CONNECTION, "close")
 		.putHeader(HttpHeaders.SERVER, "CREDITOP")
-				.putHeader("ngrok-skip-browser-warning", "69420")
 		.write(sb.toString()).end();
 	}
 
