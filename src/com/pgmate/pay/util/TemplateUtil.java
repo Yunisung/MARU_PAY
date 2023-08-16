@@ -28,7 +28,7 @@ public class TemplateUtil {
 				"   </div>",
 				"   <div class=\"de-msg loading-tag\">결제가 진행중입니다.</div>",
 				" </div>",
-				"<script src=\"/static/js/kspay.js\"></script>",
+				//"<script src=\"/static/js/kspay.js\"></script>",
 				"<script>setTimeout(function() { kspayToParent(); },200);</script>",
 				"</body></html>");
 		//KJM : 헤더 값 설정
