@@ -248,7 +248,7 @@ var C3MOD = (function (win, doc) {
             console.log(key + ' : ' + val);
             f.appendChild(elem);
         }
-        f.charset = "euc-kr";
+        f.acceptCharset = "euc-kr";
         f.submit();
     }
 
