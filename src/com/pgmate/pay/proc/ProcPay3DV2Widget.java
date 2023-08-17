@@ -963,6 +963,16 @@ public class ProcPay3DV2Widget extends Proc {
 			request.widget.put("height", 518);
 		}
 
+		//할부개월수 자동세팅
+		String installment = "";
+
+		for(int i = 0; i < mchtTmnMap.getInt("apiMaxInstall"); i++){
+			if(i != 1){
+				installment+=CommonUtil.toString(i)+":";
+			}
+		}
+		installment += mchtTmnMap.getInt("apiMaxInstall");
+
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
 		form.put("SERVICE_ID", vanMap.getString("vanId"));
 		form.put("SERVICE_CODE", "0900");
@@ -973,7 +983,7 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("ITEM_CODE", request.widget.getString("itemCode"));
 		form.put("AMOUNT", request.widget.getString("amount"));
 		form.put("USER_NAME", request.widget.getString("userName")); //고객명
-		form.put("INSTALLMENT_PERIOD", request.widget.getString("installmentPeriod"));
+		form.put("INSTALLMENT_PERIOD", installment);
 		form.put("USING_TYPE", request.widget.getString("usingType"));
 		form.put("CURRENCY", request.widget.getString("usingType"));
 		form.put("ITEM_NAME", request.widget.getString("itemName")); //상품명
