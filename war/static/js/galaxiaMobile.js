@@ -248,8 +248,16 @@ var C3MOD = (function (win, doc) {
             console.log(key + ' : ' + val);
             f.appendChild(elem);
         }
-        f.acceptCharset = "euc-kr";
-        f.submit();
+
+        if (/edge/.test(navigator.userAgent.toLowerCase()) || /MSIE/.test(navigator.userAgent) || /Trident.*rv[ :]*11\./.test(navigator.userAgent) ) {
+            var befCharset = document.charset;
+            f.charset = "euc-kr";
+            f.submit();
+            document.charset = befCharset;
+        } else {
+            f.acceptCharset = "euc-kr";
+            f.submit();
+        }
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
