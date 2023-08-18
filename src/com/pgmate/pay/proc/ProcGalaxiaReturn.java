@@ -158,6 +158,10 @@ public class ProcGalaxiaReturn extends Proc {
             ioMap.put("bin", "");
             ioMap.put("last4", "");
         }
+
+        if(ioMap.isNullOrSpace("vanResultDate")){
+            ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
+        }
     }
 
     public Message MessageAuthProcess(SharedMap<String,String> authInfo) throws Exception {
@@ -258,7 +262,7 @@ public class ProcGalaxiaReturn extends Proc {
         if(ioMap.isEquals("vanResultCd", "0000")){
             response.result 	= ResultUtil.getResult("0000","정상","정상승인");
         }else{
-            response.result 	= ResultUtil.getResult(ioMap.getString("resultCd"),"승인실패",ioMap.getString("resultMsg"));
+            response.result 	= ResultUtil.getResult("9999","승인실패",ioMap.getString("resultMsg"));
         }
 
         response.pay = new Pay();
