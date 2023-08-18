@@ -68,7 +68,7 @@ public class ProcGalaxiaReturn extends Proc {
 
         setGalaxiaTrx(ioMap);
 
-        String redirectUrl = null;
+        /*String redirectUrl = null;
         try {
             redirectUrl = PAYUNIT.cacheMap.get(ioMap.getString("widgetKey")).getString("redirectUrl");
         }catch (Exception e) {
@@ -83,7 +83,9 @@ public class ProcGalaxiaReturn extends Proc {
             TemplateUtil.redirect3D(rc, redirectUrl, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         } else {
             TemplateUtil.popupToParent3D(rc, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-        }
+        }*/
+
+        TemplateUtil.popupToParent3D(rc, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 
         return;
     }
