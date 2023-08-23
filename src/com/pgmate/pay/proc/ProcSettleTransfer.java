@@ -116,10 +116,11 @@ public class ProcSettleTransfer extends Proc {
 		if(vactBankCd.equals("089")) {
 			trxMap.put("bankFee", 99);
 		}else if(vactBankCd.equals("039")) {
+			// 경남은행일 경우 부가세 미포함
 			if(request.transfer.bankCd.equals("039")) {
-				trxMap.put("bankFee", 110);
+				trxMap.put("bankFee", 100);
 			} else {
-				trxMap.put("bankFee", 220);
+				trxMap.put("bankFee", 200);
 			}
 		}
 
