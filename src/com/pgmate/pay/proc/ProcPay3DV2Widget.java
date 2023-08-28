@@ -3,6 +3,7 @@ package com.pgmate.pay.proc;
 import java.util.List;
 import java.util.UUID;
 
+import com.pgmate.pay.util.SmsGw;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -400,6 +401,127 @@ public class ProcPay3DV2Widget extends Proc {
 					ioMap.put("resultCd", response.result.resultCd);
 					ioMap.put("resultMsg", response.result.resultMsg+":"+response.result.advanceMsg);
 					trxDAO.insertTrxIO3D(ioMap);
+				}
+				else if(request.widget.isEquals("payRoute", "sms")) {
+					widgetKey = "key_"+CommonUtil.toString(System.currentTimeMillis())+UUID.randomUUID().toString().substring(0, 7);
+
+					SharedMap<String,Object> ioMap = new SharedMap<String,Object>();
+					ioMap.put("trxId", sharedMap.getString(PAYUNIT.TRX_ID));
+					ioMap.put("widgetKey", widgetKey);
+					ioMap.put("mchtId", mchtTmnMap.getString("mchtId"));
+					ioMap.put("tmnId", mchtTmnMap.getString("tmnId"));
+					ioMap.put("trackId", request.widget.getString("trackId"));
+					ioMap.put("regDay", sharedMap.getString(PAYUNIT.REG_DATE).substring(0,8));
+					ioMap.put("regTime", sharedMap.getString(PAYUNIT.REG_DATE).substring(8,14));
+					detectDevice();
+					ioMap.put("device", request.widget.getString("device"));
+					ioMap.put("reqJson", GsonUtil.toJson(request.widget));
+
+					SharedMap<String,Object> mchtSvcMap = trxDAO.getMchtSvc(mchtMap.getString("mchtId"));
+
+					if(mchtTmnMap.isEquals("webPay", "사용") && mchtSvcMap.isEquals("card3D", "사용")){
+
+						SharedMap<String,Object> vanMap = trxDAO.getVanByVanIdx(mchtTmnMap.getString("vanIdx"));
+						if(vanMap == null || !vanMap.isEquals("status", "사용")){
+							response.result = ResultUtil.getResult("9999", "호출실패","카드사 정보가 설정되지 않았습니다. route 등록 오류");return;
+						}else{
+							ioMap.put("van", vanMap.getString("van"));
+							ioMap.put("vanId", vanMap.getString("vanId"));
+
+							if(response.widget == null){
+								response.widget = new SharedMap<String,Object>();
+							}
+
+							response.widget.put("device", ioMap.getString("device"));
+
+							if(vanMap.startsWith("van", "KSPAY")){
+								response.widget.put("target", "KSPAY");
+								if(request.widget.isEquals("device", "mobile")){
+									response.widget.put("routeUrl", "/form/payment/kspay/kspayV14Mobile.html?token=" + widgetKey);
+								}else {
+									response.widget.put("routeUrl", "/form/payment/kspay/kspayV14.html?token=" + widgetKey);
+								}
+								setKspay(vanMap);
+								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
+								response.result = ResultUtil.getResult("0000", "정상","정상완료");
+							}else if(vanMap.startsWith("van", "GALAXIA")) {
+								response.widget.put("target", "GALAXIA");
+								if(request.widget.isEquals("device", "mobile")){
+									response.widget.put("routeUrl", "/form/payment/galaxia/galaxiaMobile.html?token=" + widgetKey);
+								}else {
+									response.widget.put("routeUrl", "/form/payment/galaxia/galaxiaWeb.html?token=" + widgetKey);
+								}
+
+								setGalaxia(vanMap);
+								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
+								response.result = ResultUtil.getResult("0000", "정상","정상완료");
+
+							}else{
+								response.result = ResultUtil.getResult("9999", "호출실패","카드사 정보가 설정되지 않았습니다. 서비스 준비중인 카드사입니다.");return;
+							}
+
+						}
+					}else{
+						response.result = ResultUtil.getResult("9999", "호출실패","온라인 결제를 사용하지 않거나 3D Secure가 등록되지 않은 가맹점입니다.관리자에 문의바랍니다.");return;
+					}
+
+
+					//가맹점 한도 측정
+					if(mchtMngMap.getDouble("limitOnce") > 0 && mchtMngMap.getDouble("limitOnce") < request.widget.getLong("amount") ){
+						logger.debug("가맹점 1회 한도초과 : {},{}",mchtMngMap.getDouble("limitOnce"),request.widget.getLong("amount"));
+						response.result = ResultUtil.getResult("9999", "한도초과","가맹점 1회 거래한도 초과");return;
+					}
+
+					//가맹점/지사/총판 한도조회
+
+					SharedMap<String,Object> mchtSumMap = null;
+
+					//가맹점 한도 조회
+					if(mchtMngMap.getDouble("limitDay") > 0 ){
+						mchtSumMap = trxDAO.getTrxMchtDailySum(mchtMap);
+						if(mchtMngMap.getDouble("limitDay") < mchtSumMap.getDouble("mchtDailySum") +request.widget.getLong("amount") ){
+							logger.debug("가맹점 일일 한도초과 : {},{}",mchtMngMap.getDouble("limitDay"),mchtSumMap.getDouble("mchtDailySum")+request.widget.getLong("amount"));
+							response.result = ResultUtil.getResult("9999", "한도초과","가맹점 일일 거래한도 초과");return;
+						}
+					}
+
+					if(mchtMngMap.getDouble("limitMonth") > 0 ){
+						mchtSumMap = trxDAO.getTrxMchtMonthlySum(mchtMap);
+						if(mchtMngMap.getDouble("limitMonth") < mchtSumMap.getDouble("mchtMonthlySum") +request.widget.getLong("amount") ){
+							logger.debug("가맹점 월 한도초과 : {},{}",mchtMngMap.getDouble("limitMonth"),mchtSumMap.getDouble("mchtMonthlySum")+request.widget.getLong("amount"));
+							response.result = ResultUtil.getResult("9999", "한도초과","가맹점 월 거래한도 초과");return;
+						}
+					}
+
+					if(mchtMngMap.getDouble("limitYear") > 0 ){
+						mchtSumMap = trxDAO.getTrxMchtYearlySum(mchtMap);
+						if(mchtMngMap.getDouble("limitYear") < mchtSumMap.getDouble("mchtYearlySum") +request.widget.getLong("amount") ){
+							logger.debug("가맹점 연 한도초과 : {},{}",mchtMngMap.getDouble("limitYear"),mchtSumMap.getDouble("mchtYearlySum")+request.widget.getLong("amount"));
+							response.result = ResultUtil.getResult("9999", "한도초과","가맹점 연 거래한도 초과");return;
+						}
+					}
+
+					if(request.widget.isNullOrSpace("userPhone")) {
+						logger.debug("필수값없음 : 휴대폰 번호 없음");
+						response.result = ResultUtil.getResult("9999", "필수값없음(userPhone)", "sms 결제 필수값이 없습니다.");return;
+					}
+
+
+					ioMap.put("resJson", GsonUtil.toJson(response.widget) );
+					ioMap.put("resultCd", response.result.resultCd);
+					ioMap.put("resultMsg", response.result.resultMsg+":"+response.result.advanceMsg);
+					trxDAO.insertTrxIO3D(ioMap);
+
+
+					if(response.result.resultCd.equals("0000")) {
+						//sms연결
+						String smsMsg = "결제요청\n"
+								+"https://"+ PAYUNIT.PAY_HOST_LIVE + response.widget.getString("routeUrl")+"\n"
+								+"결제 정보를 확인후 결제하세요.";
+
+						SmsGw smsGw = new SmsGw();
+						smsGw.sendSmsMessage(request.widget.getString("userPhone"), smsMsg);
+					}
 				}
 				else {
 					response.result = ResultUtil.getResult("9999", "호출오류","해당 결제를 지원하지 않는 방식입니다.");return;
@@ -985,7 +1107,7 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("USER_NAME", request.widget.getString("userName")); //고객명
 		form.put("INSTALLMENT_PERIOD", installment);
 		form.put("USING_TYPE", request.widget.getString("usingType"));
-		form.put("CURRENCY", request.widget.getString("usingType"));
+		form.put("CURRENCY", request.widget.getString("currency"));
 		form.put("ITEM_NAME", request.widget.getString("itemName")); //상품명
 		form.put("RESERVED1", request.widget.getString("publicKey"));
 		form.put("DIRECT_USE", request.widget.getString("directUse"));
