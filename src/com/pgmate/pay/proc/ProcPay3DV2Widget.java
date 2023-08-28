@@ -413,7 +413,9 @@ public class ProcPay3DV2Widget extends Proc {
 					ioMap.put("trackId", request.widget.getString("trackId"));
 					ioMap.put("regDay", sharedMap.getString(PAYUNIT.REG_DATE).substring(0,8));
 					ioMap.put("regTime", sharedMap.getString(PAYUNIT.REG_DATE).substring(8,14));
-					detectDevice();
+					//detectDevice();
+					//PYS : SMS는 모바일로 고정
+					request.widget.put("device","mobile");
 					ioMap.put("device", request.widget.getString("device"));
 					ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 
@@ -501,9 +503,9 @@ public class ProcPay3DV2Widget extends Proc {
 						}
 					}
 
-					if(request.widget.isNullOrSpace("userPhone")) {
+					if(request.widget.isNullOrSpace("payerTel")) {
 						logger.debug("필수값없음 : 휴대폰 번호 없음");
-						response.result = ResultUtil.getResult("9999", "필수값없음(userPhone)", "sms 결제 필수값이 없습니다.");return;
+						response.result = ResultUtil.getResult("9999", "필수값없음(payerTel)", "sms 결제 필수값이 없습니다.");return;
 					}
 
 
@@ -520,7 +522,7 @@ public class ProcPay3DV2Widget extends Proc {
 								+"결제 정보를 확인후 결제하세요.";
 
 						SmsGw smsGw = new SmsGw();
-						smsGw.sendSmsMessage(request.widget.getString("userPhone"), smsMsg);
+						smsGw.sendSmsMessage(request.widget.getString("payerTel"), smsMsg);
 					}
 				}
 				else {
@@ -1100,7 +1102,7 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("SERVICE_CODE", "0900");
 		form.put("SERVICE_TYPE", "0000");
 		form.put("ORDER_ID", request.widget.getString("trackId"));
-		form.put("ORDER_DATE", request.widget.getString("orderDate"));
+		form.put("ORDER_DATE", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		form.put("USER_ID", request.widget.getString("userId"));
 		form.put("ITEM_CODE", request.widget.getString("itemCode"));
 		form.put("AMOUNT", request.widget.getString("amount"));
