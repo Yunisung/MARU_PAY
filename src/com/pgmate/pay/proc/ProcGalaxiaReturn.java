@@ -85,7 +85,24 @@ public class ProcGalaxiaReturn extends Proc {
             TemplateUtil.popupToParent3D(rc, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }*/
 
-        TemplateUtil.popupToParent3D(rc, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+        if(ioMap.getString("payRoute").equals("sms")) {
+            String redirectUrl = null;
+
+            try {
+                redirectUrl = PAYUNIT.cacheMap.get(ioMap.getString("widgetKey")).getString("redirectUrl");
+            }catch (Exception e) {
+                SharedMap<String, Object> map = trxDAO.getTrxIO3DByWidgetKey(ioMap.getString("widgetKey"));
+                String str = "{\"widget\":"+map.getString("reqJson")+"}";
+                Request req = (Request) GsonUtil.fromJson(str, Request.class);
+                redirectUrl = req.widget.getString("redirectUrl");
+            }
+
+            TemplateUtil.redirect3D(rc, redirectUrl, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+
+        } else {
+            TemplateUtil.popupToParent3D(rc, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+        }
+
 
         return;
     }
@@ -288,6 +305,9 @@ public class ProcGalaxiaReturn extends Proc {
         if(!widgetMap.isNullOrSpace("webhookUrl")){
             new ThreadWebHook(widgetMap.getString("webhookUrl"),response).start();
         }
+
+        //PYS: SMS 결제시 사용
+        ioMap.put("payRoute", widgetMap.getString("payRoute"));
     }
 
     private String URLEncode(String s) {
