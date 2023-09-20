@@ -505,6 +505,12 @@ public class ProcVactAuthOpen extends Proc{
     //하이픈 출금계좌정보 등록
     //MARU_FIRM -> 하이픈 서버 거쳐 등록
     private boolean withdrawReg(Request request) {
+        //더즌 예외 추가
+        if(request.vact.bankCd.equals("034")) {
+            response.result = ResultUtil.getResult("0000", "정상","");
+            return true;
+        }
+
         Firm firm = FirmLoader.getConfig();
 
         FirmBean firmBean = new FirmBean();
@@ -525,8 +531,6 @@ public class ProcVactAuthOpen extends Proc{
 //        if("2".equals(trxType)) {
 //            type = "변경";
 //        }
-
-
 
         host = firm.firmServer;
         timeout = firm.firmTimeout;
@@ -866,7 +870,13 @@ public class ProcVactAuthOpen extends Proc{
 
 
         //PG_FIRM_ACCNT에 없는 계좌는 FIRM으로 보냄
-        FirmBean firmBean = fcsFirmBean(bankCd, account, identity);
+        FirmBean firmBean = null;
+        //더즌 FIRM 추가
+        if(request.vact.bankCd.equals("034")) {
+            firmBean = fcsFirmBeanByDozn(bankCd, account, identity);
+        }else {
+            firmBean = fcsFirmBean(bankCd, account, identity);
+        }
 
         /*
         //FIRM 결과값 PG_VACT_AUTH에 업데이트
@@ -1010,5 +1020,27 @@ public class ProcVactAuthOpen extends Proc{
         } else {
             return true;
         }
+    }
+
+    public FirmBean fcsFirmBeanByDozn(String bankCd, String account, String identity) {
+        FirmBean firmBean = new FirmBean();
+        firmBean.bankCd 	= "034";
+        firmBean.msgType 	= "0600400";
+        firmBean.userId		= "SYSTEM";
+        firmBean.data.put("bankCd", bankCd.trim());
+        firmBean.data.put("account", account.trim());
+        firmBean.data.put("socialNumber", identity.trim());
+
+        Firm firm = FirmLoader.getConfig();
+        host = firm.firmServer;
+        timeout = firm.firmTimeout;
+        port = firm.firmPort;
+
+        firmBean = comm(firmBean);
+
+        logger.info("FCS인증 응답 : [{}][{}][{}][{}]", bankCd, account,firmBean.resultCd,firmBean.resultMsg);
+        logger.info("FCS인증 data : [{}]", GsonUtil.toJson(firmBean.data));
+
+        return firmBean;
     }
 }

@@ -110,6 +110,7 @@ public class ProcSettleTransfer extends Proc {
 		//230420_PYS : 출금수수료 세팅
 		//케이뱅크 : 90
 		//경남은행 : 당행(100), 타행(200)
+		//광주은행 : 300
 		VactDAO vactDAO = new VactDAO();
 		String vactBankCd = vactDAO.getVactBank(mchtId);
 
@@ -122,6 +123,9 @@ public class ProcSettleTransfer extends Proc {
 			} else {
 				trxMap.put("bankFee", 200);
 			}
+		}else if(vactBankCd.equals("034")) {
+			//광주은행
+			trxMap.put("bankFee", 300);
 		}
 
 //		trxMap.put("bankFee", 99);

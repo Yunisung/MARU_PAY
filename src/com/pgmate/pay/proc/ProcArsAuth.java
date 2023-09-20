@@ -174,7 +174,10 @@ public class ProcArsAuth extends Proc {
 
     public FirmBean arsFirmBean(String phoneNo, String authNo) {
         FirmBean firmBean = new FirmBean();
-        firmBean.bankCd 	= "ARS";
+//        firmBean.bankCd 	= "ARS";
+        //더즌 사용시
+        firmBean.bankCd = "034";
+
         firmBean.msgType 	= "ARSAUTH";
         firmBean.userId		= "SYSTEM";
         firmBean.data.put("phoneNo", phoneNo.trim());
@@ -186,7 +189,7 @@ public class ProcArsAuth extends Proc {
         int port = firm.firmPort;
 
         //PYS : 개발쪽에선 안되니 운영IP로 변경
-        host = "10.100.100.13";
+//        host = "10.100.100.13";
 
         firmBean = comm(firmBean, host, port, timeout);
 

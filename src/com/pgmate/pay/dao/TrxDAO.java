@@ -5836,4 +5836,32 @@ public class TrxDAO extends DAO {
 
 		return count;
 	}
+
+	public String getSeqNo(long idx){
+		String query = "SELECT seqNo from PG_FIRM_MASTER where idx = ?";
+
+		DBManager db 	= null;
+		PreparedStatement pstmt	= null;
+		Connection conn			= null;
+		ResultSet rset			= null;
+		String result	= "";
+
+		try{
+			db 		= DBFactory.getInstance();
+			conn	= db.getConnection();
+			pstmt	= conn.prepareStatement(query);
+			pstmt.setString(1,idx);
+			rset 	= pstmt.executeQuery();
+
+			while(rset.next()){
+				result = rset.getString("seqNo");
+			}
+		}catch(Exception e){
+			logger.error(e.getMessage());
+		}finally{
+			db.close(conn,pstmt,rset);
+		}
+
+		return result;
+	}
 }
