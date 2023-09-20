@@ -165,7 +165,9 @@ public class ProcAccountTransfer extends Proc{
 //        }
 
         //230612_이체전문 로직 변경
-        FirmBean firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
+//        FirmBean firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
+        //230913_PYS : 더즌꺼 추가
+        FirmBean firmBean = AccountAuth("034", bankCd, account, sendAuthNo);
 
         if(!firmBean.resultCd.equals("0000")) {
             logger.info("1원인증 오류 [{}][{}][{}][{}][{}]", authId, bankCd, account, firmBean.resultCd, firmBean.resultMsg);
@@ -223,6 +225,31 @@ public class ProcAccountTransfer extends Proc{
         String host = firm.firmServer;
         int timeout = firm.firmTimeout;
         int port = firm.firmPort;
+
+        firmBean = comm(firmBean, host, port, timeout);
+        logger.info("응답:{},{}",firmBean.resultCd,firmBean.resultMsg);
+        logger.info("idx:{},{}",firmBean.idx,firmBean.data.getLong("balance"));
+        logger.info("data : {}", GsonUtil.toJson(firmBean.data));
+        return firmBean;
+    }
+
+    public FirmBean AccountAuth(String sendBankCd, String recvBankCd, String recvAccount, String sender){
+        FirmBean firmBean = new FirmBean();
+        firmBean.bankCd 	= sendBankCd;
+        firmBean.msgType 	= "ACCAUTH";
+        firmBean.userId		= "SYSTEM";
+        firmBean.data.put("recvBankCd",recvBankCd);
+        firmBean.data.put("recvAccount",recvAccount);
+        //PYS : sender를 안보내면  (주)부국위너스로 나오도록 세팅되있음.
+        firmBean.data.put("sender", sender);
+
+        Firm firm = FirmLoader.getConfig();
+        String host = firm.firmServer;
+        int timeout = firm.firmTimeout;
+        int port = firm.firmPort;
+
+        //PYS : 개발쪽에선 안되니 운영IP로 변경
+        //host = "10.100.100.13";
 
         firmBean = comm(firmBean, host, port, timeout);
         logger.info("응답:{},{}",firmBean.resultCd,firmBean.resultMsg);

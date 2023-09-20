@@ -179,7 +179,6 @@ public class ProcAccountHolder extends Proc {
 		String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");
 
 		SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
-
 		//FIRM 실행전 수수료 차감
 		String authId = TrxDAO.getAuthId();
 //		String totalAuthId = TrxDAO.getTotalAuthId();
@@ -211,7 +210,9 @@ public class ProcAccountHolder extends Proc {
 
 		trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName,"", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
-		FirmBean firmBean = fcsFirmBean(bankCd, account, identity);
+//		FirmBean firmBean = fcsFirmBean(bankCd, account, identity);
+		//DOZN꺼 추가
+		FirmBean firmBean = fcsFirmBeanByDozn(bankCd, account, identity);
 
 		if(!firmBean.resultCd.equals("0000")) {
 			//FCS 인증 실패시
@@ -299,6 +300,34 @@ public class ProcAccountHolder extends Proc {
 		String host = firm.firmServer;
 		int timeout = firm.firmTimeout;
 		int port = firm.firmPort;
+
+		//PYS : 개발쪽에선 안되니 운영IP로 변경
+		//host = "10.100.100.13";
+
+		firmBean = comm(firmBean, host, port, timeout);
+
+		logger.info("FCS인증 응답 : [{}][{}][{}][{}]", bankCd, account,firmBean.resultCd,firmBean.resultMsg);
+		logger.info("FCS인증 data : [{}]", GsonUtil.toJson(firmBean.data));
+
+		return firmBean;
+	}
+
+	public FirmBean fcsFirmBeanByDozn(String bankCd, String account, String identity) {
+		FirmBean firmBean = new FirmBean();
+		firmBean.bankCd 	= "034";
+		firmBean.msgType 	= "0600400";
+		firmBean.userId		= "SYSTEM";
+		firmBean.data.put("bankCd", bankCd.trim());
+		firmBean.data.put("account", account.trim());
+		firmBean.data.put("socialNumber", identity.trim());
+
+		Firm firm = FirmLoader.getConfig();
+		String host = firm.firmServer;
+		int timeout = firm.firmTimeout;
+		int port = firm.firmPort;
+
+		//PYS : 개발쪽에선 안되니 운영IP로 변경
+		//host = "10.100.100.13";
 
 		firmBean = comm(firmBean, host, port, timeout);
 
