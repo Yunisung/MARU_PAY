@@ -5850,7 +5850,7 @@ public class TrxDAO extends DAO {
 			db 		= DBFactory.getInstance();
 			conn	= db.getConnection();
 			pstmt	= conn.prepareStatement(query);
-			pstmt.setString(1,idx);
+			pstmt.setLong(1,idx);
 			rset 	= pstmt.executeQuery();
 
 			while(rset.next()){
