@@ -59,13 +59,18 @@ public class ProcArsAuthCheck extends Proc {
         String authId = request.ars.authId;
         String firmIdx = request.ars.firmIdx;
 
-        //FirmIdx 로 ARS인증이 끝난지 확인
-        //FirmBean firmBean = new FirmBean();
-        //firmBean = trxDAO.checkArsResult(CommonUtil.parseLong(firmIdx), firmBean);
+        String mchtId = mchtMap.getString("mchtId");
+        SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
 
-        //더즌 ARS결과조회
-        String seqNo = trxDAO.getSeqNo(CommonUtil.parseLong(firmIdx));
-        FirmBean firmBean = firmArsCheck(seqNo);
+        String vactBankCd = mchtMngVactMap.getString("vactBankCd");
+        FirmBean firmBean = null;
+
+        if(vactBankCd.equals("034")) {
+            String seqNo = trxDAO.getSeqNo(CommonUtil.parseLong(firmIdx));
+            firmBean = firmArsCheck(seqNo);
+        } else {
+            firmBean = trxDAO.checkArsResult(CommonUtil.parseLong(firmIdx), firmBean);
+        }
 
         if(firmBean.resultCd.equals("0000")) {
             //ARS인증완료

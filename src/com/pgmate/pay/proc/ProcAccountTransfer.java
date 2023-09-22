@@ -122,6 +122,7 @@ public class ProcAccountTransfer extends Proc{
         String authId = TrxDAO.getAuthId();
 
         SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
+        SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
 
         String stlType = totalAuthMap.getString("settleType");
         String unitType = "";
@@ -164,10 +165,16 @@ public class ProcAccountTransfer extends Proc{
 //            firmBean = balanceTransfer("089", bankCd, account, 1, sendAuthNo);
 //        }
 
-        //230612_이체전문 로직 변경
-//        FirmBean firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
-        //230913_PYS : 더즌꺼 추가
-        FirmBean firmBean = AccountAuth("034", bankCd, account, sendAuthNo);
+        String vactBankCd = mchtMngVactMap.getString("vactBankCd");
+        FirmBean firmBean = null;
+
+        if(vactBankCd.equals("034")) {
+            firmBean = AccountAuth("034", bankCd, account, sendAuthNo);
+        }
+        else {
+            firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
+        }
+
 
         if(!firmBean.resultCd.equals("0000")) {
             logger.info("1원인증 오류 [{}][{}][{}][{}][{}]", authId, bankCd, account, firmBean.resultCd, firmBean.resultMsg);
@@ -242,6 +249,7 @@ public class ProcAccountTransfer extends Proc{
         firmBean.data.put("recvAccount",recvAccount);
         //PYS : sender를 안보내면  (주)부국위너스로 나오도록 세팅되있음.
         firmBean.data.put("sender", sender);
+        firmBean.data.put("procType","AT");
 
         Firm firm = FirmLoader.getConfig();
         String host = firm.firmServer;

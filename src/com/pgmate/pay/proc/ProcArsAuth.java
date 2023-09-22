@@ -114,6 +114,7 @@ public class ProcArsAuth extends Proc {
         String mchtId = mchtMap.getString("mchtId");
         String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");
         SharedMap<String, Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
+        SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
 
         String authId = TrxDAO.getAuthId();
 
@@ -144,7 +145,8 @@ public class ProcArsAuth extends Proc {
 
         trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holder, authNo, phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
-        FirmBean firmBean = arsFirmBean(phoneNo, authNo);
+        String vactBankCd = mchtMngVactMap.getString("vactBankCd");
+        FirmBean firmBean = arsFirmBean(vactBankCd, phoneNo, authNo);
 
         if(!firmBean.resultCd.equals("0000")) {
             //ARS 인증 실패시
@@ -172,11 +174,14 @@ public class ProcArsAuth extends Proc {
 
     }
 
-    public FirmBean arsFirmBean(String phoneNo, String authNo) {
+    public FirmBean arsFirmBean(String vactBankCd, String phoneNo, String authNo) {
         FirmBean firmBean = new FirmBean();
-//        firmBean.bankCd 	= "ARS";
-        //더즌 사용시
-        firmBean.bankCd = "034";
+
+        if(vactBankCd.equals("034")) {
+            firmBean.bankCd = "034";
+        } else {
+            firmBean.bankCd = "ARS";
+        }
 
         firmBean.msgType 	= "ARSAUTH";
         firmBean.userId		= "SYSTEM";
