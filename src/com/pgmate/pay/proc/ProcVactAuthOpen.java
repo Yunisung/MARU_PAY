@@ -140,10 +140,10 @@ public class ProcVactAuthOpen extends Proc{
 
             //230105_PYS : FCS 계좌인증
             //임시주석
-            /*if(!FcsChecker(request)) {
+            if(!FcsChecker(request)) {
                 sendResponse();
                 return;
-            }*/
+            }
 
             //하이픈 출금계좌정보 등록
             if(!withdrawReg(request)) {
