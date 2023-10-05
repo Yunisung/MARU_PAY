@@ -122,7 +122,7 @@ public class ProcAccountTransfer extends Proc{
         String authId = TrxDAO.getAuthId();
 
         SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
-        SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
+        //SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
 
         String stlType = totalAuthMap.getString("settleType");
         String unitType = "";
@@ -165,15 +165,18 @@ public class ProcAccountTransfer extends Proc{
 //            firmBean = balanceTransfer("089", bankCd, account, 1, sendAuthNo);
 //        }
 
-        String vactBankCd = mchtMngVactMap.getString("vactBankCd");
+        //String vactBankCd = mchtMngVactMap.getString("vactBankCd");
         FirmBean firmBean = null;
 
-        if(vactBankCd.equals("034")) {
-            firmBean = AccountAuth("034", bankCd, account, sendAuthNo);
-        }
-        else {
-            firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
-        }
+        //231005_PYS : 1원인증 더즌꺼 사용
+//        if(vactBankCd.equals("034")) {
+//            firmBean = AccountAuth("034", bankCd, account, sendAuthNo);
+//        }
+//        else {
+//            firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
+//        }
+
+        firmBean = AccountAuth("034", bankCd, account, sendAuthNo);
 
 
         if(!firmBean.resultCd.equals("0000")) {
