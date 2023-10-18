@@ -536,6 +536,7 @@ public class TrxDAO extends DAO {
 	public void insertCard(String cardId, String value) {
 
 		super.setTable("PG_TRX_BOX");
+		super.setXssChange(false);
 		logger.info("set card id : {}", cardId);
 		super.setColumns("*");
 		super.setRecord("cardId", cardId);//1개
@@ -5574,14 +5575,10 @@ public class TrxDAO extends DAO {
 		super.setRecord("payerName"			, ioMap.getString("payerName"));
 		super.setRecord("payerEmail"			, ioMap.getString("payerEmail"));
 		super.setRecord("payerTel"			, ioMap.getString("payerTel"));
-		super.setRecord("productId"			, ioMap.getString("productId"));
 		super.setRecord("productName"		, ioMap.getString("productName"));
-		super.setRecord("rebillCycleType"	, ioMap.getString("rebillCycleType"));
-		super.setRecord("rebillCount"		, ioMap.getString("rebillCount"));
-		super.setRecord("rebillSmsUse"		, ioMap.getString("rebillSmsUse"));
-		super.setRecord("hookAddr"			, ioMap.getString("hookAddr"));
-		super.setRecord("nextPayDay"			, ioMap.getString("nextPayDay"));
-		super.setRecord("expireDay"			, ioMap.getString("expireDay"));
+		super.setRecord("rebillDays"			, ioMap.getString("rebillDays"));
+		super.setRecord("nextPayDate"		, ioMap.getString("nextPayDate"));
+		super.setRecord("expireDate"			, ioMap.getString("expireDate"));
 		super.setRecord("regDay"				, ioMap.getString("regDay"));
 		super.setRecord("regTime"			, ioMap.getString("regTime"));
 
@@ -5650,32 +5647,6 @@ public class TrxDAO extends DAO {
 		} else {
 			return rset.getRow(0).getString("rebillId");
 		}
-	}
-
-	public void updateRebillREG(String id, SharedMap<String, Object> map) {
-		super.setTable("PG_REBILL_REG");
-		super.setXssChange(false);
-
-
-
-		if(!CommonUtil.isNullOrSpace(map.getString("status"))) {
-			super.setRecord("status"			, map.getString("status"));
-		}
-
-		if(!CommonUtil.isNullOrSpace(map.getString("nextPayDay"))) {
-			super.setRecord("nextPayDay"		, map.getString("nextPayDay"));
-		}
-
-		if(map.getInt("rebillCount") > 0) {
-			super.setRecord("rebillCount"	, map.getInt("rebillCount"));
-		}
-
-
-		super.addWhere("rebillId", id);
-		boolean update = super.update();
-		logger.info("set PG_REBILL_REG update : {}",update );
-
-		super.initRecord();
 	}
 
 	public SharedMap<String, Object> getProduct(String prodId) {
@@ -5844,5 +5815,70 @@ public class TrxDAO extends DAO {
 		}
 
 		return result;
+	}
+
+	public SharedMap<String,Object> getRebillReg(String rebillId) {
+		RecordSet rset = super.query("SELECT * FROM PG_REBILL_REG WHERE rebillId ='"+rebillId+"'");
+		super.initRecord();
+		return rset.getRow(0);
+	}
+
+	public boolean updateRebillReg(String rebillId, SharedMap<String, Object> map) {
+		super.setTable("PG_REBILL_REG");
+		super.setXssChange(false);
+
+		if(!CommonUtil.isNullOrSpace(map.getString("cardId"))) {
+			super.setRecord("cardId", map.getString("cardId"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("status"))) {
+			super.setRecord("status", map.getString("status"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("productName"))) {
+			super.setRecord("productName", map.getString("productName"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("amount"))) {
+			super.setRecord("amount", map.getString("amount"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("rebillDays"))) {
+			super.setRecord("rebillDays", map.getString("rebillDays"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("expireDate"))) {
+			super.setRecord("expireDate", map.getString("expireDate"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("payerName"))) {
+			super.setRecord("payerName", map.getString("payerName"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("payerEmail"))) {
+			super.setRecord("payerEmail", map.getString("payerEmail"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("payerTel"))) {
+			super.setRecord("payerTel", map.getString("payerTel"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(map.getString("nextPayDate"))) {
+			super.setRecord("nextPayDate", map.getString("nextPayDate"));
+		}
+
+		if(map.getInt("rebillCount") > 0) {
+			super.setRecord("rebillCount", map.getInt("rebillCount"));
+		}
+
+
+		super.addWhere("rebillId", rebillId);
+
+		boolean update = super.update();
+		logger.info("PG_REBILL_REG update : {}",update );
+
+		super.initRecord();
+		return update;
+
 	}
 }

@@ -175,12 +175,10 @@ public class ProcRefund extends Proc {
 					updateMap.put("rebillCount", rebillCount);
 
 					//다음 결제일을 승인취소 다음날로 설정
-					String nextPayDay = calcRebillDay("D+1", currentDate);
-					updateMap.put("nextPayDay", nextPayDay);
-					updateMap.put("status", "승인");
+
 
 					//REBILL_REG UPDATE
-					trxDAO.updateRebillREG(rebillId, updateMap);
+					trxDAO.updateRebillReg(rebillId, updateMap);
 
 				}
 			}

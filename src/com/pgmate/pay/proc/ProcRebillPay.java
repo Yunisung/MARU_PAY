@@ -1,5 +1,7 @@
 package com.pgmate.pay.proc;
 
+import com.pgmate.lib.key.CPKEY;
+import com.pgmate.lib.key.GenKey;
 import com.pgmate.lib.util.cipher.Base64;
 import com.pgmate.lib.util.cipher.SeedKisa;
 import com.pgmate.lib.util.gson.GsonUtil;
@@ -58,8 +60,8 @@ public class ProcRebillPay extends Proc {
 
         if(rebillRegMap != null) {
             String status = rebillRegMap.getString("status");
-            if(!status.equals("승인")) {
-                response.result = ResultUtil.getResult("9999", "에러","승인 상태인 정기결제만 결제가 가능합니다.");
+            if(!status.equals("사용")) {
+                response.result = ResultUtil.getResult("9999", "에러","사용 상태인 정기결제만 결제가 가능합니다.");
                 return;
             }
         } else {
@@ -84,47 +86,27 @@ public class ProcRebillPay extends Proc {
         pay.payerEmail	= map.getString("payerEmail");
         pay.payerTel	= map.getString("payerTel");
         pay.card		= new Card();
-//        String cardValue = trxDAO.getByCardId(map.getString("cardId")).getString("value");
-//        String s = SeedKisa.decryptAsString(Base64.decode(cardValue), ByteUtil.toBytes(PAYUNIT.ENCRYPT_KEY, 16));
-//        Card c = (Card)GsonUtil.fromJson(s, Card.class);
-//        pay.card = c;
-
         pay.card.cardId = map.getString("cardId");
 
         pay.products 	= new ArrayList<Product>();
         Product product = new Product();
-        SharedMap<String, Object> prodMap = trxDAO.getProduct(map.getString("productId"));
-        product.prodId = map.getString("productId");
-        product.name = prodMap.getString("name");
-        product.qty = prodMap.getInt("qty");
-        product.price = prodMap.getLong("price");
-        product.desc = prodMap.getString("description");
+        product.prodId = GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID));
+        product.name = map.getString("producName");
+        product.qty = 1;
+        product.price = pay.amount;
+        product.desc = "";
         pay.products.add(product);
 
         pay.metadata = new SharedMap<String,String>();
         pay.metadata.put("rebillProcess", "PAY");
         pay.metadata.put("rebillId", rebillId);
 
-//        pay.metadata.put("cardAuth", "true");
-//
-//        pay.metadata.put("authPw", "10");
-//        pay.metadata.put("authDob", "780131");
 
         request.pay = pay;
-
-//        String reqJson = GsonUtil.toJson(request,true,"");
-//        System.out.println(XmlUtil.toXml(request,true,"utf-8"));
 
         try {
             Proc process = new ProcPay();
             process.exec(rc, request, sharedMap, sharedObject);
-//            procPay.exec(null, request, sharedMap, sharedObject);
-//            logger.info("----- response message ------");
-//            logger.info("결과 =====> {}, {}", process.response.result.resultCd, process.response.result.resultMsg);
-//            sharedMap.put("resData", GsonUtil.toJson(process.response));
-//            logger.info("response {}", sharedMap.get("resData").toString());
-//
-//            response.result = ResultUtil.getResult(process.response.result.resultCd, process.response.result.resultMsg);
 
         } catch (Exception e) {
             e.printStackTrace();
