@@ -34,6 +34,7 @@ public class Galaxia implements Van{
 	private String VANID = "";
 	private String tmnID = "";
 	private String trxType = "";
+	private String mchtId = "";
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
@@ -49,6 +50,7 @@ public class Galaxia implements Van{
 		VAN = tmnVanMap.getString("van");
 		tmnID = tmnVanMap.getString("tmnId");
 		trxType = tmnVanMap.getString("trxType");
+		mchtId = tmnVanMap.getString("mchtId");
 	}
 	
 	private GalaxiaCipher getCipher(String serviceId) throws Exception {
@@ -570,10 +572,10 @@ public class Galaxia implements Van{
 
 		String serviceId = VANID; 															//[필수] 가맹점ID(빌게이트 발급)
 		String orderDate = year + month + date + hour + minute + second ; 					//[필수] 가맹점 주문일시
-		String userId = CommonUtil.nToB(response.rebill.userId, "userId");		//고객 아이디
-		String userName = CommonUtil.nToB(response.rebill.userName, "payerName");	//결제 고객명
-		String itemCode = CommonUtil.nToB(response.rebill.itemCode,"itemCode");	//[필수] 가맹점 측 상품코드
-		String itemName = CommonUtil.nToB(response.rebill.itemName, "itemName");		//가맹점 측 상품명
+		String userId = CommonUtil.nToB(mchtId, "userId");							//고객 아이디
+		String userName = CommonUtil.nToB(response.rebill.payerName, "payerName");						//결제 고객명
+		String itemCode = CommonUtil.nToB("M+"+response.rebill.rebillDays,"itemCode");		//[필수] 가맹점 측 상품코드
+		String itemName = CommonUtil.nToB(response.rebill.productName, "itemName");		//가맹점 측 상품명
 		String userIp = sharedMap.getString(PAYUNIT.REMOTEIP);								//고객 아이피
 		String pinNumber = response.rebill.cardNumber;										//[필수] 카드번호(16자리)
 		String expireDate = response.rebill.cardExpireDate;									//[필수] 유효기간(YYMM)

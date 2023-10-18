@@ -201,15 +201,12 @@ public class Api {
 				process = new ProcArsAuthCheck();
 			}else if (uri.startsWith(PAYUNIT.API_REBILL_PAY)) {
 				process = new ProcRebillPay();
-			}else if (uri.startsWith(PAYUNIT.API_REBILL_CANCEL)) {
-				process = new ProcRebillCancel();
-			}else if (uri.startsWith(PAYUNIT.API_REBILL_STOP)) {
-				process = new ProcRebillStop();
-			}else if (uri.startsWith(PAYUNIT.API_REBILL_START)) {
-				process = new ProcRebillStart();
 			}else if (uri.startsWith(PAYUNIT.API_REBILL_REG)) {
 				process = new ProcRebillReg();
-			}else if (uri.startsWith(PAYUNIT.API_GALAXIA_RETURN)) {
+			}else if (uri.startsWith(PAYUNIT.API_REBILL_UPDATE)) {
+				process = new ProcRebillUpdate();
+			}
+			else if (uri.startsWith(PAYUNIT.API_GALAXIA_RETURN)) {
 				process = new ProcGalaxiaReturn();
 			}
 			else {
