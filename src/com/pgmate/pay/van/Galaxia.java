@@ -574,7 +574,7 @@ public class Galaxia implements Van{
 		String orderDate = year + month + date + hour + minute + second ; 					//[필수] 가맹점 주문일시
 		String userId = CommonUtil.nToB(mchtId, "userId");							//고객 아이디
 		String userName = CommonUtil.nToB(response.rebill.payerName, "payerName");						//결제 고객명
-		String itemCode = CommonUtil.nToB(response.rebill.rebillId,"itemCode");		//[필수] 가맹점 측 상품코드
+		String itemCode = "rebill";															//[필수] 가맹점 측 상품코드
 		String itemName = CommonUtil.nToB(response.rebill.productName, "itemName");		//가맹점 측 상품명
 		String userIp = sharedMap.getString(PAYUNIT.REMOTEIP);								//고객 아이피
 		String pinNumber = response.rebill.cardNumber;										//[필수] 카드번호(16자리)
