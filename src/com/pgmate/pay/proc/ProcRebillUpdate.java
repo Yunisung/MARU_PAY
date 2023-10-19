@@ -130,15 +130,37 @@ public class ProcRebillUpdate extends Proc{
             }
         }
 
+        if(CommonUtil.isNullOrSpace(request.rebill.productName)) {
+            request.rebill.productName = "";
+        }
+
+        if(CommonUtil.isNullOrSpace(request.rebill.payerName)) {
+            request.rebill.payerName = "";
+        }
+
+        if(CommonUtil.isNullOrSpace(request.rebill.payerTel)) {
+            request.rebill.payerTel = "";
+        }
+
+        if(CommonUtil.isNullOrSpace(request.rebill.payerEmail)) {
+            request.rebill.payerEmail = "";
+        }
+
     }
 
     public boolean reBillUpdate() {
+        response.rebill = request.rebill;
+
         //기존 정보 로드
         SharedMap<String, Object> rebillMap = trxDAO.getRebillReg(request.rebill.rebillId);
+        if(rebillMap == null) {
+            response.result = ResultUtil.getResult("9999", "정기결제 아이디 오류","해당 정기결제 아이디가 없습니다.");
+            return false;
+        }
 
         SharedMap<String, Object> newRebillMap = new SharedMap<>();
 
-        response.rebill = new Rebill();
+
 
         //카드정보 바뀔때
         if(!CommonUtil.isNullOrSpace(request.rebill.cardNumber)) {
@@ -152,6 +174,22 @@ public class ProcRebillUpdate extends Proc{
             Card prevCard = (Card) GsonUtil.fromJson(data , new Card());
 
             if(!prevCard.number.equals(request.rebill.cardNumber)) {
+
+                if(CommonUtil.isNullOrSpace(request.rebill.cardExpireDate)) {
+                    response.result = ResultUtil.getResult("9999", "카드 유효기간 오류","카드 유효기간이 없습니다.");
+                    return false;
+                }
+
+                if(CommonUtil.isNullOrSpace(request.rebill.cardPassword)) {
+                    response.result = ResultUtil.getResult("9999", "카드 비밀번호 오류","카드 비밀번호가 없습니다.");
+                    return false;
+                }
+
+                if(CommonUtil.isNullOrSpace(request.rebill.socialNumber)) {
+                    response.result = ResultUtil.getResult("9999", "식별번호 오류","식별번호가 없습니다.");
+                    return false;
+                }
+
                 //새 카드 등록
                 sharedMap.put(PAYUNIT.KEY_CARD, GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
                 //PG_TRX_BOX INSERT
@@ -183,20 +221,18 @@ public class ProcRebillUpdate extends Proc{
                 }
 
                 //PG_REBILL_CARD 저장
-                response.rebill.cardNumber = cardMask(response.rebill.cardNumber);
                 trxDAO.insertRebillCard(sharedMap, response.rebill);
 
                 if(sharedMap.isEquals("vanResultCd", "0000")) {
                     //카드 ID  : PG_REBILL_REG 테이블 변경
                     newRebillMap.put("cardId", card.cardId);
 
-                    response.rebill.cardNumber = cardMask(request.rebill.cardNumber);
-                    response.rebill.cardType = request.rebill.cardType;
-                    response.rebill.issueCompanyName = request.rebill.issueCompanyName;
-                    response.rebill.buyCompanyName = request.rebill.buyCompanyName;
-
                 }else {
                     response.result = ResultUtil.getResult(sharedMap.getString("vanResultCd"), "등록실패", sharedMap.getString("vanResultMsg"));
+                    response.rebill.cardNumber = cardMask(response.rebill.cardNumber);
+                    response.rebill.cardExpireDate = null;
+                    response.rebill.cardPassword = null;
+                    response.rebill.socialNumber = null;
                     return false;
                 }
 
@@ -236,10 +272,15 @@ public class ProcRebillUpdate extends Proc{
             newRebillMap.put("payerTel", request.rebill.payerTel);
         }
 
-
+        response.rebill = new Rebill();
         response.rebill.rebillId = request.rebill.rebillId;
         response.rebill.trxId = request.rebill.trxId;
         response.rebill.status = request.rebill.status;
+
+        response.rebill.cardNumber = cardMask(request.rebill.cardNumber);
+        response.rebill.cardType = request.rebill.cardType;
+        response.rebill.issueCompanyName = request.rebill.issueCompanyName;
+        response.rebill.buyCompanyName = request.rebill.buyCompanyName;
 
         response.rebill.expireDate = request.rebill.expireDate;
         response.rebill.rebillDays = request.rebill.rebillDays;
@@ -265,6 +306,11 @@ public class ProcRebillUpdate extends Proc{
     }
 
     private String cardMask(String number) {
+
+        if(CommonUtil.isNullOrSpace(number)) {
+            return null;
+        }
+
 
         String bin = number.substring(0,6);
         String last4 = number.substring(number.length()-4);
