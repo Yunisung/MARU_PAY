@@ -138,6 +138,8 @@ public class ProcRebillUpdate extends Proc{
 
         SharedMap<String, Object> newRebillMap = new SharedMap<>();
 
+        response.rebill = new Rebill();
+
         //카드정보 바뀔때
         if(!CommonUtil.isNullOrSpace(request.rebill.cardNumber)) {
             //기존 카드번호 로드
@@ -188,6 +190,11 @@ public class ProcRebillUpdate extends Proc{
                     //카드 ID  : PG_REBILL_REG 테이블 변경
                     newRebillMap.put("cardId", card.cardId);
 
+                    response.rebill.cardNumber = cardMask(request.rebill.cardNumber);
+                    response.rebill.cardType = request.rebill.cardType;
+                    response.rebill.issueCompanyName = request.rebill.issueCompanyName;
+                    response.rebill.buyCompanyName = request.rebill.buyCompanyName;
+
                 }else {
                     response.result = ResultUtil.getResult(sharedMap.getString("vanResultCd"), "등록실패", sharedMap.getString("vanResultMsg"));
                     return false;
@@ -229,14 +236,11 @@ public class ProcRebillUpdate extends Proc{
             newRebillMap.put("payerTel", request.rebill.payerTel);
         }
 
-        response.rebill = new Rebill();
+
         response.rebill.rebillId = request.rebill.rebillId;
         response.rebill.trxId = request.rebill.trxId;
         response.rebill.status = request.rebill.status;
-        response.rebill.cardNumber = cardMask(request.rebill.cardNumber);
-        response.rebill.cardType = request.rebill.cardType;
-        response.rebill.issueCompanyName = request.rebill.issueCompanyName;
-        response.rebill.buyCompanyName = request.rebill.buyCompanyName;
+
         response.rebill.expireDate = request.rebill.expireDate;
         response.rebill.rebillDays = request.rebill.rebillDays;
         response.rebill.payerName = request.rebill.payerName;
