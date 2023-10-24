@@ -460,6 +460,18 @@ public class TrxDAO extends DAO {
 		}
 	}
 
+	public void insertRent(String rentId, Rent rent, String regDate) {
+
+		super.setTable("PG_TRX_RENT");
+		logger.info("set rent id : {}", rentId);
+		super.setRecord("rentId", rentId);//1개
+		super.setRecord("transferDay", rent.transferDay);
+		super.setRecord("billingType", rent.billingType);
+		super.setRecord("regDate", regDate);
+		logger.info("set rent : {}", super.insert());
+		super.initRecord();
+	}
+
 	public static String getIssuer(String issuer) {
 		if (issuer.startsWith("KB") || issuer.indexOf("국민") > -1 || issuer.indexOf("신세계한미") > -1) {
 			return "국민";

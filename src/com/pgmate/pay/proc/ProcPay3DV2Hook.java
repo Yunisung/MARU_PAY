@@ -6,6 +6,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pgmate.pay.bean.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +20,6 @@ import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.ByteUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
-import com.pgmate.pay.bean.Card;
-import com.pgmate.pay.bean.Pay;
-import com.pgmate.pay.bean.Product;
-import com.pgmate.pay.bean.Request;
-import com.pgmate.pay.bean.Response;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.util.KspayUtil;
 import com.pgmate.pay.util.PAYUNIT;
@@ -179,8 +175,10 @@ public class ProcPay3DV2Hook extends Proc {
 		
 		SharedMap<String,Object> widgetMap = new GsonBuilder().create().fromJson(ioMap.getString("reqJson"), new TypeToken<SharedMap<String, Object>>(){}.getType()); 
 		List<Product> products = null;
+		Rent rent = null;
 		try {
 			products = new GsonBuilder().create().fromJson(GsonUtil.toJson(widgetMap.get("products")), new TypeToken<List<Product>>(){}.getType());
+			rent = new GsonBuilder().create().fromJson(GsonUtil.toJson(widgetMap.get("rent")), new TypeToken<Rent>(){}.getType());
 		}catch (Exception e) {
 			logger.debug(e.getMessage());
 		}
@@ -198,6 +196,7 @@ public class ProcPay3DV2Hook extends Proc {
 		
 		ioMap.put("cardId", GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
 		ioMap.put("prodId", GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
+		ioMap.put("rentId", GenKey.genKeys(CPKEY.RENT, sharedMap.getString(PAYUNIT.TRX_ID)));
 //		ioMap.put("amount", widgetMap.getLong("amount"));
 		ioMap.put("amount", Long.parseLong(widgetMap.getString("amount").trim()));
 		//카드 정보  SET
@@ -229,6 +228,12 @@ public class ProcPay3DV2Hook extends Proc {
 		if(products != null){
 			trxDAO.insertProduct(ioMap.getString("prodId"), products, ioMap.getString("vanResultDate"));
 		}
+
+		// 월세앱 정보 SET
+		if(rent != null){
+			trxDAO.insertRent(ioMap.getString("rentId"), rent, ioMap.getString("vanResultDate"));
+		}
+
 		try {
 			trxDAO.insertTrx3D(ioMap,widgetMap);
 		}catch (Exception e) {
@@ -238,7 +243,7 @@ public class ProcPay3DV2Hook extends Proc {
 				trxDAO.updateTrx3D(ioMap,widgetMap);
 			}
 		}
-		
+
 		if(ioMap.isEquals("vanResultCd", "0000")){
 			response.result 	= ResultUtil.getResult("0000","정상","정상승인");
 		}else{
