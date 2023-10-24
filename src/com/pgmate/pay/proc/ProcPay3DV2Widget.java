@@ -3,6 +3,7 @@ package com.pgmate.pay.proc;
 import java.util.List;
 import java.util.UUID;
 
+import com.pgmate.pay.bean.Rent;
 import com.pgmate.pay.util.SmsGw;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -224,6 +225,26 @@ public class ProcPay3DV2Widget extends Proc {
 						}
 					}else{
 						response.result = ResultUtil.getResult("9999", "호출실패","온라인 결제를 사용하지 않거나 3D Secure가 등록되지 않은 가맹점입니다.관리자에 문의바랍니다.");return;
+					}
+
+
+					// 월세앱 validation
+					if(request.widget.get("rent") != null) {
+						Rent rent = new GsonBuilder().create().fromJson(GsonUtil.toJson(request.widget.get("rent")), new TypeToken<Rent>(){}.getType());
+						String billingType = rent.billingType;
+						String transferDay = rent.transferDay;
+						if(CommonUtil.isNullOrSpace(transferDay)) {
+							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 이체예정일이 없습니다.");
+							return;
+						}
+						if(CommonUtil.isNullOrSpace(billingType)) {
+							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 결제유형이 없습니다.");
+							return;
+						}
+						if(!billingType.equals("월세") && !billingType.equals("보증금")) {
+							response.result = ResultUtil.getResult("9999", "호출실패", "월세앱 결제유형이 올바르지 않습니다.");
+							return;
+						}
 					}
 					
 					
