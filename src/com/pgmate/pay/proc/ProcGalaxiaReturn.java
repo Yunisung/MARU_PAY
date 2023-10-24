@@ -235,8 +235,12 @@ public class ProcGalaxiaReturn extends Proc {
         product.desc = "deq-scription";
         products.add(product);
 
+        // 월세앱정보
+        Rent rent = new GsonBuilder().create().fromJson(GsonUtil.toJson(widgetMap.get("rent")), new TypeToken<Rent>(){}.getType());
+
         ioMap.put("cardId", GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
         ioMap.put("prodId", GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
+        ioMap.put("rentId", GenKey.genKeys(CPKEY.RENT, sharedMap.getString(PAYUNIT.TRX_ID)));
         ioMap.put("amount", Long.parseLong(widgetMap.getString("amount").trim()));
 
         Card card = new Card();
@@ -267,6 +271,11 @@ public class ProcGalaxiaReturn extends Proc {
         //상품 정보 SET
         if(products != null){
             trxDAO.insertProduct(ioMap.getString("prodId"), products, ioMap.getString("vanResultDate"));
+        }
+
+        // 월세앱 정보 SET
+        if(rent != null){
+            trxDAO.insertRent(ioMap.getString("rentId"), rent, ioMap.getString("vanResultDate"));
         }
 
         try {
