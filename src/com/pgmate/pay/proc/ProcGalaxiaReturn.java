@@ -240,7 +240,6 @@ public class ProcGalaxiaReturn extends Proc {
 
         ioMap.put("cardId", GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
         ioMap.put("prodId", GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
-        ioMap.put("rentId", GenKey.genKeys(CPKEY.RENT, sharedMap.getString(PAYUNIT.TRX_ID)));
         ioMap.put("amount", Long.parseLong(widgetMap.getString("amount").trim()));
 
         Card card = new Card();
@@ -275,6 +274,7 @@ public class ProcGalaxiaReturn extends Proc {
 
         // 월세앱 정보 SET
         if(rent != null){
+            ioMap.put("rentId", GenKey.genKeys(CPKEY.RENT, sharedMap.getString(PAYUNIT.TRX_ID)));
             trxDAO.insertRent(ioMap.getString("rentId"), rent, ioMap.getString("vanResultDate"));
         }
 
