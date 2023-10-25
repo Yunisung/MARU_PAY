@@ -1147,6 +1147,7 @@ public class ProcPay3DV2Widget extends Proc {
 			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}else{
 			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+			//form.put("RETURN_URL", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 
 		//form 처리

@@ -753,7 +753,7 @@ public class TrxDAO extends DAO {
 
 	public void insertTrxPAY(String trxId) {
 
-		String q = "INSERT INTO PG_TRX_PAY  " + " SELECT A.trxId,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,issuer,acquirer,"
+		String q = "INSERT INTO PG_TRX_PAY  " + " SELECT A.trxId,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,rentId,issuer,acquirer,"
 				+ " A.regDay,A.regTime,authCd,resultCd,resultMsg,van,vanId,vanTrxId,B.regDay,B.regTime,B.regDate " + " FROM PG_TRX_REQ A, PG_TRX_RES B WHERE A.trxId = B.trxId AND A.trxId = '" + trxId + "'";
 		logger.info("set TRX_PAY : {}", super.update(q));
 		super.initRecord();
@@ -2179,6 +2179,7 @@ public class TrxDAO extends DAO {
 		super.setRecord("installment", CommonUtil.zerofill(ioMap.getInt("installment"),2));
 		super.setRecord("acquirer", ioMap.getString("acquirer"));
 		super.setRecord("prodId", ioMap.getString("prodId"));
+		super.setRecord("rentId", ioMap.getString("rentId"));
 		super.setRecord("regDay", ioMap.getString("regDay"));
 		super.setRecord("regTime", ioMap.getString("regTime"));
 		super.setRecord("regDate", ioMap.getTimestamp("regDate"));
