@@ -237,10 +237,15 @@ public class ProcPay3DV2Widget extends Proc {
 					// 월세앱 validation
 					if(request.widget.get("rent") != null) {
 						Rent rent = new GsonBuilder().create().fromJson(GsonUtil.toJson(request.widget.get("rent")), new TypeToken<Rent>(){}.getType());
-						String billingType = rent.billingType;
 						String transferDay = rent.transferDay;
+						String billingType = rent.billingType;
+						String billingMethod = rent.billingMethod;
 						if(CommonUtil.isNullOrSpace(transferDay)) {
 							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 이체예정일이 없습니다.");
+							return;
+						}
+						if(CommonUtil.isNullOrSpace(billingMethod)) {
+							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 납부구분이 없습니다.");
 							return;
 						}
 						if(CommonUtil.isNullOrSpace(billingType)) {
