@@ -2181,7 +2181,9 @@ public class TrxDAO extends DAO {
 		super.setRecord("installment", CommonUtil.zerofill(ioMap.getInt("installment"),2));
 		super.setRecord("acquirer", ioMap.getString("acquirer"));
 		super.setRecord("prodId", ioMap.getString("prodId"));
-		super.setRecord("rentId", ioMap.getString("rentId"));
+		if(!CommonUtil.isNullOrSpace(ioMap.getString("rentId"))) {
+			super.setRecord("rentId", ioMap.getString("rentId"));
+		}
 		super.setRecord("regDay", ioMap.getString("regDay"));
 		super.setRecord("regTime", ioMap.getString("regTime"));
 		super.setRecord("regDate", ioMap.getTimestamp("regDate"));
