@@ -306,6 +306,7 @@ public class ProcGalaxiaReturn extends Proc {
         response.pay.amount		= ioMap.getLong("amount");
         response.pay.udf1		= widgetMap.getString("udf1");
         response.pay.udf2		= widgetMap.getString("udf2");
+        response.pay.rent		= rent;
 
         String res = GsonUtil.toJsonExcludeStrategies(response,true);
         trxDAO.updateTrxIO3D(ioMap,res);
