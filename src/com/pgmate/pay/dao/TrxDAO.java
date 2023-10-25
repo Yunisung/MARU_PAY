@@ -2181,6 +2181,7 @@ public class TrxDAO extends DAO {
 		super.setRecord("installment", CommonUtil.zerofill(ioMap.getInt("installment"),2));
 		super.setRecord("acquirer", ioMap.getString("acquirer"));
 		super.setRecord("prodId", ioMap.getString("prodId"));
+		super.setRecord("rentId", ioMap.getString("rentId"));
 		super.setRecord("regDay", ioMap.getString("regDay"));
 		super.setRecord("regTime", ioMap.getString("regTime"));
 		super.setRecord("regDate", ioMap.getTimestamp("regDate"));
@@ -3219,6 +3220,25 @@ public class TrxDAO extends DAO {
 		RecordSet rset = super.search();
 		super.initRecord();
 		return rset.getRowFirst();
+	}
+
+	public List<SharedMap<String,Object>> getVactDtlList(String mchtId, String status, String bankCd) {
+		/*super.setTable("PG_VACT_DTL");
+		super.setColumns("*");
+		super.addWhere("mchtId", mchtId, eq);
+		super.addWhere("status", status, eq);
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRows();*/
+
+		String q = " SELECT A.* " +
+				" FROM PG_VACT_DTL A INNER JOIN PG_VACT B" +
+				" ON A.account = B.account " +
+				" WHERE A.mchtId='" + mchtId + "' AND A.status='" + status + "' AND B.bankCd = '" + bankCd + "' ORDER BY A.account ASC ";
+
+		RecordSet rset = super.query(q);
+		super.initRecord();
+		return rset.getRows();
 	}
 
 	public boolean deleteVactDtl(String issueId){
