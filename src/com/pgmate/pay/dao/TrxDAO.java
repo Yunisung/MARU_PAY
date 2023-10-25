@@ -467,6 +467,7 @@ public class TrxDAO extends DAO {
 		super.setRecord("rentId", rentId);//1개
 		super.setRecord("transferDay", rent.transferDay);
 		super.setRecord("billingType", rent.billingType);
+		super.setRecord("billingMethod", rent.billingMethod);
 		super.setRecord("regDate", regDate);
 		logger.info("set rent : {}", super.insert());
 		super.initRecord();
