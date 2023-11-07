@@ -290,7 +290,7 @@ public class ProcGalaxiaReturn extends Proc {
         if(ioMap.isEquals("vanResultCd", "0000")){
             response.result 	= ResultUtil.getResult("0000","정상","정상승인");
         }else{
-            response.result 	= ResultUtil.getResult("9999","승인실패",ioMap.getString("resultMsg"));
+            response.result 	= ResultUtil.getResult("9999","승인실패",ioMap.getString("vanResultMsg"));
         }
 
         response.pay = new Pay();

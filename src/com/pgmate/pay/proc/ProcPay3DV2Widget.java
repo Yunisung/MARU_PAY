@@ -208,6 +208,12 @@ public class ProcPay3DV2Widget extends Proc {
 								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 								response.result = ResultUtil.getResult("0000", "정상","정상완료");
 							}else if(vanMap.startsWith("van", "GALAXIA")) {
+								//231107_PYS : 상품명 필수값 등록
+								if(CommonUtil.isNullOrSpace(request.widget.getString("itemName"))) {
+									response.result = ResultUtil.getResult("9999", "필수값없음", "상품명이 없습니다.");
+									return;
+								}
+
 								response.widget.put("target", "GALAXIA");
 								if(request.widget.isEquals("device", "mobile")){
 									response.widget.put("routeUrl", "/form/payment/galaxia/galaxiaMobile.html?token=" + widgetKey);
