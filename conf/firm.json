@@ -3,6 +3,6 @@
   //"firmServer": "127.0.0.1",
   "firmPort": 10006,
   "firmTimeout": 70000,
-  "firmStartTime": 10000,
+  "firmStartTime": 3000,
   "firmEndTime": 232000
 }
