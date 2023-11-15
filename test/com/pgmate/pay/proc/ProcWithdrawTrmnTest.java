@@ -1,5 +1,6 @@
 package com.pgmate.pay.proc;
 
+import com.pgmate.lib.dao.RecordSet;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.bean.Pay;
@@ -13,6 +14,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -21,6 +24,7 @@ public class ProcWithdrawTrmnTest {
     private static Logger logger = LoggerFactory.getLogger(ProcWithdrawTrmnTest.class);
 
     ProcWithdrawTrmn procWithdrawTrmn;
+    VactClose procVactClose;
     TrxDAO trxDAO;
     SharedMap<String, Object> sharedMap = new SharedMap<>();
     SharedMap<String, SharedMap<String, Object>> sharedObject = new SharedMap<>();
@@ -28,6 +32,7 @@ public class ProcWithdrawTrmnTest {
     @Before
     public void init() {
         procWithdrawTrmn = new ProcWithdrawTrmn();
+        procVactClose = new VactClose();
         trxDAO = new TrxDAO();
     }
 
@@ -56,6 +61,8 @@ public class ProcWithdrawTrmnTest {
         request.vact.trackId = "";                      // 가맹점 주문번호
         request.vact.udf1 = "";                         // 가맹점 설정 필드 1
         request.vact.udf2 = "";                         // 가맹점 설정 필드 2
+        request.vact.regType = "";
+        request.vact.identity = "";
 //        request.vact.idx = 125278;                       // 인덱스
 //        request.vact.amount = "100000";
 //        request.vact.oper = "eq";
@@ -86,6 +93,78 @@ public class ProcWithdrawTrmnTest {
         } catch (Exception e) {
             e.printStackTrace();
             fail();
+        }
+    }
+
+    @Test
+    public void 가상계좌_사용자만료_단건() {
+
+        String tmnId = "TMN000029";     // 프리랩4: prelab / TMN002782, 프리랩5: prelab3 / TMN002953,
+        String issueId = "VI230404000075";
+        SharedMap<String, Object> mchtTmn = trxDAO.getMchtTmnByTmnId(tmnId);
+        SharedMap<String, Object> mcht = trxDAO.getMchtByMchtId(mchtTmn.getString("mchtId"));
+        SharedMap<String, Object> mchtMng = trxDAO.getMchtMngByMchtId(mchtTmn.getString("mchtId"));
+        List<SharedMap<String,Object>> vactDtls = trxDAO.getVactDtlList(mchtTmn.getString("mchtId"), "발행", "039");
+
+        Request request = new Request();
+
+        sharedMap.put(PAYUNIT.DEBUG_MODE, "true");
+        sharedMap.put(PAYUNIT.TRX_ID, TrxDAO.getTrxId());
+        sharedMap.put(PAYUNIT.REG_DATE, CommonUtil.getCurrentDate("yyyyMMddHHmmss")); 	// 시스템 시간
+        sharedMap.put(PAYUNIT.URI, PAYUNIT.API_VACT_CLOSE + "/" + issueId);                             //  가상계좌발급해지
+        sharedMap.put(PAYUNIT.MCHTID, mchtTmn.getString("mchtId"));
+        sharedMap.put("tmnId", mchtTmn.getString("tmnId"));
+        sharedObject.put("mchtTmn", mchtTmn);
+        sharedObject.put("mcht", mcht);
+        sharedObject.put("mchtMng", mchtMng);
+
+        try {
+            procVactClose.exec(null, request, sharedMap, sharedObject);
+            System.out.println("------------- response message --------------");
+            logger.info("결과 ==> {}, {}", procVactClose.response.result.resultMsg, procVactClose.response.result.advanceMsg);
+            //assertEquals("0000", procVactClose.response.result.resultCd);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    @Test
+    public void 가상계좌_사용자만료_다건() {
+
+        String tmnId = "TMN000029";     // 프리랩4: prelab / TMN002782, 프리랩5: prelab3 / TMN002953,
+        String issueId = "";
+        SharedMap<String, Object> mchtTmn = trxDAO.getMchtTmnByTmnId(tmnId);
+        SharedMap<String, Object> mcht = trxDAO.getMchtByMchtId(mchtTmn.getString("mchtId"));
+        SharedMap<String, Object> mchtMng = trxDAO.getMchtMngByMchtId(mchtTmn.getString("mchtId"));
+        List<SharedMap<String,Object>> vactDtls = trxDAO.getVactDtlList(mchtTmn.getString("mchtId"), "발행", "039");
+
+        logger.debug("전체건수: {}", vactDtls.size());
+        for(SharedMap<String,Object> list : vactDtls) {
+            logger.debug("issueId: {}", list.getString("issueId"));
+            issueId = list.getString("issueId");
+
+            Request request = new Request();
+
+            sharedMap.put(PAYUNIT.DEBUG_MODE, "true");
+            sharedMap.put(PAYUNIT.TRX_ID, TrxDAO.getTrxId());
+            sharedMap.put(PAYUNIT.REG_DATE, CommonUtil.getCurrentDate("yyyyMMddHHmmss"));    // 시스템 시간
+            sharedMap.put(PAYUNIT.URI, PAYUNIT.API_VACT_CLOSE + "/" + issueId);                             //  가상계좌발급해지
+            sharedMap.put(PAYUNIT.MCHTID, mchtTmn.getString("mchtId"));
+            sharedMap.put("tmnId", mchtTmn.getString("tmnId"));
+            sharedObject.put("mchtTmn", mchtTmn);
+            sharedObject.put("mcht", mcht);
+            sharedObject.put("mchtMng", mchtMng);
+
+            try {
+                procVactClose.exec(null, request, sharedMap, sharedObject);
+                System.out.println("------------- response message --------------");
+                logger.info("결과 ==> {}, {}", procVactClose.response.result.resultMsg, procVactClose.response.result.advanceMsg);
+                //assertEquals("0000", procVactClose.response.result.resultCd);
+            } catch (Exception e) {
+                e.printStackTrace();
+                fail();
+            }
         }
     }
 }

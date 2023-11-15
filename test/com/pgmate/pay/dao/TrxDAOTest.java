@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -78,5 +79,15 @@ public class TrxDAOTest {
         assertTrue(dayCnt == 1);
     }
 
+
+    @Test
+    public void getTrxCapTest() {
+        // PG_TRX_CAP 조회
+        List<SharedMap<String, Object>> results = trxDAO.getTrxCap("bktest001", "TMN000040");
+        System.out.println(results.size());
+        for(SharedMap<String,Object> list : results){
+            System.out.println(list.toString());
+        }
+    }
 
 }

@@ -110,17 +110,22 @@ public class ProcSettleTransfer extends Proc {
 		//230420_PYS : 출금수수료 세팅
 		//케이뱅크 : 90
 		//경남은행 : 당행(100), 타행(200)
+		//광주은행 : 300
 		VactDAO vactDAO = new VactDAO();
 		String vactBankCd = vactDAO.getVactBank(mchtId);
 
 		if(vactBankCd.equals("089")) {
 			trxMap.put("bankFee", 99);
 		}else if(vactBankCd.equals("039")) {
+			// 경남은행일 경우 부가세 미포함
 			if(request.transfer.bankCd.equals("039")) {
-				trxMap.put("bankFee", 110);
+				trxMap.put("bankFee", 100);
 			} else {
-				trxMap.put("bankFee", 220);
+				trxMap.put("bankFee", 200);
 			}
+		}else if(vactBankCd.equals("034")) {
+			//광주은행
+			trxMap.put("bankFee", 300);
 		}
 
 //		trxMap.put("bankFee", 99);
@@ -238,6 +243,13 @@ public class ProcSettleTransfer extends Proc {
 
 		if(ipChecker == true) {
 			response.result = ResultUtil.getResult("9999", "허용된 IP 아님","접근 가능한 IP가 아닙니다.");return;
+		}
+
+		//블랙리스트 확인
+		boolean blackList = trxDAO.blackListCheck(request.transfer.bankCd, request.transfer.account);
+		if(blackList) {
+			response.result = ResultUtil.getResult("9999", "계좌오류","해당 출금계좌로 출금하실 수 없습니다. 관리자에 문의 바랍니다");
+			logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]", request.transfer.bankCd, request.transfer.account);
 		}
 		
 

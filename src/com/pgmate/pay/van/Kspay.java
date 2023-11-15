@@ -177,7 +177,7 @@ public class Kspay implements Van {
 			response.pay.authCd = res.getApprovalNo();
 			//KJM : 결제 승인 날짜시간
 			response.pay.transactionDate = res.getTrnDay()+res.getTrnTime();
-			System.out.println("Cd : " + response.pay.authCd + ", date : " + response.pay.transactionDate);
+			logger.info("Cd : " + response.pay.authCd + ", date : " + response.pay.transactionDate);
 			sharedMap.put("vanTrxId",res.getKsnetTrnId());
 			sharedMap.put("vanResultCd","0000");
 			sharedMap.put("vanResultMsg","정상승인");
@@ -420,7 +420,7 @@ public class Kspay implements Van {
 			tcp.send(request);
 			//KJM : len : 읽을 데이터 크기 , recv() : 데이터 수신
 			int len = CommonUtil.parseInt(CommonUtil.toString(tcp.recv(4)));
-			System.out.println("[ len ] : " + len);
+
 			// KBR : 지정된 문자열만큼 데이터 수신.
 			response = tcp.recv(len);
 			

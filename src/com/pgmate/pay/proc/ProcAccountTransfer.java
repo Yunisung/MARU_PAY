@@ -122,6 +122,7 @@ public class ProcAccountTransfer extends Proc{
         String authId = TrxDAO.getAuthId();
 
         SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
+        //SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
 
         String stlType = totalAuthMap.getString("settleType");
         String unitType = "";
@@ -164,8 +165,18 @@ public class ProcAccountTransfer extends Proc{
 //            firmBean = balanceTransfer("089", bankCd, account, 1, sendAuthNo);
 //        }
 
-        //230612_이체전문 로직 변경
-        FirmBean firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
+        //String vactBankCd = mchtMngVactMap.getString("vactBankCd");
+        FirmBean firmBean = null;
+
+        //231005_PYS : 1원인증 더즌꺼 사용
+//        if(vactBankCd.equals("034")) {
+//            firmBean = AccountAuth("034", bankCd, account, sendAuthNo);
+//        }
+//        else {
+//            firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
+//        }
+
+        firmBean = AccountAuth("034", bankCd, account, sendAuthNo);
 
 
         if(!firmBean.resultCd.equals("0000")) {
@@ -178,7 +189,7 @@ public class ProcAccountTransfer extends Proc{
             }
 
             //이체 실패시 DB 업데이트.
-            trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
+            trxDAO.updateTotalAuthResult(authId, firmBean.idx, firmBean.resultCd, firmBean.resultMsg);
 
             return false;
         } else {
@@ -199,7 +210,7 @@ public class ProcAccountTransfer extends Proc{
                 trxDAO.updateTotalAuthIO(reqJson, widgetKey);
             }
 
-            trxDAO.updateTotalAuthResult(authId, response.result.resultCd, response.result.resultMsg);
+            trxDAO.updateTotalAuthResult(authId, firmBean.idx, response.result.resultCd, response.result.resultMsg);
 
             //ProcAccountAuthCheck에서 DB업데이트 예정
             return true;
@@ -227,6 +238,32 @@ public class ProcAccountTransfer extends Proc{
 
         //PYS : 개발쪽에선 안되니 운영IP로 변경
         host = "10.100.100.13";
+
+        firmBean = comm(firmBean, host, port, timeout);
+        logger.info("응답:{},{}",firmBean.resultCd,firmBean.resultMsg);
+        logger.info("idx:{},{}",firmBean.idx,firmBean.data.getLong("balance"));
+        logger.info("data : {}", GsonUtil.toJson(firmBean.data));
+        return firmBean;
+    }
+
+    public FirmBean AccountAuth(String sendBankCd, String recvBankCd, String recvAccount, String sender){
+        FirmBean firmBean = new FirmBean();
+        firmBean.bankCd 	= sendBankCd;
+        firmBean.msgType 	= "ACCAUTH";
+        firmBean.userId		= "SYSTEM";
+        firmBean.data.put("recvBankCd",recvBankCd);
+        firmBean.data.put("recvAccount",recvAccount);
+        //PYS : sender를 안보내면  (주)부국위너스로 나오도록 세팅되있음.
+        firmBean.data.put("sender", sender);
+        firmBean.data.put("procType","AT");
+
+        Firm firm = FirmLoader.getConfig();
+        String host = firm.firmServer;
+        int timeout = firm.firmTimeout;
+        int port = firm.firmPort;
+
+        //PYS : 개발쪽에선 안되니 운영IP로 변경
+        //host = "10.100.100.13";
 
         firmBean = comm(firmBean, host, port, timeout);
         logger.info("응답:{},{}",firmBean.resultCd,firmBean.resultMsg);

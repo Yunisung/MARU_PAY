@@ -41,10 +41,8 @@ public class Form {
 	
 	// KBR 
 	//KJM : RoutingContext : 대표적으로 req, res 처리가능하고, 라우팅시 http method를 전달함으로서 발전된 uri 라우팅 가능
-	public void formHandler(RoutingContext rc){	
-		
-		System.out.println("[getMethod] :" + VertXUtil.getMethod(rc));
-		
+	public void formHandler(RoutingContext rc){
+
 		if(VertXUtil.getHost(rc).indexOf(PAYUNIT.PAY_HOST_LIVE) > -1){	//KJM : 운영서버 주소 확인
 		}else{
 			engine.setMaxCacheSize(0);	//KJM : 운영서버 주소가 맞지 않을 때 캐시 사이즈 0 설정
@@ -88,7 +86,7 @@ public class Form {
 					rc.put(s,CommonUtil.nToB(map.get(s)));
 				}
 			}else{
-				System.out.println("payLoad ::" + payLoad);
+
 				rc.put("param", payLoad);
 			}
 		}

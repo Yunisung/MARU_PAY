@@ -18,6 +18,7 @@ public class Pay extends Base{
 	public String webhookUrl = null;
 	public List<Product> products = null;
 	public String transactionDate = null;
+	public Rent rent		= null;
 	
 	public Pay() {
 		// TODO Auto-generated constructor stub

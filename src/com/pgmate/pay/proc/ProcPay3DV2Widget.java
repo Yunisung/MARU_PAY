@@ -3,6 +3,8 @@ package com.pgmate.pay.proc;
 import java.util.List;
 import java.util.UUID;
 
+import com.pgmate.pay.bean.Rent;
+import com.pgmate.pay.util.SmsGw;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +95,7 @@ public class ProcPay3DV2Widget extends Proc {
 					}
 
 					if(mchtTmnMap.isEquals("webPay", "사용") && mchtSvcMap.isEquals("phoneBill", "사용")){
-
+						
 						SharedMap<String,Object> vanMap = trxDAO.getVanByVanIdx(mchtTmnMap.getString("vanIdx"));
 						if(vanMap == null || !vanMap.isEquals("status", "사용")){
 							response.result = ResultUtil.getResult("9999", "호출실패","결제사 정보가 설정되지 않았습니다. route 등록 오류");return;
@@ -187,9 +189,11 @@ public class ProcPay3DV2Widget extends Proc {
 						}else{
 							ioMap.put("van", vanMap.getString("van"));
 							ioMap.put("vanId", vanMap.getString("vanId"));
-
-							if(response.widget == null){response.widget = new SharedMap<String,Object>();}
-
+							
+							if(response.widget == null){
+								response.widget = new SharedMap<String,Object>();
+							}
+							
 							response.widget.put("device", ioMap.getString("device"));
 
 
@@ -203,16 +207,58 @@ public class ProcPay3DV2Widget extends Proc {
 								setKspay(vanMap);
 								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 								response.result = ResultUtil.getResult("0000", "정상","정상완료");
+							}else if(vanMap.startsWith("van", "GALAXIA")) {
+								//231107_PYS : 상품명 필수값 등록
+								if(CommonUtil.isNullOrSpace(request.widget.getString("itemName"))) {
+									response.result = ResultUtil.getResult("9999", "필수값없음", "상품명이 없습니다.");
+									return;
+								}
+
+								response.widget.put("target", "GALAXIA");
+								if(request.widget.isEquals("device", "mobile")){
+									response.widget.put("routeUrl", "/form/payment/galaxia/galaxiaMobile.html?token=" + widgetKey);
+								}else {
+									response.widget.put("routeUrl", "/form/payment/galaxia/galaxiaWeb.html?token=" + widgetKey);
+								}
+
+								setGalaxia(vanMap);
+								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
+								response.result = ResultUtil.getResult("0000", "정상","정상완료");
 							}else{
 								response.result = ResultUtil.getResult("9999", "호출실패","카드사 정보가 설정되지 않았습니다. 서비스 준비중인 카드사입니다.");return;
 							}
-
+							
 						}
 					}else{
 						response.result = ResultUtil.getResult("9999", "호출실패","온라인 결제를 사용하지 않거나 3D Secure가 등록되지 않은 가맹점입니다.관리자에 문의바랍니다.");return;
 					}
 
 
+					// 월세앱 validation
+					if(request.widget.get("rent") != null) {
+						Rent rent = new GsonBuilder().create().fromJson(GsonUtil.toJson(request.widget.get("rent")), new TypeToken<Rent>(){}.getType());
+						String transferDay = rent.transferDay;
+						String billingType = rent.billingType;
+						String billingMethod = rent.billingMethod;
+						if(CommonUtil.isNullOrSpace(transferDay)) {
+							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 이체예정일이 없습니다.");
+							return;
+						}
+						if(CommonUtil.isNullOrSpace(billingMethod)) {
+							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 납부구분이 없습니다.");
+							return;
+						}
+						if(CommonUtil.isNullOrSpace(billingType)) {
+							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 결제유형이 없습니다.");
+							return;
+						}
+						if(!billingType.equals("월세") && !billingType.equals("보증금")) {
+							response.result = ResultUtil.getResult("9999", "호출실패", "월세앱 결제유형이 올바르지 않습니다.");
+							return;
+						}
+					}
+
+					
 					//가맹점 한도 측정
                     if(mchtMngMap.getDouble("limitOnce") > 0 && mchtMngMap.getDouble("limitOnce") < request.widget.getLong("amount") ){
 						logger.debug("가맹점 1회 한도초과 : {},{}",mchtMngMap.getDouble("limitOnce"),request.widget.getLong("amount"));
@@ -257,8 +303,8 @@ public class ProcPay3DV2Widget extends Proc {
 				}
 				else if(request.widget.isEquals("payRoute", "simple")) {
 					widgetKey = "key_"+CommonUtil.toString(System.currentTimeMillis())+UUID.randomUUID().toString().substring(0, 7);
-
 					SharedMap<String,Object> ioMap = new SharedMap<String,Object>();
+					logger.info("###################################", sharedMap.getString(PAYUNIT.TRX_ID));
 					ioMap.put("trxId", sharedMap.getString(PAYUNIT.TRX_ID));
 					ioMap.put("widgetKey", widgetKey);
 					ioMap.put("mchtId", mchtTmnMap.getString("mchtId"));
@@ -387,6 +433,129 @@ public class ProcPay3DV2Widget extends Proc {
 					ioMap.put("resultCd", response.result.resultCd);
 					ioMap.put("resultMsg", response.result.resultMsg+":"+response.result.advanceMsg);
 					trxDAO.insertTrxIO3D(ioMap);
+				}
+				else if(request.widget.isEquals("payRoute", "sms")) {
+					widgetKey = "key_"+CommonUtil.toString(System.currentTimeMillis())+UUID.randomUUID().toString().substring(0, 7);
+
+					SharedMap<String,Object> ioMap = new SharedMap<String,Object>();
+					ioMap.put("trxId", sharedMap.getString(PAYUNIT.TRX_ID));
+					ioMap.put("widgetKey", widgetKey);
+					ioMap.put("mchtId", mchtTmnMap.getString("mchtId"));
+					ioMap.put("tmnId", mchtTmnMap.getString("tmnId"));
+					ioMap.put("trackId", request.widget.getString("trackId"));
+					ioMap.put("regDay", sharedMap.getString(PAYUNIT.REG_DATE).substring(0,8));
+					ioMap.put("regTime", sharedMap.getString(PAYUNIT.REG_DATE).substring(8,14));
+					//detectDevice();
+					//PYS : SMS는 모바일로 고정
+					request.widget.put("device","mobile");
+					ioMap.put("device", request.widget.getString("device"));
+					ioMap.put("reqJson", GsonUtil.toJson(request.widget));
+
+					SharedMap<String,Object> mchtSvcMap = trxDAO.getMchtSvc(mchtMap.getString("mchtId"));
+
+					if(mchtTmnMap.isEquals("webPay", "사용") && mchtSvcMap.isEquals("card3D", "사용")){
+
+						SharedMap<String,Object> vanMap = trxDAO.getVanByVanIdx(mchtTmnMap.getString("vanIdx"));
+						if(vanMap == null || !vanMap.isEquals("status", "사용")){
+							response.result = ResultUtil.getResult("9999", "호출실패","카드사 정보가 설정되지 않았습니다. route 등록 오류");return;
+						}else{
+							ioMap.put("van", vanMap.getString("van"));
+							ioMap.put("vanId", vanMap.getString("vanId"));
+
+							if(response.widget == null){
+								response.widget = new SharedMap<String,Object>();
+							}
+
+							response.widget.put("device", ioMap.getString("device"));
+
+							if(vanMap.startsWith("van", "KSPAY")){
+								response.widget.put("target", "KSPAY");
+								if(request.widget.isEquals("device", "mobile")){
+									response.widget.put("routeUrl", "/form/payment/kspay/kspayV14Mobile.html?token=" + widgetKey);
+								}else {
+									response.widget.put("routeUrl", "/form/payment/kspay/kspayV14.html?token=" + widgetKey);
+								}
+								setKspay(vanMap);
+								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
+								response.result = ResultUtil.getResult("0000", "정상","정상완료");
+							}else if(vanMap.startsWith("van", "GALAXIA")) {
+								response.widget.put("target", "GALAXIA");
+								if(request.widget.isEquals("device", "mobile")){
+									response.widget.put("routeUrl", "/form/payment/galaxia/galaxiaMobile.html?token=" + widgetKey);
+								}else {
+									response.widget.put("routeUrl", "/form/payment/galaxia/galaxiaWeb.html?token=" + widgetKey);
+								}
+
+								setGalaxia(vanMap);
+								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
+								response.result = ResultUtil.getResult("0000", "정상","정상완료");
+
+							}else{
+								response.result = ResultUtil.getResult("9999", "호출실패","카드사 정보가 설정되지 않았습니다. 서비스 준비중인 카드사입니다.");return;
+							}
+
+						}
+					}else{
+						response.result = ResultUtil.getResult("9999", "호출실패","온라인 결제를 사용하지 않거나 3D Secure가 등록되지 않은 가맹점입니다.관리자에 문의바랍니다.");return;
+					}
+
+
+					//가맹점 한도 측정
+					if(mchtMngMap.getDouble("limitOnce") > 0 && mchtMngMap.getDouble("limitOnce") < request.widget.getLong("amount") ){
+						logger.debug("가맹점 1회 한도초과 : {},{}",mchtMngMap.getDouble("limitOnce"),request.widget.getLong("amount"));
+						response.result = ResultUtil.getResult("9999", "한도초과","가맹점 1회 거래한도 초과");return;
+					}
+
+					//가맹점/지사/총판 한도조회
+
+					SharedMap<String,Object> mchtSumMap = null;
+
+					//가맹점 한도 조회
+					if(mchtMngMap.getDouble("limitDay") > 0 ){
+						mchtSumMap = trxDAO.getTrxMchtDailySum(mchtMap);
+						if(mchtMngMap.getDouble("limitDay") < mchtSumMap.getDouble("mchtDailySum") +request.widget.getLong("amount") ){
+							logger.debug("가맹점 일일 한도초과 : {},{}",mchtMngMap.getDouble("limitDay"),mchtSumMap.getDouble("mchtDailySum")+request.widget.getLong("amount"));
+							response.result = ResultUtil.getResult("9999", "한도초과","가맹점 일일 거래한도 초과");return;
+						}
+					}
+
+					if(mchtMngMap.getDouble("limitMonth") > 0 ){
+						mchtSumMap = trxDAO.getTrxMchtMonthlySum(mchtMap);
+						if(mchtMngMap.getDouble("limitMonth") < mchtSumMap.getDouble("mchtMonthlySum") +request.widget.getLong("amount") ){
+							logger.debug("가맹점 월 한도초과 : {},{}",mchtMngMap.getDouble("limitMonth"),mchtSumMap.getDouble("mchtMonthlySum")+request.widget.getLong("amount"));
+							response.result = ResultUtil.getResult("9999", "한도초과","가맹점 월 거래한도 초과");return;
+						}
+					}
+
+					if(mchtMngMap.getDouble("limitYear") > 0 ){
+						mchtSumMap = trxDAO.getTrxMchtYearlySum(mchtMap);
+						if(mchtMngMap.getDouble("limitYear") < mchtSumMap.getDouble("mchtYearlySum") +request.widget.getLong("amount") ){
+							logger.debug("가맹점 연 한도초과 : {},{}",mchtMngMap.getDouble("limitYear"),mchtSumMap.getDouble("mchtYearlySum")+request.widget.getLong("amount"));
+							response.result = ResultUtil.getResult("9999", "한도초과","가맹점 연 거래한도 초과");return;
+						}
+					}
+
+					if(request.widget.isNullOrSpace("payerTel")) {
+						logger.debug("필수값없음 : 휴대폰 번호 없음");
+						response.result = ResultUtil.getResult("9999", "필수값없음(payerTel)", "sms 결제 필수값이 없습니다.");return;
+					}
+
+
+					ioMap.put("resJson", GsonUtil.toJson(response.widget) );
+					ioMap.put("resultCd", response.result.resultCd);
+					ioMap.put("resultMsg", response.result.resultMsg+":"+response.result.advanceMsg);
+					trxDAO.insertTrxIO3D(ioMap);
+
+
+					if(response.result.resultCd.equals("0000")) {
+						//sms연결
+						String smsMsg = "결제요청\n"
+								+"https://"+ PAYUNIT.PAY_HOST_LIVE + response.widget.getString("routeUrl")+"\n"
+								+"결제 정보를 확인후 결제하세요.";
+
+						SmsGw smsGw = new SmsGw();
+						smsGw.sendSmsMessage(request.widget.getString("payerTel"), smsMsg);
+					}
 				}
 				else {
 					response.result = ResultUtil.getResult("9999", "호출오류","해당 결제를 지원하지 않는 방식입니다.");return;
@@ -713,10 +882,10 @@ public class ProcPay3DV2Widget extends Proc {
 			}
 		}else{
 			if(request.widget.isEquals("device", "mobile")) {
-				form.put("sndReply", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_PAYCO_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("sndReply", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_PAYCO_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
 				form.put("orderChannel", "MOBILE");
 			} else {
-				form.put("sndReply", String.format("http://%s%s/%s", PAYUNIT.PAY_HOST_DEV, PAYUNIT.API_PAYCO_RETURN, sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("sndReply", String.format("https://%s%s/%s", PAYUNIT.PAY_HOST_LIVE, PAYUNIT.API_PAYCO_RETURN, sharedMap.getString(PAYUNIT.TRX_ID)));
 			}
 		}
 
@@ -929,6 +1098,80 @@ public class ProcPay3DV2Widget extends Proc {
 		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
 	}
 
+	public void setGalaxia(SharedMap<String, Object> vanMap) {
+		request.widget.put("key", widgetKey);
+		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
+
+		request.widget.put("target", "GALAXIA");
+		request.widget.put("targetMethod", "POPUP");
+
+		//van의 결제모듈 url 설정
+		if(request.widget.isEquals("device", "mobile")){
+			request.widget.put("targetUrl", "https://pay.billgate.net/credit/smartphone/certify.jsp");
+		}else{
+			request.widget.put("targetUrl", "https://pay.billgate.net/credit/certify.jsp");
+		}
+
+		if(request.widget.isEquals("device", "MSIE")){
+			request.widget.put("width", 500);
+			request.widget.put("height", 477);
+		}else{
+			request.widget.put("height", 518);
+		}
+
+		//할부개월수 자동세팅
+		String installment = "";
+
+		for(int i = 0; i < mchtTmnMap.getInt("apiMaxInstall"); i++){
+			if(i != 1){
+				installment+=CommonUtil.toString(i)+":";
+			}
+		}
+		installment += mchtTmnMap.getInt("apiMaxInstall");
+
+		SharedMap<String,Object> form = new SharedMap<String,Object>();
+		form.put("SERVICE_ID", vanMap.getString("vanId"));
+		form.put("SERVICE_CODE", "0900");
+		form.put("SERVICE_TYPE", "0000");
+		form.put("ORDER_ID", request.widget.getString("trackId"));
+		form.put("ORDER_DATE", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
+		form.put("USER_ID", request.widget.getString("userId"));
+		form.put("ITEM_CODE", request.widget.getString("itemCode"));
+		form.put("AMOUNT", request.widget.getString("amount"));
+		form.put("USER_NAME", request.widget.getString("userName")); //고객명
+		form.put("INSTALLMENT_PERIOD", installment);
+		form.put("USING_TYPE", request.widget.getString("usingType"));
+		form.put("CURRENCY", request.widget.getString("currency"));
+		form.put("ITEM_NAME", request.widget.getString("itemName")); //상품명
+		form.put("RESERVED1", request.widget.getString("publicKey"));
+		form.put("DIRECT_USE", request.widget.getString("directUse"));
+		form.put("CARD_TYPE", request.widget.getString("cardType"));
+		form.put("APPNAME", request.widget.getString("appName"));
+		form.put("RESERVED1", request.widget.getString("udf1"));
+		form.put("RESERVED2", request.widget.getString("udf2"));
+
+		if(request.widget.isEquals("device", "mobile")) {
+			form.put("CANCEL_FLAG", "Y");
+		}
+
+		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
+			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+		}else{
+			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+			//form.put("RETURN_URL", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+		}
+
+		//form 처리
+		request.widget.put("form", GsonUtil.toJson(form));
+
+		//요청 값 임시 저장
+		logger.info("save as key : {}",request.widget.getString("key"));
+		PAYUNIT.cacheMap.put(request.widget.getString("key"), request.widget);
+
+
+		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
+	}
+
 	public void detectDevice(){
 		String ua = sharedMap.getString(PAYUNIT.USERAGENT).toLowerCase();
 		if(ua.matches("(?i).*((android|bb\\d+|meego).+mobile|avantgo|bada\\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\\.(browser|link)|vodafone|wap|windows ce|xda|xiino).*")||ua.substring(0,4).matches("(?i)1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\\-(n|u)|c55\\/|capi|ccwa|cdm\\-|cell|chtm|cldc|cmd\\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\\-s|devi|dica|dmob|do(c|p)o|ds(12|\\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\\-|_)|g1 u|g560|gene|gf\\-5|g\\-mo|go(\\.w|od)|gr(ad|un)|haie|hcit|hd\\-(m|p|t)|hei\\-|hi(pt|ta)|hp( i|ip)|hs\\-c|ht(c(\\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\\-(20|go|ma)|i230|iac( |\\-|\\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\\/)|klon|kpt |kwc\\-|kyo(c|k)|le(no|xi)|lg( g|\\/(k|l|u)|50|54|\\-[a-w])|libw|lynx|m1\\-w|m3ga|m50\\/|ma(te|ui|xo)|mc(01|21|ca)|m\\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\\-2|po(ck|rt|se)|prox|psio|pt\\-g|qa\\-a|qc(07|12|21|32|60|\\-[2-7]|i\\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\\-|oo|p\\-)|sdk\\/|se(c(\\-|0|1)|47|mc|nd|ri)|sgh\\-|shar|sie(\\-|m)|sk\\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\\-|v\\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\\-|tdg\\-|tel(i|m)|tim\\-|t\\-mo|to(pl|sh)|ts(70|m\\-|m3|m5)|tx\\-9|up(\\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\\-|your|zeto|zte\\-")) {
@@ -951,13 +1194,13 @@ public class ProcPay3DV2Widget extends Proc {
 
 		//모바일 테스트용
 		//request.widget.put("device", "mobile");
-
+		
 	}
-
-
+	
+	
 	public String getProduct(Object json){
 		logger.info("products : {}",json);
-
+		
 		String prodName = "상품명";
 		try{
 			List<Product> prodList = new GsonBuilder().create().fromJson(GsonUtil.toJson(json), new TypeToken<List<Product>>(){}.getType());
@@ -973,15 +1216,15 @@ public class ProcPay3DV2Widget extends Proc {
 		}
 		return prodName;
 	}
-
+	
 	public String getProductCount(Object json) {
 		logger.info("products : {}",json);
-
+		
 		int prodCount = 0;
 		try{
 			List<Product> prodList = new GsonBuilder().create().fromJson(GsonUtil.toJson(json), new TypeToken<List<Product>>(){}.getType());
 			if(prodList.size() > 0){
-
+				
 				for(int i = 0; i < prodList.size()-1; i++) {
 					prodCount += prodList.get(i).qty;
 				}

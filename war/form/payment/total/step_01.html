@@ -251,14 +251,14 @@
        });
        
 	   $("div.agree").on('click', function (event) {
-                if(!KWON.util.isMobile()){ //pc 화면
+                // if(!KWON.util.isMobile()){ //pc 화면
                     $(this)
                         .next(".agree_text")
                         .slideToggle(200);
                     $(this)
                         .find('i')
                         .toggleClass('open')
-                }
+                // }
             });
 	</script>
 	<script src="/js/onlyAuthIndex.js?v=1" charset="utf-8"></script>

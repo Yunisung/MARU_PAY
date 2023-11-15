@@ -16,13 +16,12 @@ import javax.net.ssl.SSLSession;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.galaxia.api.MessageTag;
 import com.pgmate.lib.util.map.SharedMap;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class Galaxia3D {
 
@@ -41,9 +40,7 @@ public class Galaxia3D {
 		reqData.append("&ORDER_DATE=").append(requestMap.getString("ORDER_DATE"));
 		reqData.append("&PAY_MESSAGE=").append(requestMap.getString("PAY_MESSAGE"));
 		
-		
 		URL url = null;
-//		HttpURLConnection conn = null;
 		HttpsURLConnection conn = null;
 		
 		try {
@@ -95,19 +92,24 @@ public class Galaxia3D {
             logger.info("##############################");
             logger.info(sb.toString());
             logger.info("##############################");
-            Object jsonobject = JSONValue.parse(sb.toString());
-            JSONObject jsonobj = (JSONObject)jsonobject;
+
+			JSONObject jsonobj = (JSONObject)JSONValue.parse(sb.toString());
             
             requestMap.put("pinNum", jsonobj.get("PIN_NUMBER"));
     		requestMap.put("authNum", jsonobj.get("AUTH_NUMBER"));
     		requestMap.put("vanTrxId", jsonobj.get("TRANSACTION_ID"));
     		requestMap.put("resCode", jsonobj.get("RESPONSE_CODE"));
+			requestMap.put("resMsg", jsonobj.get("RESPONSE_MESSAGE"));
     		requestMap.put("installment", jsonobj.get("QUOTA"));
     		requestMap.put("dtlCode", jsonobj.get("DETAIL_RESPONSE_CODE"));
     		requestMap.put("dtlMsg", jsonobj.get("DETAIL_RESPONSE_MESSAGE"));
-			
+
+			logger.info("RESPONSE_CODE : {}", requestMap.getString("resCode"));
+			logger.info("RESPONSE_MESSAGE : {}", requestMap.getString("resMsg"));
+			logger.info("DETAIL_RESPONSE_CODE : {}", requestMap.getString("dtlCode"));
+			logger.info("DETAIL_RESPONSE_MESSAGE : {}", requestMap.getString("dtlMsg"));
+
 		} catch(Exception e) {
-			logger.info("갤럭시아 통신 error : " + e.getMessage());
 			result ="CONNECT ERROR ["+e.getMessage()+"] "+Galaxia3D.GALAXIA_WEB_URL;
 		} finally {
 			conn.disconnect();

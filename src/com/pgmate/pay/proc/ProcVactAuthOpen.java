@@ -1,19 +1,14 @@
 package com.pgmate.pay.proc;
 
 import com.pgmate.app.util.KSignUtil;
-import com.pgmate.lib.conf.ConfigLoader;
 import com.pgmate.lib.key.CPKEY;
 import com.pgmate.lib.key.GenKey;
 import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
-import com.pgmate.pay.bean.KsnetBean;
-import com.pgmate.pay.bean.KsnetResultBean;
 import com.pgmate.pay.bean.Request;
 import com.pgmate.pay.conf.Firm;
 import com.pgmate.pay.conf.FirmLoader;
-import com.pgmate.pay.conf.Ksnet;
-import com.pgmate.pay.conf.KsnetLoader;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.firm.FirmBean;
 import com.pgmate.pay.util.AccountUtil;
@@ -32,7 +27,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class ProcVactAuthOpen extends Proc{
@@ -134,6 +128,12 @@ public class ProcVactAuthOpen extends Proc{
 
             // 공통 validation 처리 - 블랙리스트체크, 발급계좌체크, 인증10회인지 체크
             if(!regValid(request)) {
+                sendResponse();
+                return;
+            }
+
+            //230615_PYS : 동일출금계좌 발급제한 체크
+            if(!IssueLimitChecker(request)) {
                 sendResponse();
                 return;
             }
@@ -354,7 +354,7 @@ public class ProcVactAuthOpen extends Proc{
 
 
             //230413_PYS : 경남은행일때 regType, identity예외 추가
-            if(request.vact.bankCd.equals("039")) {
+            /*if(request.vact.bankCd.equals("039")) {
                 if(CommonUtil.isNullOrSpace(request.vact.regType)){
                     response.result = ResultUtil.getResult("9999", "필수값없음","가상계좌번호의 등록유형이 존재하지 않습니다.");
                     return;
@@ -389,7 +389,7 @@ public class ProcVactAuthOpen extends Proc{
                 }
 
 
-            }
+            }*/
 
         }
 
@@ -505,6 +505,12 @@ public class ProcVactAuthOpen extends Proc{
     //하이픈 출금계좌정보 등록
     //MARU_FIRM -> 하이픈 서버 거쳐 등록
     private boolean withdrawReg(Request request) {
+        //더즌 예외 추가
+        if(request.vact.bankCd.equals("034")) {
+            response.result = ResultUtil.getResult("0000", "정상","");
+            return true;
+        }
+
         Firm firm = FirmLoader.getConfig();
 
         FirmBean firmBean = new FirmBean();
@@ -525,8 +531,6 @@ public class ProcVactAuthOpen extends Proc{
 //        if("2".equals(trxType)) {
 //            type = "변경";
 //        }
-
-
 
         host = firm.firmServer;
         timeout = firm.firmTimeout;
@@ -866,14 +870,20 @@ public class ProcVactAuthOpen extends Proc{
 
 
         //PG_FIRM_ACCNT에 없는 계좌는 FIRM으로 보냄
-        FirmBean firmBean = fcsFirmBean(bankCd, account, identity);
+        FirmBean firmBean = null;
+        //더즌 FIRM 추가
+        if(request.vact.bankCd.equals("034")) {
+            firmBean = fcsFirmBeanByDozn(bankCd, account, identity);
+        }else {
+            firmBean = fcsFirmBean(bankCd, account, identity);
+        }
 
         /*
         //FIRM 결과값 PG_VACT_AUTH에 업데이트
         trxDAO.updatePgVactAuth(authId, firmBean.resultCd, firmBean.resultMsg);
         */
 
-        trxDAO.updateTotalAuthResult(authId, firmBean.resultCd, firmBean.resultMsg);
+        trxDAO.updateTotalAuthResult(authId, 0, firmBean.resultCd, firmBean.resultMsg);
 
         if(!firmBean.resultCd.equals("0000")) {
             //FCS 인증 실패시
@@ -991,5 +1001,46 @@ public class ProcVactAuthOpen extends Proc{
         }else{
             return new Double(amount *10 /100).longValue();
         }
+    }
+
+    public boolean IssueLimitChecker(Request request) {
+        String bankCd = request.auth.bankCd;
+        String account = request.auth.account;
+        String mchtId = mchtMap.getString("mchtId");
+
+        int limitCnt = mchtVactMngMap.getInt("eqAccntIssueLimitCnt");
+        if(limitCnt == 0) {
+            return true;
+        }
+
+        int issueCount = trxDAO.getEqAccountIssueCnt(bankCd, account, mchtId);
+        if(issueCount >= limitCnt) {
+            response.result = ResultUtil.getResult("9999", "동일 출금계좌 가상계좌 발급횟수초과","해당 출금계좌로 발급할수 있는 가상계좌 횟수를 초과하였습니다. 관리자에 문의 바랍니다");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public FirmBean fcsFirmBeanByDozn(String bankCd, String account, String identity) {
+        FirmBean firmBean = new FirmBean();
+        firmBean.bankCd 	= "034";
+        firmBean.msgType 	= "0600400";
+        firmBean.userId		= "SYSTEM";
+        firmBean.data.put("bankCd", bankCd.trim());
+        firmBean.data.put("account", account.trim());
+        firmBean.data.put("socialNumber", identity.trim());
+
+        Firm firm = FirmLoader.getConfig();
+        host = firm.firmServer;
+        timeout = firm.firmTimeout;
+        port = firm.firmPort;
+
+        firmBean = comm(firmBean);
+
+        logger.info("FCS인증 응답 : [{}][{}][{}][{}]", bankCd, account,firmBean.resultCd,firmBean.resultMsg);
+        logger.info("FCS인증 data : [{}]", GsonUtil.toJson(firmBean.data));
+
+        return firmBean;
     }
 }

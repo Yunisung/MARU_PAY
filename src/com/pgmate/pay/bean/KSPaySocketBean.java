@@ -1,5 +1,8 @@
 package com.pgmate.pay.bean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.util.*;
 import java.net.*;
@@ -14,6 +17,8 @@ import java.net.*;
 */
 
 public class KSPaySocketBean {
+
+	private static Logger logger = LoggerFactory.getLogger(com.pgmate.pay.bean.KSPaySocketBean.class);
 
 	private	Socket				socket;				//IPG_Server(C-Daemon)과 연결 소켓
 	private DataInputStream		in;
@@ -54,10 +59,10 @@ public class KSPaySocketBean {
 			BufferedReader br;
 			String line;
 			br = new BufferedReader(new InputStreamReader(home.openStream()));
-			while((line = br.readLine()) != null) System.out.println(SendURL+":"+line);
+			while((line = br.readLine()) != null) logger.info(SendURL+":"+line);
 		}
         catch(Exception e) {
-			System.out.println("setSendURL ERROR="+e.toString());
+			logger.error("setSendURL ERROR="+e.toString());
 			return false;
 		}
 		return true;
@@ -71,7 +76,7 @@ public class KSPaySocketBean {
 			socket = new Socket(this.IPAddr, this.Port);
 			in     = new DataInputStream(socket.getInputStream());
 			out    = new DataOutputStream(socket.getOutputStream());
-			System.out.println("addr = [" + this.IPAddr + "]  ,  port = [" + this.Port + "]");
+			logger.info("addr = [" + this.IPAddr + "]  ,  port = [" + this.Port + "]");
 		}
 		catch( IOException e )
 		{

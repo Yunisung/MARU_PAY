@@ -139,71 +139,7 @@ public class ProcPay extends Proc {
 
 		//230324_PYS : 정기결제 로직 추가
 		if(request.pay.metadata != null && !CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillProcess"))) {
-			if(request.pay.metadata.getString("rebillProcess").equals("REG")) {
-				//정기결제 등록 로직
-				//위젯 데이터 로드
-				String rebillCycleType = request.pay.metadata.getString("rebillCycleType");
-				String rebillCycle = request.pay.metadata.getString("rebillCycle");
-				String rebillExpire = request.pay.metadata.getString("rebillExpire");
-				String rebillSmsUse = request.pay.metadata.getString("rebillSmsUse");
-				String rebillType = rebillCycleType + "+" + rebillCycle;
-
-				if (response.result.resultCd.equals("0000")) {
-					//결제 성공시 로직
-
-					//정기결제 아이디 생성
-					String rebillId = GenKey.genKeys(CPKEY.REBILL, sharedMap.getString(PAYUNIT.TRX_ID));
-
-					//PG_REBILL_PAY에 INSERT
-					trxDAO.insertRebillPAY(response.pay.trxId, rebillId);
-
-
-					//데이터 세팅
-					SharedMap<String, Object> rebillMap = new SharedMap<>();
-					rebillMap.put("rebillId", rebillId);
-					rebillMap.put("trxId", request.pay.trxId);
-					rebillMap.put("cardId", request.pay.card.cardId);
-					rebillMap.put("mchtId",sharedMap.getString(PAYUNIT.MCHTID));
-					rebillMap.put("tmnId", request.pay.tmnId);
-					rebillMap.put("amount", request.pay.amount);
-					rebillMap.put("status", "승인");
-					rebillMap.put("trackId", request.pay.trackId);
-					rebillMap.put("payerName", request.pay.payerName);
-					rebillMap.put("payerEmail", request.pay.payerEmail);
-					rebillMap.put("payerTel", request.pay.payerTel);
-					rebillMap.put("productId", sharedMap.getString(PAYUNIT.KEY_PROD));
-					Product product = request.pay.products.get(0);
-					rebillMap.put("productName", product.name);
-
-					rebillMap.put("rebillCycleType", rebillType);
-					rebillMap.put("rebillCount", 1);
-					rebillMap.put("rebillSmsUse", rebillSmsUse);
-					rebillMap.put("hookAddr", request.pay.webhookUrl);
-
-					String nextPayDay = calcRebillDay(rebillType, CommonUtil.getCurrentDate("yyyyMMdd"));
-					rebillMap.put("nextPayDay", nextPayDay);
-					rebillMap.put("expireDay", rebillExpire);
-					rebillMap.put("regDay",sharedMap.getString(PAYUNIT.REG_DATE).substring(0, 8));
-					rebillMap.put("regTime", sharedMap.getString(PAYUNIT.REG_DATE).substring(8));
-
-					//PG_REBILL_REG에 INSERT
-					trxDAO.insertRebillReg(rebillMap);
-
-					//Response 세팅
-					response.rebill = new Rebill();
-					response.rebill.rebillId = rebillId;
-
-					if(rebillSmsUse.equals("Y")) {
-						//SMS 보내기
-						SmsGw smsGw = new SmsGw();
-						smsGw.sendSmsMessage(request.pay.payerTel, makeRegSmsMsg(request.pay.amount, rebillCycleType, rebillCycle, rebillExpire, nextPayDay));
-					}
-
-				} else {
-					trxDAO.insertRebillERR(response.pay.trxId);
-				}
-
-			} else if(request.pay.metadata.getString("rebillProcess").equals("PAY")) {
+			if(request.pay.metadata.getString("rebillProcess").equals("PAY")) {
 				//정기결제 재결제 로직
 				String rebillId = request.pay.metadata.getString("rebillId");
 				String currentDate = CommonUtil.getCurrentDate("yyyyMMdd");
@@ -218,8 +154,8 @@ public class ProcPay extends Proc {
 
 					SharedMap<String, Object> rebillData = trxDAO.getRebillData(rebillId);
 
-					String rebillType = rebillData.getString("rebillCycleType");
-					String expireDay = rebillData.getString("expireDay");
+					String rebillDays = rebillData.getString("rebillDays");
+					String expireDate = rebillData.getString("expireDate");
 
 
 					SharedMap<String, Object> updateMap = new SharedMap<>();
@@ -228,27 +164,27 @@ public class ProcPay extends Proc {
 					updateMap.put("rebillCount", rebillCount);
 
 					//다음 결제일 계산
-					String nextPayDay = calcRebillDay(rebillType, currentDate);
+					String nextPayDay = calcRebillDay("M+" + rebillDays, currentDate);
 
 					logger.info("currentDate : {}", Integer.parseInt(currentDate));
-					logger.info("expireDay : {}", Integer.parseInt(expireDay));
+					logger.info("expireDay : {}", Integer.parseInt(expireDate));
 
-					if(Integer.parseInt(nextPayDay) <= Integer.parseInt(expireDay)) {
+					if(Integer.parseInt(nextPayDay) < Integer.parseInt(expireDate)) {
 						logger.info("추가결제");
 						//다음에도 결제예정일때
 						//상태 업데이트
-						updateMap.put("nextPayDay", nextPayDay);
-						updateMap.put("status", "승인");
+						updateMap.put("nextPayDate", nextPayDay);
+						updateMap.put("status", "사용");
 
 					} else {
 						logger.info("마지막결제");
 						//마지막 결제일때
 						//상태 업데이트
-						updateMap.put("nextPayDay", currentDate);
+						updateMap.put("nextPayDate", "99999999");
 						updateMap.put("status", "완료");
 					}
 
-					trxDAO.updateRebillREG(rebillId, updateMap);
+					trxDAO.updateRebillReg(rebillId, updateMap);
 
 				} else {
 					//정기결제 실패
@@ -258,9 +194,8 @@ public class ProcPay extends Proc {
 					SharedMap<String, Object> updateMap = new SharedMap<>();
 
 					String nextPayDay = calcRebillDay("D+1", currentDate);
-					updateMap.put("status", "실패");
-					updateMap.put("nextPayDay", nextPayDay);
-					trxDAO.updateRebillREG(rebillId, updateMap);
+					updateMap.put("nextPayDate", nextPayDay);
+					trxDAO.updateRebillReg(rebillId, updateMap);
 				}
 
 
@@ -456,30 +391,7 @@ public class ProcPay extends Proc {
 			if(request.pay.metadata != null && !CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillProcess"))) {
 				sharedMap.put("rebillProcess", request.pay.metadata.getString("rebillProcess"));
 
-				if(request.pay.metadata.getString("rebillProcess").equals("REG")) {
-					//정기결제 등록 로직 valid
-					if(CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillCycleType"))) {
-						response.result = ResultUtil.getResult("9999", "필수값 없음", "정기결제 주기가 없습니다.");
-						return;
-					}
-
-					if(CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillCycle"))) {
-						response.result = ResultUtil.getResult("9999", "필수값 없음", "정기결제 결제일이 없습니다.");
-						return;
-					}
-
-					if(CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillExpire"))) {
-						response.result = ResultUtil.getResult("9999", "필수값 없음", "정기결제 만료일이 없습니다.");
-						return;
-					}
-
-					if(CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillSmsUse"))) {
-						//SMS발송은 초기값 세팅
-						request.pay.metadata.put("rebillSmsUse", "N");
-					}
-
-
-				} else if(request.pay.metadata.getString("rebillProcess").equals("PAY")) {
+				if(request.pay.metadata.getString("rebillProcess").equals("PAY")) {
 					//정기결제 결제 로직 valid
 					if(CommonUtil.isNullOrSpace(request.pay.metadata.getString("rebillId"))) {
 						response.result = ResultUtil.getResult("9999", "필수값 없음", "정기결제 아이디가 없습니다.");
@@ -781,41 +693,5 @@ public class ProcPay extends Proc {
 
 			return "";
 		}
-	}
-	
-	public String makeRegSmsMsg(long amount, String rebillCycleType, String rebillCycle, String rebillExpire, String nextPayDay) {
-		String expireDay = rebillExpire.substring(0,4) + "년" + rebillExpire.substring(4,6) + "월" + rebillExpire.substring(6) + "일";
-		String msg = "정기결제가 등록되었습니다. 만료기간 : " + expireDay;
-		msg += ", 금액 : " + amount + "원";
-
-		if(rebillCycleType.equals("M")) {
-			msg += ", 매달 " + rebillCycle + "일 ";
-		} else if (rebillCycleType.equals("W")) {
-			msg += ", 매주 ";
-			if(rebillCycle.equals("1")) {
-				msg += "월요일 ";
-			} else if(rebillCycle.equals("2")) {
-				msg += "화요일 ";
-			} else if(rebillCycle.equals("3")) {
-				msg += "수요일 ";
-			} else if(rebillCycle.equals("4")) {
-				msg += "목요일 ";
-			} else if(rebillCycle.equals("5")) {
-				msg += "금요일 ";
-			} else if(rebillCycle.equals("6")) {
-				msg += "토요일 ";
-			} else if(rebillCycle.equals("7")) {
-				msg += "일요일 ";
-			}
-		} else if (rebillCycleType.equals("D")) {
-			msg += ", 매일 ";
-		}
-
-		msg += "자동결제됩니다.";
-
-		String nextDay = nextPayDay.substring(0,4) + "년" + nextPayDay.substring(4,6) + "월" + nextPayDay.substring(6) + "일";
-		msg += " 다음 결제 예정일 : " + nextDay;
-
-		return msg;
 	}
 }

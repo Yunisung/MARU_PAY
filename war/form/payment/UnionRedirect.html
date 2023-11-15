@@ -10,8 +10,9 @@
 <body>
 <script>
  	var urlParams = window.location.search;
-	var decoded = decodeURIComponent(urlParams);
- 
+    var decoded = decodeURIComponent(decodeURI(urlParams));
+    var trim = decoded.replace('?result=','');
+    
 	 if(decoded.indexOf("승인실패") != -1){
 		var trim = decoded.replace('?result=','').replace(/\\/g, '').substring(1).slice(0,-1);
 	}else if(decoded.indexOf("승인")){

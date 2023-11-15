@@ -215,6 +215,29 @@ var popup = function(url) {
     PopupCenter(url, 'thepayone-payment', ServerUtil.popupWidth, ServerUtil.popupHeigth);
 }
 
+function createPayButton() {
+    const span = document.querySelector("#payment-button span:first-child");
+    const button1 = document.createElement("button");
+    const button2 = document.createElement("button");
+    button1.innerText = "결제모듈호출";
+    button1.setAttribute("style", "width: 100%");
+    button1.addEventListener("click", PopupHelper);
+    button2.innerText = "닫기";
+    button2.setAttribute("style", "width: 100%");
+    button2.addEventListener("click", PopupClose);
+
+    span.appendChild(button1);
+    span.appendChild(button2);
+}
+
+function PopupHelper() {
+    PopupCenter(popupUrl,'thepayone-payment', ServerUtil.popupWidth, ServerUtil.popupHeigth);
+}
+
+function PopupClose() {
+    postMessages.layerClosed();
+}
+
 function PopupCenter(url, title, w, h) {
     // Fixes dual-screen position                         Most browsers      Firefox
     var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
@@ -227,12 +250,14 @@ function PopupCenter(url, title, w, h) {
     var top = ((height / 2) - (h / 2)) + dualScreenTop;
     var newWindow = null;
     console.log('Window Open!');
+
     if (util.isMobile()) {
         console.log('Mobile Open!');
         newWindow = window.open('about:blank', title);
     } else {
         newWindow = window.open('about:blank', title, 'location=no, resizable=no, fullscreen=no, menubar=no, status=no, toolbar=no, scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
     }
+
     if (newWindow == null || typeof(newWindow) == 'undefined') {
         alert('팝업 차단 기능이 설정되어 있습니다.\n\n차단 기능을 해제 한 후 다시 시도해 주십시오.');
     } else {
@@ -257,6 +282,7 @@ function PopupCenter(url, title, w, h) {
             newWindow.focus();
         }
     }
+
 }
 
 
@@ -275,11 +301,13 @@ function openPayment(config) {
         if (res.result.resultCd == '0000') {
             var url = window.location.protocol + "//" + window.location.host + res.widget.routeUrl;
             ServerUtil.resizeWindow(res);
-
-            if (config.c3Config.mode == 'popup') {
+            console.log('url : '+ url);
+            console.log('mode : ' + config.c3Config.mode);
+            if (config.c3Config.mode === 'popup') {
                 popup(url);
             } else {
                 if(res.widget.target == 'REGULAR') document.getElementById('iframe-payment').style.backgroundColor = 'whitesmoke';
+
                 document.getElementById('iframe-payment-containner').style.height = ServerUtil.layerHeigth;
                 document.getElementById('iframe-payment-containner').style.width = ServerUtil.layerWidth;
                 document.getElementById('iframe-payment').src = url;

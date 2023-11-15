@@ -92,8 +92,7 @@ public class ProcPay3DWidget extends Proc {
 						if(response.widget == null){response.widget = new SharedMap<String,Object>();}
 						
 						response.widget.put("device", ioMap.getString("device"));
-						
-						System.out.println("van :: " + vanMap.getString("van"));
+
 						//KJM : kspay, daou van에 대해서만 사용가능
 						//KJM : kspay일 때
 						if(vanMap.startsWith("van", "KSPAY")){
@@ -212,8 +211,8 @@ public class ProcPay3DWidget extends Proc {
 	 * @param vanMap
 	 */
 	public void setKspay(SharedMap<String,Object> vanMap){
-		
-		System.out.println("widgetkey : " + widgetKey);
+
+		logger.info("widgetkey : " + widgetKey);
 		request.widget.put("key", widgetKey);
 		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
 		
@@ -387,11 +386,11 @@ public class ProcPay3DWidget extends Proc {
 		}
 		
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
-		form.put("SERVICE_ID", request.widget.getString("serviceId"));
+		form.put("SERVICE_ID", vanMap.getString("vanId"));
 		form.put("ORDER_ID", request.widget.getString("trackId"));
 		form.put("ORDER_DATE", request.widget.getString("orderDate"));
 		form.put("USER_ID", request.widget.getString("userId"));
-		form.put("ITEM_CODE", request.widget.getString("itmeCode"));
+		form.put("ITEM_CODE", request.widget.getString("itemCode"));
 		form.put("USER_NAME", request.widget.getString("userName")); //고객명
 		form.put("AMOUNT", request.widget.getString("amount"));
 		form.put("INSTALLMENT_PERIOD", request.widget.getString("installmentPeriod"));
@@ -399,6 +398,8 @@ public class ProcPay3DWidget extends Proc {
 		form.put("CURRENCY", request.widget.getString("usingType"));
 		form.put("ITEM_NAME", request.widget.getString("itemName")); //상품명
 		form.put("RESERVED1", request.widget.getString("publicKey"));
+		form.put("DIRECT_USE", request.widget.getString("directUse"));
+		form.put("CARD_TYPE", request.widget.getString("cardType"));
 		form.put("WEBAPI_FLAG", "Y");	//인증 응답시 pay_message 전달 여부(y:전달/n:미전달) web-api 방식 사용 시 y 필수
 		
 		//api/3d/hook(결제 정보 저장)으로 들어가는 url 세팅
@@ -406,7 +407,7 @@ public class ProcPay3DWidget extends Proc {
 		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
 			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}else{
-			form.put("RETURN_URL", String.format("http://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 		
 		//form 처리

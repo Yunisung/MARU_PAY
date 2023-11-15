@@ -88,7 +88,6 @@ public class Js {
 		engine.render(rc, directory+uri,  res -> {
 		    if (res.succeeded()) {
                 //KJM : 상태코드와 헤더(contentType)을 설정해주고 js파일을 response해준다
-//		    	System.out.println("result ::" + res.result());
 		    	rc.response().setStatusCode(200).putHeader(HttpHeaders.CONTENT_TYPE, "application/javascript").end(res.result());
 		    } else {
 		    	logger.info("js org : {}, uri : {}, method : {}, ip : {}",rc.request().uri(),uri);

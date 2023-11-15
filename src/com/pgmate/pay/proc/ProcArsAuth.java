@@ -114,6 +114,7 @@ public class ProcArsAuth extends Proc {
         String mchtId = mchtMap.getString("mchtId");
         String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");
         SharedMap<String, Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
+        SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
 
         String authId = TrxDAO.getAuthId();
 
@@ -144,7 +145,8 @@ public class ProcArsAuth extends Proc {
 
         trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holder, authNo, phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
-        FirmBean firmBean = arsFirmBean(phoneNo, authNo);
+        String vactBankCd = mchtMngVactMap.getString("vactBankCd");
+        FirmBean firmBean = arsFirmBean(vactBankCd, phoneNo, authNo);
 
         if(!firmBean.resultCd.equals("0000")) {
             //ARS 인증 실패시
@@ -153,14 +155,14 @@ public class ProcArsAuth extends Proc {
             } else {
                 response.result = ResultUtil.getResult("AAAA", "ARS인증 실패",firmBean.resultMsg);
             }
-            trxDAO.updateTotalAuthResult(authId, "XXXX", firmBean.resultMsg);
+            trxDAO.updateTotalAuthResult(authId, firmBean.idx,"XXXX", firmBean.resultMsg);
 
             logger.info("ARS인증 오류 [{}][{}][{}][{}]", phoneNo, authNo, firmBean.resultCd, firmBean.resultMsg);
             return false;
         } else {
             logger.info("ARS인증 성공 : [{}][{}]", phoneNo, authNo);
 
-            trxDAO.updateTotalAuthResult(authId, "000", "ARS 인증 진행중");
+            trxDAO.updateTotalAuthResult(authId, firmBean.idx, "000", "ARS 인증 진행중");
 
             response.result = ResultUtil.getResult(firmBean.resultCd, "ARS인증 요청성공", "ARS인증이 요청되었습니다.");
 
@@ -172,9 +174,15 @@ public class ProcArsAuth extends Proc {
 
     }
 
-    public FirmBean arsFirmBean(String phoneNo, String authNo) {
+    public FirmBean arsFirmBean(String vactBankCd, String phoneNo, String authNo) {
         FirmBean firmBean = new FirmBean();
-        firmBean.bankCd 	= "ARS";
+
+        if(vactBankCd.equals("034")) {
+            firmBean.bankCd = "034";
+        } else {
+            firmBean.bankCd = "ARS";
+        }
+
         firmBean.msgType 	= "ARSAUTH";
         firmBean.userId		= "SYSTEM";
         firmBean.data.put("phoneNo", phoneNo.trim());
@@ -186,7 +194,7 @@ public class ProcArsAuth extends Proc {
         int port = firm.firmPort;
 
         //PYS : 개발쪽에선 안되니 운영IP로 변경
-        host = "10.100.100.13";
+//        host = "10.100.100.13";
 
         firmBean = comm(firmBean, host, port, timeout);
 

@@ -224,24 +224,25 @@ public class ProcPay3DHook extends Proc {
 		//갤럭시아 모듈 사용하여 승인정보 가져와 requestMap에 세팅
 		Galaxia3D galaxia3d = new Galaxia3D();
 		galaxia3d.comm(requestMap);
-		
-		logger.info("reCommType : [{}]",requestMap.getString("reCommType"));	//[WH]
-		logger.info("reHash : [{}]",requestMap.getString("reHash"));
+
 		logger.info("trxId : [{}]",trxId);
 		
 		// KBR : 3D위젯 정보 거래번호로 조회
 		ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
 		
 		//인증 성공 시
-		if(requestMap.isEquals("dtlCode", "00")) {
+		if(requestMap.isEquals("RESPONSE_CODE", "0000")) {
 			ioMap.put("vanResultCd","0000");
 			ioMap.put("vanResultMsg","정상승인");
-			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
+			ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 			ioMap.put("issuer","기타");
 			ioMap.put("installment",requestMap.getString("RESERVED3"));
 			ioMap.put("authCd",requestMap.getString("authNum"));
 			ioMap.put("vanTrxId",requestMap.getString("vanTrxId"));
-			
+
+
+			logger.info("CardNum", requestMap.getString("pinNum"));
+
 			//KJM : 카드번호 길이
 			int cardLen = requestMap.getString("pinNum").length();
 			
@@ -257,13 +258,13 @@ public class ProcPay3DHook extends Proc {
 		
 		//인증 실패 시
 		} else {
-			ioMap.put("vanResultCd","XXXX");
-			ioMap.put("vanResultMsg","거래정보 미확인");
+			ioMap.put("vanResultCd", requestMap.getString("RESPONSE_CODE"));
+			ioMap.put("vanResultMsg",requestMap.getString("RESPONSE_MESSAGE"));
 			ioMap.put("resultCd", "XXXX");
-			ioMap.put("resultMsg", "거래정보 미확인");
+			ioMap.put("resultMsg", requestMap.getString("DETAIL_RESPONSE_MESSAGE"));
 			ioMap.put("vanTrxId",requestMap.getString("vanTrxId"));
 			ioMap.put("authCd","");
-			ioMap.put("vanResultDate",requestMap.getString("ORDER_DATE"));
+			ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 			ioMap.put("issuer","");
 			ioMap.put("installment",requestMap.getString("RESERVED3"));
 			
@@ -372,7 +373,7 @@ public class ProcPay3DHook extends Proc {
 		if(ioMap.isEquals("vanResultCd", "0000")){
 			response.result 	= ResultUtil.getResult("0000","정상","정상승인");
 		}else{
-			response.result 	= ResultUtil.getResult(ioMap.getString("vanResultCd"),"승인실패",ioMap.getString("vanResultMsg"));
+			response.result 	= ResultUtil.getResult(ioMap.getString("vanResultCd"),"승인실패",ioMap.getString("resultMsg"));
 		}
 		
 		// KBR: pay 생성하여 카드정보 제품정보 및 결제정보를 모두 셋팅
@@ -417,6 +418,7 @@ public class ProcPay3DHook extends Proc {
 		product.name = widgetMap.getString("itemName");
 		product.qty = (int) 1.0;
 		product.desc = "deq-scription";
+		products.add(product);
 		
 		//cardId와 prodId는 여기서 생성 되어 저장
 		ioMap.put("cardId", GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
@@ -470,11 +472,11 @@ public class ProcPay3DHook extends Proc {
 		if(ioMap.isEquals("vanResultCd", "0000")){
 			response.result 	= ResultUtil.getResult("0000","정상","정상승인");
 		}else{
-			response.result 	= ResultUtil.getResult(ioMap.getString("vanResultCd"),"승인실패",ioMap.getString("vanResultMsg"));
+			response.result 	= ResultUtil.getResult(ioMap.getString("resultCd"),"승인실패",ioMap.getString("resultMsg"));
 		}
 		
 		response.pay = new Pay();
-		
+		response.pay.card = card;
 		response.pay.products 	= products;
 		response.pay.authCd		= ioMap.getString("authCd");
 		response.pay.webhookUrl	= widgetMap.getString("webhookurl");

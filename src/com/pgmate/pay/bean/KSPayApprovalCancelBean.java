@@ -1,5 +1,8 @@
 package com.pgmate.pay.bean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,6 +21,7 @@ import java.util.Properties;
 */
 
 public class KSPayApprovalCancelBean {
+    private static Logger logger = LoggerFactory.getLogger(com.pgmate.pay.bean.KSPayApprovalCancelBean.class);
 
     private static final String MSG_ENCODING = "ksc5601";
 
@@ -351,7 +355,7 @@ public class KSPayApprovalCancelBean {
         TmpHeadMsg.append(format(pFiller, 35, 'X'));
 
         this.HeadMsg = TmpHeadMsg.toString();
-        System.out.println("HeadMsg=[" + TmpHeadMsg + "]");
+        logger.info("HeadMsg=[" + TmpHeadMsg + "]");
 
         return true;
     }
@@ -402,7 +406,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("CreditDataMessage=[" + TmpSendMsg + "]");
+        logger.info("CreditDataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -434,7 +438,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("VirtualAccountDataMessage=[" + TmpSendMsg + "]");
+        logger.info("VirtualAccountDataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -454,7 +458,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("VirtualAccountDataMessage=[" + TmpSendMsg + "]");
+        logger.info("VirtualAccountDataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -483,7 +487,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("WorldPassDataMessage=[" + TmpSendMsg + "]");
+        logger.info("WorldPassDataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -508,7 +512,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("PointDataMessage=[" + TmpSendMsg + "]");
+        logger.info("PointDataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -545,7 +549,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("CashBillDataMessage=[" + TmpSendMsg + "]");
+        logger.info("CashBillDataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -569,7 +573,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("Mobile1DataMessage=[" + TmpSendMsg + "]");
+        logger.info("Mobile1DataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -589,7 +593,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("Mobile2DataMessage=[" + TmpSendMsg + "]");
+        logger.info("Mobile2DataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -619,7 +623,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("MobileAppr1DataMessage=[" + TmpSendMsg + "]");
+        logger.info("MobileAppr1DataMessage=[" + TmpSendMsg + "]");
         return true;
     }
 
@@ -640,7 +644,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("Mobile2DataMessage=[" + TmpSendMsg + "]");
+        logger.info("Mobile2DataMessage=[" + TmpSendMsg + "]");
         return true;
     }
 
@@ -670,7 +674,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("AcctRequest_send=[" + TmpSendMsg + "]");
+        logger.info("AcctRequest_send=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -703,7 +707,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("AcctRequest_iappr=[" + TmpSendMsg + "]");
+        logger.info("AcctRequest_iappr=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -732,7 +736,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("CancelDataMessage=[" + TmpSendMsg + "]");
+        logger.info("CancelDataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -751,7 +755,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("CardBinDataMessage=[" + TmpSendMsg + "]");
+        logger.info("CardBinDataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -774,7 +778,7 @@ public class KSPayApprovalCancelBean {
 
         this.SendMsg += TmpSendMsg.toString();
         this.SendCount++;
-        System.out.println("ShopInfoDetailDataMessage=[" + TmpSendMsg + "]");
+        logger.info("ShopInfoDetailDataMessage=[" + TmpSendMsg + "]");
 
         return true;
     }
@@ -825,8 +829,8 @@ public class KSPayApprovalCancelBean {
         TmpReceiveMsg.append(this.HeadFiller);
 
         this.ReceiveMsg = TmpReceiveMsg.toString();
-        System.out.println("Header ReceiveMsg=[" + TmpReceiveMsg + "]");
-        System.out.println("ReceiveCount=[" + this.ReceiveCount + "]\n");
+        logger.info("Header ReceiveMsg=[" + TmpReceiveMsg + "]");
+        logger.info("ReceiveCount=[" + this.ReceiveCount + "]\n");
         this.ReceiveCount = Integer.parseInt(this.ApprovalCount);
 
         return ReceiveDataMessage(Integer.parseInt(this.ApprovalCount));
@@ -839,10 +843,9 @@ public class KSPayApprovalCancelBean {
 
         StringBuffer TmpReceiveMsg = new StringBuffer();
 
-        //System.out.println("Header ApprovalCount=["+iCnt+"]");
         for (int i = 0; i < iCnt; i++) {
             this.ApprovalType[i] = new String(KSPaySocket.read(4), MSG_ENCODING); // 승인구분
-            System.out.println("ApprovalType=[" + this.ApprovalType[i] + "]");
+            logger.info("ApprovalType=[" + this.ApprovalType[i] + "]");
 
             // 신용카드
             if (this.ApprovalType[i].charAt(0) == '1' || this.ApprovalType[i].charAt(0) == 'I') {
@@ -958,7 +961,7 @@ public class KSPayApprovalCancelBean {
                     TmpReceiveMsg.append(this.EncData[i]);
                 }
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("Credit ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("Credit ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 포인트카드
             else if (this.ApprovalType[i].charAt(0) == '4') {
@@ -1003,7 +1006,7 @@ public class KSPayApprovalCancelBean {
                 TmpReceiveMsg.append(this.PFiller[i]);
 
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("Point ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("Point ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 가상계좌
             else if (this.ApprovalType[i].charAt(0) == '6') {
@@ -1038,7 +1041,7 @@ public class KSPayApprovalCancelBean {
                 TmpReceiveMsg.append(this.VAFiller[i]);
 
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("Virtual ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("Virtual ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 월드패스
             else if (this.ApprovalType[i].charAt(0) == '7') {
@@ -1075,7 +1078,7 @@ public class KSPayApprovalCancelBean {
                 TmpReceiveMsg.append(this.WPFiller[i]);
 
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("WorldPass ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("WorldPass ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 현금영수증
             else if (this.ApprovalType[i].charAt(0) == 'H') {
@@ -1107,7 +1110,7 @@ public class KSPayApprovalCancelBean {
                 TmpReceiveMsg.append(this.HFiller[i]);
 
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("CashBill ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("CashBill ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 핸드폰 인증 1차 : M020
             else if (this.ApprovalType[i].startsWith("M02")) {
@@ -1135,7 +1138,7 @@ public class KSPayApprovalCancelBean {
                 TmpReceiveMsg.append(this.MB1Filler[i]);
 
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("Mobile1 ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("Mobile1 ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 핸드폰 인증 2차 : M030
             else if (this.ApprovalType[i].startsWith("M03")) {
@@ -1159,7 +1162,7 @@ public class KSPayApprovalCancelBean {
                 TmpReceiveMsg.append(this.MB2Filler[i]);
 
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("Mobile2 ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("Mobile2 ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 핸드폰 결제 1차 : M120
             else if (this.ApprovalType[i].startsWith("M12") ||    //핸드폰결제1차
@@ -1191,7 +1194,7 @@ public class KSPayApprovalCancelBean {
                 TmpReceiveMsg.append(this.MFiller[i]);
 
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("Mobile ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("Mobile ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 핸드폰 결제 2차 : M130
             else if (this.ApprovalType[i].startsWith("M13")) {
@@ -1226,7 +1229,7 @@ public class KSPayApprovalCancelBean {
                 TmpReceiveMsg.append(this.MFiller[i]);
 
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("Mobile ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("Mobile ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 계좌이체시작요청
             else if (this.ApprovalType[i].startsWith("210") || this.ApprovalType[i].startsWith("240")) {
@@ -1267,7 +1270,7 @@ public class KSPayApprovalCancelBean {
                 TmpReceiveMsg.append(this.ACFiller[i]);
 
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("AcctRequest_send(2100,2400) ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("AcctRequest_send(2100,2400) ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 계좌이체결과반영요청 || 계좌이체승인요청 || 계좌이체취소요청
             else if (this.ApprovalType[i].charAt(0) == '2') {
@@ -1330,7 +1333,7 @@ public class KSPayApprovalCancelBean {
                 }
 
                 this.ReceiveMsg += TmpReceiveMsg.toString();
-                System.out.println("AcctRequest_recv,appr(2200,2300,2420) ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
+                logger.info("AcctRequest_recv,appr(2200,2300,2420) ReceiveMsg[" + i + "]" + "=[" + TmpReceiveMsg + "]");
             }
             // 상점상세정보 조회결과
             else if (this.ApprovalType[i].startsWith("A7")) {

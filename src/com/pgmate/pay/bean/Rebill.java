@@ -19,11 +19,21 @@ public class Rebill {
     public String cardPassword = null;      //필수
     public String socialNumber = null;      //필수
     public String extra = null;
-    public String sessionKey = null;
-    public String issueCompanyCode = null;
     public String issueCompanyName = null;
-    public String buyCompanyCode = null;
     public String buyCompanyName = null;
+
+    public String productName = null;   //상품명
+    public String amount = null;        //금액
+    public String rebillDays = null;    //결제일
+    public String expireDate = null;    //만료일
+    public String status = null;
+
+    public String payerName = null;
+    public String payerTel = null;
+    public String payerEmail = null;
+
+    public String mchtId = null;
+    public String tmnId = null;
 
     public Rebill() {
 
