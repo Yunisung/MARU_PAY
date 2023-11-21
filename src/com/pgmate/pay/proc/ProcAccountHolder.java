@@ -140,7 +140,7 @@ public class ProcAccountHolder extends Proc {
 		if(blackList) {
 			response.result = ResultUtil.getResult("9999", "계좌오류","해당계좌는 이용하실 수 없습니다. 관리자에 문의 바랍니다");
 
-			logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]",request.auth.bankCd, request.auth.account);
+			logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]",request.totalAuth.bankCd, request.totalAuth.account);
 
 			return;
 		}
@@ -152,7 +152,7 @@ public class ProcAccountHolder extends Proc {
 			if (dayCnt >= limitDayCnt) {
 				response.result = ResultUtil.getResult("9999", "계좌오류", "1일 인증 제한횟수를 초과하였습니다. 관리자에 문의 바랍니다");
 
-				logger.info("1일 인증 제한횟수 초과 계좌 입니다. [{}][{}]", request.auth.bankCd, request.auth.account);
+				logger.info("1일 인증 제한횟수 초과 계좌 입니다. [{}][{}]", request.totalAuth.bankCd, request.totalAuth.account);
 
 				return;
 			}
@@ -289,12 +289,8 @@ public class ProcAccountHolder extends Proc {
 
 	public FirmBean fcsFirmBean(String vactBankCd, String bankCd, String account, String identity) {
 		FirmBean firmBean = new FirmBean();
-		firmBean.bankCd 	= "099";
 
-		if(vactBankCd.equals("034")) {
-			firmBean.bankCd = "034";
-		}
-
+		firmBean.bankCd = "034";
 		firmBean.msgType 	= "0600400";
 		firmBean.userId		= "SYSTEM";
 		firmBean.data.put("bankCd", bankCd.trim());
