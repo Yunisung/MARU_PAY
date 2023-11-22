@@ -759,7 +759,7 @@ public class ProcVactAuthOpen extends Proc{
             //PYS : request.result로 받아오니 해당 로직 주석처리
             //bean = vactHolder(request.vact.authBankCd, request.vact.authAccount, request.vact.identity);
             //실명인증 확인 테이블 INSERT
-            trxDAO.insertAccnt(request.auth.bankCd, request.auth.account, request.vact.holderName);
+            //trxDAO.insertAccnt(request.auth.bankCd, request.auth.account, request.vact.holderName);
 
             //PYS : 광원인증결과 테이블에 업데이트
             trxDAO.updatePgVactAuth(authId, request.result.resultCd, request.result.advanceMsg);
@@ -871,13 +871,13 @@ public class ProcVactAuthOpen extends Proc{
 
 
         //PG_FIRM_ACCNT에 없는 계좌는 FIRM으로 보냄
-        FirmBean firmBean = null;
+        FirmBean firmBean = fcsFirmBeanByDozn(bankCd, account, identity);
         //더즌 FIRM 추가
-        if(request.vact.bankCd.equals("034")) {
-            firmBean = fcsFirmBeanByDozn(bankCd, account, identity);
-        }else {
-            firmBean = fcsFirmBean(bankCd, account, identity);
-        }
+//        if(request.vact.bankCd.equals("034")) {
+//            firmBean = fcsFirmBeanByDozn(bankCd, account, identity);
+//        }else {
+//            firmBean = fcsFirmBean(bankCd, account, identity);
+//        }
 
         /*
         //FIRM 결과값 PG_VACT_AUTH에 업데이트
@@ -1033,7 +1033,7 @@ public class ProcVactAuthOpen extends Proc{
         firmBean.data.put("socialNumber", identity.trim());
 
         Firm firm = FirmLoader.getConfig();
-        host = firm.firmServer;
+        host = "10.100.100.13";
         timeout = firm.firmTimeout;
         port = firm.firmPort;
 
