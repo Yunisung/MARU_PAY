@@ -1033,7 +1033,7 @@ public class ProcVactAuthOpen extends Proc{
         firmBean.data.put("socialNumber", identity.trim());
 
         Firm firm = FirmLoader.getConfig();
-        host = "10.100.100.13";
+        host = firm.firmServer;
         timeout = firm.firmTimeout;
         port = firm.firmPort;
 
