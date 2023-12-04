@@ -110,6 +110,12 @@ public class PAYUNIT {
 
 	public static String API_GALAXIA_RETURN  		= "/api/galaxia/return";
 
+	public static String API_ONLY_AUTHV2_WIDGET		= "/api/only/auth/v2/widget";	//통합인증 V2
+	public static String API_ONLY_AUTHV2_CHECK		= "/api/only/auth/v2/check";		//통합인증 V2 검증
+	public static String API_ACCOUNTV2_HOLDER		= "/api/account/v2/holder";
+	public static String API_ACCOUNTV2_TRANSFER		= "/api/account/v2/transfer";
+	public static String API_ACCOUNTV2_AUTHCHECK	= "/api/account/v2/";
+	public static String API_ARSV3_AUTH				= "/api/ars/v3/auth/async";
 
 
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
