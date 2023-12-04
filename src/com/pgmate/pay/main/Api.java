@@ -205,9 +205,20 @@ public class Api {
 				process = new ProcRebillReg();
 			}else if (uri.startsWith(PAYUNIT.API_REBILL_UPDATE)) {
 				process = new ProcRebillUpdate();
-			}
-			else if (uri.startsWith(PAYUNIT.API_GALAXIA_RETURN)) {
+			} else if (uri.startsWith(PAYUNIT.API_GALAXIA_RETURN)) {
 				process = new ProcGalaxiaReturn();
+			} else if (uri.startsWith(PAYUNIT.API_ONLY_AUTHV2_WIDGET)) {
+				process = new ProcOnlyAuthV2Widget();
+			} else if (uri.startsWith(PAYUNIT.API_ONLY_AUTHV2_CHECK)) {
+				process = new ProcOnlyAuthV2Check();
+			} else if (uri.startsWith(PAYUNIT.API_ACCOUNTV2_HOLDER)) {
+				process = new ProcAccountV2Holder();
+			} else if (uri.startsWith(PAYUNIT.API_ACCOUNTV2_TRANSFER)) {
+				process = new ProcAccountV2Transfer();
+			} else if (uri.startsWith(PAYUNIT.API_ACCOUNTV2_AUTHCHECK)) {
+				process = new ProcAccountV2AuthCheck();
+			} else if (uri.startsWith(PAYUNIT.API_ARSV3_AUTH)) {
+				process = new ProcArsV3Auth();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -321,7 +332,7 @@ public class Api {
 		////2018.03.16 WIGET GET  요청은 KEY 로 정보를 취득한다.
 		if(authorization.equals("") && (sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3D_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_W3D_WIDGET)
 				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3D_MOBILE_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3DV2_WIDGET)
-				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTH_WIDGET))){
+				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTH_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTHV2_WIDGET))){
 			
 			String widgetType = PAYUNIT.API_WIDGET;
 			
@@ -337,6 +348,8 @@ public class Api {
 				widgetType = PAYUNIT.API_3DV2_WIDGET;
 			}else if(sharedMap.startsWith(PAYUNIT.URI,PAYUNIT.API_ONLY_AUTH_WIDGET)) {
 				widgetType = PAYUNIT.API_ONLY_AUTH_WIDGET;
+			}else if(sharedMap.startsWith(PAYUNIT.URI,PAYUNIT.API_ONLY_AUTHV2_WIDGET)) {
+				widgetType = PAYUNIT.API_ONLY_AUTHV2_WIDGET;
 			}
 			
 			String key = sharedMap.getString(PAYUNIT.URI).replaceAll(widgetType+"/", "");
@@ -347,7 +360,8 @@ public class Api {
 			}
 
 			// 이중화로 인해 캐시에 온라인키를 제대로 가지고 못할 경우 토큰키로 온라인키를 가져온다.
-			if(authorization.equals("") && sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTH_WIDGET)) {
+			if(authorization.equals("") && (sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTH_WIDGET)
+				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTHV2_WIDGET))) {
 				SharedMap<String, Object> ioMap = trxDAO.getTotalAuthIO(key);
 				if(ioMap != null) {
 					String jsonStr = ioMap.getString("reqJson");
