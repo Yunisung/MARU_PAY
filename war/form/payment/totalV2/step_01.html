@@ -219,42 +219,6 @@
 
             location.href='/form/payment/totalV2/step_02.html?token=' + $("input[id='initWebKey']").val();
 
-
-            var totalAuthId = $("#vactResForm > #vactTotalAuthId").val();
-            var data = {"totalAuth" :  {"totalAuthId": totalAuthId} };
-
-            $.ajax({
-                type : 'POST',
-                url : '/api/only/auth/v2/check',
-                data : JSON.stringify(data),
-                dataType : 'json',
-                beforeSend : function(xhr){
-                    xhr.setRequestHeader("Content-type", "application/json");
-                    xhr.setRequestHeader("Authorization", $('#initPublicKey').val());
-                },
-                success : function(json){
-                    if("0" == json.result.resultCd){
-                        KWON.totalAuthConfirm(
-                            "0000",
-                            json.result.resultMsg,
-                            "통합인증이 정상적으로 완료되었습니다."
-                        );
-                    } else if("1" == json.result.resultCd) {
-                        location.href='/form/payment/totalV2/step_02.html?token=' + $("input[id='initWebKey']").val();
-                    } else if("2" == json.result.resultCd) {
-                        location.href='/form/payment/totalV2/step_03-1.html?token=' + $("input[id='initWebKey']").val();
-                    } else if("3" == json.result.resultCd) {
-                        location.href='/form/payment/totalV2/step_04.html?token=' + $("input[id='initWebKey']").val();
-                    } else {
-                        // 요청 실패
-                        $("#reqErrorTextArea").show();
-                    }
-                },
-                error: function(xhr, status, error){
-                    alert(error);
-                }
-            });
-
         }
     });
 
