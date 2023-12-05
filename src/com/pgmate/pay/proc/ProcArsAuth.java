@@ -177,12 +177,13 @@ public class ProcArsAuth extends Proc {
     public FirmBean arsFirmBean(String vactBankCd, String phoneNo, String authNo) {
         FirmBean firmBean = new FirmBean();
 
-        if(vactBankCd.equals("034")) {
-            firmBean.bankCd = "034";
-        } else {
-            firmBean.bankCd = "ARS";
-        }
+//        if(vactBankCd.equals("034")) {
+//            firmBean.bankCd = "034";
+//        } else {
+//            firmBean.bankCd = "ARS";
+//        }
 
+        firmBean.bankCd = "ARS";
         firmBean.msgType 	= "ARSAUTH";
         firmBean.userId		= "SYSTEM";
         firmBean.data.put("phoneNo", phoneNo.trim());

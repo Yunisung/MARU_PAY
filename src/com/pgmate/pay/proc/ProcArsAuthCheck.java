@@ -65,12 +65,14 @@ public class ProcArsAuthCheck extends Proc {
         String vactBankCd = mchtMngVactMap.getString("vactBankCd");
         FirmBean firmBean = null;
 
-        if(vactBankCd.equals("034")) {
-            String seqNo = trxDAO.getSeqNo(CommonUtil.parseLong(firmIdx));
-            firmBean = firmArsCheck(seqNo);
-        } else {
-            firmBean = trxDAO.checkArsResult(CommonUtil.parseLong(firmIdx), firmBean);
-        }
+//        if(vactBankCd.equals("034")) {
+//            String seqNo = trxDAO.getSeqNo(CommonUtil.parseLong(firmIdx));
+//            firmBean = firmArsCheck(seqNo);
+//        } else {
+//            firmBean = trxDAO.checkArsResult(CommonUtil.parseLong(firmIdx), firmBean);
+//        }
+
+        firmBean = trxDAO.checkArsResult(CommonUtil.parseLong(firmIdx), firmBean);
 
         if(firmBean.resultCd.equals("0000")) {
             //ARS인증완료
