@@ -114,7 +114,7 @@ public class PAYUNIT {
 	public static String API_ONLY_AUTHV2_CHECK		= "/api/only/auth/v2/check";		//통합인증 V2 검증
 	public static String API_ACCOUNTV2_HOLDER		= "/api/account/v2/holder";
 	public static String API_ACCOUNTV2_TRANSFER		= "/api/account/v2/transfer";
-	public static String API_ACCOUNTV2_AUTHCHECK	= "/api/account/v2/";
+	public static String API_ACCOUNTV2_AUTHCHECK	= "/api/account/v2/auth/check";
 	public static String API_ARSV3_AUTH				= "/api/ars/v3/auth/async";
 
 
