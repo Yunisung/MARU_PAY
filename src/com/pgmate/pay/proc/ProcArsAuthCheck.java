@@ -63,7 +63,7 @@ public class ProcArsAuthCheck extends Proc {
         SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
 
         String vactBankCd = mchtMngVactMap.getString("vactBankCd");
-        FirmBean firmBean = null;
+        FirmBean firmBean = new FirmBean();
 
         if(vactBankCd.equals("034")) {
             String seqNo = trxDAO.getSeqNo(CommonUtil.parseLong(firmIdx));
