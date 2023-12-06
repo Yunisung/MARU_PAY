@@ -256,6 +256,10 @@ public class ProcPay3DV2Widget extends Proc {
 							response.result = ResultUtil.getResult("9999", "월세앱 이체예정일 입력오류", "월세앱 이체예정일이 8자리가 아닙니다.");
 							return;
 						}
+						if (CommonUtil.parseLong(transferDay) <= CommonUtil.parseLong(CommonUtil.getCurrentDate("yyyyMMdd"))) {
+							response.result = ResultUtil.getResult("9999", "월세앱 이체예정일 입력오류", "월세앱 이체예정일이 현재 날짜 이후만 가능합니다.");
+							return;
+						}
 						if(!billingType.equals("월세") && !billingType.equals("보증금")) {
 							response.result = ResultUtil.getResult("9999", "호출실패", "월세앱 결제유형이 올바르지 않습니다.");
 							return;
