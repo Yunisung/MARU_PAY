@@ -252,17 +252,60 @@ public class ProcPay3DV2Widget extends Proc {
 							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 결제유형이 없습니다.");
 							return;
 						}
+						if(transferDay.length() != 8) {
+							response.result = ResultUtil.getResult("9999", "월세앱 이체예정일 입력오류", "월세앱 이체예정일이 8자리가 아닙니다.");
+							return;
+						}
 						if(!billingType.equals("월세") && !billingType.equals("보증금")) {
 							response.result = ResultUtil.getResult("9999", "호출실패", "월세앱 결제유형이 올바르지 않습니다.");
 							return;
 						}
 					}
-					
-					
-					//가맹점 한도 측정
-                    if(mchtMngMap.getDouble("limitOnce") > 0 && mchtMngMap.getDouble("limitOnce") < request.widget.getLong("amount") ){
-						logger.debug("가맹점 1회 한도초과 : {},{}",mchtMngMap.getDouble("limitOnce"),request.widget.getLong("amount"));
-						response.result = ResultUtil.getResult("9999", "한도초과","가맹점 1회 거래한도 초과");return;
+
+					if(request.widget.get("rent") != null) {
+						Rent rent = new GsonBuilder().create().fromJson(GsonUtil.toJson(request.widget.get("rent")), new TypeToken<Rent>(){}.getType());
+						String billingType = rent.billingType;
+						String billingMethod = rent.billingMethod;
+						SharedMap<String, Object> mchtRentMap = trxDAO.getMchtRentByMchtId(mchtMap.getString("mchtId"));
+						// 월세앱 한도 측정
+						long rentLimitOnce = 0;
+						long rentLimitMonth = 0;
+						if ("월세".equals(billingType)) {
+							rentLimitOnce = mchtRentMap.getLong("rentLimitOnce");
+							rentLimitMonth = mchtRentMap.getLong("rentLimitMonth");
+						} else if ("보증금".equals(billingType)) {
+							rentLimitOnce = mchtRentMap.getLong("depositLimitOnce");
+							rentLimitMonth = mchtRentMap.getLong("depositLimitMonth");
+						}
+
+						if(!"선납".equals(billingMethod)) {
+							// 1회한도
+							if (rentLimitOnce > 0) {
+								if (rentLimitOnce < request.widget.getLong("amount")) {
+									logger.debug("가맹점 1회 한도초과 : {},{}", rentLimitOnce, request.widget.getLong("amount"));
+									response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 1회 거래한도 초과");
+									return;
+								}
+							}
+
+							// 월한도
+							if (rentLimitMonth > 0) {
+								long monthSum = trxDAO.getRentMonthSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"));
+								if (rentLimitMonth < request.widget.getLong("amount") + monthSum) {
+									logger.debug("가맹점 월 한도초과 : {},{},{}", rentLimitMonth, request.widget.getLong("amount"), monthSum);
+									response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 월 거래한도 초과");
+									return;
+								}
+							}
+						}
+
+					} else {
+						//가맹점 한도 측정
+						if (mchtMngMap.getDouble("limitOnce") > 0 && mchtMngMap.getDouble("limitOnce") < request.widget.getLong("amount")) {
+							logger.debug("가맹점 1회 한도초과 : {},{}", mchtMngMap.getDouble("limitOnce"), request.widget.getLong("amount"));
+							response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 1회 거래한도 초과");
+							return;
+						}
 					}
 				
 					//가맹점/지사/총판 한도조회
