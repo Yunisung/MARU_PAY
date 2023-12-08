@@ -237,19 +237,18 @@ public class ProcPay3DV2Widget extends Proc {
 					// 월세앱 validation
 					if(request.widget.get("rent") != null) {
 						Rent rent = new GsonBuilder().create().fromJson(GsonUtil.toJson(request.widget.get("rent")), new TypeToken<Rent>(){}.getType());
-						String transferDay = rent.transferDay;
 						String billingType = rent.billingType;
 						String billingMethod = rent.billingMethod;
-						if(CommonUtil.isNullOrSpace(transferDay)) {
-							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 이체예정일이 없습니다.");
-							return;
-						}
 						if(CommonUtil.isNullOrSpace(billingMethod)) {
 							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 납부구분이 없습니다.");
 							return;
 						}
 						if(CommonUtil.isNullOrSpace(billingType)) {
 							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 결제유형이 없습니다.");
+							return;
+						}
+						/*if(CommonUtil.isNullOrSpace(transferDay)) {
+							response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 이체예정일이 없습니다.");
 							return;
 						}
 						if(transferDay.length() != 8) {
@@ -259,7 +258,7 @@ public class ProcPay3DV2Widget extends Proc {
 						if (CommonUtil.parseLong(transferDay) <= CommonUtil.parseLong(CommonUtil.getCurrentDate("yyyyMMdd"))) {
 							response.result = ResultUtil.getResult("9999", "월세앱 이체예정일 입력오류", "월세앱 이체예정일이 현재 날짜 이후만 가능합니다.");
 							return;
-						}
+						}*/
 						if(!billingType.equals("월세") && !billingType.equals("보증금")) {
 							response.result = ResultUtil.getResult("9999", "호출실패", "월세앱 결제유형이 올바르지 않습니다.");
 							return;
@@ -285,10 +284,20 @@ public class ProcPay3DV2Widget extends Proc {
 						if(!"선납".equals(billingMethod)) {
 							// 1회한도
 							if (rentLimitOnce > 0) {
-								if (rentLimitOnce < request.widget.getLong("amount")) {
-									logger.debug("가맹점 1회 한도초과 : {},{}", rentLimitOnce, request.widget.getLong("amount"));
-									response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 1회 거래한도 초과");
-									return;
+								if ("월세".equals(billingType)) {
+									if (rentLimitOnce < request.widget.getLong("amount")) {
+										logger.debug("가맹점 1회 한도초과 : {},{}", rentLimitOnce, request.widget.getLong("amount"));
+										response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 월세 1회 거래한도 초과");
+										return;
+									}
+								} else if ("보증금".equals(billingType)) {
+									// 보증금일 경우 누적금액 확인
+									long beforeSum = trxDAO.getRentBeforeSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"));
+									if (rentLimitOnce < request.widget.getLong("amount") + beforeSum) {
+										logger.debug("가맹점 1회 한도초과 : {},{}", rentLimitOnce, request.widget.getLong("amount"));
+										response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 보증금 거래한도 초과");
+										return;
+									}
 								}
 							}
 
