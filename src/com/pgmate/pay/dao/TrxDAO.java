@@ -465,7 +465,7 @@ public class TrxDAO extends DAO {
 		super.setTable("PG_TRX_RENT");
 		logger.info("set rent id : {}", rentId);
 		super.setRecord("rentId", rentId);//1개
-		super.setRecord("transferDay", rent.transferDay);
+		//super.setRecord("transferDay", rent.transferDay);
 		super.setRecord("billingType", rent.billingType);
 		super.setRecord("billingMethod", rent.billingMethod);
 		super.setRecord("regDate", regDate);
@@ -5930,8 +5930,20 @@ public class TrxDAO extends DAO {
 		super.setTable("PG_TRX_CAP");
 		super.setColumns("SUM(amount) as totAmount");
 		super.addWhere("mchtId", mchtId, eq);
-		super.addWhere("capType", "매입", eq);
+		//super.addWhere("capType", "매입", eq);
 		super.addWhere("substr(trxDay, 1, 6)", month, eq);
+		super.addWhere("serviceType", "월세앱", eq);
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRowFirst().getLong("totAmount");
+	}
+
+	public long getRentBeforeSum(String mchtId, String billingMethod) {
+		super.setTable("PG_TRX_CAP");
+		super.setColumns("SUM(amount) as totAmount");
+		super.addWhere("mchtId", mchtId, eq);
+		//super.addWhere("capType", "매입", eq);
+		super.addWhere("billingMethod", billingMethod, eq);
 		super.addWhere("serviceType", "월세앱", eq);
 		RecordSet rset = super.search();
 		super.initRecord();
