@@ -35,6 +35,8 @@ public class Rebill {
     public String mchtId = null;
     public String tmnId = null;
 
+    public Rent rent = null;
+
     public Rebill() {
 
     }

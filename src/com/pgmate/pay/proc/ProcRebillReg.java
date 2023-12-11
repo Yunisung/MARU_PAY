@@ -102,6 +102,16 @@ public class ProcRebillReg extends Proc {
             String nextPayDay = calcRebillDay("M+"+request.rebill.rebillDays, CommonUtil.getCurrentDate("yyyyMMdd"));
             rebillMap.put("nextPayDate", nextPayDay);
             rebillMap.put("expireDate", request.rebill.expireDate);
+
+            // 월세앱 정보 세팅
+            if(request.rebill.rent != null) {
+//                rebillMap.put("billingMethod", request.rebill.rent.billingMethod);
+//                rebillMap.put("billingType", request.rebill.rent.billingType);
+                rebillMap.put("serviceType", "월세앱");
+                rebillMap.put("billingMethod", "일반");
+                rebillMap.put("billingType", "월세");
+            }
+
             rebillMap.put("regDay",sharedMap.getString(PAYUNIT.REG_DATE).substring(0, 8));
             rebillMap.put("regTime", sharedMap.getString(PAYUNIT.REG_DATE).substring(8));
 

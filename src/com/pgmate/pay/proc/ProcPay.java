@@ -1,7 +1,10 @@
 package com.pgmate.pay.proc;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.pgmate.pay.bean.Product;
 import com.pgmate.pay.bean.Rebill;
+import com.pgmate.pay.bean.Rent;
 import com.pgmate.pay.util.SmsGw;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -451,8 +454,6 @@ public class ProcPay extends Proc {
 		
 		//KJM : 결제주문내역 추가
 		if(request.pay.products != null){
-			trxDAO.insertProduct(sharedMap.getString(PAYUNIT.KEY_PROD), request.pay.products,sharedMap.getString(PAYUNIT.REG_DATE));
-
 			//OSC: 제품명 길이 체크
 			if(request.pay.products.size() > 0) {
 				String productName = request.pay.products.get(0).name;
@@ -462,6 +463,28 @@ public class ProcPay extends Proc {
 					return;
 				}
 			}
+			trxDAO.insertProduct(sharedMap.getString(PAYUNIT.KEY_PROD), request.pay.products,sharedMap.getString(PAYUNIT.REG_DATE));
+		}
+
+		//OSC : 월세앱 정보 validation
+		if(request.pay.rent != null){
+			Rent rent = request.pay.rent;
+			String billingType = rent.billingType;
+			String billingMethod = rent.billingMethod;
+			if(CommonUtil.isNullOrSpace(billingMethod)) {
+				response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 납부구분이 없습니다.");
+				return;
+			}
+			if(CommonUtil.isNullOrSpace(billingType)) {
+				response.result = ResultUtil.getResult("9999", "필수값 없음", "월세앱 결제유형이 없습니다.");
+				return;
+			}
+			if(!billingType.equals("월세") && !billingType.equals("보증금")) {
+				response.result = ResultUtil.getResult("9999", "호출실패", "월세앱 결제유형이 올바르지 않습니다.");
+				return;
+			}
+			sharedMap.put(PAYUNIT.KEY_RENT, GenKey.genKeys(CPKEY.RENT, sharedMap.getString(PAYUNIT.TRX_ID)));
+			trxDAO.insertRent(sharedMap.getString(PAYUNIT.KEY_RENT), request.pay.rent, sharedMap.getString(PAYUNIT.REG_DATE));
 		}
 		
 		//semiAuth 즉 생년월일/카드비번2자리 꼭 사용하는 가맹점 2017-08-01

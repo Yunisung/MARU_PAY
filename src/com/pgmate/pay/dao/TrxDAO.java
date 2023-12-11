@@ -643,6 +643,9 @@ public class TrxDAO extends DAO {
 			super.setRecord("acquirer", response.pay.card.acquirer);
 		}
 		super.setRecord("prodId", sharedMap.getString(PAYUNIT.KEY_PROD));
+		if(!CommonUtil.isNullOrSpace(sharedMap.getString(PAYUNIT.KEY_RENT))) {
+			super.setRecord("rentId", sharedMap.getString(PAYUNIT.KEY_RENT));
+		}
 		super.setRecord("regDay", sharedMap.getString(PAYUNIT.REG_DATE).substring(0, 8));
 		super.setRecord("regTime", sharedMap.getString(PAYUNIT.REG_DATE).substring(8));
 		super.setRecord("regDate", sharedMap.getString(PAYUNIT.REG_DATE));
@@ -5616,6 +5619,9 @@ public class TrxDAO extends DAO {
 		super.setRecord("rebillDays"			, ioMap.getString("rebillDays"));
 		super.setRecord("nextPayDate"		, ioMap.getString("nextPayDate"));
 		super.setRecord("expireDate"			, ioMap.getString("expireDate"));
+		super.setRecord("serviceType"		, ioMap.getString("serviceType"));
+		super.setRecord("billingMethod"		, ioMap.getString("billingMethod"));
+		super.setRecord("billingType"		, ioMap.getString("billingType"));
 		super.setRecord("regDay"				, ioMap.getString("regDay"));
 		super.setRecord("regTime"			, ioMap.getString("regTime"));
 
@@ -5626,7 +5632,7 @@ public class TrxDAO extends DAO {
 
 	public void insertRebillPAY(String trxId, String rebillId) {
 
-		String q = "INSERT INTO PG_REBILL_PAY  " + " SELECT A.trxId,'" + rebillId + "',mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,issuer,acquirer,"
+		String q = "INSERT INTO PG_REBILL_PAY  " + " SELECT A.trxId,'" + rebillId + "',mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,rentId,issuer,acquirer,"
 				+ " A.regDay,A.regTime,authCd,resultCd,resultMsg,van,vanId,vanTrxId,B.regDay,B.regTime,B.regDate " + " FROM PG_TRX_REQ A, PG_TRX_RES B WHERE A.trxId = B.trxId AND A.trxId = '" + trxId + "'";
 		logger.info("set REBILL_PAY : {}", super.update(q));
 		super.initRecord();
