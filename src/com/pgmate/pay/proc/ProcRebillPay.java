@@ -91,11 +91,18 @@ public class ProcRebillPay extends Proc {
         pay.products 	= new ArrayList<Product>();
         Product product = new Product();
         product.prodId = GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID));
-        product.name = map.getString("producName");
+        product.name = map.getString("productName");
         product.qty = 1;
         product.price = pay.amount;
         product.desc = "";
         pay.products.add(product);
+
+        // 월세앱 세팅
+        if("월세앱".equals(map.getString("serviceType"))) {
+            pay.rent = new Rent();
+            pay.rent.billingMethod = map.getString("billingMethod");
+            pay.rent.billingType = map.getString("billingType");
+        }
 
         pay.metadata = new SharedMap<String,String>();
         pay.metadata.put("rebillProcess", "PAY");

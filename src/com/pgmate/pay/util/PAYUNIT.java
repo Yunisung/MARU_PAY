@@ -164,7 +164,8 @@ public class PAYUNIT {
 	
 	public static String KEY_CARD					= "cardId";
 	public static String KEY_PROD					= "prodId";
-			
+	public static String KEY_RENT					= "rentId";
+
 	    
 	
 	public static String RUNTIME_ENV				= "RUNTIME_ENV";
