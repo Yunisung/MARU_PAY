@@ -78,7 +78,12 @@ public class ProcRefund extends Proc {
 		
 		// KBR : VAN등록 정보 조회
 		SharedMap<String,Object>  vanMap = trxDAO.getVanByVanId(trxMap.getString("van"), trxMap.getString("vanId"));
-		vanMap.put("trxType", reqMap.getString("trxType"));
+		if(reqMap.isNullOrSpace("trxType")) {
+			vanMap.put("trxType","");
+		} else {
+			vanMap.put("trxType", reqMap.getString("trxType"));
+		}
+
 		Van van = null;
 		
 		if(trxMap.isEquals("van", "DEFAULT")){
