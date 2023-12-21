@@ -69,15 +69,8 @@ public class ProcArsV3Auth extends Proc {
             return;
         }
 
-        String identityCheck = totalAuth.getString("identityCheck");
-
-        if(identityCheck.equals("Y")) {
-            if(CommonUtil.isNullOrSpace(request.ars.identity)) {
-                response.result = ResultUtil.getResult("AAAA", "필수값없음","생년월일 값이 없습니다.");
-                return;
-            }
-        } else {
-            response.result = ResultUtil.getResult("AAAA", "사용할수 없음", " 생년월일체크 사용중인 가맹점이 아닙니다.");
+        if(CommonUtil.isNullOrSpace(request.ars.identity)) {
+            response.result = ResultUtil.getResult("AAAA", "필수값없음","생년월일 값이 없습니다.");
             return;
         }
 

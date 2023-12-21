@@ -111,6 +111,10 @@ public class ProcOnlyAuthV2Widget extends Proc {
                 logger.info("accountAuth : {}", accountAuth);
                 logger.info("arsAuth: {}", arsAuth);
 
+                if(arsAuth.equals("Y")) {
+                    identityCheck = "Y";
+                }
+
 
                 request.widget.put("identityCheck", identityCheck);
                 request.widget.put("ownerAuth", ownerAuth);
