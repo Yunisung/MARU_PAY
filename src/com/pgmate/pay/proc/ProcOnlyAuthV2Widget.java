@@ -90,13 +90,15 @@ public class ProcOnlyAuthV2Widget extends Proc {
                 request.widget.put("authorization", mchtTmnMap.getString("payKey"));
 
                 //230113_PYS : 통합인증 설정값 세팅
-                String identityCheck = "";
+                String identityCheck = "N";
                 String ownerAuth = "";
                 String accountAuth = "";
                 String arsAuth = "";
+                
 
-                if(totalAuth != null) {
-                    identityCheck = totalAuth.getString("identityCheck");
+                //생년월일 체크
+                if(!CommonUtil.isNullOrSpace(request.widget.getString("identityCheck"))) {
+                    identityCheck = request.widget.getString("identityCheck");
                 }
 
                 //authType으로 인증 구분
@@ -114,6 +116,8 @@ public class ProcOnlyAuthV2Widget extends Proc {
                 if(arsAuth.equals("Y")) {
                     identityCheck = "Y";
                 }
+
+
 
 
                 request.widget.put("identityCheck", identityCheck);
