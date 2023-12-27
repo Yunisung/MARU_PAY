@@ -280,7 +280,8 @@ function sendVact(data) {
         } else {
             /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
             alert(res.result.advanceMsg);
-            postMessages.layerVactClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
+            //postMessages.layerVactClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
+            postMessages.authVactResult(res);
         }
 
     }, function(err) {
