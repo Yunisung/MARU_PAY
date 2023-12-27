@@ -24,6 +24,7 @@ var KWON = (function (win, doc) {
         companyName: '',
         regType: '',
         authType: '',
+        identityCheck: ''
     }
 
     var MaruConfig = {
@@ -51,6 +52,7 @@ var KWON = (function (win, doc) {
         companyName: '',
         regType: '',
         authType: '',
+        identityCheck: ''
     }
 
     /* GLOBAL */
@@ -136,7 +138,7 @@ var KWON = (function (win, doc) {
         //c3Config.publicKey = config.authKey;
         // c3Config.publicKey = config.publicKey;
         c3Config.redirectUrl = '';
-        c3Config.responseFunction = MaruResponseFunction;
+        //c3Config.responseFunction = MaruResponseFunction;
         routeDomain = routeUrls[c3Config.debugMode];
 
         console.log('routeDomain', routeDomain);
@@ -514,11 +516,24 @@ var KWON = (function (win, doc) {
             form.submit();
         }
 
-        var resFnc = c3Config.responseFunction;
+        if(data.result.resultCd != '9999') {
+            c3Config.responseFunction = MaruResponseFunction;
+            var resFnc = c3Config.responseFunction;
 
-        if(resFnc && typeof resFnc == 'function') {
-            resFnc(data);
+            if(resFnc && typeof resFnc == 'function') {
+                resFnc(data);
+            }
+        }else {
+            var resFnc = c3Config.responseFunction;
+
+            if(resFnc && typeof resFnc == 'function') {
+                resFnc(data);
+            }
+
+            layerClosed();
         }
+
+
     }
 
     //PYS : 가상계좌발급결과
@@ -548,6 +563,9 @@ var KWON = (function (win, doc) {
         if(resFnc && typeof resFnc == 'function') {
             resFnc(data);
         }
+
+        layerClosed();
+
     }
 
     function setDebug(bool) {

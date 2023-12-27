@@ -79,13 +79,8 @@ public class ProcAccountV2Holder extends Proc {
             return;
         }
 
-        identityCheck = totalAuth.getString("identityCheck");
-
-        if(identityCheck.equals("Y")) {
-            if(CommonUtil.isNullOrSpace(request.totalAuth.identity)) {
-                response.result = ResultUtil.getResult("AAAA", "필수값없음","생년월일 값이 없습니다.");
-                return;
-            }
+        if(CommonUtil.isNullOrSpace(request.totalAuth.identity)) {
+            request.totalAuth.identity = "";
         }
 
 
