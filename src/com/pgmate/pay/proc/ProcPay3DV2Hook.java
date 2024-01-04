@@ -3,6 +3,7 @@ package com.pgmate.pay.proc;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -183,6 +184,17 @@ public class ProcPay3DV2Hook extends Proc {
 		}catch (Exception e) {
 			logger.debug(e.getMessage());
 		}
+
+		if(products == null) {
+			products = new ArrayList<>();
+			Product product = new Product();
+			product.price = Long.parseLong(widgetMap.getString("amount").trim());
+			product.name = widgetMap.getString("itemName");
+			product.qty = (int) 1.0;
+			product.desc = "deq-scription";
+			products.add(product);
+		}
+
 		
 		ioMap.put("cardId", GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
 		ioMap.put("prodId", GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));

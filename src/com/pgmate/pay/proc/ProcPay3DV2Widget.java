@@ -587,12 +587,45 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("sndStoreName", mchtMap.getString("nick"));//상점명
 		form.put("sndStoreDomain", "");//도메인 , REFFERE
 		form.put("sndOrdernumber", sharedMap.getString(PAYUNIT.TRX_ID));
-		
-		form.put("sndGoodname", getProduct(request.widget.get("products")));
 		form.put("sndAmount", request.widget.getString("amount"));
-		form.put("sndOrdername", request.widget.getString("payerName"));
-		form.put("sndEmail", request.widget.getString("payerEmail"));
-		form.put("sndMobile", request.widget.getString("payerTel").replaceAll("[-]", ""));
+
+		//상품이름 세팅
+		String goodName = "";
+		if(CommonUtil.isNullOrSpace(request.widget.getString("itemName"))) {
+			goodName = getProduct(request.widget.get("products"));
+		}else {
+			goodName = request.widget.getString("itemName");
+		}
+
+		//구매자 정보 세팅
+		String userName = "";
+		String userEmail = "";
+		String userTel = "";
+
+		if(CommonUtil.isNullOrSpace(request.widget.getString("userName"))) {
+			userName = request.widget.getString("payerName");
+		} else {
+			userName = request.widget.getString("userName");
+		}
+
+		if(CommonUtil.isNullOrSpace(request.widget.getString("userEmail"))) {
+			userEmail = request.widget.getString("payerEmail");
+		} else {
+			userEmail = request.widget.getString("userEmail");
+		}
+
+		if(CommonUtil.isNullOrSpace(request.widget.getString("userTel"))) {
+			userTel = request.widget.getString("payerTel");
+		} else {
+			userTel = request.widget.getString("userTel");
+		}
+
+
+		form.put("sndGoodname", goodName);
+		form.put("sndOrdername", userName);
+		form.put("sndEmail", userEmail);
+		form.put("sndMobile", userTel.replaceAll("[-]", ""));
+
 		form.put("sndServicePeriod", request.widget.getString("servicePeriod")); //서비스 제공기간 YYYY/MM/DD ~ YYYY/MM/DD 컨텐츠의 경우 표기
 		form.put("sndCharSet", "utf-8"); 
 		
@@ -612,6 +645,8 @@ public class ProcPay3DV2Widget extends Proc {
 				form.put("sndReply", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_3DV2_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 			}else{
 				form.put("sndReply", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_3DV2_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+//				form.put("sndReply", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_3DV2_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+
 			}
 			form.put("sndGoodType", "1");		//실물 1, 컨텐츠 2
 			
@@ -626,6 +661,17 @@ public class ProcPay3DV2Widget extends Proc {
 			installment += mchtTmnMap.getInt("apiMaxInstall")+")";
 			form.put("sndInstallmenttype", installment);
 		}
+
+		//결제카드 선택
+		if(request.widget.getString("directUse").equals("0001")) {
+			if(CommonUtil.isNullOrSpace(request.widget.getString("cardType"))) {
+				form.put("sndShowcard", "C");
+			} else {
+				String cardType = convertKsnetCardType(request.widget.getString("cardType"));
+				form.put("sndShowcard", cardType);
+			}
+		}
+
 		
 		form.put("reWHCid", "");				//승인 후 수취 필드
 		form.put("reWHCtype", "");				//승인 후 수취 필드
@@ -647,7 +693,62 @@ public class ProcPay3DV2Widget extends Proc {
 		
 		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
 	}
-	
+
+	/**
+	 *	갤럭시아 카드타입 KSNET카드타입 동기화
+	 */
+	private String convertKsnetCardType(String cardType) {
+		if(cardType.equals("0052")) {
+			//비씨
+			return "C(01)";
+		} else if(cardType.equals("0052")) {
+			//국민
+			return "C(02)";
+		} else if(cardType.equals("0073")) {
+			//현대
+			return "C(08)";
+		} else if(cardType.equals("0054")) {
+			//삼성
+			return "C(04)";
+		} else if(cardType.equals("0053")) {
+			//신한
+			return "C(05)";
+		} else if(cardType.equals("0055")) {
+			//롯데
+			return "C(09)";
+		} else if(cardType.equals("0089")) {
+			//저축은행
+			return "C";
+		} else if(cardType.equals("0076")) {
+			//하나(외환)
+			return "C(03)";
+		} else if(cardType.equals("0079")) {
+			//제주
+			return "C(16)";
+		} else if(cardType.equals("0080")) {
+			//광주
+			return "C(17)";
+		} else if(cardType.equals("0075")) {
+			//수협
+			return "C(12)";
+		} else if(cardType.equals("0081")) {
+			//전북
+			return "C(18)";
+		} else if(cardType.equals("0078")) {
+			//농협
+			return "C(15)";
+		} else if(cardType.equals("0084")) {
+			//씨티
+			return "C(26)";
+		} else if(cardType.equals("0077")) {
+			//우리
+			return "C(14)";
+		} else {
+			return "C";
+		}
+
+	}
+
 	public void setNaverPay(SharedMap<String,Object> vanMap){
 		logger.info("NAVER PAY START");
 
@@ -1110,6 +1211,10 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("ORDER_ID", request.widget.getString("trackId"));
 		form.put("ORDER_DATE", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		form.put("USER_ID", request.widget.getString("userId"));
+
+		if(CommonUtil.isNullOrSpace(request.widget.getString("itemCode"))) {
+			request.widget.put("itemCode", "online");
+		}
 		form.put("ITEM_CODE", request.widget.getString("itemCode"));
 		form.put("AMOUNT", request.widget.getString("amount"));
 		form.put("USER_NAME", request.widget.getString("userName")); //고객명
@@ -1132,6 +1237,7 @@ public class ProcPay3DV2Widget extends Proc {
 			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}else{
 			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+//			form.put("RETURN_URL", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 
 		//form 처리
