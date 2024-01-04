@@ -5957,4 +5957,13 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRowFirst().getLong("totAmount");
 	}
+
+	public SharedMap<String, Object> getChargeSettleFirmReserve(String trxId) {
+		super.setTable("PG_CHARGE_SETTLE_FIRM_RESERVE");
+		super.setColumns("*");
+		super.addWhere("refTrxId", trxId, eq);
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRow(0);
+	}
 }

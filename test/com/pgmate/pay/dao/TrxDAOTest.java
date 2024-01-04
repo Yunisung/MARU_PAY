@@ -3,6 +3,7 @@ package com.pgmate.pay.dao;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.proc.ProcSettleTransferTest;
+import com.pgmate.pay.proc.ResultUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -90,4 +91,34 @@ public class TrxDAOTest {
         }
     }
 
+    @Test
+    public void updateTrxIO3D() {
+        SharedMap<String, Object> ioMap = new SharedMap<>();
+        ioMap.put("vanTrxId", "test-1692262603325");
+        ioMap.put("vanResultCd", "1111");
+        ioMap.put("vanResultMsg", "결제 취소");
+        ioMap.put("vanResultDate", "20230817175645");
+        ioMap.put("authCd", "0000");
+        ioMap.put("trxId", "T230817043052");
+        String resData = "{}";
+        trxDAO.updateTrxIO3D(ioMap, resData);
+    }
+
+    @Test
+    public void rentValidTest() {
+        String trxId = "T231101043477";
+        SharedMap<String, Object> firmMap = trxDAO.getChargeSettleFirmReserve(trxId);
+        if(firmMap != null) {
+            if(firmMap.getString("status").equals("대기")) {
+                long stlDay = CommonUtil.parseLong(firmMap.getString("pubDay"));
+                long curDay = CommonUtil.parseLong(CommonUtil.getCurrentDate("yyyyMMdd"));
+                logger.info("STL_DAY : {}", stlDay);
+                if (curDay >= stlDay) {
+                    logger.info("정산 전 취소만 가능합니다. 관리자에 문의바랍니다.");
+                }
+            } else {
+                logger.info("정산 전 취소만 가능합니다. 관리자에 문의바랍니다.");
+            }
+        }
+    }
 }

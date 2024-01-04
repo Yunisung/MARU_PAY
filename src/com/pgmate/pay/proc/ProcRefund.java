@@ -469,12 +469,35 @@ public class ProcRefund extends Proc {
 		}else{
 			//당일 거래가 아닌 경우 
 	        if(!request.refund.udf1.equals("ADMINWEB") && !request.refund.udf1.equals("DISTWEB")){    //관리자에서 요청이 온 거래가 아닌 경우
+				// refundType - 정산후취소여부
 				if(mchtTmnMap.isEquals("refundType","불가")){
-					long stlDay = trxDAO.getStlDay(trxMap.getString("trxId"));
-					long curDay = CommonUtil.parseLong(CommonUtil.getCurrentDate("yyyyMMdd"));
-					logger.info("STL_DAY : {}",stlDay);
-					if(curDay >= stlDay){
-						response.result = ResultUtil.getResult("9999", "취소불가","정산 전 취소만 가능합니다. 관리자에 문의바랍니다.");return;
+					if(!trxMap.isNullOrSpace("rentId")) {
+						// 월세앱이라면 이체 전까지 취소가능
+						SharedMap<String, Object> firmMap = trxDAO.getChargeSettleFirmReserve(trxMap.getString("trxId"));
+						if(firmMap != null) {
+							if(firmMap.getString("status").equals("대기")) {
+								long stlDay = CommonUtil.parseLong(firmMap.getString("pubDay"));
+								long curDay = CommonUtil.parseLong(CommonUtil.getCurrentDate("yyyyMMdd"));
+								logger.info("STL_DAY : {}", stlDay);
+								if (curDay >= stlDay) {
+									response.result = ResultUtil.getResult("9999", "취소불가", "정산 전 취소만 가능합니다. 관리자에 문의바랍니다.");
+									return;
+								}
+							} else {
+								response.result = ResultUtil.getResult("9999", "취소불가", "정산 전 취소만 가능합니다. 관리자에 문의바랍니다.");
+								return;
+							}
+						}
+
+					} else {
+						// 월세앱이 아니라면
+						long stlDay = trxDAO.getStlDay(trxMap.getString("trxId"));
+						long curDay = CommonUtil.parseLong(CommonUtil.getCurrentDate("yyyyMMdd"));
+						logger.info("STL_DAY : {}", stlDay);
+						if (curDay >= stlDay) {
+							response.result = ResultUtil.getResult("9999", "취소불가", "정산 전 취소만 가능합니다. 관리자에 문의바랍니다.");
+							return;
+						}
 					}
 				}
 			}
