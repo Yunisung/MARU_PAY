@@ -13,6 +13,11 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
+import com.galaxia.api.MessageTag;
+import com.galaxia.api.crypto.CryptoUtil;
+import com.pgmate.app.util.CryptUtil;
+import com.pgmate.pay.util.AES256Cipher;
+import com.pgmate.pay.util.GalaxiaUtil;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +44,16 @@ public class WelcomeO implements Van{
 	static final int TIMEOUT 			= 30000;
 
 
-	// 오프라인 API 취소
 	private static final String cancel_uri		= "https://payapi.welcomepayments.co.kr/api/payment/cancel";
-
+	private static final String approval_uri	= "https://payapi.welcomepayments.co.kr/api/payment/approval";
 	
 	private String mid 					= "";
 	private String VAN					= "";
+	private String tmnId 				= "";
+	private String mchtId 				= "";
+	private String KEY					= "";
+	private String IV					= "";
+
 	
 	private SharedMap<String, Object> trxMap  = null;
 	
@@ -55,109 +64,175 @@ public class WelcomeO implements Van{
 	public WelcomeO(SharedMap<String, Object> vanMap) {
 		mid = vanMap.getString("vanId").trim();
 		VAN = vanMap.getString("van");
+		tmnId = vanMap.getString("tmnId");
+		mchtId = vanMap.getString("mchtId");
+
+		KEY = vanMap.getString("cryptoKey");
+		IV = vanMap.getString("secondKey");
+
 	}
 
+	@Override
+	public SharedMap<String, Object> sales(TrxDAO trxDAO, SharedMap<String, Object> sharedMap, Response response) {
+		SharedMap<String, Object> reqMap = new SharedMap<>();
+		reqMap.put("mid", mid);
+		reqMap.put("pay_type", "CREDIT_CARD");
+		reqMap.put("pay_method", "CREDIT_UNAUTH_API");
+
+		reqMap.put("card_no", AES256Cipher(response.pay.card.number));
+		reqMap.put("card_expiry_ym", response.pay.card.expiry);
+
+		// 구인증일때
+		if(sharedMap.isEquals("semiAuth", "Y")) {
+			if(response.pay.metadata != null) {
+				if(response.pay.metadata.isEquals("cardAuth", "true")) {
+					reqMap.put("pay_method", "CREDIT_OLDAUTH_API");
+					reqMap.put("card_pw", AES256Cipher(response.pay.metadata.getString("authPw")));
+					reqMap.put("card_holder_ymd", AES256Cipher(response.pay.metadata.getString("authDob")));
+				}
+				response.pay.metadata = null;
+			}
+		}
+
+		reqMap.put("order_no", response.pay.trxId);
+		reqMap.put("amount", String.valueOf(response.pay.amount));
+
+		if(!CommonUtil.isNullOrSpace(response.pay.payerName)) {
+			reqMap.put("user_name", response.pay.payerName);
+		} else {
+			reqMap.put("user_name", tmnId);
+		}
+
+		if(response.pay.products != null && response.pay.products.size() > 0) {
+			reqMap.put("product_name", response.pay.products.get(0).name);
+		}else {
+			reqMap.put("product_name", "product");
+		}
+
+		reqMap.put("card_sell_mm", CommonUtil.zerofill(response.pay.card.installment, 2));
+		String millis = String.valueOf(System.currentTimeMillis());
+		reqMap.put("millis", millis);
+
+		String hash_value = "";
+		try {
+			hash_value = EncryptUtil.sha256(mid + reqMap.getString("pay_type") + reqMap.getString("pay_method") + reqMap.getString("order_no")+ reqMap.getString("amount") + millis + KEY);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.result = ResultUtil.getResult("9999","결제실패","결제 시스템 오류로 실패하였습니다.");
+			return sharedMap;
+		}
+
+		reqMap.put("hash_value", hash_value);
+
+		SharedMap<String, Object> responseMap = new SharedMap<>();
+		responseMap = approvalRequest(approval_uri, reqMap.toJson());
+
+		//결과값 처리
+		if(responseMap.getString("result_code").equals("0000")) {
+			String authNumber = responseMap.getString("approval_no");
+			String authDate = responseMap.getString("approval_ymdhms");
+			String authAmount = responseMap.getString("amount");
+			String cardName = responseMap.getString("card_name");
+			String cardCode = responseMap.getString("card_code");
+			String transaction_no = responseMap.getString("transaction_no");
+
+			response.result = ResultUtil.getResult("0000","정상","정상승인");
+			response.pay.authCd = authNumber;
+			response.pay.transactionDate = authDate;
+			sharedMap.put("vanTrxId", transaction_no);
+			sharedMap.put("vanResultCd","0000");
+			sharedMap.put("vanResultMsg","정상승인");
+			sharedMap.put("authCd", authNumber);
+			sharedMap.put("vanDate", authDate);
+			sharedMap.put("cardAcquirer", cardName);
+			sharedMap.put("acquirerCode", cardCode);
+			sharedMap.put("issuerCode", cardCode);
+		} else {
+			//승인실패시
+			response.result 	= ResultUtil.getResult(responseMap.getString("result_code"), "승인실패" ,responseMap.getString("result_message"));
+		}
+
+		return sharedMap;
+	}
 
 	@Override
 	public SharedMap<String, Object> refund(TrxDAO trxDAO, SharedMap<String, Object> sharedMap, SharedMap<String, Object> payMap, Response response) {
-		HashMap<String, Object> req = new HashMap<String, Object>();
-		
-		req.put("pay_type", "CREDIT_CARD");	// 결제구분 (신용카드: CREDIT_CARD, 계좌이체: ACCNT, 가상계좌: VACCNT)
-		
-		String tType = "";
+		SharedMap<String, Object> reqMap = new SharedMap<>();
+
+		reqMap.put("pay_type", "CREDIT_CARD");	// 결제구분 (신용카드: CREDIT_CARD, 계좌이체: ACCNT, 가상계좌: VACCNT)
+
 		String rfdAmt = CommonUtil.toString(response.refund.amount);
-		
 		trxMap = trxDAO.getTrxByWelcomeTrxId(payMap.getString("vanTrxId"));
 		
 		if(rfdAmt.equals(trxMap.getString("amount"))) {
-			req.put("transaction_type", "CANCEL");
-			tType = "CANCEL";
+			reqMap.put("transaction_type", "CANCEL");
 		} else {
-			req.put("transaction_type", "PART_CANCEL");
-			tType = "PART_CANCEL";
+			reqMap.put("transaction_type", "PART_CANCEL");
 		}
-		
-		req.put("mid", mid);									
-		req.put("user_id","-");
-		req.put("transaction_no", payMap.getString("vanTrxId"));
-		
-		
-		req.put("amount", rfdAmt);
-		req.put("cancel_reason", "고객요청");
-		req.put("ip_address", "203.245.13.62");
+
+		reqMap.put("mid", mid);
+		reqMap.put("user_id","-");
+		reqMap.put("transaction_no", payMap.getString("vanTrxId"));
+
+
+		reqMap.put("amount", rfdAmt);
+		reqMap.put("cancel_reason", "고객요청");
+		reqMap.put("ip_address", "222.234.3.121");
 		
 		//옵션값
-		req.put("email", "");
-		req.put("email_send_yn", "N");
+		reqMap.put("email", "");
+		reqMap.put("email_send_yn", "N");
 		
 		String millis = String.valueOf(System.currentTimeMillis());
-		req.put("millis", millis);
+		reqMap.put("millis", millis);
 		
 		String hash_value = "";
-		SharedMap<String, Object> van_info = new SharedMap<String, Object>();
-		van_info = trxDAO.getVanByVanId(VAN, mid);
-	
+
 		try {
-			hash_value = EncryptUtil.sha256(mid + tType + payMap.getString("vanTrxId") + rfdAmt + millis + van_info.getString("cryptoKey"));
+			hash_value = EncryptUtil.sha256(mid + reqMap.getString("transaction_type") + reqMap.getString("transaction_no") + reqMap.getString("amount") + millis + KEY);
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.result = ResultUtil.getResult("9999","취소실패","결제 시스템 오류로 취소에 실패하였습니다.");
 			return sharedMap;
 		}
-	
-		req.put("hash_value", hash_value);
+
+		reqMap.put("hash_value", hash_value);
+
+		SharedMap<String, Object> responseMap = new SharedMap<>();
+		responseMap = cancelRequest(cancel_uri, reqMap.toJson());
+
 		
-		String ReqMsg = getJsonString(req);
-					
-		HashMap<String, Object> resHm = cancelReq(ReqMsg);
-		
-		// 결제 결과 값 확인
-		//------------------
-		String result_code     = (String) resHm.get("result_code");
-		String result_message    = (String) resHm.get("result_message");
-		
-		if(result_code.equals("0000")){
+		//결과값 처리
+		if(responseMap.getString("result_code").equals("0000")) {
 			response.refund.authCd = payMap.getString("authCd");
+			response.refund.transactionDate = responseMap.getString("cancel_ymdhms");
 			response.result 	= ResultUtil.getResult("0000","정상","정상취소");
-		}else{
-			response.result 	= ResultUtil.getResult(CommonUtil.toString(result_code),"취소실패",result_message);
-			logger.info("refund result : {},{}",result_message,response.result.advanceMsg);
+		}else {
+			response.result 	= ResultUtil.getResult(responseMap.getString("result_code"),"취소실패",responseMap.getString("result_message"));
 		}
 
 		sharedMap.put("van",VAN);
 		sharedMap.put("vanId",mid);
-		sharedMap.put("vanTrxId",payMap.getString("vanTrxId"));
-		sharedMap.put("vanResultCd",CommonUtil.toString(result_code));
-		sharedMap.put("vanResultMsg",CommonUtil.toString(result_message));
-//		sharedMap.put("vanDate",CommonUtil.toString((String)resHm.get("cancel_ymdhms")));
-//		logger.info("vanTrxId : {},{}",sharedMap.getString("vanTrxId"),sharedMap.getString("vanDate"));
+		sharedMap.put("vanTrxId",reqMap.getString("transaction_no"));
+		sharedMap.put("vanResultCd",responseMap.getString("result_code"));
+		sharedMap.put("vanResultMsg",responseMap.getString("result_message"));
 
 		return sharedMap;
 	}
-	 
-	////////////////////////
-	private HashMap<String, Object> SendRepo( String srpReq, String srpUri){
-		HashMap<String, Object>  retHm=null;
-		String retTxt=sendReq(srpReq, srpUri);
-		retHm=getValue(retTxt);
-		return retHm;
+
+	private SharedMap<String, Object> approvalRequest(String uri, String json) {
+		String response = sendReq(json, uri);
+		SharedMap<String, Object>  resultMap = getApprovalValue(response);
+		return resultMap;
 	}
 
-    private HashMap<String, Object> cancelReq(String strReq){
-    	HashMap<String, Object> retHm=null;
-		try {
-		    retHm=SendRepo(strReq, cancel_uri);
-		    logger.debug("cancelReq>>>"+retHm.toString());
-		} catch (Exception e){
-		  retHm=getValue("{\"result_code\":\"E999\",\"result_message\":\"Exception:"+e.getMessage()+"\"}");
-		}
-		return retHm;
-	 }
+	private SharedMap<String, Object> cancelRequest(String uri, String json) {
+		String response = sendReq(json, uri);
+		SharedMap<String, Object>  resultMap = getCancelValue(response);
+		return resultMap;
+	}
 
-	
-	
-	////--------------------------Connect And Client Data Send----------------------------------------
-    private String sendReq(String sendMsg, String uri){
+    private String sendReq(String sendMsg, String uri) {
 	    String result= "";
 	    
 	    String inputLine = null;
@@ -225,50 +300,60 @@ public class WelcomeO implements Van{
 	      return result;
 	    }
 	    return result;
-	  }
-	  
-	  private HashMap<String, Object> getValue(String jsonStr){
-		  
-		  HashMap<String, Object> retHm=new HashMap<String, Object>();
-		  
-		  JsonParser jsonParser = new JsonParser();
-		  
-		  JsonObject jsonObject = (JsonObject) jsonParser.parse(jsonStr);
-		  
-		  retHm.put("result_code", jsonObject.get("result_code").getAsString());
-		  retHm.put("result_message", jsonObject.get("result_message").getAsString());
-		  
-		  if(retHm.get("result_code").equals("0000")) {
-			  retHm.put("order_no", jsonObject.get("order_no").getAsString());
-			  retHm.put("cancel_amount", jsonObject.get("cancel_amount").getAsString());
-			  retHm.put("remain_amount", jsonObject.get("remain_amount").getAsString());
-			  retHm.put("pay_type", jsonObject.get("pay_type").getAsString());
-			  retHm.put("cancel_ymdhms", jsonObject.get("cancel_ymdhms").getAsString());
-			  retHm.put("transaction_no", jsonObject.get("transaction_no").getAsString());
-		  }
-		  
-		  if(retHm.get("result_code")==null) {
-			  retHm.put("result_code", "E999");
-			  retHm.put("result_message", jsonObject.get("result_message").getAsString());
-		  }
-		  
-		  return retHm;
-	  }
-
-	  
-	  @SuppressWarnings("unchecked")
-	  public static String getJsonString(Map<String, Object> map ){
-	        JSONObject jsonObject = new JSONObject();
-	        map.forEach((key, value) -> jsonObject.put(key, value));
-	        return jsonObject.toJSONString();
-	  }
-	
-
-	@Override
-	public SharedMap<String, Object> sales(TrxDAO trxDAO, SharedMap<String, Object> sharedMap, Response response) {
-		// TODO Auto-generated method stub
-		return null;
 	}
-	  
+
+	private SharedMap<String, Object> getApprovalValue(String json) {
+		SharedMap<String, Object> response = new SharedMap<>();
+
+		JsonParser jsonParser = new JsonParser();
+		JsonObject jsonObject = (JsonObject) jsonParser.parse(json);
+
+		response.put("result_code", jsonObject.get("result_code").getAsString());
+		response.put("result_message", jsonObject.get("result_message").getAsString());
+
+		if(response.getString("result_code").equals("0000")) {
+			//성공
+			response.put("mid", jsonObject.get("mid").getAsString());
+			response.put("transaction_no", jsonObject.get("transaction_no").getAsString());
+			response.put("order_no", jsonObject.get("order_no").getAsString());
+			response.put("approval_no", jsonObject.get("approval_no").getAsString());
+			response.put("approval_ymdhms", jsonObject.get("approval_ymdhms").getAsString());
+			response.put("amount", jsonObject.get("amount").getAsString());
+			response.put("card_code", jsonObject.get("card_code").getAsString());
+			response.put("card_name", jsonObject.get("card_name").getAsString());
+			response.put("card_sell_nm", jsonObject.get("card_sell_nm").getAsString());
+			response.put("user_name", jsonObject.get("user_name").getAsString());
+			response.put("product_name", jsonObject.get("product_name").getAsString());
+		}
+
+		return response;
+	}
+
+	private SharedMap<String, Object> getCancelValue(String json) {
+		SharedMap<String, Object> response = new SharedMap<>();
+
+		JsonParser jsonParser = new JsonParser();
+		JsonObject jsonObject = (JsonObject) jsonParser.parse(json);
+
+		response.put("result_code", jsonObject.get("result_code").getAsString());
+		response.put("result_message", jsonObject.get("result_message").getAsString());
+
+		if(response.getString("result_code").equals("0000")) {
+			//성공
+			response.put("order_no", jsonObject.get("order_no").getAsString());
+			response.put("amount", jsonObject.get("amount").getAsString());					//원거래 승인금액
+			response.put("cancel_amount", jsonObject.get("cancel_amount").getAsString());	//취소금액
+			response.put("remain_amount", jsonObject.get("remain_amount").getAsString());	//잔액
+			response.put("pay_type", jsonObject.get("pay_type").getAsString());
+			response.put("cancel_ymdhms", jsonObject.get("cancel_ymdhms").getAsString());
+			response.put("transaction_no", jsonObject.get("transaction_no").getAsString());
+		}
+
+		return response;
+	}
+
+  	public String AES256Cipher(String plainText) {
+		return EncryptUtil.aes256Encrypt(KEY, IV, plainText);
+  	}
 
 }

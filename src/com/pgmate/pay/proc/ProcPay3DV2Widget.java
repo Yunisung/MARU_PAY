@@ -1,10 +1,13 @@
 package com.pgmate.pay.proc;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.pgmate.pay.bean.Rent;
 import com.pgmate.pay.util.SmsGw;
+import kr.co.paywelcome.util.SignatureUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -224,6 +227,19 @@ public class ProcPay3DV2Widget extends Proc {
 								setGalaxia(vanMap);
 								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 								response.result = ResultUtil.getResult("0000", "정상","정상완료");
+							}else if(vanMap.startsWith("van", "WELCOME")) {
+								response.widget.put("target", "WELCOME");
+
+								if(request.widget.isEquals("device", "mobile")) {
+									response.widget.put("routeUrl", "/form/payment/welcome/mobile.html?token="+widgetKey);
+								}else{
+									response.widget.put("routeUrl", "/form/payment/welcome/web.html?token="+widgetKey);
+								}
+
+								setWelcome(vanMap);
+								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
+								response.result = ResultUtil.getResult("0000", "정상", "정상완료");
+
 							}else{
 								response.result = ResultUtil.getResult("9999", "호출실패","카드사 정보가 설정되지 않았습니다. 서비스 준비중인 카드사입니다.");return;
 							}
@@ -731,17 +747,6 @@ public class ProcPay3DV2Widget extends Proc {
 
 			}
 			form.put("sndGoodType", "1");		//실물 1, 컨텐츠 2
-			
-			
-			//신용카드전용 할부 가능기간 설정 
-			String installment = "ALL(";
-			for(int i=0;i<mchtTmnMap.getInt("apiMaxInstall");i++){
-				if(i != 1){
-					installment+=CommonUtil.toString(i)+":";
-				}
-			}
-			installment += mchtTmnMap.getInt("apiMaxInstall")+")";
-			form.put("sndInstallmenttype", installment);
 		}
 
 		//결제카드 선택
@@ -751,6 +756,24 @@ public class ProcPay3DV2Widget extends Proc {
 			} else {
 				String cardType = convertKsnetCardType(request.widget.getString("cardType"));
 				form.put("sndShowcard", cardType);
+			}
+		}
+
+		//신용카드전용 할부 가능기간 설정
+		String installment = "ALL(";
+		for(int i=0;i<mchtTmnMap.getInt("apiMaxInstall");i++){
+			if(i != 1){
+				installment+=CommonUtil.toString(i)+":";
+			}
+		}
+		installment += mchtTmnMap.getInt("apiMaxInstall")+")";
+		form.put("sndInstallmenttype", installment);
+
+		//할부설정
+		if(!CommonUtil.isNullOrSpace(request.widget.getString("installment"))) {
+			if(request.widget.getInt("installment") <= mchtTmnMap.getInt("apiMaxInstall")) {
+				String month = request.widget.getString("installment");
+				form.put("sndInstallmenttype", "ALL(" + CommonUtil.toString(month) + ")");
 			}
 		}
 
@@ -1315,12 +1338,119 @@ public class ProcPay3DV2Widget extends Proc {
 			form.put("CANCEL_FLAG", "Y");
 		}
 
+		//할부개월 지정
+		if(!CommonUtil.isNullOrSpace(request.widget.getString("installment"))) {
+			if(request.widget.getInt("installment") <= mchtTmnMap.getInt("apiMaxInstall")) {
+				form.put("INSTALLMENT_PERIOD", request.widget.getString("installment"));
+			}
+		}
+
 		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
 			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}else{
-			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-//			form.put("RETURN_URL", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+//			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("RETURN_URL", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
+
+		//form 처리
+		request.widget.put("form", GsonUtil.toJson(form));
+
+		//요청 값 임시 저장
+		logger.info("save as key : {}",request.widget.getString("key"));
+		PAYUNIT.cacheMap.put(request.widget.getString("key"), request.widget);
+
+		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
+	}
+
+	public void setWelcome(SharedMap<String, Object> vanMap) {
+		request.widget.put("key", widgetKey);
+		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
+
+		request.widget.put("target", "WELCOME");
+		request.widget.put("targetMethod", "POPUP");
+
+
+		//van의 결제모듈 url 설정
+		if(request.widget.isEquals("device", "mobile")){
+			request.widget.put("targetUrl", "https://pay.billgate.net/credit/smartphone/certify.jsp");
+		}else{
+			request.widget.put("targetUrl", "INIStdPay.pay('SendPayForm_id')");
+		}
+
+		request.widget.put("width", 820);
+		request.widget.put("height", 600);
+
+		//할부개월수 자동세팅
+		String installment = "";
+
+		for(int i = 0; i < mchtTmnMap.getInt("apiMaxInstall"); i++){
+			if(i != 1){
+				installment+=CommonUtil.toString(i)+":";
+			}
+		}
+		installment += mchtTmnMap.getInt("apiMaxInstall");
+
+		//데이터 세팅
+
+		//1. 전문 필드 값 설정
+		String mid = vanMap.getString("vanId");
+		//인증
+		String signKey = vanMap.getString("cryptoKey");
+		String timestamp = SignatureUtil.getTimestamp();
+
+		String oid = request.widget.getString("trackId");
+		String price = request.widget.getString("amount");
+
+		String cardQuotaBase = installment;
+
+		//2. 가맹점 확인을 위한 signKey를 해시값으로 변경
+		String mKey = "";
+		try {
+			mKey = SignatureUtil.hash(signKey, "SHA-256");
+		} catch (Exception e) {
+			logger.info("WELCOME hash Exception : {}", e.getMessage());
+		}
+
+		//3. signature 생성
+		Map<String, String> signParam = new HashMap<>();
+		signParam.put("mkey", mKey);
+		signParam.put("oid", oid);
+		signParam.put("price", price);
+		signParam.put("timestamp", timestamp);
+
+		String signature = "";
+		try {
+			signature = SignatureUtil.makeSignature(signParam);
+		} catch (Exception e) {
+			logger.info("WELCOME signature Exception : {}", e.getMessage());
+		}
+
+
+		SharedMap<String,Object> form = new SharedMap<String,Object>();
+		form.put("version", "1.0");
+		form.put("mid", mid);
+		form.put("oid", oid);
+		form.put("goodname", request.widget.getString("itemName"));
+		form.put("price", price);
+		form.put("currency", "WON");
+		form.put("buyername", request.widget.getString("userName"));
+		form.put("buyertel", request.widget.getString("userTel"));
+		form.put("buyeremail", request.widget.getString("userEmail"));
+		form.put("timestamp", timestamp);
+		form.put("signature", signature);
+
+		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
+			form.put("returnUrl", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+		}else{
+//			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("returnUrl", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+		}
+
+		form.put("mKey", mKey);
+
+		//결제 수단별 옵션
+		form.put("quotabase", cardQuotaBase);
+
 
 		//form 처리
 		request.widget.put("form", GsonUtil.toJson(form));
