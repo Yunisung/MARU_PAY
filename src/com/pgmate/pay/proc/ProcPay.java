@@ -6,6 +6,7 @@ import com.pgmate.pay.bean.Product;
 import com.pgmate.pay.bean.Rebill;
 import com.pgmate.pay.bean.Rent;
 import com.pgmate.pay.util.SmsGw;
+import com.pgmate.pay.van.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,15 +21,6 @@ import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.bean.Request;
 //import com.pgmate.pay.proc.sms.InfoBankSMS;
 import com.pgmate.pay.util.PAYUNIT;
-import com.pgmate.pay.van.Allat;
-import com.pgmate.pay.van.Danal;
-import com.pgmate.pay.van.Daou;
-import com.pgmate.pay.van.DemoVan;
-import com.pgmate.pay.van.Firstpay;
-import com.pgmate.pay.van.Galaxia;
-import com.pgmate.pay.van.Kspay;
-import com.pgmate.pay.van.Nice;
-import com.pgmate.pay.van.Van;
 
 import io.vertx.ext.web.RoutingContext;
 
@@ -108,6 +100,8 @@ public class ProcPay extends Proc {
 			van = new Firstpay(tmnVanMap);
 		}else if(mchtTmnMap.startsWith("van", "GALAXIA")){
 			van = new Galaxia(tmnVanMap);
+		}else if(mchtTmnMap.startsWith("van", "WELCOME")){
+			van = new WelcomeO(tmnVanMap);
 		}else{
 			//mchtTmnMap.put("van","DEFAULT");
 			//van = new DemoVan(tmnVanMap);
