@@ -119,7 +119,7 @@ public class ProcRebillReg extends Proc {
             trxDAO.insertRebillReg(rebillMap);
 
         }else {
-            response.result = ResultUtil.getResult(sharedMap.getString("vanResultCd"), "등록실패", sharedMap.getString("vanResultMsg"));
+            response.result = ResultUtil.getResult(sharedMap.getString("vanResultCd"), sharedMap.getString("vanResultMsg"), sharedMap.getString("vanResultDetailMsg"));
         }
 
 

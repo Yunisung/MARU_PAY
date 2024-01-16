@@ -219,7 +219,7 @@ public class Galaxia implements Van{
 		logger.info("Galaxia requestMsg : {}",requestMsg);
 
 		ServiceBroker sb = new ServiceBroker(configLoad, ServiceCode.CREDIT_CARD);
-		responseMsg = sb.invoke(requestMsg);
+		responseMsg = sb.invoke(requestMsg, "EUC-KR");
 
 		return responseMsg;
 	}
@@ -638,30 +638,11 @@ public class Galaxia implements Van{
 			logger.info("transactionId : {}", transactionId);
 			logger.info("sessionKey : {}", sessionKey);
 
-			byte[] resCode = responseCode.getBytes();
-			byte[] resMsg = responseMessage.getBytes();
-			byte[] dtlMsg = detailResponseMessage.getBytes();
-
-			String charset[] = {"utf-8",  "euc-kr", "ksc5601", "iso-8859-1", "8859_1", "ascii"};
-
-			for(String data : charset) {
-				String test = new String(resMsg, data);
-
-				logger.info(">>> responseMessage : {}", test);
-			}
-
-//			responseCode = convert(resCode, "UTF-8");
-//			responseMessage = convert(resMsg, "UTF-8");
-//			detailResponseMessage = convert(dtlMsg, "UTF-8");
-//
-//			logger.info(">>> responseCode : {}", responseCode);
-//			logger.info(">>> responseMessage : {}", responseMessage);
-//			logger.info(">>> detailResponseMessage : {}", detailResponseMessage);
-
 			response.result 	= ResultUtil.getResult(responseCode, responseMessage ,detailResponseMessage);
 			sharedMap.put("vanTrxId",transactionId);
 			sharedMap.put("vanResultCd",responseCode);
 			sharedMap.put("vanResultMsg",responseMessage);
+			sharedMap.put("vanResultDetailMsg",detailResponseMessage);
 			sharedMap.put("van",VAN);
 			sharedMap.put("vanId",VANID);
 
