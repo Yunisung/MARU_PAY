@@ -1,6 +1,9 @@
 package com.pgmate.pay.van;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 
 import org.slf4j.Logger;
@@ -614,8 +617,6 @@ public class Galaxia implements Van{
 		try {
 			//인증 요청
 			Message respMsg = autoBillCertifyProcess(autobillMap);
-			byte[] aa =  respMsg.getBytes("UTF-8");
-			respMsg.setData(aa);
 
 			//인증 요청에 대한 응답 결과 설정
 			String responseCode = respMsg.get(MessageTag.RESPONSE_CODE);
@@ -636,6 +637,26 @@ public class Galaxia implements Van{
 			logger.info("detailResponseMessage : {}", detailResponseMessage);
 			logger.info("transactionId : {}", transactionId);
 			logger.info("sessionKey : {}", sessionKey);
+
+			byte[] resCode = responseCode.getBytes();
+			byte[] resMsg = responseMessage.getBytes();
+			byte[] dtlMsg = detailResponseMessage.getBytes();
+
+			String charset[] = {"utf-8",  "euc-kr", "ksc5601", "iso-8859-1", "8859_1", "ascii"};
+
+			for(String data : charset) {
+				String test = new String(resMsg, data);
+
+				logger.info(">>> responseMessage : {}", test);
+			}
+
+//			responseCode = convert(resCode, "UTF-8");
+//			responseMessage = convert(resMsg, "UTF-8");
+//			detailResponseMessage = convert(dtlMsg, "UTF-8");
+//
+//			logger.info(">>> responseCode : {}", responseCode);
+//			logger.info(">>> responseMessage : {}", responseMessage);
+//			logger.info(">>> detailResponseMessage : {}", detailResponseMessage);
 
 			response.result 	= ResultUtil.getResult(responseCode, responseMessage ,detailResponseMessage);
 			sharedMap.put("vanTrxId",transactionId);
