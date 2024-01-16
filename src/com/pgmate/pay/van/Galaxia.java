@@ -614,6 +614,8 @@ public class Galaxia implements Van{
 		try {
 			//인증 요청
 			Message respMsg = autoBillCertifyProcess(autobillMap);
+			byte[] aa =  respMsg.getBytes("UTF-8");
+			respMsg.setData(aa);
 
 			//인증 요청에 대한 응답 결과 설정
 			String responseCode = respMsg.get(MessageTag.RESPONSE_CODE);
