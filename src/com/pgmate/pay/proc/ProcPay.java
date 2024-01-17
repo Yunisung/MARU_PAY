@@ -232,6 +232,7 @@ public class ProcPay extends Proc {
 	}
 
 
+
 	@Override
 	// KBR : 결제 관련 유효성 체크 / 이력 추가
 	public void valid() {
@@ -479,6 +480,46 @@ public class ProcPay extends Proc {
 			}
 			sharedMap.put(PAYUNIT.KEY_RENT, GenKey.genKeys(CPKEY.RENT, sharedMap.getString(PAYUNIT.TRX_ID)));
 			trxDAO.insertRent(sharedMap.getString(PAYUNIT.KEY_RENT), request.pay.rent, sharedMap.getString(PAYUNIT.REG_DATE));
+
+			SharedMap<String, Object> mchtRentMap = trxDAO.getMchtRentByMchtId(mchtMap.getString("mchtId"));
+			long rentLimitOnce = 0;
+			long rentLimitMonth = 0;
+			if ("월세".equals(billingType)) {
+				rentLimitOnce = mchtRentMap.getLong("rentLimitOnce");
+				rentLimitMonth = mchtRentMap.getLong("rentLimitMonth");
+			} else if ("보증금".equals(billingType)) {
+				rentLimitOnce = mchtRentMap.getLong("depositLimitOnce");
+				rentLimitMonth = mchtRentMap.getLong("depositLimitMonth");
+			}
+
+			if(!"선납".equals(billingMethod)) {
+				// 1회한도
+				if (rentLimitOnce > 0) {
+					if ("월세".equals(billingType)) {
+						if (rentLimitOnce < request.widget.getLong("amount")) {
+							logger.debug("가맹점 1회 한도초과 : {},{}", rentLimitOnce, request.widget.getLong("amount"));
+							response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 월세 1회 거래한도 초과");
+							return;
+						}
+					} else if ("보증금".equals(billingType)) {
+						// 보증금일 경우 누적금액 확인
+						long beforeSum = trxDAO.getRentBeforeSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"));
+						if (rentLimitOnce < request.widget.getLong("amount") + beforeSum) {
+							logger.debug("가맹점 1회 한도초과 : {},{}", rentLimitOnce, request.widget.getLong("amount"));
+							response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 보증금 거래한도 초과");
+							return;
+						}
+					}
+				}
+			// 월한도
+			if (rentLimitMonth > 0) {
+				long monthSum = trxDAO.getRentMonthSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"), billingType);
+				if (rentLimitMonth < request.widget.getLong("amount") + monthSum) {
+					logger.debug("가맹점 월 한도초과 : {},{},{}", rentLimitMonth, request.widget.getLong("amount"), monthSum);
+					response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 월 거래한도 초과");
+					return;
+				}
+			}
 		}
 		
 		//semiAuth 즉 생년월일/카드비번2자리 꼭 사용하는 가맹점 2017-08-01
