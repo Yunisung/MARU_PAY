@@ -243,7 +243,6 @@ var MARU = (function (win, doc) {
     if(c3Config.payRoute !== 'simple') {
       doc.getElementById('c3pop_content_fixed').style.display = '';
     }
-    
   }
 
 
