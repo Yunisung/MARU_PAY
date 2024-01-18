@@ -517,13 +517,14 @@ public class ProcPay extends Proc {
 						}
 					}
 				}
-			// 월한도
-			if (rentLimitMonth > 0) {
-				long monthSum = trxDAO.getRentMonthSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"), billingType);
-				if (rentLimitMonth < request.widget.getLong("amount") + monthSum) {
-					logger.debug("가맹점 월 한도초과 : {},{},{}", rentLimitMonth, request.widget.getLong("amount"), monthSum);
-					response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 월 거래한도 초과");
-					return;
+				// 월한도
+				if (rentLimitMonth > 0) {
+					long monthSum = trxDAO.getRentMonthSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"), billingType);
+					if (rentLimitMonth < request.widget.getLong("amount") + monthSum) {
+						logger.debug("가맹점 월 한도초과 : {},{},{}", rentLimitMonth, request.widget.getLong("amount"), monthSum);
+						response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 월 거래한도 초과");
+						return;
+					}
 				}
 			}
 		}
