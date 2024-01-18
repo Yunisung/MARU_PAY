@@ -1335,10 +1335,8 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("APPNAME", request.widget.getString("appName"));
 		form.put("RESERVED1", request.widget.getString("udf1"));
 		form.put("RESERVED2", request.widget.getString("udf2"));
+		form.put("CANCEL_FLAG", "Y");
 
-		if(request.widget.isEquals("device", "mobile")) {
-			form.put("CANCEL_FLAG", "Y");
-		}
 
 		//할부개월 지정
 		if(!CommonUtil.isNullOrSpace(request.widget.getString("installment"))) {
@@ -1373,11 +1371,11 @@ public class ProcPay3DV2Widget extends Proc {
 
 
 		//van의 결제모듈 url 설정
-		if(request.widget.isEquals("device", "mobile")){
-			request.widget.put("targetUrl", "https://pay.billgate.net/credit/smartphone/certify.jsp");
-		}else{
-			request.widget.put("targetUrl", "INIStdPay.pay('SendPayForm_id')");
-		}
+//		if(request.widget.isEquals("device", "mobile")){
+//			request.widget.put("targetUrl", "https://pay.billgate.net/credit/smartphone/certify.jsp");
+//		}else{
+//			request.widget.put("targetUrl", "INIStdPay.pay('SendPayForm_id')");
+//		}
 
 		request.widget.put("width", 820);
 		request.widget.put("height", 600);
@@ -1398,6 +1396,11 @@ public class ProcPay3DV2Widget extends Proc {
 		String mid = vanMap.getString("vanId");
 		//인증
 		String signKey = vanMap.getString("cryptoKey");
+
+		//테스트용
+		mid = "welcometst";
+		signKey = "QjZXWDZDRmxYUXJPYnMvelEvSjJ5QT09";
+
 		String timestamp = SignatureUtil.getTimestamp();
 
 		String oid = request.widget.getString("trackId");
@@ -1448,11 +1451,26 @@ public class ProcPay3DV2Widget extends Proc {
 			form.put("returnUrl", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 		}
 
+		//form.put("closeUrl", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+		//form.put("popupUrl", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+
+
+
+		form.put("gopaymethod", "Card");
 		form.put("mKey", mKey);
+
 
 		//결제 수단별 옵션
 		form.put("quotabase", cardQuotaBase);
 
+		//직접호출 카드
+		form.put("d_card", request.widget.getString("cardType"));
+		//직접호출 할부
+		if(!CommonUtil.isNullOrSpace(request.widget.getString("installment"))) {
+			if(request.widget.getInt("installment") <= mchtTmnMap.getInt("apiMaxInstall")) {
+				form.put("d_quota", request.widget.getString("installment"));
+			}
+		}
 
 		//form 처리
 		request.widget.put("form", GsonUtil.toJson(form));

@@ -234,7 +234,7 @@ var C3MOD = (function (win, doc) {
 
     function setForm(config) {
         var f = doc.createElement("form");
-        f.setAttribute("name", "payment");
+        f.setAttribute("name", "form");
         f.setAttribute("method", "post");
         f.setAttribute("action",config.targetUrl);
         document.body.appendChild(f);
@@ -248,16 +248,23 @@ var C3MOD = (function (win, doc) {
             console.log(key + ' : ' + val);
             f.appendChild(elem);
         }
+        f.charset = "euc-kr";
 
-        if (/edge/.test(navigator.userAgent.toLowerCase()) || /MSIE/.test(navigator.userAgent) || /Trident.*rv[ :]*11\./.test(navigator.userAgent) ) {
-            var befCharset = document.charset;
-            f.charset = "euc-kr";
-            f.submit();
-            document.charset = befCharset;
+        if(config.device == 'mobile') {
+            GX_pay("form", "submit", "https_pay");
         } else {
-            f.acceptCharset = "euc-kr";
-            f.submit();
+            GX_pay("form", "layerpopup", "https_pay");
         }
+
+        // if (/edge/.test(navigator.userAgent.toLowerCase()) || /MSIE/.test(navigator.userAgent) || /Trident.*rv[ :]*11\./.test(navigator.userAgent) ) {
+        //     var befCharset = document.charset;
+        //     f.charset = "euc-kr";
+        //     f.submit();
+        //     document.charset = befCharset;
+        // } else {
+        //     f.acceptCharset = "euc-kr";
+        //     f.submit();
+        // }
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
