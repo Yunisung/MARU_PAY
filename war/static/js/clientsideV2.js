@@ -256,7 +256,7 @@ var MARU = (function (win, doc) {
 	doc.getElementById('c3_pop_overlay').style.display = 'none';
     doc.getElementById('c3pop_content_fixed').style.display = 'none';
     doc.getElementById('c3_pop_iframe').src = 'about:blank';
-    win.location.href = "imderi://inappbrowser/close";
+    window.location.href = "imderi://inappbrowser/close";
   }
 
   function payResult (data) {
