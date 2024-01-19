@@ -226,11 +226,12 @@ var C3MOD = (function (win, doc) {
     }
 
     function getConfigByToken(token, successFnc, errorFnc) {
-        util.getAjax('/api/3d/widget/' + token, successFnc, errorFnc);
+        util.getAjax('/api/3dV2/widget/' + token, successFnc, errorFnc);
     }
 
     function setForm(config) {
         var f = doc.createElement("form");
+        f.setAttribute("name", "form");
         f.setAttribute("action", config.targetUrl);
         f.setAttribute("method", "post");
         document.body.appendChild(f);
@@ -242,50 +243,59 @@ var C3MOD = (function (win, doc) {
             elem.setAttribute("value", val);
             f.appendChild(elem);
         }
-      	f.setAttribute("target", "payment");
-   
-        if(config.device != 'mobile') {
-            var agent = navigator.userAgent;
-            var midx = agent.indexOf("MSIE");
-            var out_size = (midx != -1 && agent.charAt(midx + 5) < '7');
+        f.charset = "euc-kr";
 
-            var width_ = config.width;
-            var height_ = out_size ? config.height + 60 : config.height;
-            var left_ = screen.width;
-            var top_ = screen.height;
-
-            left_ = left_ / 2 - (width_ / 2);
-            top_ = top_ / 2 - (height_ / 2);
-            //op = window.open('about:blank', 'AuthFrmUp', 'height=' + height_ + ',width=' + width_ + ',status=yes,scrollbars=no,resizable=no,left=' + left_ + ',top=' + top_ + '');
-         	var option = "width=" + width_ + ",height="+height_+",toolbar=no,location=no,status=yes,menubar=no,scrollbars=no,resizable=no,left="+ left_+",top="+top_+"";
-            op = window.open("", "payment", option);
-
-            if (op == null) {
-                alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
-                return false;
-            }
-            f.setAttribute("target", "AuthFrmUp");
+        if(config.device == 'mobile') {
+            GX_pay("form", "submit", "https_pay");
         } else {
-           if(util.isKakaotalk()){
-              f.setAttribute("target", "AuthFrmUp");
-           }else if(util.isMtouch()){
-              f.setAttribute("target", "_self");
-           }else{
-              f.setAttribute("target", "_top");
-           }
+            GX_pay("form", "layerpopup", "https_pay");
         }
-      
-	      //인코딩 euc-kr 처리
-	      //f.acceptCharset = "euc-kr";
-	      if (/edge/.test(navigator.userAgent.toLowerCase()) || /MSIE/.test(navigator.userAgent) || /Trident.*rv[ :]*11\./.test(navigator.userAgent) ) {
-	         var befCharset = document.charset;
-	         f.charset = "euc-kr";
-	         f.submit();
-	         document.charset = befCharset;
-	      } else {
-	         f.acceptCharset = "euc-kr";
-	         f.submit();
-	      }
+
+
+      	// f.setAttribute("target", "payment");
+        //
+        // if(config.device != 'mobile') {
+        //     var agent = navigator.userAgent;
+        //     var midx = agent.indexOf("MSIE");
+        //     var out_size = (midx != -1 && agent.charAt(midx + 5) < '7');
+        //
+        //     var width_ = config.width;
+        //     var height_ = out_size ? config.height + 60 : config.height;
+        //     var left_ = screen.width;
+        //     var top_ = screen.height;
+        //
+        //     left_ = left_ / 2 - (width_ / 2);
+        //     top_ = top_ / 2 - (height_ / 2);
+        //     //op = window.open('about:blank', 'AuthFrmUp', 'height=' + height_ + ',width=' + width_ + ',status=yes,scrollbars=no,resizable=no,left=' + left_ + ',top=' + top_ + '');
+        //  	var option = "width=" + width_ + ",height="+height_+",toolbar=no,location=no,status=yes,menubar=no,scrollbars=no,resizable=no,left="+ left_+",top="+top_+"";
+        //     op = window.open("", "payment", option);
+        //
+        //     if (op == null) {
+        //         alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+        //         return false;
+        //     }
+        //     f.setAttribute("target", "AuthFrmUp");
+        // } else {
+        //    if(util.isKakaotalk()){
+        //       f.setAttribute("target", "AuthFrmUp");
+        //    }else if(util.isMtouch()){
+        //       f.setAttribute("target", "_self");
+        //    }else{
+        //       f.setAttribute("target", "_top");
+        //    }
+        // }
+        //인코딩 euc-kr 처리
+        // f.acceptCharset = "euc-kr";
+        // if (/edge/.test(navigator.userAgent.toLowerCase()) || /MSIE/.test(navigator.userAgent) || /Trident.*rv[ :]*11\./.test(navigator.userAgent) ) {
+        //     var befCharset = document.charset;
+        //     f.charset = "euc-kr";
+        //     f.submit();
+        //     document.charset = befCharset;
+        // } else {
+        //     f.acceptCharset = "euc-kr";
+        //     f.submit();
+        // }
+
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
