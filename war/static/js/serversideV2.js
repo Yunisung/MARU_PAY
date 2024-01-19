@@ -315,9 +315,9 @@ function openPayment(config) {
             }
         } else {
             /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
-        	// alert(res.result.advanceMsg);
-        	// postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
-            if(window.opener != undefined && window.opener != null) {
+        	alert(res.result.advanceMsg);
+        	postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
+            /*if(window.opener != undefined && window.opener != null) {
                 alert(window.opener + "opener 있음");
                 postMessages.layerClosed();
                 window.close();
@@ -325,7 +325,9 @@ function openPayment(config) {
                 alert(res.result.advanceMsg);
                 postMessages.layerClosed();
                 window.close();
-            }
+            }*/
+            // callback 수행
+            location.href = "imderi://inappbrowser/close";
         }
 
     }, function(err) {
