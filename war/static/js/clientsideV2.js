@@ -6,6 +6,7 @@ var MARU = (function (win, doc) {
     amount: 0,        // 필수값
     trackId: '',
     responseFunction: '',
+    validationFunction: '',
     redirectUrl: '',
     webhookUrl: '',
     widgetLogoUrl: '',
@@ -256,7 +257,6 @@ var MARU = (function (win, doc) {
 	doc.getElementById('c3_pop_overlay').style.display = 'none';
     doc.getElementById('c3pop_content_fixed').style.display = 'none';
     doc.getElementById('c3_pop_iframe').src = 'about:blank';
-    window.location.href = "imderi://inappbrowser/close";
   }
 
   function payResult (data) {
@@ -296,6 +296,13 @@ var MARU = (function (win, doc) {
     }
   }
 
+  function callValidationFunction() {
+    var validationFnc = c3Config.validationFunction;
+    if(validationFnc && typeof validationFnc == 'function') {
+      validationFnc();
+    }
+  }
+
 
   /*==== 실행 구문 ====*/
   function init() {
@@ -323,6 +330,9 @@ var MARU = (function (win, doc) {
         echoResult(recv.data.result);
       } else if (recv.type === 'REFUND_RESULT') {
         refundResult(recv.data);
+      } else if (recv.type === 'VALIDATION_RESULT') {
+        layerClosed();
+        callValidationFunction();
       }
     });
 
