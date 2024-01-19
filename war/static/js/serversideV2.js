@@ -301,8 +301,9 @@ function openPayment(config) {
         if (res.result.resultCd == '0000') {
             var url = window.location.protocol + "//" + window.location.host + res.widget.routeUrl;
             ServerUtil.resizeWindow(res);
-
-            if (config.c3Config.mode == 'popup') {
+            console.log('url : '+ url);
+            console.log('mode : ' + config.c3Config.mode);
+            if (config.c3Config.mode === 'popup') {
                 popup(url);
             } else {
                 if(res.widget.target == 'REGULAR') document.getElementById('iframe-payment').style.backgroundColor = 'whitesmoke';
@@ -314,13 +315,16 @@ function openPayment(config) {
             }
         } else {
             /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
-            console.log('dd');
-        	alert(res.result.advanceMsg);
-        	postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
+        	// alert(res.result.advanceMsg);
+        	// postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
             if(opener != undefined && opener != null) {
+                alert(opener);
                 console.log('opener', opener);
-                self.close();
+                postMessages.layerClosed();
+                window.close();
             } else {
+                alert(res.result.advanceMsg);
+                postMessages.layerClosed();
                 console.log('opener는 없습니다.');
             }
         }
