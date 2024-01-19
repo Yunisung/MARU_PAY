@@ -327,7 +327,7 @@ function openPayment(config) {
                 window.close();
             }*/
             // callback 수행
-            location.href = "imderi://inappbrowser/close";
+            // location.href = "imderi://inappbrowser/close";
         }
 
     }, function(err) {
