@@ -318,6 +318,12 @@ function openPayment(config) {
             console.log('dd');
         	alert(res.result.advanceMsg);
         	postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
+            if(opener != undefined && opener != null) {
+                console.log('opener', opener);
+                self.close();
+            } else {
+                console.log('opener는 없습니다.');
+            }
         }
 
     }, function(err) {
