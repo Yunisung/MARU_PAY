@@ -264,6 +264,7 @@ var MARU = (function (win, doc) {
 	    var url = c3Config.redirectUrl;
 	    if (url && url.length > 1) {
 	      console.log('[CLIENT] REDIRECT: ', url);
+          alert('[CLIENT] REDIRECT: ' + url);
 	      var form = doc.createElement('form');
 	      form.method = 'GET';
 	      form.action = url;
