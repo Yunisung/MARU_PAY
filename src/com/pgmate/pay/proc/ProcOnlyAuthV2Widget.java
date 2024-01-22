@@ -94,6 +94,11 @@ public class ProcOnlyAuthV2Widget extends Proc {
                 String ownerAuth = "";
                 String accountAuth = "";
                 String arsAuth = "";
+                String useStockBank = "Y";
+
+                if(totalAuth != null) {
+                    useStockBank = totalAuth.getString("useStockBank");
+                }
                 
 
                 //생년월일 체크
@@ -124,6 +129,7 @@ public class ProcOnlyAuthV2Widget extends Proc {
                 request.widget.put("ownerAuth", ownerAuth);
                 request.widget.put("accountAuth", accountAuth);
                 request.widget.put("arsAuth", arsAuth);
+                request.widget.put("useStockBank", useStockBank);
 
                 //위젯에서 통합인증ID세팅후 인증할때마다 공유
                 String totalAuthId = TrxDAO.getTotalAuthId();

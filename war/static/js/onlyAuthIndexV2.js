@@ -199,12 +199,46 @@ var KWON = (function(win, doc) {
         document.getElementById('initOwnerAuth').value = config.ownerAuth;
         document.getElementById('initAccountAuth').value = config.accountAuth;
         document.getElementById('initArsAuth').value = config.arsAuth;
+        document.getElementById('initUseStockBank').value = config.useStockBank;
         document.getElementById('initWebKey').value = token;
 
         //230119_PYS : 주민번호 표시 여부체크
         if(config.identityCheck === 'N') {
             $('#identityTr').attr('style', "display:none;");
         }
+
+        // 230122: 증권사를 사용하지 않으면 증권사 제외
+        if(config.useStockBank === 'N') {
+            if(document.getElementById("paramBankCd")) {
+                $("#paramBankCd option[value='209']").remove();
+                $("#paramBankCd option[value='218']").remove();
+                $("#paramBankCd option[value='230']").remove();
+                $("#paramBankCd option[value='238']").remove();
+                $("#paramBankCd option[value='240']").remove();
+                $("#paramBankCd option[value='243']").remove();
+                $("#paramBankCd option[value='247']").remove();
+                $("#paramBankCd option[value='261']").remove();
+                $("#paramBankCd option[value='262']").remove();
+                $("#paramBankCd option[value='263']").remove();
+                $("#paramBankCd option[value='264']").remove();
+                $("#paramBankCd option[value='265']").remove();
+                $("#paramBankCd option[value='266']").remove();
+                $("#paramBankCd option[value='267']").remove();
+                $("#paramBankCd option[value='268']").remove();
+                $("#paramBankCd option[value='269']").remove();
+                $("#paramBankCd option[value='270']").remove();
+                $("#paramBankCd option[value='278']").remove();
+                $("#paramBankCd option[value='279']").remove();
+                $("#paramBankCd option[value='280']").remove();
+                $("#paramBankCd option[value='287']").remove();
+                $("#paramBankCd option[value='289']").remove();
+                $("#paramBankCd option[value='290']").remove();
+                $("#paramBankCd option[value='291']").remove();
+                $("#paramBankCd option[value='292']").remove();
+                $("#paramBankCd option[value='288']").remove();
+            }
+        }
+
 
 
         /** 사용자 입력 내용 */
