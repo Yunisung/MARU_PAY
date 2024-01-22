@@ -276,10 +276,13 @@ var MARU = (function (win, doc) {
 	      form.submit();
 	    }
 	}
-    var resFnc = c3Config.responseFunction;
-    if(resFnc && typeof resFnc == 'function') {
-      resFnc(data);
-    }
+    setTimeout(function () {
+      var resFnc = c3Config.responseFunction;
+      if(resFnc && typeof resFnc == 'function') {
+        resFnc(data);
+      }
+    }, 500);
+
   }
 
   function echoResult(result) {
