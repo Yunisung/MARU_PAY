@@ -290,7 +290,7 @@ public class ProcAccountHolder extends Proc {
 	public FirmBean fcsFirmBean(String vactBankCd, String bankCd, String account, String identity) {
 		FirmBean firmBean = new FirmBean();
 
-		firmBean.bankCd = "034";
+		firmBean.bankCd = "099";
 		firmBean.msgType 	= "0600400";
 		firmBean.userId		= "SYSTEM";
 		firmBean.data.put("bankCd", bankCd.trim());
