@@ -6,6 +6,7 @@ var MARU = (function (win, doc) {
     amount: 0,        // 필수값
     trackId: '',
     responseFunction: '',
+    validationFunction: '',
     redirectUrl: '',
     webhookUrl: '',
     widgetLogoUrl: '',
@@ -274,10 +275,13 @@ var MARU = (function (win, doc) {
 	      form.submit();
 	    }
 	}
-    var resFnc = c3Config.responseFunction;
-    if(resFnc && typeof resFnc == 'function') {
-      resFnc(data);
-    }
+    setTimeout(function () {
+      var resFnc = c3Config.responseFunction;
+      if(resFnc && typeof resFnc == 'function') {
+        resFnc(data);
+      }
+    }, 500);
+
   }
 
   function echoResult(result) {
@@ -292,6 +296,13 @@ var MARU = (function (win, doc) {
     var resFunc = refundData.responseFunction;
     if(resFunc && typeof resFunc == 'function') {
       resFunc(data);
+    }
+  }
+
+  function callValidationFunction() {
+    var validationFnc = c3Config.validationFunction;
+    if(validationFnc && typeof validationFnc == 'function') {
+      validationFnc();
     }
   }
 
@@ -322,6 +333,9 @@ var MARU = (function (win, doc) {
         echoResult(recv.data.result);
       } else if (recv.type === 'REFUND_RESULT') {
         refundResult(recv.data);
+      } else if (recv.type === 'VALIDATION_RESULT') {
+        layerClosed();
+        callValidationFunction();
       }
     });
 
