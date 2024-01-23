@@ -871,7 +871,7 @@ public class ProcVactAuthOpen extends Proc{
 
 
         //PG_FIRM_ACCNT에 없는 계좌는 FIRM으로 보냄
-        FirmBean firmBean = fcsFirmBeanByDozn(bankCd, account, identity);
+        FirmBean firmBean = fcsFirmBean(bankCd, account, identity);
         //더즌 FIRM 추가
 //        if(request.vact.bankCd.equals("034")) {
 //            firmBean = fcsFirmBeanByDozn(bankCd, account, identity);
