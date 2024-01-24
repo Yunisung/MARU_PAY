@@ -732,7 +732,8 @@ public class TrxDAO extends DAO {
 
 	public void insertTrxERR(String trxId) {
 
-		String q = "INSERT INTO PG_TRX_ERR  " + " SELECT A.trxId,trxType,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,issuer,acquirer,prodId,"
+		String q = "INSERT INTO PG_TRX_ERR(trxId, trxType, mchtId, tmnId, trackId, payerName, payerEmail, payerTel, amount, installment, cardId, cardType, bin, last4, issuer, acquirer, prodId, reqDay, reqTime, resultCd, resultMsg, van, vanId, vanTrxId, vanResultCd, vanResultMsg, regDay, regTime, regDate) "
+				+ " SELECT A.trxId,trxType,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,issuer,acquirer,prodId,"
 				+ " A.regDay,A.regTime,resultCd,resultMsg,van,vanId,vanTrxId,vanResultCd,vanResultMsg,B.regDay,B.regTime,B.regDate " + " FROM PG_TRX_REQ A, PG_TRX_RES B WHERE A.trxId = B.trxId AND A.trxId = '" + trxId + "'";
 		logger.info("set TRX_ERR : {}", super.update(q));
 		super.initRecord();
@@ -741,8 +742,8 @@ public class TrxDAO extends DAO {
 
 	public void insertTrxPAY(String trxId) {
 
-		//String q = "INSERT INTO PG_TRX_PAY  " + " SELECT A.trxId,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,issuer,acquirer,"
-		String q = "INSERT INTO PG_TRX_PAY  " + " SELECT A.trxId,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,rentId,issuer,acquirer,"
+		String q = "INSERT INTO PG_TRX_PAY(trxId, mchtId, tmnId, trackId, payerName, payerEmail, payerTel, amount, installment, cardId, cardType, bin, last4, status, prodId, rentId, issuer, acquirer, reqDay, reqTime, authCd, resultCd, resultMsg, van, vanId, vanTrxId, regDay, regTime, regDate) "
+				+ " SELECT A.trxId,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,rentId,issuer,acquirer,"
 				+ " A.regDay,A.regTime,authCd,resultCd,resultMsg,van,vanId,vanTrxId,B.regDay,B.regTime,B.regDate " + " FROM PG_TRX_REQ A, PG_TRX_RES B WHERE A.trxId = B.trxId AND A.trxId = '" + trxId + "'";
 		logger.info("set TRX_PAY : {}", super.update(q));
 		super.initRecord();
