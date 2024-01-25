@@ -436,6 +436,12 @@ public class ProcVactAuthOpen extends Proc{
 
     //출금계좌 유효성 검사
     private boolean regValid(Request request) {
+        //240125_PYS : 출금계좌 검증 추가
+        if(CommonUtil.isNullOrSpace(request.auth.bankCd) || CommonUtil.isNullOrSpace(request.auth.account)) {
+            response.result = ResultUtil.getResult("9999", "출금계좌 미등록", "출금계좌가 입력되지 않았습니다.");
+            return false;
+        }
+
         //블랙리스트 확인
         boolean blackList = trxDAO.blackListCheck(request.auth.bankCd, request.auth.account);
 
