@@ -275,12 +275,12 @@ var MARU = (function (win, doc) {
 	      form.submit();
 	    }
 	}
-    setTimeout(function () {
+    // setTimeout(function () {
       var resFnc = c3Config.responseFunction;
       if(resFnc && typeof resFnc == 'function') {
         resFnc(data);
       }
-    }, 500);
+    // }, 500);
 
   }
 
