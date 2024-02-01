@@ -503,7 +503,7 @@ public class ProcPay extends Proc {
 						}
 					} else if ("보증금".equals(billingType)) {
 						// 보증금일 경우 누적금액 확인
-						long beforeSum = trxDAO.getRentBeforeSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"));
+						long beforeSum = trxDAO.getRentBeforeSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"), billingMethod);
 						if (rentLimitOnce < request.pay.amount + beforeSum) {
 							logger.debug("가맹점 1회 한도초과 : {},{}", rentLimitOnce, request.pay.amount);
 							response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 보증금 거래한도 초과");
