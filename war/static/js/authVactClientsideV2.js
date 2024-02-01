@@ -22,7 +22,9 @@ var KWON = (function (win, doc) {
         amount: '',
         oper: '',
         companyName: '',
-        regType: ''
+        regType: '',
+        udf1: '',
+        udf2: ''
     }
 
     var MaruConfig = {
@@ -48,7 +50,9 @@ var KWON = (function (win, doc) {
         amount: '',
         oper: '',
         companyName: '',
-        regType: ''
+        regType: '',
+        udf1: '',
+        udf2: ''
     }
 
     /* GLOBAL */
@@ -88,7 +92,9 @@ var KWON = (function (win, doc) {
             phoneNo: MaruConfig.phoneNo,
             identity: MaruConfig.identity,
             companyName: MaruConfig.companyName,
-            regType: MaruConfig.regType
+            regType: MaruConfig.regType,
+            udf1: MaruConfig.udf1,
+            udf2: MaruConfig.udf2
         }
         sendVactData = {result: data.result, auth: data.auth, vact: vact, publicKey : MaruConfig.publicKey};
         console.log('sendData : ', sendVactData);

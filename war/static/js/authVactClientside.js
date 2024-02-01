@@ -21,7 +21,9 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		udf1: '',
+		udf2: ''
 	}
 
     var MaruConfig = {
@@ -46,7 +48,9 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		udf1: '',
+		udf2: ''
 	}
 
 	/* GLOBAL */
@@ -80,22 +84,24 @@ var KWON = (function (win, doc) {
 		publicKey: ''
 	}
 
-	function MaruResponseFunction(data) {
-		//광원인증후 결과값이 여기로 들어온다.
-		//여기 데이터를 이용해 부국서버와 통신
-		var vact = {
-			bankCd: MaruConfig.bankCd,
-			account: MaruConfig.account,
-			amount: MaruConfig.amount,
-			oper: MaruConfig.oper,
-			holderName: MaruConfig.holderName,
-			phoneNo: MaruConfig.phoneNo,
-			identity: MaruConfig.identity,
-			companyName: MaruConfig.companyName
-		}
-		sendVactData = {result: data.result, auth: data.auth, vact: vact, publicKey : MaruConfig.publicKey};
-		console.log('sendData : ', sendVactData);
-		console.log(JSON.stringify(sendVactData));
+    function MaruResponseFunction(data) {
+        //광원인증후 결과값이 여기로 들어온다.
+        //여기 데이터를 이용해 부국서버와 통신
+        var vact = {
+            bankCd: MaruConfig.bankCd,
+            account: MaruConfig.account,
+            amount: MaruConfig.amount,
+            oper: MaruConfig.oper,
+            holderName: MaruConfig.holderName,
+            phoneNo: MaruConfig.phoneNo,
+            identity: MaruConfig.identity,
+			companyName: MaruConfig.companyName,
+			udf1: MaruConfig.udf1,
+			udf2: MaruConfig.udf2
+        }
+        sendVactData = {result: data.result, auth: data.auth, vact: vact, publicKey : MaruConfig.publicKey};
+        console.log('sendData : ', sendVactData);
+        console.log(JSON.stringify(sendVactData));
 
 		// var jsonVactData = JSON.stringify(sendVactData);
 		// console.log('-----------------');
