@@ -1,11 +1,6 @@
 package com.pgmate.pay.proc;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import com.pgmate.pay.bean.Product;
-import com.pgmate.pay.bean.Rebill;
 import com.pgmate.pay.bean.Rent;
-import com.pgmate.pay.util.SmsGw;
 import com.pgmate.pay.van.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,9 +95,11 @@ public class ProcPay extends Proc {
 			van = new Firstpay(tmnVanMap);
 		}else if(mchtTmnMap.startsWith("van", "GALAXIA")){
 			van = new Galaxia(tmnVanMap);
-		}else if(mchtTmnMap.startsWith("van", "WELCOME")){
-			van = new WelcomeO(tmnVanMap);
-		}else{
+		}else if(mchtTmnMap.isEquals("van", "WELCOMESUB")){
+			van = new WelcomeSub(tmnVanMap);
+		}else if(mchtTmnMap.isEquals("van", "WELCOME")){
+			van = new Welcome(tmnVanMap);
+		} else{
 			//mchtTmnMap.put("van","DEFAULT");
 			//van = new DemoVan(tmnVanMap);
 

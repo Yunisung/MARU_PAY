@@ -506,7 +506,7 @@ public class TrxDAO extends DAO {
 	public SharedMap<String,Object> getDBIssuer(String bin){
 		SharedMap<String,Object> issuerMap = new SharedMap<String,Object>();
 		if(CommonUtil.isNullOrSpace(bin)){
-			return issuerMap;
+			return null;
 		}
 		
 		String key = "PG_CODE_BIN_" + bin;
@@ -971,6 +971,19 @@ public class TrxDAO extends DAO {
 		}else {
 			return null;
 		}
+	}
+
+	public SharedMap<String, Object> getTrxReqByTrackId(String tmnId, String trackId, String trxDay, long amount) {
+		super.setTable("PG_TRX_REQ");
+		super.setColumns("*");
+		super.addWhere("regDay", trxDay, eq);
+		super.addWhere("tmnId", tmnId, eq);
+		super.addWhere("trackId", trackId, eq);
+		super.addWhere("amount", amount, eq);
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRow(0);
+
 	}
 
 	public SharedMap<String, Object> getTrxByVanTrxId(String van,String vanTrxId) {
@@ -2172,9 +2185,25 @@ public class TrxDAO extends DAO {
 		super.setRecord("mchtId", ioMap.getString("mchtId"));
 		super.setRecord("tmnId", ioMap.getString("tmnId"));
 		super.setRecord("trackId", ioMap.getString("trackId"));
-		super.setRecord("payerName", widgetMap.getString("payerName"));
-		super.setRecord("payerEmail", widgetMap.getString("payerEmail"));
-		super.setRecord("payerTel", widgetMap.getString("payerTel"));
+
+		if(!CommonUtil.isNullOrSpace(widgetMap.getString("payerName"))) {
+			super.setRecord("payerName", widgetMap.getString("payerName"));
+		} else {
+			super.setRecord("payerName", widgetMap.getString("userName"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(widgetMap.getString("payerName"))) {
+			super.setRecord("payerEmail", widgetMap.getString("payerName"));
+		} else {
+			super.setRecord("payerEmail", widgetMap.getString("userEmail"));
+		}
+
+		if(!CommonUtil.isNullOrSpace(widgetMap.getString("payerTel"))) {
+			super.setRecord("payerTel", widgetMap.getString("payerTel"));
+		} else {
+			super.setRecord("payerTel", widgetMap.getString("userTel"));
+		}
+
 		super.setRecord("amount", ioMap.getLong("amount"));
 		super.setRecord("cardId", ioMap.getString("cardId"));	
 		super.setRecord("issuer", ioMap.getString("issuer"));
