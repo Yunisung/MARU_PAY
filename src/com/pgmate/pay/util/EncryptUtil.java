@@ -14,6 +14,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 public class EncryptUtil {
 	public static final String CHARSET_UTF8 = "UTF-8";
@@ -65,6 +66,22 @@ public class EncryptUtil {
         }
     }
 
+    public static String aesEncrypt(String text, String key, String iv) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
+            IvParameterSpec ivParamSpec = new IvParameterSpec(iv.getBytes());
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParamSpec);
+
+            byte[] encrypted = cipher.doFinal(text.getBytes("UTF-8"));
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 필요에 따라 예외처리 수행
+            return null;
+        }
+    }
+
     public static String aes256Decrypt(String keyStr, String ivStr, CharSequence encryptedText) {
         if (encryptedText == null || encryptedText.length() == 0) {
             return null;
@@ -85,6 +102,29 @@ public class EncryptUtil {
     private static SecretKey getSecretKey(String keyStr) {
         byte[] keyData = Hex.decode(keyStr);
         return new SecretKeySpec(keyData, AES);
+    }
+
+    /**
+     * @MethodName  : hash
+     * @Description : hash 생성
+     */
+    public static String hash(String data, String algorithm) throws Exception {
+        // SHA를 사용하기 위해 MessageDigest 클래스로부터 인스턴스를 얻는다.
+        MessageDigest md = MessageDigest.getInstance(algorithm);
+        // 해싱할 byte배열을 넘겨준다.
+        // SHA-256의 경우 메시지로 전달할 수 있는 최대 bit 수는 2^64-1개 이다.
+        md.update(data.getBytes("UTF-8"));
+
+        // 해싱된 byte 배열을 digest메서드의 반환값을 통해 얻는다.
+        byte[] hashbytes = md.digest();
+
+        // 보기 좋게 16진수로 만드는 작업
+        StringBuilder sbuilder = new StringBuilder();
+        for(int i=0 ; i<hashbytes.length ; i++){
+            // %02x 부분은 0 ~ f 값 까지는 한자리 수이므로 두자리 수로 보정하는 역할을 한다.
+            sbuilder.append(String.format("%02x", hashbytes[i] & 0xff));
+        }
+        return sbuilder.toString();
     }
 
 

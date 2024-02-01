@@ -8,17 +8,11 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
-import com.galaxia.api.MessageTag;
-import com.galaxia.api.crypto.CryptoUtil;
-import com.pgmate.app.util.CryptUtil;
-import com.pgmate.pay.util.AES256Cipher;
-import com.pgmate.pay.util.GalaxiaUtil;
-import org.json.simple.JSONObject;
+import com.pgmate.pay.util.WelcomeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +26,9 @@ import com.pgmate.pay.proc.ResultUtil;
 import com.pgmate.pay.util.EncryptUtil;
 
 
-public class WelcomeO implements Van{
+public class WelcomeSub implements Van{
 	
-	private static Logger logger 	= LoggerFactory.getLogger( com.pgmate.pay.van.WelcomeO.class ); 
+	private static Logger logger 	= LoggerFactory.getLogger( WelcomeSub.class );
 	
 	static final String ERC_NETWORK_ERROR 	= "-1";
 	static final String ERM_NETWORK 		= "Network Error";
@@ -46,22 +40,22 @@ public class WelcomeO implements Van{
 
 	private static final String cancel_uri		= "https://payapi.welcomepayments.co.kr/api/payment/cancel";
 	private static final String approval_uri	= "https://payapi.welcomepayments.co.kr/api/payment/approval";
-	
+
 	private String mid 					= "";
 	private String VAN					= "";
 	private String tmnId 				= "";
 	private String mchtId 				= "";
 	private String KEY					= "";
 	private String IV					= "";
+	private String trxType				= "";
 
-	
 	private SharedMap<String, Object> trxMap  = null;
 	
-	public WelcomeO() {
+	public WelcomeSub() {
 		
 	}
 
-	public WelcomeO(SharedMap<String, Object> vanMap) {
+	public WelcomeSub(SharedMap<String, Object> vanMap) {
 		mid = vanMap.getString("vanId").trim();
 		VAN = vanMap.getString("van");
 		tmnId = vanMap.getString("tmnId");
@@ -69,7 +63,7 @@ public class WelcomeO implements Van{
 
 		KEY = vanMap.getString("cryptoKey");
 		IV = vanMap.getString("secondKey");
-
+		trxType = vanMap.getString("trxType");
 	}
 
 	@Override
@@ -79,7 +73,7 @@ public class WelcomeO implements Van{
 		reqMap.put("pay_type", "CREDIT_CARD");
 		reqMap.put("pay_method", "CREDIT_UNAUTH_API");
 
-		reqMap.put("card_no", AES256Cipher(response.pay.card.number));
+		reqMap.put("card_no",AES256Cipher(response.pay.card.number));
 		reqMap.put("card_expiry_ym", response.pay.card.expiry);
 
 		// 구인증일때
@@ -139,6 +133,8 @@ public class WelcomeO implements Van{
 			response.result = ResultUtil.getResult("0000","정상","정상승인");
 			response.pay.authCd = authNumber;
 			response.pay.transactionDate = authDate;
+			sharedMap.put("van",VAN);
+			sharedMap.put("vanId",mid);
 			sharedMap.put("vanTrxId", transaction_no);
 			sharedMap.put("vanResultCd","0000");
 			sharedMap.put("vanResultMsg","정상승인");
@@ -159,63 +155,130 @@ public class WelcomeO implements Van{
 	public SharedMap<String, Object> refund(TrxDAO trxDAO, SharedMap<String, Object> sharedMap, SharedMap<String, Object> payMap, Response response) {
 		SharedMap<String, Object> reqMap = new SharedMap<>();
 
-		reqMap.put("pay_type", "CREDIT_CARD");	// 결제구분 (신용카드: CREDIT_CARD, 계좌이체: ACCNT, 가상계좌: VACCNT)
+		if(trxType.equals("ONTR")) {
+			//수기결제 취소
+			reqMap.put("pay_type", "CREDIT_CARD");	// 결제구분 (신용카드: CREDIT_CARD, 계좌이체: ACCNT, 가상계좌: VACCNT)
 
-		String rfdAmt = CommonUtil.toString(response.refund.amount);
-		trxMap = trxDAO.getTrxByWelcomeTrxId(payMap.getString("vanTrxId"));
-		
-		if(rfdAmt.equals(trxMap.getString("amount"))) {
-			reqMap.put("transaction_type", "CANCEL");
+			String rfdAmt = CommonUtil.toString(response.refund.amount);
+			trxMap = trxDAO.getTrxByWelcomeTrxId(payMap.getString("vanTrxId"));
+
+			if(rfdAmt.equals(trxMap.getString("amount"))) {
+				reqMap.put("transaction_type", "CANCEL");
+			} else {
+				reqMap.put("transaction_type", "PART_CANCEL");
+			}
+
+			reqMap.put("mid", mid);
+			reqMap.put("user_id","-");
+			reqMap.put("transaction_no", payMap.getString("vanTrxId"));
+
+
+			reqMap.put("amount", rfdAmt);
+			reqMap.put("cancel_reason", "고객요청");
+			reqMap.put("ip_address", "222.234.3.121");
+
+			//옵션값
+			reqMap.put("email", "");
+			reqMap.put("email_send_yn", "N");
+
+			String millis = String.valueOf(System.currentTimeMillis());
+			reqMap.put("millis", millis);
+
+			String hash_value = "";
+
+			try {
+				hash_value = EncryptUtil.sha256(mid + reqMap.getString("transaction_type") + reqMap.getString("transaction_no") + reqMap.getString("amount") + millis + KEY);
+			} catch (Exception e) {
+				e.printStackTrace();
+				response.result = ResultUtil.getResult("9999","취소실패","결제 시스템 오류로 취소에 실패하였습니다.");
+				return sharedMap;
+			}
+
+			reqMap.put("hash_value", hash_value);
+
+			SharedMap<String, Object> responseMap = new SharedMap<>();
+			responseMap = cancelRequest(cancel_uri, reqMap.toJson());
+
+
+			//결과값 처리
+			if(responseMap.getString("result_code").equals("0000")) {
+				response.refund.authCd = payMap.getString("authCd");
+				response.refund.transactionDate = responseMap.getString("cancel_ymdhms");
+				response.refund.trxType = trxType;
+				response.result 	= ResultUtil.getResult("0000","정상","정상취소");
+			}else {
+				response.result 	= ResultUtil.getResult(responseMap.getString("result_code"),"취소실패",responseMap.getString("result_message"));
+			}
+
+			sharedMap.put("van",VAN);
+			sharedMap.put("vanId",mid);
+			sharedMap.put("vanTrxId",reqMap.getString("transaction_no"));
+			sharedMap.put("vanResultCd",responseMap.getString("result_code"));
+			sharedMap.put("vanResultMsg",responseMap.getString("result_message"));
 		} else {
-			reqMap.put("transaction_type", "PART_CANCEL");
+			//인증결제 취소
+			HashMap reqHm = new HashMap();
+			HashMap resHm = null;
+			String szAllatEncData = "";
+			String szReqMsg = "";
+
+			//정보입력
+			String szCrossKey      = KEY;	// 해당 CrossKey값
+			String szShopId        = mid;	// ShopId 값(최대 20Byte)
+			String szAmt           = CommonUtil.toString(response.refund.amount);	// 취소 금액(최대 10Byte)
+			String szOrderNo       = response.refund.trackId;	// 주문번호(최대 80Byte)
+			String szPayType       = "CARD";	// 원거래건의 결제방식[카드:CARD,계좌이체:ABANK]
+			String szSeqNo         = payMap.getString("vanTrxId");	// 거래일련번호:옵션필드(최대 10Byte)
+
+			reqHm.put("allat_shop_id" ,  szShopId );
+			reqHm.put("allat_order_no",  szOrderNo);
+			reqHm.put("allat_amt"     ,  szAmt    );
+			reqHm.put("allat_pay_type",  szPayType);
+			reqHm.put("allat_test_yn" ,  "N"      );	//테스트 :Y, 서비스 :N
+			reqHm.put("allat_opt_pin" ,  "NOUSE"  );	//수정금지(올앳 참조 필드)
+			reqHm.put("allat_opt_mod" ,  "APP"    );	//수정금지(올앳 참조 필드)
+			reqHm.put("allat_seq_no"  ,  szSeqNo  );	//옵션 필드( 삭제 가능함 )
+
+			WelcomeUtil util = new WelcomeUtil();
+
+			szAllatEncData = util.setValue(reqHm);
+			szReqMsg  = "allat_shop_id="   + szShopId
+					+ "&allat_amt="      + szAmt
+					+ "&allat_enc_data=" + szAllatEncData
+					+ "&allat_cross_key="+ szCrossKey;
+
+			resHm = util.cancelReq(szReqMsg, "SSL");
+
+			String sReplyCd   = (String)resHm.get("reply_cd");
+			String sReplyMsg  = (String)resHm.get("reply_msg");
+
+			if( sReplyCd.equals("0000") ){
+				// reply_cd "0000" 일때만 성공
+				String sCancelYMDHMS    = (String)resHm.get("cancel_ymdhms");
+				String sPartCancelFlag  = (String)resHm.get("part_cancel_flag");
+				String sRemainAmt       = (String)resHm.get("remain_amt");
+				String sPayType         = (String)resHm.get("pay_type");
+
+				response.refund.authCd = payMap.getString("authCd");
+				response.refund.transactionDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
+				response.refund.trxType = trxType;
+				response.result 	= ResultUtil.getResult("0000","정상","정상취소");
+
+			}else{
+				// reply_cd 가 "0000" 아닐때는 에러 (자세한 내용은 매뉴얼참조)
+				// reply_msg 가 실패에 대한 메세지
+				response.result 	= ResultUtil.getResult(sReplyCd,"취소실패",sReplyMsg);
+			}
+
+			sharedMap.put("van",VAN);
+			sharedMap.put("vanId",mid);
+			sharedMap.put("vanTrxId",payMap.getString("vanTrxId"));
+			sharedMap.put("vanResultCd",sReplyCd);
+			sharedMap.put("vanResultMsg",sReplyMsg);
+
 		}
 
-		reqMap.put("mid", mid);
-		reqMap.put("user_id","-");
-		reqMap.put("transaction_no", payMap.getString("vanTrxId"));
 
-
-		reqMap.put("amount", rfdAmt);
-		reqMap.put("cancel_reason", "고객요청");
-		reqMap.put("ip_address", "222.234.3.121");
-		
-		//옵션값
-		reqMap.put("email", "");
-		reqMap.put("email_send_yn", "N");
-		
-		String millis = String.valueOf(System.currentTimeMillis());
-		reqMap.put("millis", millis);
-		
-		String hash_value = "";
-
-		try {
-			hash_value = EncryptUtil.sha256(mid + reqMap.getString("transaction_type") + reqMap.getString("transaction_no") + reqMap.getString("amount") + millis + KEY);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response.result = ResultUtil.getResult("9999","취소실패","결제 시스템 오류로 취소에 실패하였습니다.");
-			return sharedMap;
-		}
-
-		reqMap.put("hash_value", hash_value);
-
-		SharedMap<String, Object> responseMap = new SharedMap<>();
-		responseMap = cancelRequest(cancel_uri, reqMap.toJson());
-
-		
-		//결과값 처리
-		if(responseMap.getString("result_code").equals("0000")) {
-			response.refund.authCd = payMap.getString("authCd");
-			response.refund.transactionDate = responseMap.getString("cancel_ymdhms");
-			response.result 	= ResultUtil.getResult("0000","정상","정상취소");
-		}else {
-			response.result 	= ResultUtil.getResult(responseMap.getString("result_code"),"취소실패",responseMap.getString("result_message"));
-		}
-
-		sharedMap.put("van",VAN);
-		sharedMap.put("vanId",mid);
-		sharedMap.put("vanTrxId",reqMap.getString("transaction_no"));
-		sharedMap.put("vanResultCd",responseMap.getString("result_code"));
-		sharedMap.put("vanResultMsg",responseMap.getString("result_message"));
 
 		return sharedMap;
 	}
@@ -321,7 +384,7 @@ public class WelcomeO implements Van{
 			response.put("amount", jsonObject.get("amount").getAsString());
 			response.put("card_code", jsonObject.get("card_code").getAsString());
 			response.put("card_name", jsonObject.get("card_name").getAsString());
-			response.put("card_sell_nm", jsonObject.get("card_sell_nm").getAsString());
+			response.put("card_sell_mm", jsonObject.get("card_sell_mm").getAsString());
 			response.put("user_name", jsonObject.get("user_name").getAsString());
 			response.put("product_name", jsonObject.get("product_name").getAsString());
 		}
@@ -354,6 +417,7 @@ public class WelcomeO implements Van{
 
   	public String AES256Cipher(String plainText) {
 		return EncryptUtil.aes256Encrypt(KEY, IV, plainText);
+//		return EncryptUtil.aesEncrypt(plainText, KEY, IV);
   	}
 
 }
