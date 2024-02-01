@@ -5947,11 +5947,12 @@ public class TrxDAO extends DAO {
 		return rset.getRowFirst().getLong("totAmount");
 	}
 
-	public long getRentBeforeSum(String mchtId, String billingMethod) {
-		super.setTable("PG_TRX_CAP");
+	public long getRentBeforeSum(String yearMonth, String mchtId, String billingMethod) {
+		super.setTable("VW_TRX_CAP");
 		super.setColumns("SUM(amount) as totAmount");
 		super.addWhere("mchtId", mchtId, eq);
 		//super.addWhere("capType", "매입", eq);
+		super.addWhere("substr(trxDay, 1, 6)", yearMonth, eq);
 		super.addWhere("billingMethod", billingMethod, eq);
 		super.addWhere("serviceType", "월세앱", eq);
 		RecordSet rset = super.search();
