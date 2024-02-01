@@ -220,7 +220,13 @@ public class Api {
 			} else if (uri.startsWith(PAYUNIT.API_ARSV3_AUTH)) {
 				process = new ProcArsV3Auth();
 			} else if (uri.startsWith(PAYUNIT.API_WELCOME_RETURN)) {
-				process = new ProcWelcomReturn();
+				process = new ProcWelcomeReturn();
+			} else if (uri.startsWith(PAYUNIT.API_WELCOME_MOBILE_RETURN)) {
+				process = new ProcWelcomeMobileReturn();
+			} else if (uri.startsWith(PAYUNIT.API_WELCOME_SUB_RETURN)) {
+				process = new ProcWelcomeSubReturn();
+			} else if (uri.startsWith(PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN)) {
+				process = new ProcWelcomeSubMobileReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -324,7 +330,11 @@ public class Api {
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_PAYCO_MOBILE_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_LPAY_RETURN) ||
-			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_LPAY_MOBILE_RETURN)) {
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_LPAY_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_SUB_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN) ) {
 			return true;
 		}
 

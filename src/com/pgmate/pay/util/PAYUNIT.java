@@ -118,6 +118,9 @@ public class PAYUNIT {
 	public static String API_ARSV3_AUTH				= "/api/ars/v3/auth/async";
 
 	public static String API_WELCOME_RETURN			= "/api/welcome/return";
+	public static String API_WELCOME_MOBILE_RETURN	= "/api/welcome/mobile/return";
+	public static String API_WELCOME_SUB_RETURN		= "/api/welcome/sub/return";
+	public static String API_WELCOME_SUB_MOBILE_RETURN = "/api/welcome/sub/mobile/return";
 
 
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
