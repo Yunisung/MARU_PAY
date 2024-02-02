@@ -37,7 +37,8 @@ public class ProcSettleTransferTest {
     }
 
     private void createEnvironment(Request request) {
-        SharedMap<String, Object> mchtTmn = trxDAO.getMchtTmnByTmnId("2004574928");
+        //SharedMap<String, Object> mchtTmn = trxDAO.getMchtTmnByTmnId("2004574928");
+        SharedMap<String, Object> mchtTmn= trxDAO.getMchtTmnByPayKey("pk_20d4-1143d4-552-43a61");
         SharedMap<String, Object> mcht = trxDAO.getMchtByMchtId(mchtTmn.getString("mchtId"));
         SharedMap<String, Object> mchtMng = trxDAO.getMchtMngByMchtId(mchtTmn.getString("mchtId"));
 
@@ -55,10 +56,11 @@ public class ProcSettleTransferTest {
     public void 출금테스트() {
         Request request = new Request();
         request.transfer = new Transfer();
-        request.transfer.account = "100035419428";
-        request.transfer.bankCd = "088";
+        request.transfer.account = "087120852531";
+        request.transfer.bankCd = "032";
         request.transfer.amount = 3000;
-        request.transfer.trackId = "order_202211091503011";
+        request.transfer.trackId = "order_202211091503012";
+        request.transfer.transferKey = "ct_fcf6-2a1abf-2fd-558bd";
         request.transfer.recordInfo = "테스트";
         createEnvironment(request);
 

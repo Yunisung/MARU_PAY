@@ -134,19 +134,10 @@ public class TrxDAOTest {
             logger.info("trxId: {}", data.getString("trxId"));
             recoveryTrxDAO.insertTrxPAY(data.getString("trxId"));
         }
-        //recoveryTrxDAO.insertTrxPAY("T240123012994");
+        //recoveryTrxDAO.insertTrxPAY("T240123048866");
     }
 
-    public class RecoveryTrxDAO extends DAO {
-        public void insertTrxPAY(String trxId) {
-
-            String q = "INSERT INTO PG_TRX_PAY  " + " SELECT A.trxId,mchtId,tmnId,trackId,payerName,payerEmail,payerTel,amount,installment,cardId,cardType,bin,last4,'승인',prodId,rentId,issuer,acquirer,"
-                    + " A.regDay,A.regTime,authCd,resultCd,resultMsg,van,vanId,vanTrxId,B.regDay,B.regTime,B.regDate " + " FROM PG_TRX_REQ A, PG_TRX_RES B WHERE A.trxId = B.trxId AND A.trxId = '" + trxId + "'";
-            logger.info("set TRX_PAY : {}", super.update(q));
-            super.initRecord();
-
-        }
-
+    public class RecoveryTrxDAO extends TrxDAO {
         public RecordSet getRecoveryData(String regDay) {
             String q = "SELECT * FROM PG_TRX_REQ WHERE regDay = '" + regDay + "' " +
                     "   AND trxId IN (SELECT trxId FROM PG_TRX_RES ptr WHERE regDay = '" + regDay + "' AND resultCd = '0000')" +
@@ -156,5 +147,11 @@ public class TrxDAOTest {
             super.initRecord();
             return rset;
         }
+    }
+
+    @Test
+    public void getRentBeforeSum() {
+        long amount = trxDAO.getRentBeforeSum("202401", "rtl20240131161419", "보증금");
+        logger.info("amount: {}", amount);
     }
 }

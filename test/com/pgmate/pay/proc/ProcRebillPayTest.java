@@ -39,7 +39,7 @@ public class ProcRebillPayTest {
     }
 
     private void createEnvironment(Request request, String rebillId) {
-        SharedMap<String, Object> mchtTmn= trxDAO.getMchtTmnByPayKey("pk_bc4e-4920e6-be5-06c67");
+        SharedMap<String, Object> mchtTmn= trxDAO.getMchtTmnByPayKey("pk_15ed-411db1-ac2-5242a");
         SharedMap<String, Object> mcht = trxDAO.getMchtByMchtId(mchtTmn.getString("mchtId"));
         SharedMap<String, Object> mchtMng = trxDAO.getMchtMngByMchtId(mchtTmn.getString("mchtId"));
 
@@ -57,7 +57,7 @@ public class ProcRebillPayTest {
     @Test
     public void executeApiCall() {
         Request request = new Request();
-        String rebillId = "rb_c722-140161-6cd-e8590";
+        String rebillId = "rb_6f55-02c42d-5d5-914ab";
         createEnvironment(request, rebillId);
 
         procRebillPay.response = new Response();

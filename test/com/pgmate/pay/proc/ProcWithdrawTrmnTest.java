@@ -135,14 +135,17 @@ public class ProcWithdrawTrmnTest {
     @Test
     public void 가상계좌_사용자만료_다건() {
 
-        String tmnId = "TMN000029";     // 프리랩4: prelab / TMN002782, 프리랩5: prelab3 / TMN002953,
+        // 프리랩1: sptiket / TMN001644
+        // 프리랩3: sptiket3 / TMN002927
+        // 프리랩4: prelab / TMN002782
+        // 프리랩5: prelab3 / TMN002953
+        String tmnId = "TMN001644";
         String issueId = "";
         SharedMap<String, Object> mchtTmn = trxDAO.getMchtTmnByTmnId(tmnId);
         SharedMap<String, Object> mcht = trxDAO.getMchtByMchtId(mchtTmn.getString("mchtId"));
         SharedMap<String, Object> mchtMng = trxDAO.getMchtMngByMchtId(mchtTmn.getString("mchtId"));
-        List<SharedMap<String,Object>> vactDtls = trxDAO.getVactDtlList(mchtTmn.getString("mchtId"), "발행", "039");
+        List<SharedMap<String,Object>> vactDtls = trxDAO.getVactDtlList(mchtTmn.getString("mchtId"), "발행", "089");
 
-        logger.debug("전체건수: {}", vactDtls.size());
         for(SharedMap<String,Object> list : vactDtls) {
             logger.debug("issueId: {}", list.getString("issueId"));
             issueId = list.getString("issueId");
@@ -159,6 +162,8 @@ public class ProcWithdrawTrmnTest {
             sharedObject.put("mcht", mcht);
             sharedObject.put("mchtMng", mchtMng);
 
+            logger.info("{}, {}, {}", list.getString("mchtId"), list.getString("issueId"), list.getString("account"));
+
             try {
                 procVactClose.exec(null, request, sharedMap, sharedObject);
                 System.out.println("------------- response message --------------");
@@ -169,5 +174,7 @@ public class ProcWithdrawTrmnTest {
                 fail();
             }
         }
+
+        logger.debug("전체건수: {}", vactDtls.size());
     }
 }
