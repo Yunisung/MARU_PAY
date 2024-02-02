@@ -1442,13 +1442,13 @@ public class ProcPay3DV2Widget extends Proc {
 			form.put("P_CHARSET", "utf8");
 
 			if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
-				form.put("P_RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-				form.put("P_NEXT_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("P_RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_WELCOME_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("P_NEXT_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_WELCOME_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 			}else{
-				form.put("P_RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-				form.put("P_RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-//				form.put("P_RETURN_URL", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-//				form.put("P_NEXT_URL", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("P_RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_WELCOME_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("P_NEXT_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_WELCOME_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+//				form.put("P_RETURN_URL", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_WELCOME_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+//				form.put("P_NEXT_URL", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_WELCOME_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 			}
 
 			String directCall = "";
@@ -1505,8 +1505,8 @@ public class ProcPay3DV2Widget extends Proc {
 			if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
 				form.put("returnUrl", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 			}else{
-//			form.put("RETURN_URL", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_GALAXIA_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-				form.put("returnUrl", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("returnUrl", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+//				form.put("returnUrl", String.format("http://%s%s/%s/%s","localhost:10002",PAYUNIT.API_WELCOME_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 			}
 
 			form.put("gopaymethod", "Card");
@@ -1602,8 +1602,8 @@ public class ProcPay3DV2Widget extends Proc {
 			if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)) {
 				form.put("shop_receive_url", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 			} else {
-				//form.put("shop_receive_url", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-				form.put("shop_receive_url", String.format("http://%s%s/%s/%s","127.0.0.1:10002",PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("shop_receive_url", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+//				form.put("shop_receive_url", String.format("http://%s%s/%s/%s","127.0.0.1:10002",PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 
 			}
 		}else {
@@ -1612,8 +1612,8 @@ public class ProcPay3DV2Widget extends Proc {
 			if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)) {
 				form.put("shop_receive_url", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_WELCOME_SUB_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 			} else {
-				//form.put("shop_receive_url", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_WELCOME_SUB_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
-				form.put("shop_receive_url", String.format("http://%s%s/%s/%s","127.0.0.1:10002",PAYUNIT.API_WELCOME_SUB_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+				form.put("shop_receive_url", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_WELCOME_SUB_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
+//				form.put("shop_receive_url", String.format("http://%s%s/%s/%s","127.0.0.1:10002",PAYUNIT.API_WELCOME_SUB_RETURN,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));
 			}
 		}
 
