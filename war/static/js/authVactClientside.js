@@ -21,7 +21,9 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		udf1: '',
+		udf2: ''
 	}
 
     var MaruConfig = {
@@ -46,7 +48,9 @@ var KWON = (function (win, doc) {
 		account: '',
         amount: '',
         oper: '',
-		companyName: ''
+		companyName: '',
+		udf1: '',
+		udf2: ''
 	}
 
  	/* GLOBAL */
@@ -91,7 +95,9 @@ var KWON = (function (win, doc) {
             holderName: MaruConfig.holderName,
             phoneNo: MaruConfig.phoneNo,
             identity: MaruConfig.identity,
-			companyName: MaruConfig.companyName
+			companyName: MaruConfig.companyName,
+			udf1: MaruConfig.udf1,
+			udf2: MaruConfig.udf2
         }
         sendVactData = {result: data.result, auth: data.auth, vact: vact, publicKey : MaruConfig.publicKey};
         console.log('sendData : ', sendVactData);

@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.GregorianCalendar;
 
+import com.pgmate.pay.van.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,18 +17,6 @@ import com.pgmate.pay.bean.Request;
 import com.pgmate.pay.bean.Response;
 import com.pgmate.pay.dao.TrxDAO;
 import com.pgmate.pay.util.PAYUNIT;
-import com.pgmate.pay.van.Allat;
-import com.pgmate.pay.van.Danal;
-import com.pgmate.pay.van.Daou;
-import com.pgmate.pay.van.DemoVan;
-import com.pgmate.pay.van.Firstpay;
-import com.pgmate.pay.van.Galaxia;
-import com.pgmate.pay.van.KICC;
-import com.pgmate.pay.van.Kspay;
-import com.pgmate.pay.van.Nice;
-import com.pgmate.pay.van.SPC;
-import com.pgmate.pay.van.Van;
-import com.pgmate.pay.van.WelcomeO;
 
 import io.vertx.ext.web.RoutingContext;
 
@@ -101,10 +90,10 @@ public class ProcRefund extends Proc {
 			van = new Allat(vanMap);
         }else if(trxMap.startsWith("van", "FIRST")){
 			van = new Firstpay(vanMap);
-//		}else if(trxMap.startsWith("van", "WELCOMEK")){
-//			van = new WelcomeK(vanMap);
-		}else if(trxMap.startsWith("van", "WELCOMEO")){
-			van = new WelcomeO(vanMap);
+		}else if(trxMap.isEquals("van", "WELCOME")){
+			van = new Welcome(vanMap);
+		}else if(trxMap.isEquals("van", "WELCOMESUB")) {
+			van = new WelcomeSub(vanMap);
 		}else if(trxMap.startsWith("van", "KICC")){
 			van = new KICC(vanMap);
 		}else if(trxMap.startsWith("van", "SPC")){
@@ -409,6 +398,7 @@ public class ProcRefund extends Proc {
 			}
 			//승인번호 제외
 			trxMap = trxDAO.getTrxPayByTrackId(request.refund.tmnId, request.refund.rootTrackId, request.refund.rootTrxDay,request.refund.amount);
+			reqMap = trxDAO.getTrxReqByTrackId(request.refund.tmnId, request.refund.rootTrackId, request.refund.rootTrxDay,request.refund.amount);
 		}else{
 			logger.info("ROOT_TRX_ID  : {},{}",request.refund.tmnId,request.refund.rootTrxId);
 			// KBR : 승인거래 원장 테이블 조회
