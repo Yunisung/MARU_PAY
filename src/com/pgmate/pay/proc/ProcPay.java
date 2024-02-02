@@ -478,7 +478,8 @@ public class ProcPay extends Proc {
 			sharedMap.put(PAYUNIT.KEY_RENT, GenKey.genKeys(CPKEY.RENT, sharedMap.getString(PAYUNIT.TRX_ID)));
 			trxDAO.insertRent(sharedMap.getString(PAYUNIT.KEY_RENT), request.pay.rent, sharedMap.getString(PAYUNIT.REG_DATE));
 
-			SharedMap<String, Object> mchtRentMap = trxDAO.getMchtRentByMchtId(mchtMap.getString("mchtId"));
+			// 임시로 월세앱 validation 주석
+			/*SharedMap<String, Object> mchtRentMap = trxDAO.getMchtRentByMchtId(mchtMap.getString("mchtId"));
 			long rentLimitOnce = 0;
 			long rentLimitMonth = 0;
 			if ("월세".equals(billingType)) {
@@ -517,7 +518,7 @@ public class ProcPay extends Proc {
 						return;
 					}
 				}
-			}
+			}*/
 		}
 		
 		//semiAuth 즉 생년월일/카드비번2자리 꼭 사용하는 가맹점 2017-08-01
