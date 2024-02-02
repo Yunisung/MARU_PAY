@@ -318,9 +318,9 @@ public class ProcPay3DV2Widget extends Proc {
 									}
 								} else if ("보증금".equals(billingType)) {
 									// 보증금일 경우 누적금액 확인
-									long beforeSum = trxDAO.getRentBeforeSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"), billingType);
+									long beforeSum = trxDAO.getRentBeforeSum(mchtMap.getString("mchtId"), billingType);
 									if (rentLimitOnce < request.widget.getLong("amount") + beforeSum) {
-										logger.debug("가맹점 1회 한도초과 : {},{}", rentLimitOnce, request.widget.getLong("amount"));
+										logger.debug("가맹점 한도초과 : {},{}", rentLimitOnce, request.widget.getLong("amount"));
 										response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 보증금 거래한도 초과");
 										return;
 									}
@@ -329,11 +329,13 @@ public class ProcPay3DV2Widget extends Proc {
 
 							// 월한도
 							if (rentLimitMonth > 0) {
-								long monthSum = trxDAO.getRentMonthSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"), billingType);
-								if (rentLimitMonth < request.widget.getLong("amount") + monthSum) {
-									logger.debug("가맹점 월 한도초과 : {},{},{}", rentLimitMonth, request.widget.getLong("amount"), monthSum);
-									response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 월 거래한도 초과");
-									return;
+								if ("월세".equals(billingType)) {
+									long monthSum = trxDAO.getRentMonthSum(CommonUtil.getCurrentDate("yyyyMM"), mchtMap.getString("mchtId"), billingType);
+									if (rentLimitMonth < request.widget.getLong("amount") + monthSum) {
+										logger.debug("가맹점 월 한도초과 : {},{},{}", rentLimitMonth, request.widget.getLong("amount"), monthSum);
+										response.result = ResultUtil.getResult("9999", "한도초과", "가맹점 월 거래한도 초과");
+										return;
+									}
 								}
 							}
 						}
