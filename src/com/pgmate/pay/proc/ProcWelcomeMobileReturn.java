@@ -103,7 +103,7 @@ public class ProcWelcomeMobileReturn extends Proc {
                 if("00".equals(resultMap.get("P_STATUS"))){
                     //결과정보
                     ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
-                    ioMap.put("vanResultCd", resultMap.get("P_STATUS"));
+                    ioMap.put("vanResultCd", "0000");
                     ioMap.put("vanResultMsg", resultMap.get("P_RMESG1"));
                     ioMap.put("vanTrxId", resultMap.get("P_TID"));
 

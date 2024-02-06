@@ -119,7 +119,7 @@ public class ProcWelcomeSubMobileReturn extends Proc{
 
                 //결과정보
                 ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
-                ioMap.put("vanResultCd", sReplyCd);
+                ioMap.put("vanResultCd", "0000");
                 ioMap.put("vanResultMsg", sReplyMsg);
                 ioMap.put("vanTrxId", sSeqNo);
 
