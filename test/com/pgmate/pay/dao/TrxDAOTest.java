@@ -151,7 +151,7 @@ public class TrxDAOTest {
 
     @Test
     public void getRentBeforeSum() {
-        long amount = trxDAO.getRentBeforeSum("202401", "rtl20240131161419", "보증금");
+        long amount = trxDAO.getRentBeforeSum("202401", "보증금");
         logger.info("amount: {}", amount);
     }
 }

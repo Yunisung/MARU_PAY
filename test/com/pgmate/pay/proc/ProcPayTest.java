@@ -126,7 +126,7 @@ public class ProcPayTest {
                     }
                 } else if ("보증금".equals(billingType)) {
                     // 보증금일 경우 누적금액 확인
-                    long beforeSum = trxDAO.getRentBeforeSum(CommonUtil.getCurrentDate("yyyyMM"), mchtId, billingMethod);
+                    long beforeSum = trxDAO.getRentBeforeSum(mchtId, billingMethod);
                     if (rentLimitOnce < amount + beforeSum) {
                         logger.debug("가맹점 1회 한도초과 : {},{}", rentLimitOnce, amount);
                         result = ResultUtil.getResult("9999", "한도초과", "가맹점 보증금 거래한도 초과");
