@@ -227,7 +227,7 @@ public class ProcPay3DV2Widget extends Proc {
 								setGalaxia(vanMap);
 								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 								response.result = ResultUtil.getResult("0000", "정상","정상완료");
-							}else if(vanMap.startsWith("van", "WELCOME")) {
+							}else if(vanMap.isEquals("van", "WELCOME")) {
 								response.widget.put("target", "WELCOME");
 
 								if(request.widget.isEquals("device", "mobile")) {
@@ -240,7 +240,7 @@ public class ProcPay3DV2Widget extends Proc {
 								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
 								response.result = ResultUtil.getResult("0000", "정상", "정상완료");
 
-							}else if(vanMap.startsWith("van", "WELCOMESUB")) {
+							}else if(vanMap.isEquals("van", "WELCOMESUB")) {
 								if(request.widget.isEquals("device", "mobile")) {
 									response.widget.put("routeUrl", "/form/payment/welcomeSub/mobile.html?token="+widgetKey);
 								}else{
@@ -1407,7 +1407,7 @@ public class ProcPay3DV2Widget extends Proc {
 		//인증
 		String signKey = vanMap.getString("cryptoKey");
 		String timestamp = SignatureUtil.getTimestamp();
-		String oid = request.widget.getString("trackId");
+		String oid = sharedMap.getString(PAYUNIT.TRX_ID);
 		String price = request.widget.getString("amount");
 
 		//2. 가맹점 확인을 위한 signKey를 해시값으로 변경
@@ -1585,7 +1585,7 @@ public class ProcPay3DV2Widget extends Proc {
 		//데이터 세팅
 		SharedMap<String,Object> form = new SharedMap<String,Object>();
 		form.put("allat_shop_id", vanMap.getString("vanId"));
-		form.put("allat_order_no", request.widget.getString("trackId"));
+		form.put("allat_order_no", sharedMap.getString(PAYUNIT.TRX_ID));
 		form.put("allat_amt", request.widget.getString("amount"));
 		form.put("allat_pmember_id", "userid");
 		form.put("allat_product_cd", "product");
