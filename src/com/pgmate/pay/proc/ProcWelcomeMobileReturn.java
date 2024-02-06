@@ -93,6 +93,7 @@ public class ProcWelcomeMobileReturn extends Proc {
                 // 승인 요청 처리 및 응답결과 수신
                 //############################################
                 String responseStr = httpUtil.processHTTP(paramMap, req_url);
+                logger.info("response : {}", responseStr);
                 //############################################
                 // 응답결과 처리 (**가맹점 개발 수정**)
                 //############################################
@@ -114,9 +115,9 @@ public class ProcWelcomeMobileReturn extends Proc {
                     ioMap.put("card", resultMap.get("P_CARD_NUM"));
                     ioMap.put("amount", resultMap.get("P_AMT"));
 
-                    int cardLen = resultMap.get("CARD_Num").length();
-                    ioMap.put("bin", resultMap.get("CARD_Num").substring(0, 6));
-                    ioMap.put("last4", resultMap.get("CARD_Num").substring(cardLen-4, cardLen));
+                    int cardLen = resultMap.get("P_CARD_NUM").length();
+                    ioMap.put("bin", resultMap.get("P_CARD_NUM").substring(0, 6));
+                    ioMap.put("last4", resultMap.get("P_CARD_NUM").substring(cardLen-4, cardLen));
 
                 } else {
                     ioMap.put("vanResultCd", resultMap.get("P_STATUS"));
@@ -125,6 +126,7 @@ public class ProcWelcomeMobileReturn extends Proc {
 
             } catch (Exception e) {
                 logger.error("Welcome Mobile ERROR : {}", e.getMessage());
+                e.printStackTrace();
             }
 
         } else {
