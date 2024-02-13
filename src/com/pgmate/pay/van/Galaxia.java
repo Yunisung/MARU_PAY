@@ -456,13 +456,14 @@ public class Galaxia implements Van{
 		String hour = Integer.toString(today.get(Calendar.HOUR_OF_DAY));
 		String minute = Integer.toString(today.get(Calendar.MINUTE));
 		String second = Integer.toString(today.get(Calendar.SECOND));
-		
-		if(today.get(Calendar.MONTH)+1 < 10) month = "0" + month ;	
+
+		if(today.get(Calendar.MONTH)+1 < 10) month = "0" + month ;
 		if(today.get(Calendar.DATE) < 10) date = "0" + date ;
-		if(today.get(Calendar.HOUR) < 10) hour = "0" + hour ;	
-		if(today.get(Calendar.MINUTE) < 10) minute = "0" + minute ;	
+//		if(today.get(Calendar.HOUR) < 10) hour = "0" + hour ;
+		if(today.get(Calendar.HOUR_OF_DAY) < 10) hour = "0" + hour ;
+		if(today.get(Calendar.MINUTE) < 10) minute = "0" + minute ;
 		if(today.get(Calendar.SECOND) < 10) second = "0" + second ;
-		
+
 		//취소 요청 파라메터
 		String serviceId = VANID; 									//수기결제용 테스트 아이디 S1600881
 		String orderDate = year + month + date + hour + minute + second ; 	//취소 요청일시
