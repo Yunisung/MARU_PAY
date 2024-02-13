@@ -229,7 +229,13 @@ function openAuth(config) {
             ServerUtil.resizeWindow(res);
 
             if (util.isMobile()) {
-                popup(url);
+                // popup(url);
+
+                document.getElementById('iframe-payment').style.backgroundColor = 'whitesmoke';
+                document.getElementById('iframe-payment-containner').style.height = ServerUtil.popupWidth;
+                document.getElementById('iframe-payment-containner').style.width = ServerUtil.popupHeigth;
+                document.getElementById('iframe-payment').src = url;
+                document.getElementById('iframe-payment').style.display = 'block';
             } else {
                 document.getElementById('iframe-payment').style.backgroundColor = 'whitesmoke';
                 document.getElementById('iframe-payment-containner').style.height = ServerUtil.layerHeigth;
