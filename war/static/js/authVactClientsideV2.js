@@ -547,6 +547,8 @@ var KWON = (function (win, doc) {
         if(resFnc && typeof resFnc == 'function') {
             resFnc(data);
         }
+
+        layerClosed();
     }
 
     function setDebug(bool) {
