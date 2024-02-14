@@ -231,9 +231,21 @@ function openAuth(config) {
             if (util.isMobile()) {
                 //popup(url);
 
+                // Fixes dual-screen position                         Most browsers      Firefox
+                var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+                var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+                var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+                var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+                var left = ((width / 2) - (ServerUtil.popupWidth / 2)) + dualScreenLeft;
+                var top = ((height / 2) - (ServerUtil.popupHeigth / 2)) + dualScreenTop;
+
                 document.getElementById('iframe-payment').style.backgroundColor = 'whitesmoke';
-                document.getElementById('iframe-payment-containner').style.height = ServerUtil.popupWidth;
-                document.getElementById('iframe-payment-containner').style.width = ServerUtil.popupHeigth;
+                document.getElementById('iframe-payment-containner').style.width = window.innerWidth;
+                document.getElementById('iframe-payment-containner').style.height = window.innerHeight;
+                document.getElementById('iframe-payment-containner').style.top = top;
+                document.getElementById('iframe-payment-containner').style.left = left;
                 document.getElementById('iframe-payment').src = url;
                 document.getElementById('iframe-payment').style.display = 'block';
 
