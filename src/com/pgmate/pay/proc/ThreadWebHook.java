@@ -64,7 +64,12 @@ public class ThreadWebHook extends Thread {
 		ntsMap.put("status"		, "대기");
 		ntsMap.put("regDay"		, CommonUtil.getCurrentDate("yyyyMMdd"));
 		ntsMap.put("regTime"	, CommonUtil.getCurrentDate("HHmmss"));
-		ntsMap.put("payLoad"	, GsonUtil.toJsonExcludeStrategies(response,true));
+		String payLoad = GsonUtil.toJsonExcludeStrategies(response,true);
+		if(payLoad.length() > 1024) {
+			ntsMap.put("payLoad", payLoad.substring(0, 1024));
+		} else {
+			ntsMap.put("payLoad", payLoad);
+		}
 		
 		long time = System.currentTimeMillis();
 		try {
