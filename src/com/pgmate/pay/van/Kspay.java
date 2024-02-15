@@ -82,11 +82,6 @@ public class Kspay implements Van {
 			ksHeader.setPayName(tmnId);
 		}
 		if(response.pay.products != null && response.pay.products.size() > 0) {
-			if(response.pay.products.get(0).name.contains("명품")) {
-				response.result = ResultUtil.getResult("9999","결제실패","해당 상품명은 사용할수 없습니다.");
-				return sharedMap;
-			}
-
 			ksHeader.setPdtName(response.pay.products.get(0).name);
 		}
 
