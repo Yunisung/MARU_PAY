@@ -639,11 +639,11 @@ public class Galaxia implements Van{
 			logger.info("transactionId : {}", transactionId);
 			logger.info("sessionKey : {}", sessionKey);
 
-			response.result 	= ResultUtil.getResult(responseCode, responseMessage ,detailResponseMessage);
+			response.result 	= ResultUtil.getResult(responseCode, detailResponseMessage ,responseMessage);
 			sharedMap.put("vanTrxId",transactionId);
 			sharedMap.put("vanResultCd",responseCode);
-			sharedMap.put("vanResultMsg",responseMessage);
-			sharedMap.put("vanResultDetailMsg",detailResponseMessage);
+			sharedMap.put("vanResultMsg",detailResponseMessage);
+			sharedMap.put("vanResultDetailMsg",responseMessage);
 			sharedMap.put("van",VAN);
 			sharedMap.put("vanId",VANID);
 
