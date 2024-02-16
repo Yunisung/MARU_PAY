@@ -26,7 +26,7 @@ var KWON = (function (win, doc) {
 
     var routeUrls = {
         local: 'http://127.0.0.1:10002',
-        sandbox: 'https://devapi.bkwinners.kr',
+        test: 'https://devapi.bkwinners.kr',
         live: 'https://api.bkwinners.kr'
     }
 

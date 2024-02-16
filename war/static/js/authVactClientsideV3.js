@@ -65,10 +65,6 @@ var KWON = (function (win, doc) {
         live: 'https://api.bkwinners.kr',
         local: 'http://127.0.0.1:10002',
     }
-    //부국위너스 URL주소
-    // var maruUrl = 'http://127.0.0.1:10002'; //local
-    var maruUrl = 'https://devapi.bkwinners.kr'; //dev
-    // var maruUrl = 'https://api.bkwinners.kr'; //live
 
     var routeDomain = routeUrls[c3Config.debugMode];
     var layerInited = false;
@@ -125,9 +121,9 @@ var KWON = (function (win, doc) {
     }
 
     function maruPop() {
-        console.log('c3pop', maruUrl + '/form/payment/vact/authVactLayout');
+        console.log('c3pop', routeDomain + '/form/payment/vact/authVactLayout');
 
-        doc.getElementById('c3_pop_iframe').src = maruUrl + '/form/payment/vact/authVactLayout';
+        doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/vact/authVactLayout';
         doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
         doc.getElementById('c3_pop_overlay').style.display = '';
         doc.getElementById('c3pop_content_fixed').style.display = '';
@@ -400,7 +396,7 @@ var KWON = (function (win, doc) {
                 console.log('SEND POSTMESSAGE TO IFRAME:', obj, 'Message ID:', obj.msgId);
 
                 var contentWindow = doc.getElementById("c3_pop_iframe").contentWindow;
-                contentWindow.postMessage(JSON.stringify(obj), maruUrl);
+                contentWindow.postMessage(JSON.stringify(obj), routeDomain);
             }
         }
     }

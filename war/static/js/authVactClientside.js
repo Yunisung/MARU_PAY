@@ -58,10 +58,6 @@ var KWON = (function (win, doc) {
     	test: 'https://svcapidev.mtouch.com',
     	live: 'https://svcapi.mtouch.com'
   	}
-    //부국위너스 URL주소
-    //var maruUrl = 'http://127.0.0.1:10002'; //local
-	var maruUrl = 'https://devapi.bkwinners.kr'; //dev
-	// var maruUrl = 'https://api.bkwinners.kr'; //live
 
 	var maruUrls = {
 		test: 'https://devapi.bkwinners.kr',
@@ -124,9 +120,9 @@ var KWON = (function (win, doc) {
     }
 
 	function maruPop() {
-		console.log('c3pop', maruUrl + '/form/payment/vact/authVactLayout');
+		console.log('c3pop', maruDomain + '/form/payment/vact/authVactLayout');
 
-		doc.getElementById('c3_pop_iframe').src = maruUrl + '/form/payment/vact/authVactLayout';
+		doc.getElementById('c3_pop_iframe').src = maruDomain + '/form/payment/vact/authVactLayout';
 		doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
 		doc.getElementById('c3_pop_overlay').style.display = '';
 		doc.getElementById('c3pop_content_fixed').style.display = '';
@@ -393,7 +389,7 @@ var KWON = (function (win, doc) {
               console.log('SEND POSTMESSAGE TO IFRAME:', obj, 'Message ID:', obj.msgId);
 
 			  var contentWindow = doc.getElementById("c3_pop_iframe").contentWindow;
-			  contentWindow.postMessage(JSON.stringify(obj), maruUrl);
+			  contentWindow.postMessage(JSON.stringify(obj), maruDomain);
           }
         }
 	}
