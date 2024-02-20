@@ -80,18 +80,6 @@ public class ProcAccountV2Holder extends Proc {
             return;
         }
 
-        if(CommonUtil.isNullOrSpace(request.totalAuth.identity)) {
-            request.totalAuth.identity = "";
-        } else {
-            //미성년자 체크 추가
-            if(mchtMngVactMap.getString("ageCheck").equals("Y")) {
-                if(ageChecker(request.totalAuth.identity)) {
-                    response.result = ResultUtil.getResult("AAAA", "사용불가", "미성년자는 할 수 없습니다.");
-                    return;
-                }
-            }
-        }
-
 
         if(CommonUtil.isNullOrSpace(request.totalAuth.bankCd)) {
             response.result = ResultUtil.getResult("9999", "필수값없음","출금은행코드 값이 없습니다.");
@@ -116,6 +104,46 @@ public class ProcAccountV2Holder extends Proc {
         if(CommonUtil.isNullOrSpace(request.totalAuth.totalAuthId)) {
             response.result = ResultUtil.getResult("AAAA", "필수값없음","통합인증 아이디 값이 없습니다.");
             return;
+        }
+
+        SharedMap<String, Object> ioMap = trxDAO.getTotalAuthIOByID(request.totalAuth.totalAuthId);
+        String jsonStr = ioMap.getString("reqJson");
+        SharedMap<String, Object> reqJson = new GsonBuilder().create().fromJson(jsonStr, new TypeToken<SharedMap<String, Object>>(){}.getType());
+
+        if(reqJson.getString("identityCheck").equals("Y")) {
+            if(CommonUtil.isNullOrSpace(request.totalAuth.identity)) {
+                response.result = ResultUtil.getResult("AAAA", "필수값없음", "생년월일 정보가 없습니다.");
+                return;
+            } else {
+                if(request.totalAuth.identity.length() != 6) {
+                    response.result = ResultUtil.getResult("AAAA", "데이터오류", "생년월일 정보가 올바르지않습니다");
+                    return;
+                }
+
+                int birthMonth = Integer.parseInt(request.totalAuth.identity.substring(2, 4));
+                int birthDay = Integer.parseInt(request.totalAuth.identity.substring(4, 6));
+
+                if(birthMonth > 12) {
+                    response.result = ResultUtil.getResult("AAAA", "데이터오류", "생년월일 정보가 올바르지않습니다");
+                    return;
+                }
+
+                if(birthDay > 31) {
+                    response.result = ResultUtil.getResult("AAAA", "데이터오류", "생년월일 정보가 올바르지않습니다");
+                    return;
+                }
+
+
+                //미성년자 체크 추가
+                if(mchtMngVactMap.getString("ageCheck").equals("Y")) {
+                    if(ageChecker(request.totalAuth.identity)) {
+                        response.result = ResultUtil.getResult("AAAA", "사용불가", "미성년자 사용이 불가능합니다.");
+                        return;
+                    }
+                }
+            }
+        } else {
+            request.totalAuth.identity = "";
         }
 
         //230509_PYS : 블랙리스트 로직 추가

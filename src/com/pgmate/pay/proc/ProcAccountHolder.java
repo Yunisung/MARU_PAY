@@ -99,10 +99,28 @@ public class ProcAccountHolder extends Proc {
 				response.result = ResultUtil.getResult("AAAA", "필수값없음","생년월일 값이 없습니다.");
 				return;
 			} else {
+				if(request.totalAuth.identity.length() != 6) {
+					response.result = ResultUtil.getResult("AAAA", "데이터오류", "생년월일 정보가 올바르지않습니다");
+					return;
+				}
+
+				int birthMonth = Integer.parseInt(request.totalAuth.identity.substring(2, 4));
+				int birthDay = Integer.parseInt(request.totalAuth.identity.substring(4, 6));
+
+				if(birthMonth > 12) {
+					response.result = ResultUtil.getResult("AAAA", "데이터오류", "생년월일 정보가 올바르지않습니다");
+					return;
+				}
+
+				if(birthDay > 31) {
+					response.result = ResultUtil.getResult("AAAA", "데이터오류", "생년월일 정보가 올바르지않습니다");
+					return;
+				}
+				
 				//미성년자 체크 추가
 				if(mchtMngVactMap.getString("ageCheck").equals("Y")) {
 					if(ageChecker(request.totalAuth.identity)) {
-						response.result = ResultUtil.getResult("AAAA", "사용불가", "미성년자는 할 수 없습니다.");
+						response.result = ResultUtil.getResult("AAAA", "사용불가", "미성년자 사용이 불가능합니다.");
 						return;
 					}
 				}
