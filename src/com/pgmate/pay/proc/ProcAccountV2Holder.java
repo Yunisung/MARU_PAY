@@ -165,8 +165,6 @@ public class ProcAccountV2Holder extends Proc {
         // 나이 계산
         int age = today.getYear() - birthday.getYear();
 
-        System.out.println(age);
-
         // 생일이 지나지 않았으면 한 살을 뺀다.
         if (birthday.getMonthValue() > today.getMonthValue() ||
                 (birthday.getMonthValue() == today.getMonthValue() && birthday.getDayOfMonth() > today.getDayOfMonth())) {
