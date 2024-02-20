@@ -107,12 +107,12 @@ public class ProcAccountHolder extends Proc {
 				int birthMonth = Integer.parseInt(request.totalAuth.identity.substring(2, 4));
 				int birthDay = Integer.parseInt(request.totalAuth.identity.substring(4, 6));
 
-				if(birthMonth > 12) {
+				if(birthMonth > 12 || birthMonth < 1) {
 					response.result = ResultUtil.getResult("AAAA", "데이터오류", "생년월일 정보가 올바르지않습니다");
 					return;
 				}
 
-				if(birthDay > 31) {
+				if(birthDay > 31 || birthDay < 1 ) {
 					response.result = ResultUtil.getResult("AAAA", "데이터오류", "생년월일 정보가 올바르지않습니다");
 					return;
 				}
