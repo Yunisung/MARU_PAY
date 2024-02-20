@@ -66,6 +66,7 @@ public class ProcAccountHolder extends Proc {
 		//230113_PYS : 가맹점 통합인증 정보로 검증처리
 		TrxDAO dao = new TrxDAO();
 		SharedMap<String, Object> totalAuth = dao.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
+		SharedMap<String, Object> mchtMngVactMap = dao.getMchtMngVact(mchtTmnMap.getString("mchtId"));
 
 		String identityCheck = "";
 
@@ -97,6 +98,14 @@ public class ProcAccountHolder extends Proc {
 			if(CommonUtil.isNullOrSpace(request.totalAuth.identity)) {
 				response.result = ResultUtil.getResult("AAAA", "필수값없음","생년월일 값이 없습니다.");
 				return;
+			} else {
+				//미성년자 체크 추가
+				if(mchtMngVactMap.getString("ageCheck").equals("Y")) {
+					if(ageChecker(request.totalAuth.identity)) {
+						response.result = ResultUtil.getResult("AAAA", "사용불가", "미성년자는 할 수 없습니다.");
+						return;
+					}
+				}
 			}
 		}
 
@@ -160,6 +169,40 @@ public class ProcAccountHolder extends Proc {
 
 	}
 
+	public  boolean ageChecker(String identity) {
+		int birthYear = Integer.parseInt(identity.substring(0, 2));
+		int birthMonth = Integer.parseInt(identity.substring(2, 4));
+		int birthDay = Integer.parseInt(identity.substring(4, 6));
+
+		//2000년 이후 출생자들 처리
+		if (birthYear >= 0 && birthYear <= 20) {
+			birthYear += 2000;
+		} else {
+			birthYear += 1900;
+		}
+
+		// 현재 날짜 가져오기
+		LocalDate today = LocalDate.now();
+
+		// 생년월일 설정
+		LocalDate birthday = LocalDate.of(birthYear, birthMonth, birthDay);
+
+		// 나이 계산
+		int age = today.getYear() - birthday.getYear();
+
+		System.out.println(age);
+
+		// 생일이 지나지 않았으면 한 살을 뺀다.
+		if (birthday.getMonthValue() > today.getMonthValue() ||
+				(birthday.getMonthValue() == today.getMonthValue() && birthday.getDayOfMonth() > today.getDayOfMonth())) {
+			age--;
+		}
+
+
+		// 19세 미만이면 true 반환
+		return age < 19;
+	}
+
 	/**
 	 * FCS인증 체크 : 무인증시에만 체크, 수수료 자동차감
 	 */
@@ -180,6 +223,7 @@ public class ProcAccountHolder extends Proc {
 
 		SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
 		SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
+
 		//FIRM 실행전 수수료 차감
 		String authId = TrxDAO.getAuthId();
 //		String totalAuthId = TrxDAO.getTotalAuthId();
