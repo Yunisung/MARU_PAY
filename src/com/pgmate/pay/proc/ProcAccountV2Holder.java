@@ -60,7 +60,6 @@ public class ProcAccountV2Holder extends Proc {
         //230113_PYS : 가맹점 통합인증 정보로 검증처리
         TrxDAO dao = new TrxDAO();
         SharedMap<String, Object> totalAuth = dao.getMchtTotalAuth(mchtTmnMap.getString("mchtId"));
-        SharedMap<String, Object> mchtMngVactMap = dao.getMchtMngVact(mchtTmnMap.getString("mchtId"));
 
         String identityCheck = "";
 
@@ -135,7 +134,7 @@ public class ProcAccountV2Holder extends Proc {
 
 
                 //미성년자 체크 추가
-                if(mchtMngVactMap.getString("ageCheck").equals("Y")) {
+                if(totalAuth.getString("ageCheck").equals("Y")) {
                     if(ageChecker(request.totalAuth.identity)) {
                         response.result = ResultUtil.getResult("AAAA", "사용불가", "미성년자 사용이 불가능합니다.");
                         return;
