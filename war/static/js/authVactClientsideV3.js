@@ -90,7 +90,7 @@ var KWON = (function (win, doc) {
             oper: MaruConfig.oper,
             holderName: MaruConfig.holderName,
             phoneNo: MaruConfig.phoneNo,
-            identity: MaruConfig.identity,
+            identity: data.auth.identity,
             companyName: MaruConfig.companyName,
             regType: MaruConfig.regType,
             udf1: MaruConfig.udf1,
