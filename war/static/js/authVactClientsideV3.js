@@ -117,7 +117,7 @@ var KWON = (function (win, doc) {
     }
 
     function requestSendVact() {
-        maruPop();
+        //maruPop();
 
         setTimeout(function() {
             postMessages.sendVact();
