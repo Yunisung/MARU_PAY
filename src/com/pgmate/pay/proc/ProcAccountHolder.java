@@ -267,7 +267,7 @@ public class ProcAccountHolder extends Proc {
 		String authType = "실명인증";
 		String summary = "";
 
-		trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName,"", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+		trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName, identity,"", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
 		String vactBankCd = mchtMngVactMap.getString("vactBankCd");
 		FirmBean firmBean = fcsFirmBean(vactBankCd, bankCd, account, identity);

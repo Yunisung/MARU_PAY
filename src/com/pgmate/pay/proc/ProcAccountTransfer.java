@@ -152,7 +152,7 @@ public class ProcAccountTransfer extends Proc{
         String authNo = String.format("%04d", (int) (Math.random() * 9999));
         String sendAuthNo = "BK"+authNo;
 
-        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName, authNo, phoneNo ,authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName, identity, authNo, phoneNo ,authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
         //이체전문
 //        FirmBean firmBean = null;
