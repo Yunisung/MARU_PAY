@@ -5292,6 +5292,7 @@ public class TrxDAO extends DAO {
 		try {
 			String encBankAccount = getAESEnc(bankAccount);
 			String encPhoneNo = getAESEnc(phoneNo);
+			String encIdentity = getAESEnc(identity);
 
 			super.setTable("PG_TOTAL_AUTH");
 			super.setRecord("authId", authId);
@@ -5305,7 +5306,6 @@ public class TrxDAO extends DAO {
 			super.setRecord("holderName", holderName);
 
 			if(!"".equals(identity)) {
-				String encIdentity = getAESEnc(identity);
 				super.setRecord("identity", encIdentity);
 			}
 
