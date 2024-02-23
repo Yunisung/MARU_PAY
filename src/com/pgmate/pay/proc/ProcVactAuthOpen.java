@@ -132,6 +132,13 @@ public class ProcVactAuthOpen extends Proc{
                 return;
             }
 
+            //240222_PYS : 1인당 1계좌 체크
+            if(!personalAccountChecker(request)) {
+                sendResponse();
+                return;
+            }
+
+
             //230615_PYS : 동일출금계좌 발급제한 체크
             if(!IssueLimitChecker(request)) {
                 sendResponse();
@@ -1028,6 +1035,31 @@ public class ProcVactAuthOpen extends Proc{
             return true;
         }
     }
+
+    public boolean personalAccountChecker(Request request) {
+        if(mchtVactMngMap.getString("personalAccountCheck").equals("N")) {
+            return true;
+        } else {
+            String holderName = request.vact.holderName;
+            String identity = request.vact.identity;
+            String mchtId = mchtMap.getString("mchtId");
+
+            if(identity.equals("")) {
+                response.result = ResultUtil.getResult("9999", "생년월일 미입력","생년월일이 입력되지 않았습니다. 관리자에 문의 바랍니다");
+                return false;
+            }
+
+            int accountCnt = trxDAO.getPersonalAccount(holderName, identity, mchtId);
+
+            if(accountCnt > 0) {
+                response.result = ResultUtil.getResult("9999", "사용자 정보 중복","동일 사용자 정보로 발급된 가상계좌가 존재합니다. 관리자에 문의 바랍니다");
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
 
     public FirmBean fcsFirmBeanByDozn(String bankCd, String account, String identity) {
         FirmBean firmBean = new FirmBean();

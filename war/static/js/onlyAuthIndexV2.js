@@ -469,6 +469,7 @@ var KWON = (function(win, doc) {
         kwonVactResult.trackId = kwonConfig.trackId;
         kwonVactResult.bankCd = kwonConfig.bankCd;
         kwonVactResult.account = kwonConfig.account;
+        kwonVactResult.identity = kwonConfig.identity;
 
         var obj = {
             type: 'AUTH_CLOSE'

@@ -5996,4 +5996,43 @@ public class TrxDAO extends DAO {
 		super.initRecord();
 		return rset.getRow(0);
 	}
+
+	public int getPersonalAccount(String holderName, String identity, String mchtId) {
+		int count = 0;
+
+		String query = "SELECT COUNT(*) as cnt"
+				+ "  FROM PG_VACT_REG "
+				+ " WHERE holderName = ? and identity = ? AND mchtId = ?";
+
+		logger.info(query);
+
+		String encIdentity = getAESEnc(identity);
+
+		DBManager db = null;
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		ResultSet rset = null;
+
+		try {
+			db = DBFactory.getInstance();
+			conn = db.getConnection();
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, holderName);
+			pstmt.setString(2, encIdentity);
+			pstmt.setString(3, mchtId);
+
+			rset = pstmt.executeQuery();
+
+			while (rset.next()) {
+				count = rset.getInt("cnt");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("getPersonalAccount ERROR : {}, query : {}", e.getMessage(), query);
+		} finally {
+			db.close(conn, pstmt, rset);
+		}
+
+		return count;
+	}
 }
