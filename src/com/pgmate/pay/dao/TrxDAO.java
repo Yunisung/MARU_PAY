@@ -5305,7 +5305,8 @@ public class TrxDAO extends DAO {
 			super.setRecord("holderName", holderName);
 
 			if(!"".equals(identity)) {
-				super.setRecord("identity", identity);
+				String encIdentity = getAESEnc(identity);
+				super.setRecord("identity", encIdentity);
 			}
 
 			if(!"".equals(authNo)) {
