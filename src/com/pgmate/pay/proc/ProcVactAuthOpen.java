@@ -869,7 +869,7 @@ public class ProcVactAuthOpen extends Proc{
         String authType = "실명인증";
         String summary = "";
 
-        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName,"", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName, identity, "", phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
         /*
         //가상계좌 인증 테이블 INSERT (PG_VACT_AUTH)

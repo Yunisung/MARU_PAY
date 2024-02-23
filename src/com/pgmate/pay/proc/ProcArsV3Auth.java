@@ -130,7 +130,7 @@ public class ProcArsV3Auth extends Proc {
         String authType = "ARS인증";
         String summary = "";
 
-        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holder, authNo, phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+        trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holder, "", authNo, phoneNo, authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
 
         String vactBankCd = mchtMngVactMap.getString("vactBankCd");
         FirmBean firmBean = arsFirmBean(vactBankCd, phoneNo, authNo);

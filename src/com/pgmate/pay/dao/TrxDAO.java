@@ -5286,7 +5286,7 @@ public class TrxDAO extends DAO {
 	 * 230118_PYS : 통합인증테이블 INSERT
 	 */
 	public boolean insertTotalAuth(String authId, String totalAuthId, String mchtId, String mchtName, String authType, String bankCd, String bankName, String bankAccount, String holderName,
-								   String authNo, String phoneNo, long authFee, long authFeeVat, String stlType, String stlUnit, String stlDay, String summary){
+								   String identity, String authNo, String phoneNo, long authFee, long authFeeVat, String stlType, String stlUnit, String stlDay, String summary){
 		boolean insert = false;
 
 		try {
@@ -5303,6 +5303,10 @@ public class TrxDAO extends DAO {
 			super.setRecord("bankName", bankName);
 			super.setRecord("bankAccount", encBankAccount);
 			super.setRecord("holderName", holderName);
+
+			if(!"".equals(identity)) {
+				super.setRecord("identity", identity);
+			}
 
 			if(!"".equals(authNo)) {
 				super.setRecord("authNo", authNo);
