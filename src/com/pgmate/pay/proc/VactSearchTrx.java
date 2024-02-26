@@ -7,6 +7,7 @@ import com.pgmate.pay.bean.VactPayOut;
 import com.pgmate.pay.dao.VactDAO;
 import com.pgmate.pay.util.PAYUNIT;
 import io.vertx.ext.web.RoutingContext;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,12 @@ public class VactSearchTrx extends Proc{
 
             String account = dao.getAESDec(chargeSettle.getString("account"));
             int accountLen = account.length();
-            vact.account = "******"+account.substring(accountLen-8, accountLen);
+            if(accountLen >= 10) {
+                vact.account = account.substring(0, 4) + StringUtils.repeat("*", accountLen - 6) + account.substring(accountLen-2, accountLen);
+            } else {
+                vact.account = account.substring(0, 4) + StringUtils.repeat("*", accountLen - 4);
+            }
+            //vact.account = "******"+account.substring(accountLen-8, accountLen);
 
             vact.resultCd = chargeSettle.getString("resultCd");
             vact.resultMsg = chargeSettle.getString("resultMsg");
