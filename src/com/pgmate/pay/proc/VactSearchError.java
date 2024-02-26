@@ -9,6 +9,7 @@ import com.pgmate.pay.bean.VactStatus;
 import com.pgmate.pay.dao.VactDAO;
 import com.pgmate.pay.util.PAYUNIT;
 import io.vertx.ext.web.RoutingContext;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,12 @@ public class VactSearchError extends Proc {
         String withDrawBankCd = dao.getBankName(vactRegMap.getString("withdrawBankCd")).getString("codeName");
         String withDrawBankAccount = dao.getAESDec(vactRegMap.getString("withdrawAccount"));
         int accountLen = withDrawBankAccount.length();
-        withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
+        if(accountLen >= 10) {
+            withDrawBankAccount = withDrawBankAccount.substring(0, 4) + StringUtils.repeat("*", accountLen - 6) + withDrawBankAccount.substring(accountLen-2, accountLen);
+        } else {
+            withDrawBankAccount = withDrawBankAccount.substring(0, 4) + StringUtils.repeat("*", accountLen - 4);
+        }
+        //withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
 
         vactStatus.withDrawBankCd = withDrawBankCd;
         vactStatus.withDrawBankAccount = withDrawBankAccount;
