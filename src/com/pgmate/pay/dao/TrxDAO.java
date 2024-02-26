@@ -6040,4 +6040,18 @@ public class TrxDAO extends DAO {
 
 		return count;
 	}
+
+	public boolean isDistMng(String mchtId) {
+		super.setTable("PG_MCHT A INNER JOIN PG_MAM_DIST_MNG B ON A.distId=B.distId");
+		super.setColumns("B.*");
+		super.setWhere("A.mchtId='"+ mchtId +"'");
+
+		RecordSet rset = super.search();
+		super.initRecord();
+		if(rset.size() > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

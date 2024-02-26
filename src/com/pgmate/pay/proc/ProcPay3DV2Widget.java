@@ -307,6 +307,12 @@ public class ProcPay3DV2Widget extends Proc {
 							rentLimitMonth = mchtRentMap.getLong("depositLimitMonth");
 						}
 
+						if(!trxDAO.isDistMng(mchtMap.getString("mchtId"))) {
+							logger.debug("mchtId : {}, 대행사 정산정보 없음", mchtMap.getString("mchtId"));
+							response.result = ResultUtil.getResult("9999", "필수정보 없음", "대행사 정산정보 없음");
+							return;
+						}
+
 						if(!"선납".equals(billingMethod)) {
 							// 1회한도
 							if (rentLimitOnce > 0) {
