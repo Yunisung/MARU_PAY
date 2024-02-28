@@ -79,12 +79,12 @@ public class VactSearchError extends Proc {
         String withDrawBankCd = dao.getBankName(vactRegMap.getString("withdrawBankCd")).getString("codeName");
         String withDrawBankAccount = dao.getAESDec(vactRegMap.getString("withdrawAccount"));
         int accountLen = withDrawBankAccount.length();
-        if(accountLen >= 10) {
+        /*if(accountLen >= 10) {
             withDrawBankAccount = withDrawBankAccount.substring(0, 4) + StringUtils.repeat("*", accountLen - 6) + withDrawBankAccount.substring(accountLen-2, accountLen);
         } else {
             withDrawBankAccount = withDrawBankAccount.substring(0, 4) + StringUtils.repeat("*", accountLen - 4);
-        }
-        //withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
+        }*/
+        withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
 
         vactStatus.withDrawBankCd = withDrawBankCd;
         vactStatus.withDrawBankAccount = withDrawBankAccount;
