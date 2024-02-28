@@ -61,12 +61,12 @@ public class VactSearchTrx extends Proc{
 
             String account = dao.getAESDec(chargeSettle.getString("account"));
             int accountLen = account.length();
-            if(accountLen >= 10) {
+            /*if(accountLen >= 10) {
                 vact.account = account.substring(0, 4) + StringUtils.repeat("*", accountLen - 6) + account.substring(accountLen-2, accountLen);
             } else {
                 vact.account = account.substring(0, 4) + StringUtils.repeat("*", accountLen - 4);
-            }
-            //vact.account = "******"+account.substring(accountLen-8, accountLen);
+            }*/
+            vact.account = "******"+account.substring(accountLen-8, accountLen);
 
             vact.resultCd = chargeSettle.getString("resultCd");
             vact.resultMsg = chargeSettle.getString("resultMsg");
