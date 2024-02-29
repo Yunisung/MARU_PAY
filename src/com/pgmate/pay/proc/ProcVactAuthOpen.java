@@ -213,7 +213,7 @@ public class ProcVactAuthOpen extends Proc{
                 } else {
                     withDrawBankAccount = withDrawBankAccount.substring(0, 4) + StringUtils.repeat("*", accountLen - 4);
                 }*/
-                withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
+                withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-6, accountLen);
                 response.auth.account = withDrawBankAccount;
                 response.vact.transferKey = transferKey;
 

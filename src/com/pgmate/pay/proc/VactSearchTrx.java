@@ -66,7 +66,7 @@ public class VactSearchTrx extends Proc{
             } else {
                 vact.account = account.substring(0, 4) + StringUtils.repeat("*", accountLen - 4);
             }*/
-            vact.account = "******"+account.substring(accountLen-8, accountLen);
+            vact.account = "******"+account.substring(accountLen-6, accountLen);
 
             vact.resultCd = chargeSettle.getString("resultCd");
             vact.resultMsg = chargeSettle.getString("resultMsg");
