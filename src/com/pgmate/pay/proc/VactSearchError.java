@@ -84,7 +84,7 @@ public class VactSearchError extends Proc {
         } else {
             withDrawBankAccount = withDrawBankAccount.substring(0, 4) + StringUtils.repeat("*", accountLen - 4);
         }*/
-        withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-8, accountLen);
+        withDrawBankAccount = "******"+withDrawBankAccount.substring(accountLen-6, accountLen);
 
         vactStatus.withDrawBankCd = withDrawBankCd;
         vactStatus.withDrawBankAccount = withDrawBankAccount;
