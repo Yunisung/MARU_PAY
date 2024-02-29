@@ -136,6 +136,11 @@ public class ProcSettleTransferAccount extends Proc {
 			} else {
 				trxMap.put("bankFee", 200);
 			}
+		}else if(vactBankCd.equals("034")) {
+			//광주은행
+			trxMap.put("bankFee", 300);
+		}else if(vactBankCd.equals("007")) {
+			trxMap.put("bankFee", 220);
 		}
 
 		trxMap.put("netAmount", transferNetAmount);
@@ -298,7 +303,13 @@ public class ProcSettleTransferAccount extends Proc {
 			response.result = ResultUtil.getResult("9999", "허용된 IP 아님","접근 가능한 IP가 아닙니다.");return;
 		}
 
-
+		//수협은행 타행이체 막기
+		String vactBankCd = vactDAO.getVactBank(mchtId);
+		if(vactBankCd.equals("007")) {
+			if(!request.transfer.bankCd.equals("007")) {
+				response.result = ResultUtil.getResult("9999", "타행이체오류","해당 계좌로 출금하실 수 없습니다. 관리자에 문의 바랍니다");
+			}
+		}
 
 	}
 	

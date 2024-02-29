@@ -126,6 +126,8 @@ public class ProcSettleTransfer extends Proc {
 		}else if(vactBankCd.equals("034")) {
 			//광주은행
 			trxMap.put("bankFee", 300);
+		}else if(vactBankCd.equals("007")) {
+			trxMap.put("bankFee", 220);
 		}
 
 //		trxMap.put("bankFee", 99);
@@ -251,7 +253,15 @@ public class ProcSettleTransfer extends Proc {
 			response.result = ResultUtil.getResult("9999", "계좌오류","해당 출금계좌로 출금하실 수 없습니다. 관리자에 문의 바랍니다");
 			logger.info("블랙리스트에 등록된 출금계좌 입니다. [{}][{}]", request.transfer.bankCd, request.transfer.account);
 		}
-		
+
+		//수협은행 타행이체 막기
+		VactDAO vactDAO = new VactDAO();
+		String vactBankCd = vactDAO.getVactBank(mchtId);
+		if(vactBankCd.equals("007")) {
+			if(!request.transfer.bankCd.equals("007")) {
+				response.result = ResultUtil.getResult("9999", "타행이체오류","해당 계좌로 출금하실 수 없습니다. 관리자에 문의 바랍니다");
+			}
+		}
 
 	}
 	
