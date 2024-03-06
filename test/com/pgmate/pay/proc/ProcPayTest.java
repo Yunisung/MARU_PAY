@@ -17,6 +17,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.GregorianCalendar;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -144,5 +148,32 @@ public class ProcPayTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void montTest() {
+        int payMonth = 1;
+
+        int term = Integer.parseInt(CommonUtil.getCurrentDate("dd"));
+
+        String nextMonth = CommonUtil.getOpDate(GregorianCalendar.MONTH, 2, "20240325").substring(0, 6);
+        LocalDate localDate = LocalDate.parse(nextMonth + "01", DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        logger.info("localDate : {}", localDate);
+
+        if (Integer.parseInt("20240325".substring(6)) > localDate.lengthOfMonth()) {
+            localDate = localDate.withDayOfMonth(localDate.lengthOfMonth());
+        } else {
+            localDate = localDate.withDayOfMonth(Integer.parseInt("20240325".substring(6)));
+        }
+
+        String payEndDay = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        logger.info("payEndDay : {}", payEndDay);
+    }
+
+    @Test
+    public void isMonthPayTest() {
+        trxDAO.setDebug(true);
+        trxDAO.isMonthPay("aaa", "202403");
     }
 }
