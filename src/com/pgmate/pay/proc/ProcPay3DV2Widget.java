@@ -1,9 +1,8 @@
 package com.pgmate.pay.proc;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import com.pgmate.pay.bean.Rent;
 import com.pgmate.pay.util.SmsGw;
@@ -296,6 +295,7 @@ public class ProcPay3DV2Widget extends Proc {
 						String billingType = rent.billingType;
 						String billingMethod = rent.billingMethod;
 						SharedMap<String, Object> mchtRentMap = trxDAO.getMchtRentByMchtId(mchtMap.getString("mchtId"));
+						String payEndDay = mchtRentMap.getString("payEndDay");
 						// 월세앱 한도 측정
 						long rentLimitOnce = 0;
 						long rentLimitMonth = 0;
@@ -314,6 +314,13 @@ public class ProcPay3DV2Widget extends Proc {
 						}
 
 						if(!"선납".equals(billingMethod)) {
+							// 선납 기간 중 결제인지
+							if(CommonUtil.parseInt(payEndDay) > CommonUtil.parseInt(CommonUtil.getCurrentDate("yyyyMM"))) {
+								logger.debug("선납 기간 중 일반 결제 불가 : {},{}", payEndDay, CommonUtil.getCurrentDate("yyyyMM"));
+								response.result = ResultUtil.getResult("9999", "결제기간오류", "선납 기간 중 일반 결제 불가");
+								return;
+							}
+
 							// 1회한도
 							if (rentLimitOnce > 0) {
 								if ("월세".equals(billingType)) {
@@ -345,6 +352,43 @@ public class ProcPay3DV2Widget extends Proc {
 								}
 							}
 						}
+
+						int payMonth = 0;
+
+						if(!"선납".equals(billingMethod)) {
+							// 일반결제이거나 해당달의 첫 분납결제 시 납부회차 +1 개월
+							if("일반".equals(billingMethod) || !trxDAO.isMonthPay(mchtMap.getString("mchtId"), CommonUtil.getCurrentDate("yyyyMM"))) {
+								payMonth = 1;
+							}
+						} else {
+							payMonth = Integer.parseInt(request.widget.getString("payMonth"));
+						}
+
+						// 마지막 결제일 계산
+						if(payMonth > 0) {
+							String nextMonth = CommonUtil.getOpDate(GregorianCalendar.MONTH, payMonth, payEndDay).substring(0, 6);
+							LocalDate localDate = LocalDate.parse(nextMonth + "01", DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+							// 계산 된 월의 마지막 일자 확인 및 설정
+							if (Integer.parseInt(payEndDay.substring(6)) > localDate.lengthOfMonth()) {
+								localDate = localDate.withDayOfMonth(localDate.lengthOfMonth());
+							} else {
+								localDate = localDate.withDayOfMonth(Integer.parseInt(payEndDay.substring(6)));
+							}
+
+							payEndDay = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+							if(Integer.parseInt(payEndDay) > Integer.parseInt(mchtRentMap.getString("rentEndDay"))) {
+								logger.debug("선납 기간 초과 결제 : {},{}", payEndDay, mchtRentMap.getString("rentEndDay"));
+								response.result = ResultUtil.getResult("9999", "결제기간오류", "선납 기간 초과 결제 불가");
+								return;
+							}
+
+							if(trxDAO.updateRentPayEndDay(mchtMap.getString("mchtId"), payEndDay)) {
+								logger.info("월세앱 가맹점 납부회차 적용완료 : {}, {}", mchtMap.getString("mchtId"), payEndDay);
+							}
+						}
+
 
 					} else {
 						//가맹점 한도 측정

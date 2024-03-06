@@ -6054,4 +6054,29 @@ public class TrxDAO extends DAO {
 			return false;
 		}
 	}
+
+	public boolean updateRentPayEndDay(String mchtId, String payEndDay) {
+		super.setTable("PG_MCHT_RENT");
+		super.setRecord("payEndDay", payEndDay);
+		super.addWhere("mchtId", mchtId, eq);
+
+		boolean update = super.update();
+		logger.info("PG_MCHT_RENT update : {}",update );
+
+		super.initRecord();
+		return update;
+	}
+
+	public boolean isMonthPay(String mchtId, String payDay) {
+		String q = "SELECT * FROM VW_TRX_CAP WHERE mchtId = '" + mchtId + "' AND billingMethod = '분납' AND trxDay LIKE '" + payDay + "%' ORDER BY regDate DESC ";
+
+		RecordSet rset = super.query(q);
+		super.initRecord();
+
+		if(rset.size() > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
