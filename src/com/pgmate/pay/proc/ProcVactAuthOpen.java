@@ -823,7 +823,11 @@ public class ProcVactAuthOpen extends Proc{
         //무인증이 아닌건 바로 리턴
         if(!request.auth.totalAuthId.equals("NOAUTH")) {
             return true;
+        } else {
+            response.result = ResultUtil.getResult("9999", "무인증 사용불가", "사용할수 없습니다.");
+            return false;
         }
+
 
         //데이터 세팅
         String bankCd = request.auth.bankCd.trim();
