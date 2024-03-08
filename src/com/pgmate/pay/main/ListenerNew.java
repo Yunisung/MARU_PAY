@@ -415,6 +415,62 @@ public class ListenerNew extends RouteWorkerNew {
 						VertXMessage.set500(fc);
 					}
 				});
+
+		router.route(PAYUNIT.API_ONLY_AUTHV2_WIDGET)
+				.handler(rc -> {
+					// poolSize defualt : 20
+					int poolSize = 100;
+					//long maxExecueTime = 120 *1000; // 2분
+					long maxExecueTime = 10 * 60 *1000; // 5분
+					WorkerExecutor executor = vertx.createSharedWorkerExecutor("API_ONLY_AUTHV2_WIDGET", poolSize, maxExecueTime);
+					executor.executeBlocking(future -> {
+						log(rc);
+						logger.info("API_ONLY_AUTHV2_WIDGET START!!!");
+
+						new Api().apiHandler(rc);
+
+						future.complete();
+					}, false, res ->{
+						executor.close();
+						logger.info("API_ONLY_AUTHV2_WIDGET END!!!");
+					});
+				})
+				.failureHandler(fc -> {
+					if (fc.statusCode() == 404) {
+						logger.debug("{} not found ", fc.request().uri());
+					} else {
+						logger.error("{} error : {},{}", PAYUNIT.API_ONLY_AUTHV2_WIDGET, fc.statusCode(), CommonUtil.getExceptionMessage(new Exception(fc.failure())));
+						VertXMessage.set500(fc);
+					}
+				});
+
+		router.route(PAYUNIT.API_ONLY_AUTH_WIDGET)
+				.handler(rc -> {
+					// poolSize defualt : 20
+					int poolSize = 100;
+					//long maxExecueTime = 120 *1000; // 2분
+					long maxExecueTime = 5 * 60 *1000; // 5분
+					WorkerExecutor executor = vertx.createSharedWorkerExecutor("API_ONLY_AUTH_WIDGET", poolSize, maxExecueTime);
+					executor.executeBlocking(future -> {
+						log(rc);
+						logger.info("API_ONLY_AUTH_WIDGET START!!!");
+
+						new Api().apiHandler(rc);
+
+						future.complete();
+					}, false, res ->{
+						executor.close();
+						logger.info("API_ONLY_AUTH_WIDGET END!!!");
+					});
+				})
+				.failureHandler(fc -> {
+					if (fc.statusCode() == 404) {
+						logger.debug("{} not found ", fc.request().uri());
+					} else {
+						logger.error("{} error : {},{}", PAYUNIT.API_ONLY_AUTH_WIDGET, fc.statusCode(), CommonUtil.getExceptionMessage(new Exception(fc.failure())));
+						VertXMessage.set500(fc);
+					}
+				});
 		
 		//7. "/api/*" route
 		router.route(PAYUNIT.ROUTE_API).handler(this::apiHandler).failureHandler(fc -> {
