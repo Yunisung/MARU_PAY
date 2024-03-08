@@ -824,8 +824,10 @@ public class ProcVactAuthOpen extends Proc{
         //무인증이 아닌건 바로 리턴
         if(!request.auth.totalAuthId.equals("NOAUTH")) {
             return true;
-        } else {
-            response.result = ResultUtil.getResult("9999", "무인증 사용불가", "사용할수 없습니다.");
+        }
+
+        if(request.auth.totalAuthId.equals("NOAUTH")) {
+            response.result = ResultUtil.getResult("9999", "무인증 사용불가", "무인증은 사용할수 없습니다");
             return false;
         }
 
