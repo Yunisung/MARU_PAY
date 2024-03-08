@@ -56,6 +56,10 @@ public class ProcPay extends Proc {
 			//KJM : 결제 응답내역 추가
 			trxDAO.insertTrxRES(sharedMap, response);
 
+			if(request.pay.trxType.equals("REBILL")) {
+				trxDAO.insertRebillERR(response.pay.trxId);
+			}
+
 			//KJM : 결제결과 res에 세팅
 			setResponse();
 			return;	
