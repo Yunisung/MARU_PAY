@@ -365,7 +365,7 @@ public class ProcPay3DV2Widget extends Proc {
 							}
 						} else {
 							// 선납 결제 시
-							payMonth = Integer.parseInt(request.widget.getString("payMonth")) - 1;
+							payMonth = Integer.parseInt(rent.payMonth) - 1;
 
 							// 이전 결제가 일반/분납 결제 일 때 or 선납기간 끝난 후 결제 시
 							// payEndDay = 결제일
@@ -373,6 +373,7 @@ public class ProcPay3DV2Widget extends Proc {
 								payEndDay = CommonUtil.getCurrentDate("yyyyMMdd");
 							}
 
+							// payEndDay = 결제일 + payMonth
 							payEndDay = setEndDay(payEndDay, payMonth, "pay");
 
 							// payEndDay > 계산된 계약 종료일 (계약종료일 - 1개월 , 마지막일자 설정)
