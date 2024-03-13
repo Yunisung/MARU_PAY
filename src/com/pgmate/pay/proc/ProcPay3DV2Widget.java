@@ -361,7 +361,7 @@ public class ProcPay3DV2Widget extends Proc {
 						if(!"선납".equals(billingMethod)) {
 							// 일반결제이거나 해당달의 첫 분납결제 시 payEndDay = 결제일
 							if("일반".equals(billingMethod) || !trxDAO.isMonthPay(mchtMap.getString("mchtId"), CommonUtil.getCurrentDate("yyyyMM"))) {
-								payEndDay = CommonUtil.getCurrentDate("yyyyMM");
+								payEndDay = CommonUtil.getCurrentDate("yyyyMMdd");
 							}
 						} else {
 							// 선납 결제 시
@@ -369,8 +369,8 @@ public class ProcPay3DV2Widget extends Proc {
 
 							// 이전 결제가 일반/분납 결제 일 때 or 선납기간 끝난 후 결제 시
 							// payEndDay = 결제일
-							if(CommonUtil.parseInt(CommonUtil.getCurrentDate("yyyyMM"))> CommonUtil.parseInt(payEndDay)) {
-								payEndDay = CommonUtil.getCurrentDate("yyyyMM");
+							if(CommonUtil.parseInt(CommonUtil.getCurrentDate("yyyyMMdd"))> CommonUtil.parseInt(payEndDay)) {
+								payEndDay = CommonUtil.getCurrentDate("yyyyMMdd");
 							}
 
 							payEndDay = setEndDay(payEndDay, payMonth, "pay");
