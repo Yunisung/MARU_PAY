@@ -296,6 +296,7 @@ public class ProcPay3DV2Widget extends Proc {
 						String billingMethod = rent.billingMethod;
 						SharedMap<String, Object> mchtRentMap = trxDAO.getMchtRentByMchtId(mchtMap.getString("mchtId"));
 						String payEndDay = mchtRentMap.getString("payEndDay");
+
 						// 월세앱 한도 측정
 						long rentLimitOnce = 0;
 						long rentLimitMonth = 0;
@@ -323,6 +324,17 @@ public class ProcPay3DV2Widget extends Proc {
 								return;
 							}
 
+							// 최소결제금액(5만원) 확인
+							// 일반결제, 분납결제(가맹점 한도금액 - 해당달의 총결제금액 > 50000) 일 때 확인
+							long minAmount = mchtRentMap.getLong("minAmount");
+							if("일반".equals(billingMethod) ||
+								("분납".equals(billingMethod) && rentLimitMonth - trxDAO.getRentMonthSum(CommonUtil.getCurrentDate("yyyyMM"),mchtMap.getString("mchtId"), billingType) > minAmount)) {
+								if(minAmount > request.widget.getLong("amount")) {
+									logger.debug("최소결제금액 미달 : {}", request.widget.getLong("amount"));
+									response.result = ResultUtil.getResult("9999", "결제금액오류", "최소결제금액 미만 결제 불가");
+									return;
+								}
+							}
 
 							// 1회한도
 							if (rentLimitOnce > 0) {
