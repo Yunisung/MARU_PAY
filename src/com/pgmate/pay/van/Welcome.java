@@ -18,10 +18,12 @@ import java.net.*;
 public class Welcome implements Van {
     private static Logger logger 	= LoggerFactory.getLogger( Welcome.class );
 
-//    private static final String cancel_uri		= "https://payapi.paywelcome.co.kr/cancel/cancel";
-//    private static final String approval_uri	= "https://payapi.paywelcome.co.kr/noauth/pay/card";
-    private static final String cancel_uri		= "https://tpayapi.paywelcome.co.kr/cancel/cancel";
-    private static final String approval_uri	= "https://tpayapi.paywelcome.co.kr/noauth/pay/card";
+    // live
+    private static final String cancel_uri		= "https://payapi.paywelcome.co.kr/cancel/cancel";
+    private static final String approval_uri	= "https://payapi.paywelcome.co.kr/noauth/pay/card";
+    //test
+//    private static final String cancel_uri		= "https://tpayapi.paywelcome.co.kr/cancel/cancel";
+//    private static final String approval_uri	= "https://tpayapi.paywelcome.co.kr/noauth/pay/card";
 
     private String mid 					= "";
     private String VAN					= "";
