@@ -144,7 +144,14 @@ var postMessages = {
         var revcObj = JSON.parse(JSON.stringify(obj));
         revcObj.type = 'REVC_ACK';
         util.sendMessageToParent(revcObj);
-    }
+    },
+    authVactResult: function(res) {
+        var obj = {
+            type: 'AUTH_VACT_RESULT',
+            data: res
+        }
+        util.sendMessageToParent(obj);
+    },
 }
 
 var ServerUtil = {
@@ -278,7 +285,30 @@ function closeAuth(data) {
         postMessages.layerClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
     }, delay);
 }
+function sendVact(data) {
+    console.log('serverSide_sendVact START');
+    var vactData = data;
+    console.log('serverSide : ', vactData);
+    var jsonData = JSON.stringify(vactData);
+    console.log('jsonData : ', jsonData);
+    var widgetUri = '/api/vact/authopen';
 
+    util.postAjax(widgetUri, jsonData, function(res) {
+        console.log(res);
+
+        if (res.result.resultCd == '0000') {
+            postMessages.authVactResult(res);
+        } else {
+            /* 정상적이지 않을 경우, 결제가 불가능한 경우이므로 창을 닫고 알람을 띄운다. */
+            alert(res.result.advanceMsg);
+            //postMessages.layerVactClosed(); // 결제 취소후 MCHT 창에 이를 알려 창을 닫게 한다.
+            postMessages.authVactResult(res);
+        }
+
+    }, function(err) {
+        alert('키가 올바르지 않습니다. ' + err);
+    });
+}
 /* 클라이언트(Parent window)로 부터 받은 PostMessage */
 util.addEventListener(window, 'message', function(e) {
 
@@ -294,6 +324,8 @@ util.addEventListener(window, 'message', function(e) {
         openAuth(recv);
     } else if (recv.type === 'AUTH_CLOSE') {
         closeAuth(recv.data);
+    } else if(recv.type === 'SEND_VACT') {
+        sendVact(recv.data);
     }
 });
 
