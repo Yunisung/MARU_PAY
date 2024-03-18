@@ -365,12 +365,15 @@ public class ProcPay3DV2Widget extends Proc {
 							}
 						} else {
 							// 선납 결제 시
-							payMonth = Integer.parseInt(rent.payMonth) - 1;
 
 							// 이전 결제가 일반/분납 결제 일 때 or 선납기간 끝난 후 결제 시
 							// payEndDay = 결제일
 							if(CommonUtil.parseInt(CommonUtil.getCurrentDate("yyyyMMdd"))> CommonUtil.parseInt(payEndDay)) {
+								payMonth = Integer.parseInt(rent.payMonth) - 1;
 								payEndDay = CommonUtil.getCurrentDate("yyyyMMdd");
+							} else {
+								// 선납 기간 중 선납 결제 시
+								payMonth = Integer.parseInt(rent.payMonth);
 							}
 
 							// payEndDay = 결제일 + payMonth
