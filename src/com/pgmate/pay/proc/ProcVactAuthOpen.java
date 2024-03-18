@@ -468,7 +468,7 @@ public class ProcVactAuthOpen extends Proc{
 
         //블랙리스트(이름, 생년월일) 확인
         if(!CommonUtil.isNullOrSpace(request.vact.holderName) && !CommonUtil.isNullOrSpace(request.vact.identity)) {
-            boolean blacklist2 = trxDAO.blackListCheck2(request.vact.holderName, request.vact.identity);
+            boolean blacklist2 = trxDAO.blackListCheckByIdentity(request.vact.holderName, request.vact.identity);
             if(blacklist2) {
                 response.result = ResultUtil.getResult("9999", "계좌오류","해당 사용자는 등록하실 수 없습니다. 관리자에 문의 바랍니다");
 

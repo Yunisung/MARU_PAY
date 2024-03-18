@@ -6080,7 +6080,7 @@ public class TrxDAO extends DAO {
 		}
 	}
 
-	public boolean blackListCheck2(String holderName, String identity) {
+	public boolean blackListCheckByIdentity(String holderName, String identity) {
 		String enciden = getAESEnc(identity);
 
 		super.setTable("PG_VACT_REG_BLACKLIST");
