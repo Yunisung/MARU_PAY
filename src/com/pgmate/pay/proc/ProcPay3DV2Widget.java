@@ -1445,9 +1445,9 @@ public class ProcPay3DV2Widget extends Proc {
 		//van의 결제모듈 url 설정
 		if(request.widget.isEquals("device", "mobile")){
 			// live
-//			request.widget.put("targetUrl", "https://mobile.paywelcome.co.kr/smart/wcard/");
+			request.widget.put("targetUrl", "https://mobile.paywelcome.co.kr/smart/wcard/");
 			// test
-			request.widget.put("targetUrl", "https://tmobile.paywelcome.co.kr/smart/wcard/");
+//			request.widget.put("targetUrl", "https://tmobile.paywelcome.co.kr/smart/wcard/");
 		}else{
 			request.widget.put("targetUrl", "INIStdPay.pay('SendPayForm_id')");
 		}
