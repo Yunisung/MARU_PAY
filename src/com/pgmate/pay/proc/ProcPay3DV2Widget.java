@@ -319,7 +319,7 @@ public class ProcPay3DV2Widget extends Proc {
 							// payEndDay 초기값 = 0
 							if(CommonUtil.parseInt(payEndDay) > CommonUtil.parseInt(CommonUtil.getCurrentDate("yyyyMM"))) {
 								logger.debug("선납 기간 중 일반 결제 불가 : {},{}", payEndDay, CommonUtil.getCurrentDate("yyyyMM"));
-								response.result = ResultUtil.getResult("9999", "결제기간오류", "선납 기간 중 일반 결제 불가");
+								response.result = ResultUtil.getResult("9999", "결제기간오류", "선납기간 중 결제(" + payEndDay + "이후 결제가능)");
 								return;
 							}
 
@@ -391,7 +391,7 @@ public class ProcPay3DV2Widget extends Proc {
 							String rentEndDay = setEndDay(mchtRentMap.getString("rentEndDay"), -1, "rent");
 							if(Integer.parseInt(payEndDay) > Integer.parseInt(rentEndDay)) {
 								logger.debug("선납 기간 초과 결제 : {},{}", payEndDay, mchtRentMap.getString("rentEndDay"));
-								response.result = ResultUtil.getResult("9999", "결제기간오류", "선납 기간 초과 결제 불가");
+								response.result = ResultUtil.getResult("9999", "결제기간오류", rentEndDay+" 이후로 선납기간 설정 불가");
 								return;
 							}
 
