@@ -6079,4 +6079,25 @@ public class TrxDAO extends DAO {
 			return false;
 		}
 	}
+
+	public boolean blackListCheck2(String holderName, String identity) {
+		String enciden = getAESEnc(identity);
+
+		super.setTable("PG_VACT_REG_BLACKLIST");
+		super.setColumns("idx");
+		super.addWhere("holderName", holderName, eq);
+		super.addWhere("identity", enciden, eq);
+		super.addWhere("useYn", "Y", eq);
+		super.setLimit(1);
+
+		RecordSet rset = super.search();
+
+		super.initRecord();
+
+		if (rset.size() == 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 }
