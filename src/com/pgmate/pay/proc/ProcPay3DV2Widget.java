@@ -317,8 +317,8 @@ public class ProcPay3DV2Widget extends Proc {
 						if(!"선납".equals(billingMethod)) {
 							// 선납 기간 중 결제인지
 							// payEndDay 초기값 = 0
-							if(CommonUtil.parseInt(payEndDay) > CommonUtil.parseInt(CommonUtil.getCurrentDate("yyyyMM"))) {
-								logger.debug("선납 기간 중 일반 결제 불가 : {},{}", payEndDay, CommonUtil.getCurrentDate("yyyyMM"));
+							if(CommonUtil.parseInt(payEndDay) > CommonUtil.parseInt(CommonUtil.getCurrentDate("yyyyMMdd"))) {
+								logger.debug("선납 기간 중 일반 결제 불가 : {},{}", payEndDay, CommonUtil.getCurrentDate("yyyyMMdd"));
 								String dayStr = getFormatDay(payEndDay);
 								response.result = ResultUtil.getResult("9999", "결제기간오류", "선납기간 중 결제(" + dayStr + " 이후 결제가능)");
 								return;
