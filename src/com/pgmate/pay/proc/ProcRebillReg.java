@@ -19,6 +19,7 @@ import com.pgmate.pay.util.PAYUNIT;
 import com.pgmate.pay.util.SmsGw;
 import com.pgmate.pay.van.Galaxia;
 import com.pgmate.pay.van.KspayAuth;
+import com.pgmate.pay.van.Welcome;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,8 @@ public class ProcRebillReg extends Proc {
             sharedMap = new KspayAuth(tmnVanMap).regist(trxDAO, sharedMap, response);
         } else if(mchtTmnMap.startsWith("van", "GALAXIA")) {
             sharedMap = new Galaxia(tmnVanMap).autoBillCertify(trxDAO, sharedMap, response);
+        } else if(mchtTmnMap.isEquals("van", "WELCOME")) {
+            sharedMap = new Welcome(tmnVanMap).billKeyReg(trxDAO, sharedMap, response);
         }
 
         //PG_REBILL_CARD 저장
