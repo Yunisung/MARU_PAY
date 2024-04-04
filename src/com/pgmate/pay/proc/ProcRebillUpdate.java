@@ -128,16 +128,6 @@ public class ProcRebillUpdate extends Proc{
                 response.result = ResultUtil.getResult("9999", "정기결제 상태 입력오류","사용 or 해지만 가능합니다.");
                 return;
             }
-
-            if(request.rebill.status.equals("해지") && CommonUtil.isNullOrSpace(request.rebill.terminateDate)) {
-                response.result = ResultUtil.getResult("9999", "정기결제 해지일 입력오류","해지일이 없습니다.");
-                return;
-            }
-
-            if(request.rebill.terminateDate.length() != 8) {
-                response.result = ResultUtil.getResult("9999", "정기결제 해지일 입력오류","정기결제 해지일이 8자리가 아닙니다.");
-                return;
-            }
         }
 
         if(CommonUtil.isNullOrSpace(request.rebill.productName)) {
@@ -254,8 +244,8 @@ public class ProcRebillUpdate extends Proc{
             newRebillMap.put("status", request.rebill.status);
         }
 
-        if(!CommonUtil.isNullOrSpace(request.rebill.terminateDate) && !request.rebill.terminateDate.equals(rebillMap.getString("terminateDate"))) {
-            newRebillMap.put("terminateDate", request.rebill.terminateDate);
+        if(request.rebill.status.equals("해지")) {
+            newRebillMap.put("terminateDate", CommonUtil.getCurrentDate("yyyyMMdd"));
         }
 
         if(!CommonUtil.isNullOrSpace(request.rebill.productName) && !request.rebill.productName.equals(rebillMap.getString("productName"))) {
