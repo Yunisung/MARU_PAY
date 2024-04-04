@@ -5928,6 +5928,10 @@ public class TrxDAO extends DAO {
 			super.setRecord("expireDate", map.getString("expireDate"));
 		}
 
+		if(!CommonUtil.isNullOrSpace(map.getString("terminateDate"))) {
+			super.setRecord("terminateDate", map.getString("terminateDate"));
+		}
+
 		if(!CommonUtil.isNullOrSpace(map.getString("payerName"))) {
 			super.setRecord("payerName", map.getString("payerName"));
 		}

@@ -26,6 +26,7 @@ public class Rebill {
     public String amount = null;        //금액
     public String rebillDays = null;    //결제일
     public String expireDate = null;    //만료일
+    public String terminateDate = null; //해지일
     public String status = null;
 
     public String payerName = null;
