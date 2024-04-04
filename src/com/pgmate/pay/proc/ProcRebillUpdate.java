@@ -287,7 +287,7 @@ public class ProcRebillUpdate extends Proc{
         response.rebill.buyCompanyName = request.rebill.buyCompanyName;
 
         response.rebill.expireDate = request.rebill.expireDate;
-        response.rebill.terminateDate = request.rebill.terminateDate;
+        response.rebill.terminateDate = newRebillMap.getString("terminateDate");
         response.rebill.rebillDays = request.rebill.rebillDays;
         response.rebill.payerName = request.rebill.payerName;
         response.rebill.payerEmail = request.rebill.payerEmail;
