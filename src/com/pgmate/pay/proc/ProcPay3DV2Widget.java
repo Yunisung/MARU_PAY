@@ -1,9 +1,11 @@
 package com.pgmate.pay.proc;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import com.galaxia.api.util.ChecksumUtil;
 import com.pgmate.pay.bean.Rent;
 import com.pgmate.pay.util.SmsGw;
 import kr.co.paywelcome.util.SignatureUtil;
@@ -1392,7 +1394,7 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("SERVICE_ID", vanMap.getString("vanId"));
 		form.put("SERVICE_CODE", "0900");
 		form.put("SERVICE_TYPE", "0000");
-		form.put("ORDER_ID", request.widget.getString("trackId"));
+		form.put("ORDER_ID", sharedMap.getString(PAYUNIT.TRX_ID));
 		form.put("ORDER_DATE", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
 		form.put("USER_ID", request.widget.getString("userId"));
 
@@ -1413,6 +1415,16 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("RESERVED1", request.widget.getString("udf1"));
 		form.put("RESERVED2", request.widget.getString("udf2"));
 		form.put("CANCEL_FLAG", "Y");
+
+		String temp = form.getString("SERVICE_ID") + form.getString("ORDER_ID") + form.getString("AMOUNT");
+		String checkSum = "";
+
+		try {
+			checkSum = ChecksumUtil.genCheckSum(temp);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		form.put("CHECK_SUM", checkSum);
 
 
 		//할부개월 지정
