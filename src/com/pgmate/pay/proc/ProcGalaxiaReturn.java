@@ -131,7 +131,7 @@ public class ProcGalaxiaReturn extends Proc {
             authInfo.put("message", MESSAGE);
 
             Message authMsg = MessageAuthProcess(authInfo);
-            logger.info("GALAXIA MESSAGE : {}", authMsg.getResult());
+            logger.info("GALAXIA MESSAGE : {}", authMsg.getLogString());
 
             String responseCode = authMsg.get(MessageTag.RESPONSE_CODE);
             String responseMsg = authMsg.get(MessageTag.RESPONSE_MESSAGE);
@@ -192,7 +192,7 @@ public class ProcGalaxiaReturn extends Proc {
         byte[] b = new byte[msg.getBytes().length - 4] ;
         System.arraycopy(msg.getBytes(), 4, b, 0, b.length);
 
-        Message requestMsg = new Message(b, getCipher(serviceId,serviceCode)) ;
+        Message requestMsg = new Message(b, getCipher(serviceId,serviceCode), "EUC-KR") ;
 
         Message responseMsg = null ;
 
@@ -356,7 +356,7 @@ public class ProcGalaxiaReturn extends Proc {
             int index = st[i].indexOf('=');
             if (index > 0){
                 String key = st[i].substring(0, index);
-                requestMap.put(key, changeCharset(URLDecode(st[i].substring(index + 1)),"utf-8"));
+                requestMap.put(key, changeCharset(URLDecode(st[i].substring(index + 1)),"EUC-KR"));
                 logger.info("DATAS : {},[{}]",key,requestMap.getString(key));
             }
         }
