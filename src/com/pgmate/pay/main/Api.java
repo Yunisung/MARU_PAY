@@ -227,6 +227,10 @@ public class Api {
 				process = new ProcWelcomeSubReturn();
 			} else if (uri.startsWith(PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN)) {
 				process = new ProcWelcomeSubMobileReturn();
+			} else if (uri.startsWith(PAYUNIT.API_PHONE_AUTH_RETURN)) {
+				process = new ProcPhoneAuthReturn();
+			} else if (uri.startsWith(PAYUNIT.API_PHONE_AUTH)) {
+				process = new ProcPhoneAuth();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {

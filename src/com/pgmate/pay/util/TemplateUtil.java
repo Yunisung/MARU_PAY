@@ -369,4 +369,25 @@ public class TemplateUtil {
 		.putHeader(HttpHeaders.SERVER, "CREDITOP")
 		.write(returnPage.toString()).end();
 	}
+
+	public static void phoneAuthResultPage(RoutingContext rc, String url, String widgetKey) {
+		String sb = String.join("\n",
+				"<html><head>",
+				" <meta charset=\"UTF-8\">",
+				" <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0\">",
+				" <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">",
+				" <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'> ",
+				" <title>통합인증</title>",
+				"<head><body>",
+				"<script>setTimeout(function() { location.href = \""+url+"?token="+widgetKey+"\" },200);</script>",
+				"</body></html>");
+
+		rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "text/html; charset=UTF-8")
+				.putHeader(HttpHeaders.CONTENT_LENGTH, ""+sb.toString().getBytes().length)
+				.putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+				.putHeader(HttpHeaders.EXPIRES, "-1")
+				.putHeader(HttpHeaders.CONNECTION, "close")
+				.putHeader(HttpHeaders.SERVER, "CREDITOP")
+				.write(sb.toString()).end();
+	}
 }

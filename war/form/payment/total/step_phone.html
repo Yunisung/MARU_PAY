@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0,maximum-scale=1.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no, address=no, email=no">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap"
+            rel="stylesheet">
+    <link href='/static/css/auth/style_mb.css' rel='stylesheet' type='text/css'>
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+            integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"/>
+    <title>휴대폰 본인 인증</title>
+</head>
+<body class="mb-register">
+<form id="initData" name="initData">
+    <input type="hidden" id="initMchtId" name="initMchtId" value="" />
+    <input type="hidden" id="initTrackId" name="initTrackId" value="" />
+    <input type="hidden" id="initIdentity" name="initIdentity" value="" />
+    <input type="hidden" id="initHolderName" name="initHolderName" value="" />
+    <input type="hidden" id="initPhoneNo" name="initPhoneNo" value="" />
+    <input type="hidden" id="initPublicKey" name="initPublicKey" value="" />
+    <input type="hidden" id="initRedirectUrl" name="initRedirectUrl" value="" />
+    <input type="hidden" id="initWebhookUrl" name="initWebhookUrl" value="" />
+    <input type="hidden" id="initIdentityCheck" name="initIdentityCheck" value="" />
+    <input type="hidden" id="initOwnerAuth" name="initOwnerAuth" value="" />
+    <input type="hidden" id="initAccountAuth" name="initAccountAuth" value="" />
+    <input type="hidden" id="initArsAuth" name="initArsAuth" value="" />
+    <input type="hidden" id="initUseStockBank" name="initUseStockBank" value="" />
+    <input type="hidden" id="initPhoneAuthCheck" name="initPhoneAuthCheck" value="" />
+    <input type="hidden" id="initWebKey" name="initWebKey" value="" />
+</form>
+<form id="userForm" name="userForm" method = "POST" action="">
+    <input type="hidden" id="userBankCd" name="userBankCd" value="" />
+    <input type="hidden" id="userBankName" name="userBankName" value="" />
+    <input type="hidden" id="userAccount" name="userAccount" value="" />
+    <input type="hidden" id="userIdentity" name="userIdentity" value="" />
+    <input type="hidden" id="userName" name="userName" value="" />
+    <input type="hidden" id="userPhoneNo" name="userPhoneNo" value="" />
+    <input type="hidden" id="userAuthId" name="userAuthId" value="" />
+</form>
+<form id="phoneAuthForm" name="phoneAuthForm" method = "POST" action="">
+    <input type="hidden" id="phoneAuthType" name="phoneAuthType" value="REQ" />
+    <input type="hidden" id="mchtId" name="mchtId" value="" />
+    <input type="hidden" id="name" name="name" value="" />
+    <input type="hidden" id="phoneNo" name="phoneNo" value="" />
+    <input type="hidden" id="phoneAuthResultCd" name="phoneAuthResultCd" value="" />
+    <input type="hidden" id="phoneAuthResultMsg" name="phoneAuthResultMsg" value="" />
+    <input type="hidden" id="totalAuthId" name="totalAuthId" value="" />
+</form>
+<form id="vactResForm" name="vactResForm" method = "POST" action="">
+    <input type="hidden" id="vactTotalAuthId" name="vactTotalAuthId" value="" />
+</form>
+
+<div class="popup-layer">
+    <div class="layer-container step02">
+        <!-- title -->
+        <div class="header-title">
+                    <span>
+                        휴대폰 본인 인증
+                    </span>
+        </div>
+        <!-- //title -->
+        <!-- navigation -->
+        <div class="nav">
+            <div class="step">
+                <img
+                        src="/static/img/auth/nav/icon_consent.png"
+                        srcset="/static/img/auth/nav/icon_consent@2x.png 2x, /static/img/auth/nav/icon_consent@3x.png 3x"/>
+            </div>
+            <div class="arrow">
+                <img
+                        src="/static/img/auth/nav/icon_next.png"
+                        srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+            </div>
+
+            <div class="step">
+                <img
+                        src="/static/img/auth/nav/icon_name_active.png"
+                        srcset="/static/img/auth/nav/icon_name_active@2x.png 2x, /static/img/auth/nav/icon_name_active@3x.png 3x"/>
+            </div>
+            <div class="arrow">
+                <img
+                        src="/static/img/auth/nav/icon_next_active.png"
+                        srcset="/static/img/auth/nav/icon_next_active@2x.png 2x,/static/img/auth/nav/icon_next_active@3x.png 3x"/>
+            </div>
+
+            <div class="step">
+                <img
+                        src="/static/img/auth/nav/icon_occupy.png"
+                        srcset="/static/img/auth/nav/icon_occupy@2x.png 2x, /static/img/auth/nav/icon_occupy@3x.png 3x"/>
+            </div>
+            <div class="arrow">
+                <img
+                        src="/static/img/auth/nav/icon_next.png"
+                        srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+            </div>
+
+            <div class="step">
+                <img
+                        src="/static/img/auth/nav/icon_ars.png"
+                        srcset="/static/img/auth/nav/icon_ars@2x.png 2x, /static/img/auth/nav/icon_ars@3x.png 3x"/>
+            </div>
+            <div class="arrow">
+                <img
+                        src="/static/img/auth/nav/icon_next.png"
+                        srcset="/static/img/auth/nav/icon_next@2x.png 2x,/static/img/auth/nav/icon_next@3x.png 3x"/>
+            </div>
+
+            <div class="step">
+                <img
+                        src="/static/img/auth/nav/icon_complet.png"
+                        srcset="/static/img/auth/nav/icon_complet@2x.png 2x, /static/img/auth/nav/icon_complet@3x.png 3x"/>
+            </div>
+        </div>
+        <!-- //navigation -->
+        <!-- 내용 -->
+        <div class="content">
+            <div id="content-title">
+                <span class="title">고객 정보 입력</span>
+                <div>
+                    <span class="subtitle-02">휴대폰 본인 인증에 필요한 고객 정보를 입력해 주세요.</span>
+                </div>
+            </div>
+            <div class="main auth_name">
+                <table >
+                    <tr>
+                        <th>예금주명</th>
+                        <td><input name="paramName" id="paramName" type="text" maxlength="30" value="" readonly></td>
+                    </tr>
+                    <tr>
+                        <th>휴대폰번호</th>
+                        <td><input name="paramPhoneNo" id="paramPhoneNo" type="number" maxlength="12" value="" readonly></td>
+                    </tr>
+                </table>
+
+            </div>
+            <div id="error_message" class="error_message" >
+                <span class="success">고객정보 입력을 해주세요.</span>
+            </div>
+        </div>
+        <!-- //내용 -->
+    </div>
+    <!-- //container -->
+    <!-- footer -->
+    <div id="footer">
+        <button id="c3-btn-close" class="cancel">취소</button>
+        <button id="next" class="next active">인증</button>
+    </div>
+    <!-- //footer -->
+</div>
+<!-- //popup-layer -->
+</body>
+<script>
+    var clickCheck = false;
+    var count = 0;
+
+    $("#next").on('click', function (event) {
+
+        if(clickCheck){
+            return false;
+        }else{
+            clickCheck = true;
+        }
+
+        if("REQ" == $("#phoneAuthType").val()) {
+            $("#phoneAuthForm > #name").val($("input[id='paramName']").val());
+            $("#phoneAuthForm > #phoneNo").val($("input[id='paramPhoneNo']").val());
+            $("#phoneAuthForm > #mchtId").val($("#initData > #initMchtId").val());
+            $("#phoneAuthForm > #totalAuthId").val($("#vactResForm > #vactTotalAuthId").val());
+
+            $("div[class='error_message']").html('<span class="error">휴대폰 인증 진행중입니다.</span>');
+            $("button[id='next']").removeClass('active');
+
+            var data = {"totalAuth" : $('#phoneAuthForm').serializeObject()};
+
+            loading.start();
+
+            $.ajax({
+                type : 'POST',
+                url : '/api/phone/auth',
+                data : JSON.stringify(data),
+                dataType : 'json',
+                beforeSend : function(xhr){
+                    xhr.setRequestHeader("Content-type", "application/json");
+                    xhr.setRequestHeader("Authorization", $("input[id='initPublicKey']").val());
+                },
+                success : function(json){
+                    loading.end();
+                    clickCheck = false;
+
+                    if("0000" == json.result.resultCd){
+
+                        $("button[id='next']").addClass('active');
+                        KWON.openPhoneAuth(json.widget.phoneAuthUrl, json.widget.form);
+
+                    } else if("AAAA" == json.result.resultCd){
+                        $("button[id='next']").addClass('active');
+                        $("div[class='error_message']").html('<span class="error">' + json.result.resultMsg + ' [' + json.result.advanceMsg + ']</span>');
+
+                    }
+                },
+                error: function(xhr, status, error){
+                    loading.end();
+
+                    clickCheck = false;
+                    $("button[id='next']").addClass('active');
+                    $("div[class='error_message']").html('<span class="error">통신에러</span>');
+                    count++;
+
+                    if(count >= 3){
+                        KWON.setErrMsg("9999", "휴대폰 본인 인증 기타오류", "[실명인증 오류]<br>통신에러" + "<br>가맹점에 문의해 주세요.");
+
+                        $("#accountAuthForm").attr("action","/form/payment/total/step_error.html?token=" + $("input[id='initWebKey']").val()).submit();
+                    }
+                }
+            });
+        } else if("CHK" == $("#phoneAuthType").val()) {
+            location.href='/form/payment/total/step_02.html?token=' + $("input[id='initWebKey']").val();
+        }
+    });
+
+    jQuery.fn.serializeObject = function() {
+        var obj = null;
+        try {
+            if (this[0].tagName && this[0].tagName.toUpperCase() == "FORM") {
+                var arr = this.serializeArray();
+                if (arr) {
+                    obj = {};
+
+                    jQuery.each(arr, function() {
+                        obj[this.name] = this.value;
+                    });
+                }//if ( arr ) {
+            }
+        } catch (e) {
+            alert(e.message);
+        } finally {
+        }
+
+        return obj;
+    };
+</script>
+<script src="/js/onlyAuthIndex.js?v=1" charset="utf-8"></script>
+<script type="text/javascript" src="/js/common_mb.js"></script>
+</html>
