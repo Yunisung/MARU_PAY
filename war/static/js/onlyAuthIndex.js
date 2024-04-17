@@ -200,6 +200,7 @@ var KWON = (function(win, doc) {
         document.getElementById('initAccountAuth').value = config.accountAuth;
         document.getElementById('initArsAuth').value = config.arsAuth;
         document.getElementById('initUseStockBank').value = config.useStockBank;
+        document.getElementById('initPhoneAuthCheck').value = config.phoneAuthCheck;
         document.getElementById('initWebKey').value = token;
 
         //230119_PYS : 주민번호 표시 여부체크
@@ -299,6 +300,25 @@ var KWON = (function(win, doc) {
         if(errMsg){
 			document.getElementById("errMsgArea").innerHTML = config.advanceMsg;
 		}
+
+        /** 휴대폰 본인인증 */
+        var phoneAuthResultCd = !!document.getElementById("phoneAuthResultCd");
+        var phoneAuthResultMsg = !!document.getElementById("phoneAuthResultMsg");
+
+        if(phoneAuthResultCd) {
+            if(config.phoneAuthResultCd == '0000') {
+                document.getElementById("phoneAuthResultCd").value = config.phoneAuthResultCd;
+                document.getElementById("next").innerHTML = "다음";
+                $("#phoneAuthType").val("CHK");
+            }
+        }
+
+        if(phoneAuthResultMsg) {
+            if(config.phoneAuthResultMsg != undefined) {
+                document.getElementById("phoneAuthResultMsg").value = config.phoneAuthResultMsg;
+                $("div[class='error_message']").html('<span class="error">' + config.phoneAuthResultMsg + ' </span>');
+            }
+        }
     }
     
     document.getElementById("c3-btn-close").addEventListener("click", okBtnExit); 
@@ -325,6 +345,25 @@ var KWON = (function(win, doc) {
         } else {
             return false;
         }
+    }
+
+    function openPhoneAuth(url, form) {
+        console.log("PHONE_AUTH");
+        var phoneAuthForm = JSON.parse(form);
+        var f = doc.createElement("form");
+        f.setAttribute("method", "post");
+        f.setAttribute("action", url)
+        document.body.appendChild(f);
+        for (key in phoneAuthForm) {
+            var val = phoneAuthForm[key];
+            var elem = document.createElement("input");
+            elem.setAttribute("type", "hidden");
+            elem.setAttribute("name", key);
+            elem.setAttribute("value", val);
+            f.appendChild(elem);
+        }
+        f.acceptCharset = "euc-kr";
+        f.submit();
     }
 
     function close() {
@@ -514,6 +553,7 @@ var KWON = (function(win, doc) {
 		setErrMsg: setErrMsg,
 		util : util,
 		okBtnExit: okBtnExit,
+        openPhoneAuth: openPhoneAuth,
 		close: close
   	}
 

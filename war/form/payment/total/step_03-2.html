@@ -36,6 +36,7 @@
             <input type="hidden" id="initAccountAuth" name="initAccountAuth" value="" />
             <input type="hidden" id="initArsAuth" name="initArsAuth" value="" />
             <input type="hidden" id="initUseStockBank" name="initUseStockBank" value="" />
+            <input type="hidden" id="initPhoneAuthCheck" name="initPhoneAuthCheck" value="" />
 			<input type="hidden" id="initWebKey" name="initWebKey" value="" />
 		</form>
 		<form id="userForm" name="userForm" method = "POST" action="">
@@ -267,7 +268,7 @@
 	    	
 				$.ajax({
 					type : 'POST', 
-					url : '/api/account/auth/check', 
+					url : '/api/account/auth/check',
 					data : JSON.stringify(data),
 					dataType : 'json', 
 					beforeSend : function(xhr){ 

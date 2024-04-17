@@ -25,6 +25,7 @@ var KWON = (function (win, doc) {
         regType: '',
         authType: '',
         identityCheck: '',
+        phoneAuthCheck: '',
         udf1: '',
         udf2: ''
     }
@@ -55,6 +56,7 @@ var KWON = (function (win, doc) {
         regType: '',
         authType: '',
         identityCheck: '',
+        phoneAuthCheck: '',
         udf1: '',
         udf2: ''
     }
@@ -113,20 +115,9 @@ var KWON = (function (win, doc) {
     }
 
     function requestSendVact() {
-        //maruPop();
-
         setTimeout(function() {
             postMessages.sendVact();
         }, 200);
-    }
-
-    function maruPop() {
-        console.log('c3pop', routeDomain + '/form/payment/vact/authVactLayout');
-
-        doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/vact/authVactLayout';
-        doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
-        doc.getElementById('c3_pop_overlay').style.display = '';
-        doc.getElementById('c3pop_content_fixed').style.display = '';
     }
 
     function onlyAuth(config) {
@@ -136,9 +127,6 @@ var KWON = (function (win, doc) {
 
         c3Config = util.extend(c3Config, config);
         MaruConfig = util.extend(MaruConfig, config);
-        //c3Config.publicKey = 'pk_55af-b88fa5-8cb-6ff54';
-        //c3Config.publicKey = config.authKey;
-        // c3Config.publicKey = config.publicKey;
         c3Config.redirectUrl = '';
         //c3Config.responseFunction = MaruResponseFunction;
         routeDomain = routeUrls[c3Config.debugMode];
