@@ -39,6 +39,7 @@
 		<input type="hidden" id="initAccountAuth" name="initAccountAuth" value="" />
 		<input type="hidden" id="initArsAuth" name="initArsAuth" value="" />
 		<input type="hidden" id="initUseStockBank" name="initUseStockBank" value="" />
+		<input type="hidden" id="initPhoneAuthCheck" name="initPhoneAuthCheck" value="" />
 		<input type="hidden" id="initWebKey" name="initWebKey" value="" />
 	</form>
 	<form id="userForm" name="userForm" method = "POST" action="">
@@ -216,9 +217,13 @@
        });
 	
        $("#next").on('click', function (event) {
-			if($("input[id='agree_01']").is(":checked") && $("input[id='agree_02']").is(":checked") && $("input[id='agree_03']").is(":checked")){
-           	location.href='/form/payment/total/step_02.html?token=' + $("input[id='initWebKey']").val();
-           }
+		   if($("input[id='agree_01']").is(":checked") && $("input[id='agree_02']").is(":checked") && $("input[id='agree_03']").is(":checked")){
+			   if($("input[id='initPhoneAuthCheck']").val() == "Y") {
+				   location.href='/form/payment/total/step_phone.html?token=' + $("input[id='initWebKey']").val();
+			   } else {
+				   location.href='/form/payment/total/step_02.html?token=' + $("input[id='initWebKey']").val();
+			   }
+		   }
        });
        
        $("input[type='checkbox']").on('click', function (event) {

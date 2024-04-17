@@ -95,6 +95,7 @@ public class ProcOnlyAuthWidget extends Proc {
 				String accountAuth = "";
 				String arsAuth = "";
 				String useStockBank = "Y";
+				String phoneAuthCheck = "";
 
 				if(totalAuth != null) {
 					identityCheck = totalAuth.getString("identityCheck");
@@ -102,12 +103,14 @@ public class ProcOnlyAuthWidget extends Proc {
 					accountAuth = totalAuth.getString("accountAuth");
 					arsAuth = totalAuth.getString("arsAuth");
 					useStockBank = totalAuth.getString("useStockBank");
+					phoneAuthCheck = totalAuth.getString("phoneAuth");
 				}
 				request.widget.put("identityCheck", identityCheck);
 				request.widget.put("ownerAuth", ownerAuth);
 				request.widget.put("accountAuth", accountAuth);
 				request.widget.put("arsAuth", arsAuth);
 				request.widget.put("useStockBank", useStockBank);
+				request.widget.put("phoneAuthCheck", phoneAuthCheck);
 
 				//위젯에서 통합인증ID세팅후 인증할때마다 공유
 				String totalAuthId = TrxDAO.getTotalAuthId();

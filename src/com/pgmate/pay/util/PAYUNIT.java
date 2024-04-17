@@ -122,9 +122,12 @@ public class PAYUNIT {
 	public static String API_WELCOME_SUB_RETURN		= "/api/welcome/sub/return";
 	public static String API_WELCOME_SUB_MOBILE_RETURN = "/api/welcome/sub/mobile/return";
 
+	public static String API_PHONE_AUTH				= "/api/phone/auth";
+	public static String API_PHONE_AUTH_RETURN		= "/api/phone/auth/return";
+
 
 	public static String[] SIMULATION_CARD			= new String[]{"4242424242424242","5436031030606378","345678901234564","3530111333300000"};
-    public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook","galaxia/return"};
+    public static String[] IGNORE_AUTHRORISATION    = {"webhooks","redirect","inquery","3d/hook","3d/mobile/hook","w3d/hook","phone/hook","3dV2/hook","kakao/hook","galaxia/return", "phone/auth/return"};
 
 	public static String ROUTE_ROOT					= "/";
 	public static String ROUTE_CROSSDOMAIN 			= "/crossdomain.xml";
