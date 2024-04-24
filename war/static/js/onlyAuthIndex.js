@@ -347,23 +347,93 @@ var KWON = (function(win, doc) {
         }
     }
 
+    var ServerUtil = {
+        popupWidth: 640,
+        popupHeigth: 670,
+        layerWidth: 500,
+        layerHeigth: 670,
+        resizeWindow: function(config) {
+            if(util.isMobile()){
+                ServerUtil.popupWidth = window.innerWidth;
+                ServerUtil.popupHeigth = window.innerHeight;
+            } else {
+                ServerUtil.layerWidth = 500;
+                ServerUtil.layerHeigth = 670;
+            }
+        }
+    }
+
+    var phoneAuthPopup = function(url, form) {
+        PopupCenter(url, form,'phoneAuth_popup', ServerUtil.popupWidth, ServerUtil.popupHeigth);
+    }
+
+    function PopupCenter(url, form, title, w, h) {
+        // Fixes dual-screen position                         Most browsers      Firefox
+        var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+        var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+        var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+        var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+        var top = ((height / 2) - (h / 2)) + dualScreenTop;
+        var newWindow = null;
+
+        console.log('Window Open!');
+
+        if (util.isMobile()) {
+            console.log('Mobile Open!');
+            newWindow = window.open('about:blank', title);
+        } else {
+            newWindow = window.open('about:blank', title, 'location=no, resizable=no, fullscreen=no, menubar=no, status=no, toolbar=no, scrollbars=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+        }
+        if (newWindow == null || typeof(newWindow) == 'undefined') {
+            alert('팝업 차단 기능이 설정되어 있습니다.\n\n차단 기능을 해제 한 후 다시 시도해 주십시오.');
+        } else {
+            var phoneAuthForm = JSON.parse(form);
+            var f = doc.createElement("form");
+            f.setAttribute("method", "post");
+            f.setAttribute('target', 'phoneAuth_popup');
+            f.setAttribute("action", url)
+            document.body.appendChild(f);
+            for (key in phoneAuthForm) {
+                var val = phoneAuthForm[key];
+                var elem = document.createElement("input");
+                elem.setAttribute("type", "hidden");
+                elem.setAttribute("name", key);
+                elem.setAttribute("value", val);
+                f.appendChild(elem);
+            }
+            f.acceptCharset = "euc-kr";
+            f.style.display = 'none';
+            f.submit();
+
+            // Puts focus on the newWindow
+            if (window.focus) {
+                newWindow.focus();
+            }
+        }
+    }
+
     function openPhoneAuth(url, form) {
         console.log("PHONE_AUTH");
-        var phoneAuthForm = JSON.parse(form);
-        var f = doc.createElement("form");
-        f.setAttribute("method", "post");
-        f.setAttribute("action", url)
-        document.body.appendChild(f);
-        for (key in phoneAuthForm) {
-            var val = phoneAuthForm[key];
-            var elem = document.createElement("input");
-            elem.setAttribute("type", "hidden");
-            elem.setAttribute("name", key);
-            elem.setAttribute("value", val);
-            f.appendChild(elem);
-        }
-        f.acceptCharset = "euc-kr";
-        f.submit();
+        phoneAuthPopup(url, form);
+
+        // var phoneAuthForm = JSON.parse(form);
+        // var f = doc.createElement("form");
+        // f.setAttribute("method", "post");
+        // f.setAttribute("action", url)
+        // document.body.appendChild(f);
+        // for (key in phoneAuthForm) {
+        //     var val = phoneAuthForm[key];
+        //     var elem = document.createElement("input");
+        //     elem.setAttribute("type", "hidden");
+        //     elem.setAttribute("name", key);
+        //     elem.setAttribute("value", val);
+        //     f.appendChild(elem);
+        // }
+        // f.acceptCharset = "euc-kr";
+        // f.submit();
     }
 
     function close() {
@@ -542,6 +612,18 @@ var KWON = (function(win, doc) {
         }, function(err) {
             console.log('TOKEN ERROR  ', err);
         });
+    });
+
+    util.addEventListener(window, 'message', function (e) {
+        var recv = JSON.parse(e.data);
+
+        if(!recv.type) {
+        } else if(recv.type == 'PHONE_AUTH_RESULT') {
+            console.log("PHONE_AUTH_RESULT");
+            console.log(recv.data);
+            location.reload(true);
+        }
+
     });
     
     var KWON = {
