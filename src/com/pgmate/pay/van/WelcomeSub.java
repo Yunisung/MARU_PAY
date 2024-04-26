@@ -116,6 +116,11 @@ public class WelcomeSub implements Van{
 			return sharedMap;
 		}
 
+		if(!CommonUtil.isNullOrSpace(response.pay.payerEmail)) {
+			reqMap.put("email", AES256Cipher(response.pay.payerEmail));
+			reqMap.put("email_send_yn", "Y");
+		}
+
 		reqMap.put("hash_value", hash_value);
 
 		SharedMap<String, Object> responseMap = new SharedMap<>();
