@@ -115,6 +115,12 @@ public class Welcome implements Van {
             //비밀번호 암호화
             String encPasswd = URLEncode(EncryptUtil.aesEncrypt(passwd, encryptKEY, encryptIV), "UTF-8");
 
+            //이름 암호화
+            String encName = URLEncode(buyerName, "UTF-8");
+
+            //상품명 암호화
+            String encProduct = URLEncode(goodsName, "UTF-8");
+
             //데이터 전송
             String send_text = "mid=" + mid;
             send_text += "&cardNumber=" + encCardNumber;
@@ -128,8 +134,8 @@ public class Welcome implements Van {
             send_text += "&price=" + price;
             send_text += "&tax=" + tax;
             send_text += "&taxfree=" + taxfree;
-            send_text += "&goodsName=" + goodsName;
-            send_text += "&buyerName=" + buyerName;
+            send_text += "&goodsName=" + encProduct;
+            send_text += "&buyerName=" + encName;
             send_text += "&buyerTel=" +  buyerTel;
             send_text += "&buyerEmail=" + buyerEmail;
             send_text += "&timestamp=" + timestamp;
