@@ -345,8 +345,8 @@ var MARU = (function (win, doc) {
   }
 
   function echoPop() {
-    console.log('c3pop', routeDomain + '/form/payment/layoutV3');
-    doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV3'; // 정해지면 변경...
+    console.log('c3pop', routeDomain + '/form/payment/layout');
+    doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layout'; // 정해지면 변경...
     doc.getElementById('c3pop_pop_overlay_wrap').style.display = 'none';
     doc.getElementById('c3_pop_overlay').style.display = 'none';
     doc.getElementById('c3pop_content_fixed').style.display = 'none';

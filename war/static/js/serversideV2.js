@@ -183,6 +183,13 @@ var postMessages = {
             type: 'VALIDATION_RESULT'
         }
         util.sendMessageToParent(obj);
+    },
+    refundResult: function(res) {
+        var obj = {
+            type: 'REFUND_RESULT',
+            data: res
+        }
+        util.sendMessageToParent(obj);
     }
 }
 
@@ -194,25 +201,19 @@ var ServerUtil = {
     resizeWindow: function(config) {
         var additionHeight = 0;
         if (config.widget.semiAuth == 'Y') {
-            additionHeight += 50;
+            additionHeight += 90;
         }
 
         if (c3Config.mode == 'popup') {
             ServerUtil.popupHeigth += additionHeight;
         } else {
-        	var innerWidth = window.innerWidth;
-        	if(c3Config.payRoute == 'w3d'){
-        		ServerUtil.layerHeigth += additionHeight -180;
-        	}else if(c3Config.payRoute == 'phone' || c3Config.payRoute == '3d' || c3Config.payRoute == '3dPay'){
-        		ServerUtil.layerWidth = window.innerWidth;
-        		if(util.isMobile()){
-        			ServerUtil.layerHeigth = window.innerHeight;
-        		}else{
-        			ServerUtil.layerHeigth = window.outerHeight;
-        		}
-         	}else {
-        		ServerUtil.layerHeigth += additionHeight;
-        	}
+            var innerWidth = window.innerWidth;
+            if(c3Config.payRoute == 'w3d'){
+                ServerUtil.layerHeigth += additionHeight -180;
+                // 비생결제의 경우
+            }else{
+                ServerUtil.layerHeigth += additionHeight;
+            }
         }
     }
 }
@@ -297,9 +298,15 @@ function PopupCenter(url, title, w, h) {
 /* 발급받은 토큰으로 결제창 열기 */
 function openPayment(config) {
     c3Config = config.c3Config;
-      var widgetUri = '/api/3dV2/widget';
+    var widgetUri = '';
+    if(c3Config.payRoute == 'regular'){
+        widgetUri = '/api/widget';
+    }else if(c3Config.payRoute == '3d'){
+        widgetUri = '/api/3d/widget';
+    }else{
+        widgetUri = '/api/w3d/widget';
+    }
 
-    console.log(widgetUri);
     util.postAjax(widgetUri, JSON.stringify({
         'widget': config.c3Config
     }), function(res) {
@@ -307,8 +314,7 @@ function openPayment(config) {
         if (res.result.resultCd == '0000') {
             var url = window.location.protocol + "//" + window.location.host + res.widget.routeUrl;
             ServerUtil.resizeWindow(res);
-            console.log('url : '+ url);
-            console.log('mode : ' + config.c3Config.mode);
+
             if (config.c3Config.mode === 'popup') {
                 popup(url);
             } else {
@@ -348,10 +354,17 @@ function echoPayment(recv) {
     var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
     xhr.open('GET', '/api/echo');
     xhr.onreadystatechange = function() {
-        if (xhr.readyState > 3 && xhr.status == 200) {
-            //console.log(JSON.parse(xhr.responseText));
-            var res = JSON.parse(xhr.responseText);
-            postMessages.echoResult(res);
+        if (xhr.readyState > 3) {
+            if(xhr.status == 200) {
+                console.log(JSON.parse(xhr.responseText));
+                var res = JSON.parse(xhr.responseText);
+                console.log(res);
+                postMessages.echoResult(res);
+            } else {
+                var res = {result : {resultCd: 'xxxx', resultMsg: 'echo', advanceMsg: '인증실패'}};
+                postMessages.echoResult(res);
+            }
+
         }
     };
     xhr.setRequestHeader("Accept", "application/json");
@@ -359,6 +372,35 @@ function echoPayment(recv) {
     xhr.setRequestHeader("Authorization", recv.key);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send();
+}
+function refund(recv) {
+    refundData = recv.refundData;
+
+    var result = new Object;
+    result.refund = refundData;
+
+    console.log('SEND REFUND DATA : ', JSON.stringify(result));
+
+    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+    xhr.open('POST', '/api/refund');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState > 3) {
+            if(xhr.status == 200) {
+                console.log(JSON.parse(xhr.responseText));
+                postMessages.refundResult(JSON.parse(xhr.responseText));
+            } else {
+                var res = {result : {resultCd: 'xxxx', resultMsg: 'refund', advanceMsg: '실패'}};
+                postMessages.refundResult(res);
+            }
+
+        }
+    };
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Accept-Language", "ko_KR");
+    xhr.setRequestHeader("Authorization", refundData.paykey);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify(result));
+
 }
 
 /* 클라이언트(Parent window)로 부터 받은 PoseMessage */
@@ -379,6 +421,8 @@ util.addEventListener(window, 'message', function(e) {
         closePayment(recv.data);
     } else if (recv.type === 'ECHO') {
         echoPayment(recv);
+    } else if(recv.type === 'REFUND') {
+        refund(recv);
     }
 });
 
