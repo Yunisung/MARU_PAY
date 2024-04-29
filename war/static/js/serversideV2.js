@@ -210,8 +210,14 @@ var ServerUtil = {
             var innerWidth = window.innerWidth;
             if(c3Config.payRoute == 'w3d'){
                 ServerUtil.layerHeigth += additionHeight -180;
-                // 비생결제의 경우
-            }else{
+            }else if(c3Config.payRoute == 'phone' || c3Config.payRoute == '3d' || c3Config.payRoute == '3dPay'){
+                ServerUtil.layerWidth = window.innerWidth;
+                if(util.isMobile()){
+                    ServerUtil.layerHeigth = window.innerHeight;
+                }else{
+                    ServerUtil.layerHeigth = window.outerHeight;
+                }
+            }else {
                 ServerUtil.layerHeigth += additionHeight;
             }
         }
