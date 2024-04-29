@@ -259,21 +259,20 @@ var MARU = (function (win, doc) {
   }
 
   function payResult (data) {
-	if(data.indexOf('사용자취소') < 1 ){
-	    var url = c3Config.redirectUrl;
-	    if (url && url.length > 1) {
-	      console.log('[CLIENT] REDIRECT: ', url);
-	      var form = doc.createElement('form');
-	      form.method = 'GET';
-	      form.action = url;
-	      var elem = doc.createElement('input');
-	      elem.value = JSON.stringify(data);
-	      elem.name = 'result';
-	      form.appendChild(elem);
-	      doc.body.appendChild(form);
-	      form.submit();
-	    }
-	}
+    var url = c3Config.redirectUrl;
+    if (url && url.length > 1) {
+      console.log('[CLIENT] REDIRECT: ', url);
+      var form = doc.createElement('form');
+      form.method = 'GET';
+      form.action = url;
+      var elem = doc.createElement('input');
+      elem.value = JSON.stringify(data);
+      elem.name = 'result';
+      form.appendChild(elem);
+      doc.body.appendChild(form);
+      form.submit();
+    }
+
     setTimeout(function () {
       var resFnc = c3Config.responseFunction;
       if(resFnc && typeof resFnc == 'function') {
@@ -374,8 +373,8 @@ function requestPayOpen() {
   }
 
   function echoPop() {
-    console.log('c3pop', routeDomain + '/form/payment/layoutV3');
-    doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV3'; // 정해지면 변경...
+    console.log('c3pop', routeDomain + '/form/payment/layoutV2');
+    doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV2'; // 정해지면 변경...
     doc.getElementById('c3pop_pop_overlay_wrap').style.display = 'none';
     doc.getElementById('c3_pop_overlay').style.display = 'none';
     doc.getElementById('c3pop_content_fixed').style.display = 'none';
@@ -394,8 +393,8 @@ function requestPayOpen() {
   }
 
   function refundPop() {
-    console.log('c3pop', routeDomain + '/form/payment/layoutV3');
-    doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV3'; // 정해지면 변경...
+    console.log('c3pop', routeDomain + '/form/payment/layoutV2');
+    doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV2'; // 정해지면 변경...
     doc.getElementById('c3pop_pop_overlay_wrap').style.display = 'none';
     doc.getElementById('c3_pop_overlay').style.display = 'none';
     doc.getElementById('c3pop_content_fixed').style.display = 'none';
