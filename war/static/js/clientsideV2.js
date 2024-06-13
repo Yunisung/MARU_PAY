@@ -4,6 +4,8 @@ var MARU = (function (win, doc) {
 	trxType: '',
     publicKey: '',    // 필수값
     amount: 0,        // 필수값
+    payerName: '',
+    payerTel: '',
     trackId: '',
     responseFunction: '',
     validationFunction: '',
@@ -105,6 +107,16 @@ var MARU = (function (win, doc) {
       }
       if(!config.amount) {
         error.code = '4002'; error.message = 'amount 필수값이 없습니다.';
+        return false;
+      }
+
+      if(!config.payerName) {
+        error.code = '4002'; error.message = 'payerName 필수값이 없습니다.';
+        return false;
+      }
+
+      if(!config.payerTel) {
+        error.code = '4002'; error.message = 'payerTel 필수값이 없습니다.';
         return false;
       }
 
