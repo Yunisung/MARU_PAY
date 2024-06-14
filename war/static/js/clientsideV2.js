@@ -110,15 +110,19 @@ var MARU = (function (win, doc) {
         return false;
       }
 
-      if(!config.payerName) {
-        error.code = '4002'; error.message = 'payerName 필수값이 없습니다.';
-        return false;
+      if(config.payRoute == 'regular') {
+        if(!config.payerName) {
+          error.code = '4002'; error.message = 'payerName 필수값이 없습니다.';
+          return false;
+        }
+
+        if(!config.payerTel) {
+          error.code = '4002'; error.message = 'payerTel 필수값이 없습니다.';
+          return false;
+        }
       }
 
-      if(!config.payerTel) {
-        error.code = '4002'; error.message = 'payerTel 필수값이 없습니다.';
-        return false;
-      }
+
 
       return true;
     },
