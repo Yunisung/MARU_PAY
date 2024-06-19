@@ -90,7 +90,7 @@ public class ProcRefund extends Proc {
 			van = new Allat(vanMap);
         }else if(trxMap.startsWith("van", "FIRST")){
 			van = new Firstpay(vanMap);
-		}else if(trxMap.isEquals("van", "WELCOME")){
+		}else if(trxMap.startsWith("van", "WELCOME")){
 			van = new Welcome(vanMap);
 		}else if(trxMap.isEquals("van", "WELCOMESUB")) {
 			van = new WelcomeSub(vanMap);
