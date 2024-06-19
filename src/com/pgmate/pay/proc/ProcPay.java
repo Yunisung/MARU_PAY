@@ -101,7 +101,7 @@ public class ProcPay extends Proc {
 			van = new Galaxia(tmnVanMap);
 		}else if(mchtTmnMap.isEquals("van", "WELCOMESUB")){
 			van = new WelcomeSub(tmnVanMap);
-		}else if(mchtTmnMap.isEquals("van", "WELCOME")){
+		}else if(mchtTmnMap.startsWith("van", "WELCOME")){
 			van = new Welcome(tmnVanMap);
 		} else{
 			//mchtTmnMap.put("van","DEFAULT");
