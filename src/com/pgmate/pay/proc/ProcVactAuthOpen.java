@@ -558,12 +558,6 @@ public class ProcVactAuthOpen extends Proc{
         String regType = request.vact.regType;
         String identity = request.vact.identity;
 
-        String type = "등록";
-
-//        if("2".equals(trxType)) {
-//            type = "변경";
-//        }
-
         host = firm.firmServer;
         timeout = firm.firmTimeout;
         port = firm.firmPort;
@@ -571,12 +565,52 @@ public class ProcVactAuthOpen extends Proc{
         logger.info("request 출금계좌 정보 확인 [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]",
                 mchtId, bankCd, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo, trxType, host);
 
-        firmBean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
-                name, regType, identity, phoneNo, bankCd);
+        //신협일때 kyc 비용 추가
+        if(bankCd.equals("048")) {
+            //데이터 세팅
+            String bankName = trxDAO.getBankName(bankCd).getString("codeName");
+            String holderName = request.totalAuth.name;
+            String mchtName = trxDAO.getMchtByMchtId(mchtId).getString("name");
+            String totalAuthId = request.totalAuth.totalAuthId;
+            String authId = TrxDAO.getAuthId();
 
-        // 테스트용 - 임시
-//        firmBean.resultCd = "0000";
-//        firmBean.resultMsg = "출금계좌 정보 등록 완료.";
+            SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
+
+            String stlType = totalAuthMap.getString("settleType");
+            String unitType = "";
+            if(totalAuthMap.getString("settleType").startsWith("D+0")){
+                unitType = "실시간정산";
+            }else if(totalAuthMap.getString("settleType").startsWith("D+")){
+                unitType = "일반정산";
+            }else if(totalAuthMap.getString("settleType").startsWith("C+")){
+                unitType = "충전정산";
+            }else if(totalAuthMap.getString("settleType").equals("A+1")){
+                unitType = "자동정산";
+            }else if(totalAuthMap.getString("settleType").equals("A+0") ||
+                    totalAuthMap.getString("settleType").equals("A+2")){
+                unitType = "당일정산";
+            }else if(totalAuthMap.getString("settleType").startsWith("B+")) {
+                unitType = "자동충전정산";
+            }
+
+            String stlDay = calcDay(stlType, CommonUtil.getCurrentDate("yyyyMMdd"));
+
+            //KYC 인증수수료값 조회
+            long authFee = totalAuthMap.getLong("kycFee");
+            String authType = "KYC인증";
+            String summary = "";
+
+            trxDAO.insertTotalAuth(authId, totalAuthId, mchtId, mchtName, authType, bankCd, bankName, account, holderName, identity, "", phoneNo ,authFee, calcVat(authFee), stlType, unitType, stlDay, summary);
+
+            firmBean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
+                    name, regType, identity, phoneNo, bankCd);
+
+            trxDAO.updateTotalAuthResult(authId, firmBean.idx, response.result.resultCd, response.result.resultMsg);
+
+        } else {
+            firmBean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
+                    name, regType, identity, phoneNo, bankCd);
+        }
 
         if(!"0000".equals(firmBean.resultCd)) {
             if("".equals(firmBean.resultMsg)) {
@@ -587,17 +621,9 @@ public class ProcVactAuthOpen extends Proc{
             logger.info("예금주 실명조회 오류 [{}][{}][{}][{}][{}][{}]", account, withdrawBankCd, withdrawAccount, identity, firmBean.resultCd, firmBean.resultMsg);
             return false;
         } else {
-//            response.result.resultCd = firmBean.resultCd;
-//            response.result.resultMsg = firmBean.resultMsg;
-            response.result = ResultUtil.getResult(firmBean.resultCd, firmBean.resultMsg,"");
-            //임시 - 테스트용
-//            response.result = ResultUtil.getResult("0000", "정상","가상계좌가 발행되었습니다."+vact.getString("issueId"));
-            /*if(!request.vact.holderName.trim().equals(firmBean.data.getString("customerName"))) {
-                logger.info("API인증 예금주 실명조회 비교오류 [{}][{}][{}][{}][{}]", request.vact.authBankCd, request.vact.authAccount, request.vact.identity, request.vact.holderName.trim(), firmBean.data.getString("name"));
 
-                response.result = ResultUtil.getResult("9999", "실명오류", "입력한이름과 고객실명이 다릅니다.");
-                return false;
-            }*/
+            response.result = ResultUtil.getResult(firmBean.resultCd, firmBean.resultMsg,"");
+
         }
         return true;
     }
@@ -645,7 +671,6 @@ public class ProcVactAuthOpen extends Proc{
                 firmBean.data.put("regType", regType);
                 firmBean.data.put("identity", identity);
             }
-
         }
 
         firmBean = comm(firmBean);
