@@ -538,7 +538,8 @@ public class ProcVactAuthOpen extends Proc{
     //MARU_FIRM -> 하이픈 서버 거쳐 등록
     private boolean withdrawReg(Request request) {
         //더즌 예외 추가
-        if(request.vact.bankCd.equals("034")) {
+        //일단 신협 예외로 추가
+        if(request.vact.bankCd.equals("034") || request.vact.bankCd.equals("048")) {
             response.result = ResultUtil.getResult("0000", "정상","");
             return true;
         }
