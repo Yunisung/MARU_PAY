@@ -567,7 +567,7 @@ public class ProcVactAuthOpen extends Proc{
                 mchtId, bankCd, account, withdrawBankCd, withdrawAccount, name, regType, identity, phoneNo, trxType, host);
 
         //신협일때 kyc 비용 추가
-        if(bankCd.equals("048")) {
+        /*if(bankCd.equals("048")) {
             //데이터 세팅
             String bankName = trxDAO.getBankName(bankCd).getString("codeName");
             String holderName = request.totalAuth.name;
@@ -611,7 +611,10 @@ public class ProcVactAuthOpen extends Proc{
         } else {
             firmBean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
                     name, regType, identity, phoneNo, bankCd);
-        }
+        }*/
+
+        firmBean = vactReg(companyCd, trxType, account, withdrawBankCd, withdrawAccount,
+                name, regType, identity, phoneNo, bankCd);
 
         if(!"0000".equals(firmBean.resultCd)) {
             if("".equals(firmBean.resultMsg)) {
