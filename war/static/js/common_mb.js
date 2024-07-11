@@ -74,7 +74,7 @@ function provisionStyling() {
                 innerText: '약관보기'
             })
         } else {*/
-            anchor = $(document.createElement('a')).prop({href: '#', innerText: '약관보기'});
+            anchor = $(document.createElement('a')).prop({href: '#', innerText: '➜'});
         // }
         $(this).append(anchor);
         i = i + 1;
