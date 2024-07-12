@@ -540,7 +540,7 @@ public class ProcVactAuthOpen extends Proc{
     private boolean withdrawReg(Request request) {
         //더즌 예외 추가
         //일단 신협 예외로 추가
-        if(request.vact.bankCd.equals("034") || request.vact.bankCd.equals("048")) {
+        if(request.vact.bankCd.equals("034") ) {
             response.result = ResultUtil.getResult("0000", "정상","");
             return true;
         }
