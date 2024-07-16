@@ -931,6 +931,7 @@ public class TrxDAO extends DAO {
 		super.setTable("PG_TRX_RFD");
 		super.setColumns("*");
 		super.addWhere("rootTrxId", trxId, eq);
+		super.addWhere("resultCd", "0000", eq);
 		RecordSet rset = super.search();
 		super.initRecord();
 		return rset.getRow(0);
