@@ -5373,6 +5373,29 @@ public class TrxDAO extends DAO {
 		return result;
 	}
 
+	public boolean updateTotalAuthNo(String authId, String authNo) {
+		boolean result = false;
+
+		try {
+			super.setTable("PG_TOTAL_AUTH");
+			super.setRecord("authNo", authNo);
+
+			super.addWhere("authId", authId, eq);
+
+			result = super.update();
+
+			logger.info("set updateTotalAuthNoResult update : [{}][{}]", authId, result);
+
+			super.initRecord();
+
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error("updateTotalAuthNoResult Exception : {}", ex.getMessage());
+		}
+
+		return result;
+	}
+
 	/**
 	 * 출금요청시 IP 체크
 	 */
