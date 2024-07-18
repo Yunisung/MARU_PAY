@@ -116,7 +116,7 @@ public class ProcAccountV2Transfer extends Proc{
         String authId = TrxDAO.getAuthId();
 
         SharedMap<String,Object> totalAuthMap = trxDAO.getMchtTotalAuth(mchtId);
-        //SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
+        SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
 
         String stlType = totalAuthMap.getString("settleType");
         String unitType = "";
@@ -159,7 +159,7 @@ public class ProcAccountV2Transfer extends Proc{
 //            firmBean = balanceTransfer("089", bankCd, account, 1, sendAuthNo);
 //        }
 
-        //String vactBankCd = mchtMngVactMap.getString("vactBankCd");
+        String vactBankCd = mchtMngVactMap.getString("vactBankCd");
         FirmBean firmBean = null;
 
         //231005_PYS : 1원인증 더즌꺼 사용
@@ -170,7 +170,12 @@ public class ProcAccountV2Transfer extends Proc{
 //            firmBean = balanceTransfer("039", bankCd, account, 1, sendAuthNo);
 //        }
 
-        firmBean = AccountAuth("034", bankCd, account, sendAuthNo);
+        if(vactBankCd.equals("048")) {
+            firmBean = AccountAuth("048", bankCd, account, holderName, "");
+        } else {
+            firmBean = AccountAuth("034", bankCd, account, "", sendAuthNo);
+        }
+
 
 
         if(!firmBean.resultCd.equals("0000")) {
@@ -240,13 +245,15 @@ public class ProcAccountV2Transfer extends Proc{
         return firmBean;
     }
 
-    public FirmBean AccountAuth(String sendBankCd, String recvBankCd, String recvAccount, String sender){
+    public FirmBean AccountAuth(String sendBankCd, String recvBankCd, String recvAccount, String recvName,String sender){
         FirmBean firmBean = new FirmBean();
         firmBean.bankCd 	= sendBankCd;
         firmBean.msgType 	= "ACCAUTH";
         firmBean.userId		= "SYSTEM";
         firmBean.data.put("recvBankCd",recvBankCd);
         firmBean.data.put("recvAccount",recvAccount);
+        //쿠콘인증시 사용
+        firmBean.data.put("recvName", recvName);
         //PYS : sender를 안보내면  (주)부국위너스로 나오도록 세팅되있음.
         firmBean.data.put("sender", sender);
         firmBean.data.put("procType","AT");
@@ -261,10 +268,11 @@ public class ProcAccountV2Transfer extends Proc{
 
         firmBean = comm(firmBean, host, port, timeout);
         logger.info("응답:{},{}",firmBean.resultCd,firmBean.resultMsg);
-        logger.info("idx:{},{}",firmBean.idx,firmBean.data.getLong("balance"));
         logger.info("data : {}", GsonUtil.toJson(firmBean.data));
         return firmBean;
     }
+
+
 
     public FirmBean comm(FirmBean firmBean, String host, int port, int timeout){
         Socket socket = null;
