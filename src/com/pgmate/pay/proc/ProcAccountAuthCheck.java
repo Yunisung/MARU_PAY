@@ -2,13 +2,24 @@ package com.pgmate.pay.proc;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.pgmate.lib.util.gson.GsonUtil;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.bean.Request;
+import com.pgmate.pay.conf.Firm;
+import com.pgmate.pay.conf.FirmLoader;
 import com.pgmate.pay.dao.TrxDAO;
+import com.pgmate.pay.firm.FirmBean;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.nio.charset.Charset;
 
 public class ProcAccountAuthCheck extends Proc {
     private static Logger logger 				= LoggerFactory.getLogger( ProcAccountAuthCheck.class );
@@ -76,6 +87,7 @@ public class ProcAccountAuthCheck extends Proc {
         String jsonStr = ioMap.getString("reqJson");
         SharedMap<String, Object> widgetMap = new GsonBuilder().create().fromJson(jsonStr, new TypeToken<SharedMap<String, Object>>(){}.getType());
         String authId = widgetMap.getString("authId");
+        String mchtId = ioMap.getString("mchtId");
 
         logger.info("Auth ID : {}", authId);
 
@@ -95,10 +107,31 @@ public class ProcAccountAuthCheck extends Proc {
         }
 
         String prevAuthNo = totalAuthMap.getString("authNo");
-        if(prevAuthNo.equals(authNo)) {
 
+        //쿠콘로직 추가
+        boolean isSuccess = false;
+        String resultCd = "";
+        String resultMsg = "";
+        SharedMap<String,Object> mchtMngVactMap = trxDAO.getMchtMngVact(mchtId);
+        if(mchtMngVactMap.getString("vactBankCd").equals("048")) {
+            FirmBean firmBean = authCheck("048", totalAuthMap.getString("refId"), authNo);
+
+            if(firmBean.resultCd.equals("0000")) {
+                isSuccess = true;
+                trxDAO.updateTotalAuthNo(authId, firmBean.data.getString("authNo"));
+            } else {
+                resultCd = firmBean.resultCd;
+                resultMsg = firmBean.resultMsg;
+            }
+
+        } else {
+            if(prevAuthNo.equals(authNo)) {
+                isSuccess = true;
+            }
+        }
+
+        if(isSuccess) {
             String arsAuth = mchtTotalAuth.getString("arsAuth");
-
             //ARS인증 사용안하면 바로 끝내기
            if(arsAuth.equals("Y")) {
                 response.result = ResultUtil.getResult("0000", "1원인증성공", "계좌1원인증이 완료되었습니다.");
@@ -110,7 +143,12 @@ public class ProcAccountAuthCheck extends Proc {
 
             return true;
         } else {
-            response.result = ResultUtil.getResult("9999", "인증번호틀림", "인증번호가 틀렸습니다.");
+
+            if(CommonUtil.isNullOrSpace(resultMsg) && CommonUtil.isNullOrSpace(resultCd)) {
+                response.result = ResultUtil.getResult("9999", "인증번호틀림", "인증번호가 틀렸습니다.");
+            } else {
+                response.result = ResultUtil.getResult(resultCd, resultMsg, "");
+            }
 
             trxDAO.updateTotalAuthResult(authId, 0, response.result.resultCd, response.result.resultMsg);
             return false;
@@ -118,6 +156,89 @@ public class ProcAccountAuthCheck extends Proc {
 
 
 
+    }
+
+    public FirmBean authCheck(String sendBankCd, String orgSeqNo, String authNo) {
+        FirmBean firmBean = new FirmBean();
+        firmBean.bankCd 	= sendBankCd;
+        firmBean.msgType 	= "ACCCHCK";
+        firmBean.userId		= "SYSTEM";
+        firmBean.data.put("orgSeqNo", orgSeqNo);
+        firmBean.data.put("authNo",authNo);
+
+        Firm firm = FirmLoader.getConfig();
+        String host = firm.firmServer;
+        int timeout = firm.firmTimeout;
+        int port = firm.firmPort;
+
+        //PYS : 개발쪽에선 안되니 운영IP로 변경
+        host = "10.100.100.13";
+
+        firmBean = comm(firmBean, host, port, timeout);
+        logger.info("응답:{},{}",firmBean.resultCd,firmBean.resultMsg);
+        logger.info("data : {}", GsonUtil.toJson(firmBean.data));
+        return firmBean;
+    }
+
+    public FirmBean comm(FirmBean firmBean, String host, int port, int timeout){
+        Socket socket = null;
+        OutputStream output = null;
+        InputStream input = null;
+        String reqJson = GsonUtil.toJson(firmBean);
+        String resJson = "";
+        long time = System.currentTimeMillis();
+
+        try{
+            socket = new Socket(host, port);
+            socket.setSoTimeout(timeout);
+
+            output = socket.getOutputStream();
+            output.write(reqJson.getBytes(Charset.forName("EUC-KR")));
+            output.flush();
+
+            input = socket.getInputStream();
+
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            int bcount = 0;
+            byte[] buf = new byte[2048];
+            int read_retry_count = 0;
+            while(true) {
+                int n = input.read(buf);
+                if ( n > 0 ) { bcount += n; bout.write(buf,0,n); }
+                else if (n == -1) break;
+                else  { // n == 0
+                    if (++read_retry_count >= 5)
+                        throw new IOException("inputstream-read-retry-count(5) exceed !");
+                }
+                if(input.available() == 0){ break; }
+            }
+            bout.flush();
+            byte[] res = bout.toByteArray();
+            bout.close();
+            resJson = new String(res,"EUC-KR");
+            if(!CommonUtil.isNullOrSpace(resJson)) {
+                firmBean = (com.pgmate.pay.firm.FirmBean)GsonUtil.fromJson(resJson, com.pgmate.pay.firm.FirmBean.class);
+            }else {
+                throw new Exception("서버응답없음");
+            }
+        } catch(Exception e){
+            firmBean.resultCd = "XXXX";
+            firmBean.resultMsg = "펌뱅킹 시스템과의 통신장애 :"+e.getMessage();
+            logger.info(firmBean.resultMsg);
+        }finally{
+            logger.info("-> FIRM : [{}]",reqJson);
+            logger.info("<- FIRM : [{}],{}",resJson,(System.currentTimeMillis()-time));
+
+            try{
+                if(input != null){ input.close();}
+                if(output != null){ output.close();}
+                if(socket != null){ socket.close();}
+            }catch(Exception ex){
+
+            }
+        }
+
+        return firmBean;
     }
 
 }
