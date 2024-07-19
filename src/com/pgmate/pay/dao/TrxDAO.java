@@ -5473,6 +5473,42 @@ public class TrxDAO extends DAO {
 		return firmBean;
 	}
 
+	/**
+	 * 쿠콘 ARS 인증 결과 확인
+	 */
+	public FirmBean getFirmResult(long idx, FirmBean firmBean){
+		String query = " SELECT resultCd,resultMsg,resData FROM PG_FIRM_MASTER WHERE idx =?  AND procGb in ('N','Y') ";
+
+		DBManager db 	= null;
+		PreparedStatement pstmt	= null;
+		Connection conn			= null;
+		ResultSet rset			= null;
+
+
+		try{
+			db 		= DBFactory.getInstance();
+			conn	= db.getConnection();
+			pstmt	= conn.prepareStatement(query);
+			pstmt.setLong(1, idx);
+			rset 	= pstmt.executeQuery();
+
+			while(rset.next()){
+				firmBean.resultCd = rset.getString("resultCd");
+				firmBean.resultMsg = rset.getString("resultMsg");
+				firmBean.idx  = idx;
+				if(firmBean.data == null){
+					firmBean.data = new SharedMap<String,Object>();
+				}
+				firmBean.data.put("resData", rset.getString("resData"));
+			}
+		}catch(Exception e){
+			logger.info("DB Error : {} , {} , [{}]",Thread.currentThread().getStackTrace()[1].getMethodName(),e.getMessage(),query);
+		}finally{
+			db.close(conn,pstmt,rset);
+		}
+		return firmBean;
+	}
+
 	public String getArsErrorMsg(String resultCd){
 
 		String query = " SELECT codeName FROM PG_CODE WHERE alias = 'ARS' AND code = ? ";
