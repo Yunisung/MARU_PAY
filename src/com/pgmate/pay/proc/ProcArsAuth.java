@@ -177,8 +177,8 @@ public class ProcArsAuth extends Proc {
     public FirmBean arsFirmBean(String vactBankCd, String phoneNo, String authNo) {
         FirmBean firmBean = new FirmBean();
 
-        if(vactBankCd.equals("034")) {
-            firmBean.bankCd = "034";
+        if(vactBankCd.equals("034") || vactBankCd.equals("048")) {
+            firmBean.bankCd = vactBankCd;
         } else {
             firmBean.bankCd = "ARS";
         }

@@ -68,7 +68,9 @@ public class ProcArsAuthCheck extends Proc {
         if(vactBankCd.equals("034")) {
             String seqNo = trxDAO.getSeqNo(CommonUtil.parseLong(firmIdx));
             firmBean = firmArsCheck(seqNo);
-        } else {
+        } else if(vactBankCd.equals("048")) {
+            firmBean = trxDAO.getFirmResult(CommonUtil.parseLong(firmIdx), firmBean);
+        }else {
             firmBean = trxDAO.checkArsResult(CommonUtil.parseLong(firmIdx), firmBean);
         }
 
