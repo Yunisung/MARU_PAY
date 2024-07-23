@@ -349,6 +349,10 @@ public class ProcAccountHolder extends Proc {
 		FirmBean firmBean = new FirmBean();
 
 		firmBean.bankCd = "099";
+		if(vactBankCd.equals("048")) {
+			firmBean.bankCd = vactBankCd;
+		}
+
 		firmBean.msgType 	= "0600400";
 		firmBean.userId		= "SYSTEM";
 		firmBean.data.put("bankCd", bankCd.trim());
