@@ -128,6 +128,12 @@ public class ProcSettleTransfer extends Proc {
 			trxMap.put("bankFee", 300);
 		}else if(vactBankCd.equals("007")) {
 			trxMap.put("bankFee", 220);
+		}else if(vactBankCd.equals("048")) {
+			if(request.transfer.bankCd.equals("048")) {
+				trxMap.put("bankFee", 300);
+			} else {
+				trxMap.put("bankFee", 400);
+			}
 		}
 
 //		trxMap.put("bankFee", 99);
