@@ -21,6 +21,9 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author Administrator
@@ -72,11 +75,15 @@ public class ProcSettleTransferAccount extends Proc {
 		long feeVat = calcVat(fee);
 
 		long transferLimit = chargeMng.getLong("transferLimit");
+		long nonDeposit = 0;
+		if("048".equals(vactBankCd)) {
+			nonDeposit = getNotDeposit(mchtId);
+		}
 
 		long netAmount = request.transfer.amount + fee + feeVat;
-		long checkAmount = netAmount + transferLimit;
+		long checkAmount = netAmount + transferLimit + nonDeposit;
 		if(checkAmount > balance) {
-			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {},보류금액: {}",balance,netAmount,transferLimit);
+			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {},보류금액: {},미수금액:{}",balance,netAmount,transferLimit,nonDeposit);
 			response.result = ResultUtil.getResult("9999", "잔액부족","잔액이 부족합니다.");
 			sendResponse();
 			return;
@@ -131,7 +138,7 @@ public class ProcSettleTransferAccount extends Proc {
 			trxMap.put("bankFee", 99);
 		}else if(vactBankCd.equals("039")) {
 			// 경남은행일 경우 부가세 미포함
-			if(bankCd.equals("039")) {
+			if(request.transfer.bankCd.equals("039")) {
 				trxMap.put("bankFee", 100);
 			} else {
 				trxMap.put("bankFee", 200);
@@ -141,6 +148,12 @@ public class ProcSettleTransferAccount extends Proc {
 			trxMap.put("bankFee", 300);
 		}else if(vactBankCd.equals("007")) {
 			trxMap.put("bankFee", 220);
+		}else if(vactBankCd.equals("048")) {
+			if(request.transfer.bankCd.equals("048")) {
+				trxMap.put("bankFee", 300);
+			} else {
+				trxMap.put("bankFee", 400);
+			}
 		}
 
 		trxMap.put("netAmount", transferNetAmount);
@@ -178,6 +191,41 @@ public class ProcSettleTransferAccount extends Proc {
 		sendResponse();
 		
 		return;
+	}
+
+	private long getNotDeposit(String mchtId) {
+		// 현재 시간 계산
+		String trxDay = CommonUtil.getCurrentDate("yyyyMMdd");
+		String trxTime = CommonUtil.getCurrentDate("HHmmss");
+		Date trxDate = CommonUtil.getDate("yyyyMMddHHmmss", trxDay + trxTime);
+
+		String hour = trxTime.substring(0, 2);
+		String min = trxTime.substring(2, 4);
+
+		String startTrxDay = trxDay;
+		String startTrxTime = hour + "0000";
+
+		// 6분 미만일 경우 모계좌입금 전
+		if(Integer.parseInt(min) < 6) {
+			// hour - 1
+			String prevHourDate = getPrevHourDate(trxDate);
+			startTrxDay = prevHourDate.substring(0, 8);
+			startTrxTime = prevHourDate.substring(8, 10) + "0000";
+		}
+
+		VactDAO vactDAO = new VactDAO();
+		long amount = vactDAO.getVactOneHourSum(startTrxDay, startTrxTime, mchtId);
+		logger.info("1시간이전 startTime: {}, 1시간이전 startTrxTime: {}", startTrxDay, startTrxTime);
+		logger.info("1시간이전 amount: {} ", amount);
+		return amount;
+	}
+
+	public static String getPrevHourDate(Date calcDate) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(calcDate);
+		cal.add(Calendar.HOUR, -1);
+		SimpleDateFormat sdformat = new SimpleDateFormat("yyyyMMddHHmmss");
+		return sdformat.format(cal.getTime());
 	}
 
 
