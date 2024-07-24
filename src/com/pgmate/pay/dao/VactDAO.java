@@ -2,10 +2,15 @@ package com.pgmate.pay.dao;
 
 import com.pgmate.lib.dao.DAO;
 import com.pgmate.lib.dao.RecordSet;
+import com.pgmate.lib.util.db.DBFactory;
+import com.pgmate.lib.util.db.DBManager;
 import com.pgmate.lib.util.map.SharedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.List;
 
 public class VactDAO extends DAO {
@@ -99,5 +104,39 @@ public class VactDAO extends DAO {
             rset.next();
             return rset.getString("vactBankCd");
         }
+    }
+
+    public long getVactOneHourSum(String trxDay, String trxTime, String mchtId){
+        long sumAmt = 0;
+
+        String query = "SELECT SUM(amount) as sumAmt"
+                + "  FROM PG_VACT_TRX "
+                + " WHERE regDate >= ? and trxType = '입금' AND mchtId = ?";
+
+        DBManager db 			= null;
+        PreparedStatement pstmt	= null;
+        Connection conn			= null;
+        ResultSet rset			= null;
+
+        try{
+            db 		= DBFactory.getInstance();
+            conn	= db.getConnection();
+            pstmt	= conn.prepareStatement(query);
+            pstmt.setString(1,trxDay + trxTime);
+            pstmt.setString(2,mchtId);
+
+            rset 	= pstmt.executeQuery();
+
+            while(rset.next()){
+                sumAmt = rset.getLong("sumAmt");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            logger.error("getVactOneHourSum ERROR : {}, query : {}", e.getMessage(), query);
+        }finally{
+            db.close(conn,pstmt,rset);
+        }
+
+        return sumAmt;
     }
 }

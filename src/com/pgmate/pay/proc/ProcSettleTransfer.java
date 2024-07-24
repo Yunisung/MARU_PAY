@@ -6,8 +6,10 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
-import com.pgmate.pay.bean.Vact;
 import com.pgmate.pay.dao.VactDAO;
 import com.pgmate.pay.util.KSignUtil;
 import com.pgmate.lib.vertx.main.VertXUtil;
@@ -20,7 +22,6 @@ import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.bean.Request;
 import com.pgmate.pay.conf.Firm;
 import com.pgmate.pay.conf.FirmLoader;
-import com.pgmate.pay.firm.FirmBean;
 //import com.pgmate.pay.proc.sms.InfoBankSMS;
 import com.pgmate.pay.util.PAYUNIT;
 
@@ -45,6 +46,9 @@ public class ProcSettleTransfer extends Proc {
 		String mchtId = sharedMap.getString(PAYUNIT.MCHTID);
 		SharedMap<String, Object> chargeMng = trxDAO.getMchtChargeMng(mchtId);
 
+		VactDAO vactDAO = new VactDAO();
+		String vactBankCd = vactDAO.getVactBank(mchtId);
+
 		// validation 처리
 		if(response.result != null){
 			sendResponse();
@@ -61,11 +65,15 @@ public class ProcSettleTransfer extends Proc {
 		long feeVat = calcVat(fee);
 
 		long transferLimit = chargeMng.getLong("transferLimit");
+		long nonDeposit = 0;
+		if("048".equals(vactBankCd)) {
+			nonDeposit = getNotDeposit(mchtId);
+		}
 
 		long netAmount = request.transfer.amount + fee + feeVat;
-		long checkAmount = netAmount + transferLimit;
+		long checkAmount = netAmount + transferLimit + nonDeposit;
 		if(checkAmount > balance) {
-			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {},보류금액:{}",balance,netAmount,transferLimit);
+			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {},보류금액:{},미수금액:{}",balance,netAmount,transferLimit,nonDeposit);
 			response.result = ResultUtil.getResult("9999", "잔액부족","잔액이 부족합니다.");
 			sendResponse();
 			return;
@@ -111,9 +119,6 @@ public class ProcSettleTransfer extends Proc {
 		//케이뱅크 : 90
 		//경남은행 : 당행(100), 타행(200)
 		//광주은행 : 300
-		VactDAO vactDAO = new VactDAO();
-		String vactBankCd = vactDAO.getVactBank(mchtId);
-
 		if(vactBankCd.equals("089")) {
 			trxMap.put("bankFee", 99);
 		}else if(vactBankCd.equals("039")) {
@@ -149,40 +154,75 @@ public class ProcSettleTransfer extends Proc {
 		trxMap.put("bankName", request.transfer.bankName);
 		trxMap.put("account", trxDAO.getAESEnc(request.transfer.account));
 		trxMap.put("holder", trxDAO.getAESEnc(firmAccntMap.getString("accntHolder")));
-		
+
 		String recordInfo = "";
-		
+
 		if(request.transfer.recordInfo != null && !"".equals(request.transfer.recordInfo)) {
 			recordInfo = recordInfoCut(request.transfer.recordInfo,20);
 		}else {
 			recordInfo = recordInfoCut(chargeMng.getString("recordInfo"),20);
 		}
-		
+
 		trxMap.put("recordInfo", recordInfo);
 		trxMap.put("regId", mchtId);
 		trxMap.put("regDay", regDate.substring(0, 8));
 
 		// 펌뱅킹내역 등록
 		trxDAO.insertChargeSettleFirm(trxMap);
-		
+
 		// 충전정산 거래내역 등록
 		trxDAO.insertChargeSettle(trxMap);
-		
+
 		response.result = ResultUtil.getResult("0000", "이체접수완료","이체 접수가 완료되었습니다.");
-		
+
 		sendResponse();
-		
+
 		return;
+	}
+
+	private long getNotDeposit(String mchtId) {
+		// 현재 시간 계산
+		String trxDay = CommonUtil.getCurrentDate("yyyyMMdd");
+		String trxTime = CommonUtil.getCurrentDate("HHmmss");
+		Date trxDate = CommonUtil.getDate("yyyyMMddHHmmss", trxDay + trxTime);
+
+		String hour = trxTime.substring(0, 2);
+		String min = trxTime.substring(2, 4);
+
+		String startTrxDay = trxDay;
+		String startTrxTime = hour + "0000";
+
+		// 6분 미만일 경우 이전 1시간 이전금액
+		if(Integer.parseInt(min) < 6) {
+			// hour - 1
+			String prevHourDate = getPrevHourDate(trxDate);
+			startTrxDay = prevHourDate.substring(0, 8);
+			startTrxTime = prevHourDate.substring(8, 10) + "0000";
+		}
+
+		VactDAO vactDAO = new VactDAO();
+		long amount = vactDAO.getVactOneHourSum(startTrxDay, startTrxTime, mchtId);
+		logger.info("1시간이전 startTime: {}, 1시간이전 startTrxTime: {}", startTrxDay, startTrxTime);
+		logger.info("1시간이전 amount: {} ", amount);
+		return amount;
+	}
+
+	public static String getPrevHourDate(Date calcDate) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(calcDate);
+		cal.add(Calendar.HOUR, -1);
+		SimpleDateFormat sdformat = new SimpleDateFormat("yyyyMMddHHmmss");
+		return sdformat.format(cal.getTime());
 	}
 
 
 	@Override
 	public void valid() {
-	
+
 		if(request.transfer == null){
 			response.result = ResultUtil.getResult("9999", "필수값없음","이체 정보가 없습니다.");return;
 		}
-		
+
 		int currentTime = CommonUtil.parseInt(CommonUtil.getCurrentDate("HHmmss"));
 		Firm firm = FirmLoader.getConfig();
 		if(currentTime > firm.firmEndTime || currentTime < firm.firmStartTime) {
@@ -206,27 +246,27 @@ public class ProcSettleTransfer extends Proc {
 		if(!key.equals(chargeMng.getString("transferKey"))) {
 			response.result = ResultUtil.getResult("9999", "이용불가", "출금키가 맞지 않습니다."); return;
 		}
-		
+
 		if(CommonUtil.isNullOrSpace(request.transfer.trackId)){
 			response.result = ResultUtil.getResult("9999", "필수값없음","가맹점 주문번호가 입력되지 않았습니다.");return;
 		}
-		
+
 		if(trxDAO.isDuplicatedChargeSettleTrackId(sharedMap.getString(PAYUNIT.MCHTID),request.transfer.trackId)){
 			response.result = ResultUtil.getResult("9999", "중복된 거래번호입니다.","해당 거래번호로 이체를 재 사용할 수 없습니다.");return;
 		}
-		
+
 		SharedMap<String,Object> bank = trxDAO.getBankName(request.transfer.bankCd);
 		if(bank == null || bank.isEmpty()) {
 			response.result = ResultUtil.getResult("9999", "유효성 오류","은행 코드값이 유효하지 않습니다.");return;
 		}else {
 			request.transfer.bankName = bank.getString("codeName");
 		}
-		
+
 		if(CommonUtil.isNullOrSpace(request.transfer.account)) {
 			response.result = ResultUtil.getResult("9999", "필수값없음","계좌번호가 입력되지 않았습니다.");return;
 		}
 		request.transfer.account = request.transfer.account.replace("-", "").trim();
-		
+
 		if(request.transfer.amount < 1){
 			response.result = ResultUtil.getResult("9999", "이체 최소 금액 오류","이체금액은 1원 이상만 가능합니다.");return;
 		}
@@ -270,7 +310,7 @@ public class ProcSettleTransfer extends Proc {
 		}
 
 	}
-	
+
 	private long calcVat(long amount){
 		if(amount < 0){
 			return -new Double(-amount *10 /100).longValue();
@@ -279,30 +319,30 @@ public class ProcSettleTransfer extends Proc {
 		}
 	}
 
-    // 문자열 인코딩을 고려해서 문자열 자르기
-    private String recordInfoCut(String parameterName, int maxLength) {
-        int DB_FIELD_LENGTH = maxLength;
- 
-        Charset utf8Charset = Charset.forName("UTF-8");
-        CharsetDecoder cd = utf8Charset.newDecoder();
- 
-        try {
-            byte[] sba = parameterName.getBytes("UTF-8");
-            if(sba.length > DB_FIELD_LENGTH) {
-	            // Ensure truncating by having byte buffer = DB_FIELD_LENGTH
-	            ByteBuffer bb = ByteBuffer.wrap(sba, 0, DB_FIELD_LENGTH); // len in [B]
-	            CharBuffer cb = CharBuffer.allocate(DB_FIELD_LENGTH); // len in [char] <= # [B]
-	            // Ignore an incomplete character
-	            cd.onMalformedInput(CodingErrorAction.IGNORE);
-	            cd.decode(bb, cb, true);
-	            cd.flush(cb);
-	            parameterName = new String(cb.array(), 0, cb.position());
-            }
-        } catch (UnsupportedEncodingException e) {
-            System.err.println("### 지원하지 않는 인코딩입니다." + e);
-        }
- 
-        return parameterName;
-    }
-	
+	// 문자열 인코딩을 고려해서 문자열 자르기
+	private String recordInfoCut(String parameterName, int maxLength) {
+		int DB_FIELD_LENGTH = maxLength;
+
+		Charset utf8Charset = Charset.forName("UTF-8");
+		CharsetDecoder cd = utf8Charset.newDecoder();
+
+		try {
+			byte[] sba = parameterName.getBytes("UTF-8");
+			if(sba.length > DB_FIELD_LENGTH) {
+				// Ensure truncating by having byte buffer = DB_FIELD_LENGTH
+				ByteBuffer bb = ByteBuffer.wrap(sba, 0, DB_FIELD_LENGTH); // len in [B]
+				CharBuffer cb = CharBuffer.allocate(DB_FIELD_LENGTH); // len in [char] <= # [B]
+				// Ignore an incomplete character
+				cd.onMalformedInput(CodingErrorAction.IGNORE);
+				cd.decode(bb, cb, true);
+				cd.flush(cb);
+				parameterName = new String(cb.array(), 0, cb.position());
+			}
+		} catch (UnsupportedEncodingException e) {
+			System.err.println("### 지원하지 않는 인코딩입니다." + e);
+		}
+
+		return parameterName;
+	}
+
 }
