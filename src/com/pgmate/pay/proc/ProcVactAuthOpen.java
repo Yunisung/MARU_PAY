@@ -1097,13 +1097,14 @@ public class ProcVactAuthOpen extends Proc{
             String bankCd = request.vact.bankCd;
             String holderName = request.vact.holderName;
             String identity = request.vact.identity;
+            String mchtId = mchtMap.getString("mchtId");
 
             if(identity.equals("")) {
                 response.result = ResultUtil.getResult("9999", "생년월일 미입력","생년월일이 입력되지 않았습니다. 관리자에 문의 바랍니다");
                 return false;
             }
 
-            int accountCnt = trxDAO.getPersonalAccount(holderName, identity, bankCd);
+            int accountCnt = trxDAO.getPersonalAccount(holderName, identity, bankCd, mchtId);
 
             if(accountCnt > 0) {
                 response.result = ResultUtil.getResult("9999", "사용자 정보 중복","동일 사용자 정보로 발급된 가상계좌가 존재합니다. 관리자에 문의 바랍니다");

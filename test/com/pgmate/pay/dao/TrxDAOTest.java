@@ -1,5 +1,7 @@
 package com.pgmate.pay.dao;
 
+import com.pgmate.lib.dao.DAO;
+import com.pgmate.lib.dao.RecordSet;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.pay.proc.ProcSettleTransferTest;
@@ -120,5 +122,42 @@ public class TrxDAOTest {
                 logger.info("정산 전 취소만 가능합니다. 관리자에 문의바랍니다.");
             }
         }
+    }
+
+    @Test
+    public void recoveryPay() {
+        // 결제 후 에러가 발생하여 pay가 생기지 못한 건수 가져오기
+        RecoveryTrxDAO recoveryTrxDAO = new RecoveryTrxDAO();
+        RecordSet rs = recoveryTrxDAO.getRecoveryData("20240123");
+        logger.info("데이터 사이즈: {}", rs.getRows().size());
+        for(SharedMap<String, Object>  data : rs.getRows()) {
+            logger.info("trxId: {}", data.getString("trxId"));
+            recoveryTrxDAO.insertTrxPAY(data.getString("trxId"));
+        }
+        //recoveryTrxDAO.insertTrxPAY("T240123048866");
+    }
+
+    public class RecoveryTrxDAO extends TrxDAO {
+        public RecordSet getRecoveryData(String regDay) {
+            String q = "SELECT * FROM PG_TRX_REQ WHERE regDay = '" + regDay + "' " +
+                    "   AND trxId IN (SELECT trxId FROM PG_TRX_RES ptr WHERE regDay = '" + regDay + "' AND resultCd = '0000')" +
+                    "   AND trxId NOT IN (SELECT trxId FROM PG_TRX_PAY WHERE regDay = '" + regDay + "')" +
+                    " ORDER BY regDate ASC";
+            RecordSet rset = super.query(q);
+            super.initRecord();
+            return rset;
+        }
+    }
+
+    @Test
+    public void getRentBeforeSum() {
+        long amount = trxDAO.getRentBeforeSum("202401", "보증금");
+        logger.info("amount: {}", amount);
+    }
+
+    @Test
+    public void getPersonalAccount() {
+        int accountCnt = trxDAO.getPersonalAccount("오세창", "791112", "034", "bktest003");
+        logger.info("accountCnt: {}", accountCnt);
     }
 }
