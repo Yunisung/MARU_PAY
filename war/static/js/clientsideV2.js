@@ -175,12 +175,12 @@ var MARU = (function (win, doc) {
       obj.msgId = msgId;
 
       function toFrame() {
-        console.log('SEND MESSAGE time: ',time);
+        util.log('SEND MESSAGE time: ',time);
         time += 50;
         if (time > 20000) { error.code = "XXXX", error.message = "PostMessage Send Fail"; alert('서버와 통신할 수 없습니다.'); clearInterval(id); }
 
         if(util.indexOf(sendedIdArray, msgId) > -1) {
-          console.log('Clear Interval', id);
+          util.log('Clear Interval', id);
           clearInterval(id);
         } else {
           sendPost(obj);
@@ -188,7 +188,7 @@ var MARU = (function (win, doc) {
       }
 
       function sendPost(obj) {
-        console.log('SEND POSTMESSAGE TO IFRAME:', obj, 'Message ID:', obj.msgId);
+        util.log('SEND POSTMESSAGE TO IFRAME:', obj, 'Message ID:', obj.msgId);
         var contentWindow = doc.getElementById("c3_pop_iframe").contentWindow;
         contentWindow.postMessage(JSON.stringify(obj), routeDomain);
       }
@@ -248,7 +248,7 @@ var MARU = (function (win, doc) {
   }
   /* 레이어 팝업 실행 (Private) */
   function c3pop() {
-    console.log('c3pop', routeDomain + '/form/payment/layoutV2');
+    util.log('c3pop', routeDomain + '/form/payment/layoutV2');
     doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV2'; 
     if(util.isMobile()){
     	doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
@@ -277,7 +277,7 @@ var MARU = (function (win, doc) {
   function payResult (data) {
     var url = c3Config.redirectUrl;
     if (url && url.length > 1) {
-      console.log('[CLIENT] REDIRECT: ', url);
+      util.log('[CLIENT] REDIRECT: ', url);
       var form = doc.createElement('form');
       form.method = 'GET';
       form.action = url;
@@ -332,9 +332,9 @@ var MARU = (function (win, doc) {
     /* IFRAME 으로부터 이벤트를 전달 받는 부분. */
     util.addEventListener(window, 'message', function (e) {
       var recv = JSON.parse(e.data);
-      console.log(recv);
+
       if (!recv.type) {
-        console.log('undefined Type PostMessage');
+        util.log('undefined Type PostMessage');
       } else if (recv.type === 'LAYER_LOADED') {
         layerLoaded = true;
       } else if (recv.type === 'REVC_ACK') {
@@ -370,7 +370,7 @@ var MARU = (function (win, doc) {
   function pay(config) {
     c3Config = util.extend(c3Config, config);
     routeDomain = routeUrls[c3Config.debugMode];
-    console.log('routeDomain', routeDomain);
+    util.log('routeDomain', routeDomain);
     if(!c3Config.trackId) {
       c3Config.trackId = "TS" + (new Date().getTime() * (Math.floor(Math.random() * 10) +1));
     }
@@ -389,7 +389,6 @@ function requestPayOpen() {
   }
 
   function echoPop() {
-    console.log('c3pop', routeDomain + '/form/payment/layoutV2');
     doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV2'; // 정해지면 변경...
     doc.getElementById('c3pop_pop_overlay_wrap').style.display = 'none';
     doc.getElementById('c3_pop_overlay').style.display = 'none';
@@ -402,14 +401,12 @@ function requestPayOpen() {
     echoSuccess = success;
     echoFail = fail;
 
-    console.log(paykey);
     setTimeout(function() {
       postMessages.echo();
     }, 200);
   }
 
   function refundPop() {
-    console.log('c3pop', routeDomain + '/form/payment/layoutV2');
     doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV2'; // 정해지면 변경...
     doc.getElementById('c3pop_pop_overlay_wrap').style.display = 'none';
     doc.getElementById('c3_pop_overlay').style.display = 'none';
@@ -424,8 +421,8 @@ function requestPayOpen() {
     refundData['rootTrxId'] = rootTrxId;
     refundData['responseFunction'] = response;
 
-    console.log('paykey : ', paykey);
-    console.log('refund Data : ', refundData);
+    util.log('paykey : ', paykey);
+    util.log('refund Data : ', refundData);
 
     setTimeout(function() {
       postMessages.refund();
