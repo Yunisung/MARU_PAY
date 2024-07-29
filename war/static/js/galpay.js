@@ -1,4 +1,4 @@
-console.log('IMPORT GALPAY.JS FILE!');
+// console.log('IMPORT GALPAY.JS FILE!');
 var c3_Config = {
     debug: true
 };
@@ -173,11 +173,11 @@ var C3MOD = (function (win, doc) {
         },
         sendMessageToParent: function (obj) {
             if (window.opener) {
-                console.log('SEND POSTMESSAGE TO OPENER', obj);
+                // console.log('SEND POSTMESSAGE TO OPENER', obj);
                 util.log('SEND POSTMESSAGE TO OPENER', obj);
                 window.opener.postMessage(JSON.stringify(obj), "*");
             } else {
-                console.log('SEND POSTMESSAGE TO PARENT', obj);
+                // console.log('SEND POSTMESSAGE TO PARENT', obj);
                 util.log('SEND POSTMESSAGE TO PARENT', obj);
                 window.parent.postMessage(JSON.stringify(obj), "*");
             }
@@ -334,7 +334,7 @@ var C3MOD = (function (win, doc) {
         c3_Config.form = JSON.parse(c3_Config.form);
 
         c3_Config.targetUrl = c3_Config.targetUrl.replace('\u003d', '=');
-        console.log('c3_Config', c3_Config);
+        // console.log('c3_Config', c3_Config);
 
         if(c3_Config.device == 'mobile' && !c3_Config.redirectUrl) {
             alert('결제 오류, 모바일 결제 필수값이 존재하지 않습니다.');
@@ -385,7 +385,7 @@ var C3MOD = (function (win, doc) {
 /* 팝업창에서 부모창으로 데이터 보내는 로직 */
 function kspayToParent() {
     var resObj = document.forms.frm.data.value;
-    console.log('kspayToParent: ', resObj, decodeURIComponent(resObj));
+    // console.log('kspayToParent: ', resObj, decodeURIComponent(resObj));
     //close(true);
     setTimeout(function () {
         var obj = {
@@ -394,10 +394,10 @@ function kspayToParent() {
 
         obj.data = decodeURIComponent(resObj);
         if (window.opener) {
-            console.log('SEND POSTMESSAGE TO OPENER', obj);
+            // console.log('SEND POSTMESSAGE TO OPENER', obj);
             window.opener.postMessage(JSON.stringify(obj), "*");
         } else {
-            console.log('SEND POSTMESSAGE TO PARENT', obj);
+            // console.log('SEND POSTMESSAGE TO PARENT', obj);
             window.parent.postMessage(JSON.stringify(obj), "*");
         }
         setTimeout(function () {

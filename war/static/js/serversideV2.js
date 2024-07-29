@@ -1,4 +1,4 @@
-console.log('IMPORT SERVERSIDE V2.JS FILE');
+//console.log('IMPORT SERVERSIDE V2.JS FILE');
 
 
 var util = {
@@ -136,11 +136,11 @@ var util = {
         return xhr;
     },
     sendMessageToParent: function(obj) {
-        console.log('SEND POSTMESSAGE', obj);
+        //console.log('SEND POSTMESSAGE', obj);
         window.parent.postMessage(JSON.stringify(obj), "*");
     },
     sendMessageToPopup: function(obj) {
-      console.log('SEND POSTMESSAGE TO POPUP', obj);
+      //console.log('SEND POSTMESSAGE TO POPUP', obj);
       window.parent.postMessage(JSON.stringify(obj), "*");
     }
 } // <<---------- Util END
@@ -262,10 +262,10 @@ function PopupCenter(url, title, w, h) {
     var left = ((width / 2) - (w / 2)) + dualScreenLeft;
     var top = ((height / 2) - (h / 2)) + dualScreenTop;
     var newWindow = null;
-    console.log('Window Open!');
+    //console.log('Window Open!');
 
     if (util.isMobile()) {
-        console.log('Mobile Open!');
+        // console.log('Mobile Open!');
         newWindow = window.open('about:blank', title);
     } else {
         newWindow = window.open('about:blank', title, 'location=no, resizable=no, fullscreen=no, menubar=no, status=no, toolbar=no, scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
@@ -316,7 +316,7 @@ function openPayment(config) {
     util.postAjax(widgetUri, JSON.stringify({
         'widget': config.c3Config
     }), function(res) {
-        console.log(res);
+        // console.log(res);
         if (res.result.resultCd == '0000') {
             var url = window.location.protocol + "//" + window.location.host + res.widget.routeUrl;
             ServerUtil.resizeWindow(res);
@@ -362,9 +362,9 @@ function echoPayment(recv) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState > 3) {
             if(xhr.status == 200) {
-                console.log(JSON.parse(xhr.responseText));
+                // console.log(JSON.parse(xhr.responseText));
                 var res = JSON.parse(xhr.responseText);
-                console.log(res);
+                // console.log(res);
                 postMessages.echoResult(res);
             } else {
                 var res = {result : {resultCd: 'xxxx', resultMsg: 'echo', advanceMsg: '인증실패'}};
@@ -385,14 +385,14 @@ function refund(recv) {
     var result = new Object;
     result.refund = refundData;
 
-    console.log('SEND REFUND DATA : ', JSON.stringify(result));
+    // console.log('SEND REFUND DATA : ', JSON.stringify(result));
 
     var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
     xhr.open('POST', '/api/refund');
     xhr.onreadystatechange = function() {
         if (xhr.readyState > 3) {
             if(xhr.status == 200) {
-                console.log(JSON.parse(xhr.responseText));
+                // console.log(JSON.parse(xhr.responseText));
                 postMessages.refundResult(JSON.parse(xhr.responseText));
             } else {
                 var res = {result : {resultCd: 'xxxx', resultMsg: 'refund', advanceMsg: '실패'}};
