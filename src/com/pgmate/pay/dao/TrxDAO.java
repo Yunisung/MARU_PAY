@@ -6066,12 +6066,12 @@ public class TrxDAO extends DAO {
 		return rset.getRow(0);
 	}
 
-	public int getPersonalAccount(String holderName, String identity, String bankCd) {
+	public int getPersonalAccount(String holderName, String identity, String bankCd, String mchtId) {
 		int count = 0;
 
 		String query = "SELECT COUNT(*) as cnt"
 				+ "  FROM PG_VACT_REG "
-				+ " WHERE holderName = ? and identity = ? AND bankCd = ?";
+				+ " WHERE holderName = ? and identity = ? AND bankCd = ? AND mchtId = ?";
 
 		logger.info(query);
 
@@ -6089,6 +6089,7 @@ public class TrxDAO extends DAO {
 			pstmt.setString(1, holderName);
 			pstmt.setString(2, encIdentity);
 			pstmt.setString(3, bankCd);
+			pstmt.setString(4, mchtId);
 
 			rset = pstmt.executeQuery();
 

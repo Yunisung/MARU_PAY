@@ -154,4 +154,10 @@ public class TrxDAOTest {
         long amount = trxDAO.getRentBeforeSum("202401", "보증금");
         logger.info("amount: {}", amount);
     }
+
+    @Test
+    public void getPersonalAccount() {
+        int accountCnt = trxDAO.getPersonalAccount("오세창", "791112", "034", "bktest003");
+        logger.info("accountCnt: {}", accountCnt);
+    }
 }
