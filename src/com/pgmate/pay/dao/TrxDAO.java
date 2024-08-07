@@ -6178,13 +6178,13 @@ public class TrxDAO extends DAO {
 	}
 
 	public long getTrxAmount(String mchtId, String yesterDay) {
-		super.setDebug(true);
 		super.setTable("PG_VACT_TRX");
 		super.setColumns("SUM(amount) AS trxAmt");
 		super.addWhere("mchtId", mchtId, eq);
+		super.addWhere("trxType", "입금", eq);
 		super.addWhere("trxDay", yesterDay, eq);
 		RecordSet rset = super.search();
 		super.initRecord();
-		return rset.getRowFirst().getInt("trxAmt");
+		return rset.getRowFirst().getLong("trxAmt");
 	}
 }
