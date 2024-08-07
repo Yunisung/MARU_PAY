@@ -6165,4 +6165,26 @@ public class TrxDAO extends DAO {
 			return true;
 		}
 	}
+
+	public long getTrxNetAmount(String mchtId, String yesterDay) {
+		super.setDebug(true);
+		super.setTable("PG_CHARGE_SETTLE");
+		super.setColumns("SUM(if(trxType='입금', netAmount, 0)) AS chargeAmt");
+		super.addWhere("mchtId", mchtId, eq);
+		super.addWhere("trxDay", yesterDay, eq);
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRowFirst().getInt("chargeAmt");
+	}
+
+	public long getTrxAmount(String mchtId, String yesterDay) {
+		super.setDebug(true);
+		super.setTable("PG_VACT_TRX");
+		super.setColumns("SUM(amount) AS trxAmt");
+		super.addWhere("mchtId", mchtId, eq);
+		super.addWhere("trxDay", yesterDay, eq);
+		RecordSet rset = super.search();
+		super.initRecord();
+		return rset.getRowFirst().getInt("trxAmt");
+	}
 }
