@@ -307,7 +307,7 @@ function openPayment(config) {
     var widgetUri = '';
     if(c3Config.payRoute == 'regular'){
         widgetUri = '/api/widget';
-    }else if(c3Config.payRoute == '3d'){
+    }else if(c3Config.payRoute == '3d' || c3Config.payRoute == 'simple'){
         widgetUri = '/api/3dV2/widget';
     }else{
         widgetUri = '/api/w3d/widget';
