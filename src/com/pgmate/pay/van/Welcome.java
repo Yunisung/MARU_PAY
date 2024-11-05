@@ -279,7 +279,8 @@ public class Welcome implements Van {
             String cardExpireMM     = response.rebill.cardExpireDate.substring(2);
             String registNo         = response.rebill.socialNumber;
             String passwd           = response.rebill.cardPassword;
-            String payPeriodCode    = "M"+ CommonUtil.zerofill(response.rebill.rebillDays, 2);
+//            String payPeriodCode    = "M"+ CommonUtil.zerofill(response.rebill.rebillDays, 2);
+            String payPeriodCode    = "";
 
             //signkey 암호화
             String mkey = EncryptUtil.hash(KEY, "SHA-256");
