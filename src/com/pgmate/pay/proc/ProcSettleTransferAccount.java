@@ -92,7 +92,7 @@ public class ProcSettleTransferAccount extends Proc {
 		long netAmount = request.transfer.amount + fee + feeVat;
 		long checkAmount = netAmount + transferLimitAmt + nonDeposit;
 		if(checkAmount > balance) {
-			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {},보류금액: {},전일기준보류금액: {},미수금액:{}",balance,netAmount,transferLimit,transferLimitPercentAmt,nonDeposit);
+			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {},유보금액: {},한시간전 미입금금액: {}",balance,netAmount,transferLimitAmt,nonDeposit);
 			response.result = ResultUtil.getResult("9999", "잔액부족","잔액이 부족합니다.");
 			sendResponse();
 			return;
