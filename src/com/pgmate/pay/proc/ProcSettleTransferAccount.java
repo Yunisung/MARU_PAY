@@ -82,13 +82,15 @@ public class ProcSettleTransferAccount extends Proc {
 		long trxAmt = trxDAO.getTrxAmount(mchtId, yesterDay);
 		long transferLimitPercentAmt = (long) (trxAmt * chargeMng.getDouble("transferLimitPercent"));
 
+		long transferLimitAmt = Math.max(transferLimit, transferLimitPercentAmt);
+
 		long nonDeposit = 0;
 		if("048".equals(vactBankCd)) {
 			nonDeposit = getNotDeposit(mchtId);
 		}
 
 		long netAmount = request.transfer.amount + fee + feeVat;
-		long checkAmount = netAmount + transferLimit + nonDeposit + transferLimitPercentAmt;
+		long checkAmount = netAmount + transferLimitAmt + nonDeposit;
 		if(checkAmount > balance) {
 			logger.debug("잔액부족 - 현재잔액: {},가맹점계정 차감예정액: {},보류금액: {},전일기준보류금액: {},미수금액:{}",balance,netAmount,transferLimit,transferLimitPercentAmt,nonDeposit);
 			response.result = ResultUtil.getResult("9999", "잔액부족","잔액이 부족합니다.");
