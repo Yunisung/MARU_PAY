@@ -77,7 +77,15 @@ public class ProcSettleTransfer extends Proc {
 		long trxAmt = trxDAO.getTrxAmount(mchtId, yesterDay);
 		long transferLimitPercentAmt = (long) (trxAmt * chargeMng.getDouble("transferLimitPercent"));
 
-		long transferLimitAmt = Math.max(transferLimit, transferLimitPercentAmt);
+		String transferOper = chargeMng.getString("transferOper");
+		long transferLimitAmt = 0;
+
+		// 보류금 비교 합계/최대값 일 때
+		if(transferOper.equals("합계")) {
+			transferLimitAmt = transferLimit + transferLimitPercentAmt;
+		} else {
+			transferLimitAmt = Math.max(transferLimit, transferLimitPercentAmt);
+		}
 
 		long netAmount = request.transfer.amount + fee + feeVat;
 		long checkAmount = netAmount + transferLimitAmt + nonDeposit;
