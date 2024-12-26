@@ -532,6 +532,9 @@ public class ProcPay3DV2Widget extends Proc {
 									}
 									setLpay(vanMap);
 
+								} else if (request.widget.getString("trxType").equals("TOSS")) {
+									response.widget.put("routeUrl", "/form/payment/kspay/toss.html?token=" + widgetKey);
+									setTossPay(vanMap);
 								}
 
 								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
@@ -981,9 +984,9 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("productcount", 1);										// 상품개수
 		form.put("email", request.widget.getString("payerEmail"));		// email
 		form.put("phoneno", request.widget.getString("payerTel").replaceAll("[-]", ""));	// 휴대폰번호
-		form.put("availcard", "C0,C1,C3,C4,C5,C7,C9,CF,CH"); 				// C0 : 신한, C1 : 비씨, C3 : KB국민, C4 : NH농협, C5 : 롯데, C7 : 삼성, C9 : 씨티, CF : 하나, CH : 현대 (없을경우 전체)
+//		form.put("availcard", "C0,C1,C3,C4,C5,C7,C9,CF,CH"); 				// C0 : 신한, C1 : 비씨, C3 : KB국민, C4 : NH농협, C5 : 롯데, C7 : 삼성, C9 : 씨티, CF : 하나, CH : 현대 (없을경우 전체)
 		form.put("charset", "UTF-8"); 										// 가맹점 Char Set
-		form.put("storename", mchtMap.getString("name"));				// 네이버페이 결제창에 노출 될 상점명
+		form.put("storename", mchtMap.getString("nick"));				// 네이버페이 결제창에 노출 될 상점명
 		form.put("installment", "01:02:03:04:05:06:07:08:09:10:11:12"); 	// 2개중 택 1 할부개월수 범위 지정 변수 ex)01:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
 																			// 할부개월수 범위 지정 변수 ex)00:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
 
@@ -1076,7 +1079,7 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("goodname", getProduct(request.widget.get("products")));
 		form.put("email", request.widget.getString("payerEmail"));
 		form.put("phoneno", request.widget.getString("payerTel").replaceAll("[-]", ""));
-		form.put("paymenttype", ""); // CARD or PAY
+		//form.put("paymenttype", ""); // CARD or PAY
 		form.put("installment", "00"); //고객이 선택해도 일시불로 보내야됨 by KSNET 간편결제 메뉴얼
 		form.put("availcard", ""); //공백이면 전체 카드
 
@@ -1852,6 +1855,104 @@ public class ProcPay3DV2Widget extends Proc {
 
 		endDay = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		return endDay;
+	}
+
+	public void setTossPay(SharedMap<String,Object> vanMap) {
+		logger.info("TOSS PAY START");
+
+		request.widget.put("key", widgetKey);
+		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
+
+		request.widget.put("target", "KSPAY");
+		request.widget.put("targetMethod", "POPUP");
+		request.widget.put("targetUrl", "");
+
+		request.widget.put("width", 750);
+		request.widget.put("height", 850);
+
+		request.widget.put("apiMaxInstall",mchtTmnMap.getString("apiMaxInstall"));
+
+		SharedMap<String,Object> form = new SharedMap<String,Object>();
+
+		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)) {
+			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_TOSS_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("cancelUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_TOSS_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+		} else {
+			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_TOSS_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+			form.put("cancelUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_TOSS_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+		}
+
+		int len = 0;
+		String storeName = mchtMap.getString("nick");
+		for(int i = 0; i < storeName.length(); i++) {
+			len = len + ((storeName.charAt(i) > 127) ? 2: 1);
+			if(len > 16) {
+				storeName = storeName.substring(0,i);
+				break;
+			}
+		}
+
+//		form.put("returnUrl", "http://127.0.0.1:10002/api/toss/return/"+sharedMap.getString(PAYUNIT.TRX_ID));
+//		form.put("cancelUrl", "http://127.0.0.1:10002/api/toss/return/"+sharedMap.getString(PAYUNIT.TRX_ID));
+//		form.put("storeid", "2999199999"); 									//테스트용 2999199999
+		form.put("storeid", vanMap.getString("vanId"));				// PG 상점아이디
+		form.put("ordernumber", request.widget.getString("trackId"));	// 주문번호
+		form.put("goodname", getProduct(request.widget.get("products")));	// 상품명
+		form.put("amount", request.widget.getString("amount"));		// 총승인금액
+		form.put("ordername", request.widget.getString("payerName"));	// 주문자명
+		form.put("email", request.widget.getString("payerEmail"));		// email
+		form.put("mobileno", request.widget.getString("payerTel").replaceAll("[-]", ""));	// 휴대폰번호
+		form.put("charset", "UTF-8"); 										// 가맹점 Char Set
+		form.put("printmsg", storeName);
+		form.put("store_url", "https://www.bkwinners.com");
+		//form.put("installment", mchtTmnMap.getString("apiMaxInstall")); 	// 2개중 택 1 할부개월수 범위 지정 변수 ex)01:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
+		// 할부개월수 범위 지정 변수 ex)00:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
+
+		form.put("store_ceo_name", mchtMap.getString("ceoName"));//상점 대표자명
+		form.put("store_phoneno", mchtMap.getString("tel1").replaceAll("[-]", ""));//상점 연락처
+		form.put("store_address", mchtMap.getString("addr1") +" "+ mchtMap.getString("addr2"));//상점 주소
+
+		SharedMap<String,Object> kspayForm = new SharedMap<String,Object>();
+		//기본
+		kspayForm.put("storeid", vanMap.getString("vanId"));
+		kspayForm.put("email", request.widget.getString("payerEmail"));
+		kspayForm.put("phoneno", request.widget.getString("payerTel").replaceAll("[-]", ""));
+		kspayForm.put("ordernumber", request.widget.getString("trackId"));
+		kspayForm.put("ordername", request.widget.getString("payerName"));
+		kspayForm.put("goodname", getProduct(request.widget.get("products")));
+		kspayForm.put("amount", request.widget.getString("amount"));
+		kspayForm.put("injanm", storeName);
+		//toss 응답 파라미터터
+		kspayForm.put("trno", "");
+		kspayForm.put("payMethod", "");
+		kspayForm.put("paytoken", "");
+		kspayForm.put("authModel", "");
+		kspayForm.put("spreadOut", "");
+		kspayForm.put("noInterest", "");
+		kspayForm.put("discountedAmount", "");
+		kspayForm.put("paidPoint", "");
+		kspayForm.put("niceCardId", "");
+		kspayForm.put("bcCardYYMM", "");
+		kspayForm.put("trid", "");
+		kspayForm.put("cardNumber", "");
+		kspayForm.put("cavv", "");
+		kspayForm.put("xid", "");
+		kspayForm.put("eci", "");
+		kspayForm.put("otcNumber", "");
+		kspayForm.put("cardCompanyCode", "");
+		kspayForm.put("shopgrade", "");
+
+		//form 처리
+		request.widget.put("form", GsonUtil.toJson(form));
+		request.widget.put("kspayForm", GsonUtil.toJson(kspayForm));
+
+		//요청 값 임시 저장
+		logger.info("save as key : {}",request.widget.getString("key"));
+
+		PAYUNIT.cacheMap.put(request.widget.getString("key"), request.widget);
+
+
+		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
 	}
 
 }
