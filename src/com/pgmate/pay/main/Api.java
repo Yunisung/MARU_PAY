@@ -231,6 +231,8 @@ public class Api {
 				process = new ProcPhoneAuthReturn();
 			} else if (uri.startsWith(PAYUNIT.API_PHONE_AUTH)) {
 				process = new ProcPhoneAuth();
+			} else if (uri.startsWith(PAYUNIT.API_TOSS_RETURN)) {
+				process = new ProcTossReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -338,7 +340,8 @@ public class Api {
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_MOBILE_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_SUB_RETURN) ||
-			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN) ) {
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_TOSS_RETURN)) {
 			return true;
 		}
 

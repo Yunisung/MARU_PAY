@@ -88,9 +88,6 @@ public class ProcPaycoMobileReturn extends Proc{
             //결제시작
             SimplePayResult paycoResult = new SimplePayResult();
             paycoResult.trxId = trxId;
-            paycoResult.webhookUrl = reqObj.get("webhookurl").toString();
-            paycoResult.udf1 = reqObj.get("udf1").toString();
-            paycoResult.udf2 = reqObj.get("udf2").toString();
 
             //통신
             ConnentKsnet(payco, paycoResult);
@@ -102,7 +99,7 @@ public class ProcPaycoMobileReturn extends Proc{
                 logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
                 response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
 //                TemplateUtil.simplePayMobileResultPage(rc, paycoResult,"payco", redirectUrl, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-                TemplateUtil.simplePayResultPage(rc, paycoResult, "paycoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+                TemplateUtil.simplePayResultPage(rc, "paycoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
                 return;
             }
 
@@ -110,7 +107,7 @@ public class ProcPaycoMobileReturn extends Proc{
             setTrx(ioMap, payco);
 
             //결과화면 처리
-            TemplateUtil.simplePayResultPage(rc, paycoResult, "paycoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, "paycoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 //            TemplateUtil.simplePayMobileResultPage(rc, paycoResult,"payco", redirectUrl, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 
         } else {
@@ -119,9 +116,19 @@ public class ProcPaycoMobileReturn extends Proc{
             paycoResult.rMessage1 = "실패";
             paycoResult.rMessage2 = "카카오페이 인증에 실패했습니다";
 
+            response.result 	= ResultUtil.getResult("9999","승인실패", "인증에 실패했습니다.");
+            String res = GsonUtil.toJsonExcludeStrategies(response,true);
+
+            //실패시 IO_3D 테이블에 업데이트
+            ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
+            ioMap.put("vanResultCd", "X");
+            ioMap.put("vanResultMsg","인증실패");
+            ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
+            trxDAO.updateTrxIO3D(ioMap,res);
+
+
             //결과화면 처리
-            TemplateUtil.simplePayResultPage(rc, paycoResult, "paycoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-//            TemplateUtil.simplePayMobileResultPage(rc, paycoResult,"payco", redirectUrl, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc, "paycoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 
@@ -188,11 +195,6 @@ public class ProcPaycoMobileReturn extends Proc{
         if(ioMap.isNullOrSpace("vanResultDate")) {
             ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
         }
-
-        //위젯에서 입력받은 값 세팅
-        ioMap.put("webhookUrl", res.webhookUrl);
-        ioMap.put("udf1", res.udf1);
-        ioMap.put("udf2", res.udf2);
     }
 
     public void setTrx(SharedMap<String, Object> ioMap, Payco payco) {
@@ -273,20 +275,20 @@ public class ProcPaycoMobileReturn extends Proc{
         response.pay.card 		= card;
         response.pay.products 	= products;
         response.pay.authCd		= ioMap.getString("authCd");
-        response.pay.webhookUrl	= ioMap.getString("webhookUrl");
+        response.pay.webhookUrl	= widgetMap.getString("webhookUrl");
         response.pay.trxId		= ioMap.getString("trxId");
-        response.pay.trxType	= "PAYCO";
+        response.pay.trxType	= ioMap.getString("trxType");
         response.pay.tmnId		= ioMap.getString("tmnId");
         response.pay.trackId	= ioMap.getString("trackId");
         response.pay.amount		= ioMap.getLong("amount");
-        response.pay.udf1		= ioMap.getString("udf1");
-        response.pay.udf2		= ioMap.getString("udf2");
+        response.pay.udf1		= widgetMap.getString("udf1");
+        response.pay.udf2		= widgetMap.getString("udf2");
 
         String res = GsonUtil.toJsonExcludeStrategies(response,true);
         trxDAO.updateTrxIO3D(ioMap,res);
 
-        if(!ioMap.isNullOrSpace("webhookUrl")){
-            new ThreadWebHook(ioMap.getString("webhookUrl"),response).start();
+        if(!widgetMap.isNullOrSpace("webhookUrl")){
+            new ThreadWebHook(widgetMap.getString("webhookUrl"),response).start();
         }
     }
     public void ConnentKsnet(Payco payco, SimplePayResult result) {
