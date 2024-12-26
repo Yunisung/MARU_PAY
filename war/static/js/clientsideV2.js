@@ -278,6 +278,7 @@ var MARU = (function (win, doc) {
     var url = c3Config.redirectUrl;
     if (url && url.length > 1) {
       util.log('[CLIENT] REDIRECT: ', url);
+
       var form = doc.createElement('form');
       form.method = 'GET';
       form.action = url;
@@ -285,6 +286,22 @@ var MARU = (function (win, doc) {
       elem.value = JSON.stringify(data);
       elem.name = 'result';
       form.appendChild(elem);
+
+      //URL에 쿼리스트링이 포함되있으면 따로 빼서 추가한다
+      try {
+        const urlObject = new URL(url);
+        const params = new URLSearchParams(urlObject.search);
+
+        for (const [key, value] of params.entries()) {
+          const input = document.createElement('input');
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        }
+      } catch (error) {
+        util.log("REDIRECT QUERY STRING ERROR:", error);
+      }
+
       doc.body.appendChild(form);
       form.submit();
     }

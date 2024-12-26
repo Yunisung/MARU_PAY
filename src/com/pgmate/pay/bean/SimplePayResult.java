@@ -3,9 +3,6 @@ package com.pgmate.pay.bean;
 public class SimplePayResult {
 	
 	public String trxId = null;					//크레디탑 거래번호
-	public String webhookUrl = null;			//결과값 전송 url
-	public String udf1 = null;
-	public String udf2 = null;
 	
 	public String rApprovalType = null;			//거래종류
 	public String rTransactionNo = null;		//거래번호

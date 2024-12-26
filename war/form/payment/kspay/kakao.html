@@ -22,21 +22,21 @@
 
             var vfrm = document.kfrm;
 
-            if (parseInt(document.KSPayAuthForm.amount.value,10) < 50000 && parseInt(document.KSPayInputForm.installment.value,10) > 0)
-            {
-                alert("5만원이상 할부가능");
-                return;
-            }
+            // if (parseInt(document.KSPayAuthForm.amount.value,10) < 50000 && parseInt(document.KSPayInputForm.installment.value,10) > 0)
+            // {
+            //     alert("5만원이상 할부가능");
+            //     return;
+            // }
 
-            if(document.KSPayInputForm.ptype[0].checked)
-            {
-                vfrm.paymenttype.value=document.KSPayInputForm.ptype[0].value;
-            }else{
-                vfrm.paymenttype.value=document.KSPayInputForm.ptype[1].value;
-            }
-
-            //카카오는 아무거나 써도 똑같음
-            vfrm.paymenttype.value = "CARD";
+            // if(document.KSPayInputForm.ptype[0].checked)
+            // {
+            //     vfrm.paymenttype.value=document.KSPayInputForm.ptype[0].value;
+            // }else{
+            //     vfrm.paymenttype.value=document.KSPayInputForm.ptype[1].value;
+            // }
+            //
+            // //카카오는 아무거나 써도 똑같음
+            // vfrm.paymenttype.value = "CARD";
             vfrm.installment.value = "00";
 
             var width_	= 750;

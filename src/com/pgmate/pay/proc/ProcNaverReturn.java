@@ -78,9 +78,6 @@ public class ProcNaverReturn extends Proc{
             //결제시작
             SimplePayResult naverResult = new SimplePayResult();
             naverResult.trxId = trxId;
-            naverResult.webhookUrl = reqObj.get("webhookurl").toString();
-            naverResult.udf1 = reqObj.get("udf1").toString();
-            naverResult.udf2 = reqObj.get("udf2").toString();
 
             //통신
             ConnentKsnet(naver, naverResult);
@@ -93,7 +90,7 @@ public class ProcNaverReturn extends Proc{
             if(trxCheckMap != null) {
                 logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
                 response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
-                TemplateUtil.simplePayResultPage(rc, naverResult,"naver", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+                TemplateUtil.simplePayResultPage(rc,"naver", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
                 return;
             }
 
@@ -101,7 +98,7 @@ public class ProcNaverReturn extends Proc{
             setTrx(ioMap, naver);
 
             //결과화면 처리
-            TemplateUtil.simplePayResultPage(rc, naverResult,"naver", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.simplePayResultPage(rc,"naver", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 
         } else {
             SimplePayResult naverResult = new SimplePayResult();
@@ -109,9 +106,18 @@ public class ProcNaverReturn extends Proc{
             naverResult.rMessage1 = "실패";
             naverResult.rMessage2 = "네이버페이 인증에 실패했습니다";
 
-            //결과화면 처리
             response.result 	= ResultUtil.getResult("9999","승인실패", "네이버페이 인증에 실패했습니다.");
-            TemplateUtil.simplePayResultPage(rc, naverResult,"naver", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            String res = GsonUtil.toJsonExcludeStrategies(response,true);
+
+            //실패시 IO_3D 테이블에 업데이트
+            ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
+            ioMap.put("vanResultCd", "X");
+            ioMap.put("vanResultMsg","인증실패");
+            ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
+            trxDAO.updateTrxIO3D(ioMap,res);
+
+            //결과화면 처리
+            TemplateUtil.simplePayResultPage(rc,"naver", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 
@@ -177,10 +183,6 @@ public class ProcNaverReturn extends Proc{
             ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
         }
 
-        //위젯에서 입력받은 값 세팅
-        ioMap.put("webhookUrl", res.webhookUrl);
-        ioMap.put("udf1", res.udf1);
-        ioMap.put("udf2", res.udf2);
     }
 
     public void setTrx(SharedMap<String, Object> ioMap, Naver naver) {
@@ -261,20 +263,20 @@ public class ProcNaverReturn extends Proc{
         response.pay.card 		= card;
         response.pay.products 	= products;
         response.pay.authCd		= ioMap.getString("authCd");
-        response.pay.webhookUrl	= ioMap.getString("webhookUrl");
+        response.pay.webhookUrl	= widgetMap.getString("webhookUrl");
         response.pay.trxId		= ioMap.getString("trxId");
-        response.pay.trxType	= "NAVER";
+        response.pay.trxType	= ioMap.getString("trxType");
         response.pay.tmnId		= ioMap.getString("tmnId");
         response.pay.trackId	= ioMap.getString("trackId");
         response.pay.amount		= ioMap.getLong("amount");
-        response.pay.udf1		= ioMap.getString("udf1");
-        response.pay.udf2		= ioMap.getString("udf2");
+        response.pay.udf1		= widgetMap.getString("udf1");
+        response.pay.udf2		= widgetMap.getString("udf2");
 
         String res = GsonUtil.toJsonExcludeStrategies(response,true);
         trxDAO.updateTrxIO3D(ioMap,res);
 
-        if(!ioMap.isNullOrSpace("webhookUrl")){
-            new ThreadWebHook(ioMap.getString("webhookUrl"),response).start();
+        if(!widgetMap.isNullOrSpace("webhookUrl")){
+            new ThreadWebHook(widgetMap.getString("webhookUrl"),response).start();
         }
     }
 

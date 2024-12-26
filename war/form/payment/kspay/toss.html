@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <meta charset="utf-8">
+    <title>CREDITOP TOSS 간편결제 </title>
+    <script language="javascript">
+        function openToss()
+        {
+            var bank_frm	= document.BankFrm;
+            var submit_frm	= document.kspayForm;
+
+            var height_ = 550;//360;
+            var width_ = 400;//320
+            var left_ = screen.width;
+            var top_ = screen.height;
+
+            left_ = left_/2 - (width_/2);
+            top_ = top_/2 - (height_/2);
+
+            try
+            {
+                var op = window.open('about:blank','BankFrmUp',
+                    'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+
+                if (op == null)
+                {
+                    alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+                    return false;
+                }
+                bank_frm.target = 'BankFrmUp';
+
+            }catch(e)
+            {
+                alert("팝업실패("+(e.number & 0xFFFF)+":"+e.description+")");
+            }
+
+            bank_frm.action ='https://kspay.ksnet.to/store/PAY_PROXY/toss/toss_cert_rs.jsp'; // 개발: https://pgdev.ksnet.co.kr , 운영:https://kspay.ksnet.to/
+            bank_frm.submit();
+        }
+
+        function proceed(arg)
+        {
+            console.log("proceed 들어오냐");
+            var frm = document.kspayForm;
+            if(arg == "true"){
+                if(frm.payMethod.value == "RESELLER_CARD"){
+                    //신용카드
+                    submitCard() ;
+                }else if(frm.payMethod.value == "TOSS_MONEY"){
+                    submitMoney() ;
+                }else{
+                }
+            }else{
+                // 인증실패.
+            }
+        }
+    </script>
+</head>
+<body>
+    <!--<form name=kspayForm method=post>
+    <input type=hidden name="storeid"     value="">
+    <input type=hidden name="email"       value="">
+    <input type=hidden name="phoneno"     value="">
+    <input type=hidden name="ordernumber" value="">
+    <input type=hidden name="ordername"   value="<%=ordername%>">
+    <input type=hidden name="goodname"    value="<%=goodname%>">
+    <input type=hidden name="amount"      value="<%=amount%>">
+    <input type=hidden name="injanm"      value="<%=injanm%>">
+    &lt;!&ndash; toss 응답 파라미터 &ndash;&gt;
+    <input type=hidden name="trno"              value="">
+    <input type=hidden name="payMethod"         value="">
+    <input type=hidden name="paytoken"          value="">
+    <input type=hidden name="authModel"         value="">
+    <input type=hidden name="spreadOut"         value="">
+    <input type=hidden name="noInterest"        value="">
+    <input type=hidden name="discountedAmount"  value="">
+    <input type=hidden name="paidPoint"         value="">
+    <input type=hidden name="niceCardId"        value="">
+    <input type=hidden name="bcCardYYMM"        value="">
+    <input type=hidden name="trid"              value="">
+    <input type=hidden name="cardNumber"        value="">
+    <input type=hidden name="cavv"              value="">
+    <input type=hidden name="xid"               value="">
+    <input type=hidden name="eci"               value="">
+    <input type=hidden name="otcNumber"         value="">
+    <input type=hidden name="cardCompanyCode"   value="">
+    <input type=hidden name="shopgrade"         value="">
+    </form>
+    <div style="display:none">
+        <form name=BankFrm method=post>
+            <input type="hidden" name="returnUrl"      	value="">  &lt;!&ndash; 인증완료 리턴  &ndash;&gt;
+            <input type="hidden" name="cancelUrl"      	value="">  &lt;!&ndash; 취소시  리턴  &ndash;&gt;
+            <input type="hidden" name="storeid"    	    value="<%=storeid%>">
+            <input type="hidden" name="ordernumber"	    value="<%=ordernumber%>">
+            <input type="hidden" name="goodname"   	    value="<%=goodname%>">
+            <input type="hidden" name="amount"     	    value="<%=amount%>">
+            <input type="hidden" name="ordername"  	    value="<%=ordername%>">
+            <input type="hidden" name="email"      	    value="<%=email%>">
+            <input type="hidden" name="mobileno"     	  value="<%=phoneno%>">
+            <input type="hidden" name="charset"         value="">
+            <input type="hidden" name="printmsg"        value="<%=injanm%>">
+            <input type="hidden" name="store_address"   value="<%=store_address%>">
+            <input type="hidden" name="store_ceo_name"  value="<%=store_ceo_name%>">
+            <input type="hidden" name="store_phoneno"   value="<%=store_phoneno%>">
+            <input type="hidden" name="store_url"       value="<%=store_url%>">
+            <input type="hidden" name="installment"     value="<%=installment%>">
+            <input type="hidden" name="interesttype"    value="<%=interesttype%>">
+        </form>
+    </div>-->
+<script src="/js/toss.js?v=1"></script>
+<div id="iframe-payment-containner">
+    <iframe id="iframe-payment" style="width:100%;height:100%;background-color:transparent;border-radius: 6px;display:none;" frameborder="0" allowtransparency="true" src=""></iframe>
+</div>
+</body>
+</html>
