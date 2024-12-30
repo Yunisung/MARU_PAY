@@ -65,11 +65,11 @@ public class ProcKakaoMobileReturn extends Proc{
         //모바일은 request에서 안보내준다. 그래서 DB에서 가지고 온다.
 
         //DB에 있는 authForm을 Kakao클래스로 변환
-        String formString = reqObj.get("authform").toString();
+        String formString = reqObj.get("authForm").toString();
         JSONObject formObj = (JSONObject) parser.parse(formString);
 
         //redirecurl 사용
-        String redirectURL = reqObj.get("redirecturl").toString();
+        String redirectURL = reqObj.get("redirectUrl").toString();
 
         Kakao kakao = new Gson().fromJson(formObj.toJSONString(), Kakao.class);
         kakao.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
