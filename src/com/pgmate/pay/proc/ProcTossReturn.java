@@ -99,6 +99,7 @@ public class ProcTossReturn extends Proc {
 
                 } else if(toss.getPayMethod().equals("TOSS_MONEY")) {
                    //토스머니
+                   toss.setPayToken(ResMap.getString("paytoken"));
                    TossMoneyResult result = new TossMoneyResult();
                    result.setTrxId(trxId);
                    ConnectTossMoney(widget, toss, result);
@@ -200,16 +201,16 @@ public class ProcTossReturn extends Proc {
     public void setIoMap(TossMoneyResult result) {
         ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
 
-        if(result.rACStatus.equals(" ")) {
+        if(result.rACStatus.equals("O")) {
             response.result = ResultUtil.getResult("0000", "정상", "정상승인");
 
             ioMap.put("vanTrxId", result.rACTransactionNo);
-            ioMap.put("vanResultCd","0000");
-            ioMap.put("vanResultMsg","정상승인");
+            ioMap.put("vanResultCd", result.rACBankRespCode);
+            ioMap.put("vanResultMsg", result.rACMessage1 + " " + result.rACMessage2);
             ioMap.put("authCd", result.rACBankTransactionNo);
             ioMap.put("vanResultDate", result.rACTradeDate + result.rACTradeTime);
-            ioMap.put("acquirer", result.rACMessage1);
-            ioMap.put("issuer",result.rACMessage2);
+            ioMap.put("acquirer", "MONEY");
+            ioMap.put("issuer","TOSS");
             ioMap.put("installment", "00");
 //            int cardLen = result.rCardNo.length();
 //            ioMap.put("card", result.rCardNo);
@@ -221,11 +222,11 @@ public class ProcTossReturn extends Proc {
 //            }
 
             //카드정보는 임시로
-            ioMap.put("card", "1234567812345678");
-            ioMap.put("bin", "1234567812345678".substring(0, 6));
-            ioMap.put("last4", "1234567812345678".substring(12, 16));
+            ioMap.put("card", "0000000000000000");
+            ioMap.put("bin", "0000000000000000".substring(0, 6));
+            ioMap.put("last4", "0000000000000000".substring(12, 16));
 
-        } if(result.rACStatus.equals("X")) {
+        } else if(result.rACStatus.equals("X")) {
             String vanMessage = (result.rACMessage1+" "+result.rACMessage2).replaceAll("^\\s+","").replaceAll("\\s+$","");
             response.result 	= ResultUtil.getResult(result.rACBankTransactionNo,"승인실패",vanMessage);
             ioMap.put("vanTrxId",result.rACTransactionNo);
@@ -257,9 +258,9 @@ public class ProcTossReturn extends Proc {
 //            }
 
             //카드정보는 임시로
-            ioMap.put("card", "1234567812345678");
-            ioMap.put("bin", "1234567812345678".substring(0, 6));
-            ioMap.put("last4", "1234567812345678".substring(12, 16));
+            ioMap.put("card", "0000000000000000");
+            ioMap.put("bin", "0000000000000000".substring(0, 6));
+            ioMap.put("last4", "0000000000000000".substring(12, 16));
         }
 
         if(ioMap.isNullOrSpace("vanResultDate")) {
@@ -293,16 +294,23 @@ public class ProcTossReturn extends Proc {
         card.last4		= ioMap.getString("last4");
 
         //카드종류 체크
-        SharedMap<String,Object> issuerMap = trxDAO.getDBIssuer(card.bin);
-        if(issuerMap != null){
-            card.cardType = issuerMap.getString("type") ;
-            card.issuer = issuerMap.getString("issuer");
-            card.acquirer = issuerMap.getString("acquirer");
-        }else{
-            card.cardType = "신용" ;
+        if(ioMap.getString("acquirer").equals("MONEY")) {
+            card.cardType = "체크" ;
             card.issuer = ioMap.getString("issuer");
             card.acquirer = ioMap.getString("acquirer");
+        } else {
+            SharedMap<String,Object> issuerMap = trxDAO.getDBIssuer(card.bin);
+            if(issuerMap != null){
+                card.cardType = issuerMap.getString("type") ;
+                card.issuer = issuerMap.getString("issuer");
+                card.acquirer = issuerMap.getString("acquirer");
+            }else{
+                card.cardType = "신용" ;
+                card.issuer = ioMap.getString("issuer");
+                card.acquirer = ioMap.getString("acquirer");
+            }
         }
+
         ioMap.put("cardType",card.cardType);
         ioMap.put("issuer",card.issuer);
         ioMap.put("acquirer",card.acquirer);
