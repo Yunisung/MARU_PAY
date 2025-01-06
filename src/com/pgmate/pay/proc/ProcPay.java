@@ -23,7 +23,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * @author Administrator
@@ -593,6 +595,28 @@ public class ProcPay extends Proc {
 				msg =mchtTmnMap.getInt("apiMaxInstall")+"개월 이하로 ";
 			}
 			response.result = ResultUtil.getResult("9999", "할부개월초과","할부기간은 "+msg+" 이용하여 주시기 바랍니다.");return;
+		}
+
+		//수기결제 제한 카드 설정
+		if(!CommonUtil.isNullOrSpace(mchtTmnMap.getString("blockCard"))) {
+			String blockCard = mchtTmnMap.getString("blockCard");
+			List<String> pairs = new ArrayList<>();
+
+			for(int i = 0; i < blockCard.length(); i+=2) {
+				if(i+2 <= blockCard.length()) {
+					pairs.add(blockCard.substring(i, i+2));
+				}
+			}
+
+			String[] blockCardList = pairs.toArray(new String[0]);
+			SharedMap<String,Object> issuerMap = trxDAO.getDBIssuer(request.pay.card.bin);
+			String issuer = issuerMap.getString("issuer");
+
+			for( String a : blockCardList) {
+				if (a.equals(issuer)) {
+					response.result = ResultUtil.getResult("9999", "카드제한","사용 할 수 없는 카드입니다.");return;
+				}
+			}
 		}
 		
 		
