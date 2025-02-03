@@ -535,6 +535,9 @@ public class ProcPay3DV2Widget extends Proc {
 								} else if (request.widget.getString("trxType").equals("TOSS")) {
 									response.widget.put("routeUrl", "/form/payment/kspay/toss.html?token=" + widgetKey);
 									setTossPay(vanMap);
+								} else if (request.widget.getString("trxType").equals("NAVERPOINT")) {
+									response.widget.put("routeUrl", "/form/payment/kspay/naverpoint.html?token=" + widgetKey);
+									setNaverPoint(vanMap);
 								}
 
 								ioMap.put("reqJson", GsonUtil.toJson(request.widget));
@@ -1954,6 +1957,56 @@ public class ProcPay3DV2Widget extends Proc {
 
 		PAYUNIT.cacheMap.put(request.widget.getString("key"), request.widget);
 
+
+		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
+	}
+
+	public void setNaverPoint(SharedMap<String,Object> vanMap) {
+		logger.info("NAVER POINT START");
+
+		request.widget.put("key", widgetKey);
+		request.widget.put("authorization", mchtTmnMap.getString("payKey"));
+
+		request.widget.put("target", "KSPAY");
+		request.widget.put("targetMethod", "POPUP");
+		request.widget.put("targetUrl", "");
+
+		request.widget.put("width", 750);
+		request.widget.put("height", 850);
+
+		request.widget.put("apiMaxInstall",mchtTmnMap.getString("apiMaxInstall"));
+
+		SharedMap<String,Object> form = new SharedMap<String,Object>();
+
+		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)) {
+			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_NAVER_P_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+		} else {
+			form.put("returnUrl", String.format("https://%s%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_NAVER_P_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+		}
+
+//		form.put("returnUrl", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_NAVER_P_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+//		form.put("storeid", "2999199999"); 									//테스트용 2999199999
+		form.put("storeid", vanMap.getString("vanId"));				// PG 상점아이디
+		form.put("ordername", request.widget.getString("payerName"));	// 주문자명
+		form.put("ordernumber", request.widget.getString("trackId"));	// 주문번호
+		form.put("amount", request.widget.getString("amount"));		// 총승인금액
+		form.put("taxamount", "0");		//과세금액
+		form.put("freeamount", "0");	//면세금액
+		form.put("goodname", getProduct(request.widget.get("products")));	// 상품명
+		form.put("productcount", "1");
+		form.put("email", request.widget.getString("payerEmail"));		// email
+		form.put("charset", "UTF-8");	// 가맹점 Char Set
+		form.put("phoneno", request.widget.getString("payerTel").replaceAll("[-]", ""));	// 휴대폰번호
+		form.put("categorytype", "PRODUCT");
+		form.put("categoryid", "GENERAL");
+		form.put("uid", sharedMap.getString(PAYUNIT.TRX_ID));
+		//form 처리
+		request.widget.put("form", GsonUtil.toJson(form));
+
+		//요청 값 임시 저장
+		logger.info("save as key : {}",request.widget.getString("key"));
+
+		PAYUNIT.cacheMap.put(request.widget.getString("key"), request.widget);
 
 		logger.info("widget : [{}]",GsonUtil.toJson(form, true, ""));
 	}

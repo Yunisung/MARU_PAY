@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <meta charset="utf-8">
+    <title>CREDITOP NAVER POINT 간편결제 </title>
+    <script language="javascript">
+        function _submit()
+        {
+            var kspay_form	= document.kspayForm;
+
+            var height_ = 750;
+            var width_ = 850;
+            var left_ = screen.width;
+            var top_ = screen.height;
+
+            left_ = left_/2 - (width_/2);
+            top_ = top_/2 - (height_/2);
+
+            try
+            {
+                var op = window.open('about:blank','AuthFrmUp',
+                    'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+
+                if (op == null)
+                {
+                    alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+                    return false;
+                }
+
+
+            }catch(e)
+            {
+                alert("팝업실패("+(e.number & 0xFFFF)+":"+e.description+")");
+            }
+
+            kspay_form.target = 'AuthFrmUp';
+            kspay_form.action ='https://kspay.ksnet.to/store/PAY_PROXY/npay/naver_rs_po1.jsp'; // 개발: https://pgdev.ksnet.co.kr , 운영:https://kspay.ksnet.to/
+            kspay_form.submit();
+        }
+
+    </script>
+</head>
+<body>
+<script src="/js/naverp.js?v=1"></script>
+<div id="iframe-payment-containner">
+    <iframe id="iframe-payment" style="width:100%;height:100%;background-color:transparent;border-radius: 6px;display:none;" frameborder="0" allowtransparency="true" src=""></iframe>
+</div>
+</body>
+</html>
