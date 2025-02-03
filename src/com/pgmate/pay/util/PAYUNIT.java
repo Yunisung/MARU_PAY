@@ -92,6 +92,8 @@ public class PAYUNIT {
 
 	public static String API_TOSS_RETURN			= "/api/toss/return";
 
+	public static String API_NAVER_P_RETURN			= "/api/naverp/return";
+
 	public static String API_TMN					= "/api/tmn";
 
 	public static String API_ONLY_AUTH_WIDGET		= "/api/only/auth/widget";		// 통합인증 위젯
