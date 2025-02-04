@@ -230,7 +230,7 @@ public class ProcNaverPointReturn extends Proc{
         ioMap.put("payerName", naver.getOrdername());
         ioMap.put("payerEmail", naver.getEmail());
         ioMap.put("payerTel", naver.getPhoneno());
-        ioMap.put("trxType", "NAVER");
+        ioMap.put("trxType", "NAVERPOINT");
         try {
 
 
