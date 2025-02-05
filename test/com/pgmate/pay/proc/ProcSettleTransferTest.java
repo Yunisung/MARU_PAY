@@ -74,4 +74,9 @@ public class ProcSettleTransferTest {
             fail();
         }
     }
+
+    @Test
+    public void 미수금테스트() {
+        procSettleTransfer.getNotDeposit("bktest003");
+    }
 }

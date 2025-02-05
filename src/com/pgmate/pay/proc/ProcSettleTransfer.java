@@ -197,10 +197,12 @@ public class ProcSettleTransfer extends Proc {
 		return;
 	}
 
-	private long getNotDeposit(String mchtId) {
+	long getNotDeposit(String mchtId) {
 		// 현재 시간 계산
 		String trxDay = CommonUtil.getCurrentDate("yyyyMMdd");
 		String trxTime = CommonUtil.getCurrentDate("HHmmss");
+//		String trxDay = "20250205";
+//		String trxTime = "064500";
 		Date trxDate = CommonUtil.getDate("yyyyMMddHHmmss", trxDay + trxTime);
 
 		String hour = trxTime.substring(0, 2);
@@ -209,18 +211,48 @@ public class ProcSettleTransfer extends Proc {
 		String startTrxDay = trxDay;
 		String startTrxTime = hour + "0000";
 
-		// 6분 미만일 경우 이전 1시간 이전금액
-		if(Integer.parseInt(min) < 6) {
-			// hour - 1
-			String prevHourDate = getPrevHourDate(trxDate);
-			startTrxDay = prevHourDate.substring(0, 8);
-			startTrxTime = prevHourDate.substring(8, 10) + "0000";
+		VactDAO vactDAO = new VactDAO();
+
+		String mAccount = vactDAO.getMaccount(mchtId);
+		long amount = 0;
+
+		// 모계좌에 따라 미수금 처리 분리
+		// 1시간 미수금 처리
+		if(mAccount.equals("1")) {
+			// 6분 미만일 경우 이전 1시간 이전금액
+			if(Integer.parseInt(min) < 6) {
+				// hour - 1
+				String prevHourDate = getPrevHourDate(trxDate);
+				startTrxDay = prevHourDate.substring(0, 8);
+				startTrxTime = prevHourDate.substring(8, 10) + "0000";
+			}
+
+			amount = vactDAO.getVactOneHourSum(startTrxDay, startTrxTime, mchtId);
+			logger.info("1시간이전 startTime: {}, 1시간이전 startTrxTime: {}", startTrxDay, startTrxTime);
+			logger.info("1시간이전 amount: {} ", amount);
 		}
 
-		VactDAO vactDAO = new VactDAO();
-		long amount = vactDAO.getVactOneHourSum(startTrxDay, startTrxTime, mchtId);
-		logger.info("1시간이전 startTime: {}, 1시간이전 startTrxTime: {}", startTrxDay, startTrxTime);
-		logger.info("1시간이전 amount: {} ", amount);
+		// 하루 미수금 처리(07시 기준)
+		if(mAccount.equals("2")) {
+			String prevDayDate = "";
+			// 현재시간이 7시 전일 때 하루전 07시~ 기준 금액
+			if(Integer.parseInt(hour) < 7) {
+				prevDayDate = getPrevDayDate(trxDate);
+				startTrxDay = prevDayDate.substring(0, 8);
+				startTrxTime = "070000";
+
+				// 현재시간이 7시 이후일때 당일 07시~ 금액
+			} else {
+				startTrxDay = trxDay;
+				startTrxTime = "070000";
+			}
+
+			amount = vactDAO.getVactOneHourSum(startTrxDay, startTrxTime, mchtId);
+			logger.info("기준시간 : {}", trxDate);
+			logger.info("1day이전 startTime: {}, 1day이전 startTrxTime: {}", startTrxDay, startTrxTime);
+			logger.info("1day이전 amount: {} ", amount);
+		}
+
 		return amount;
 	}
 
@@ -232,6 +264,14 @@ public class ProcSettleTransfer extends Proc {
 		return sdformat.format(cal.getTime());
 	}
 
+	private String getPrevDayDate(Date calcDate) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(calcDate);
+		cal.add(Calendar.DATE, -1);
+		SimpleDateFormat sdformat = new SimpleDateFormat("yyyyMMddHHmmss");
+		return sdformat.format(cal.getTime());
+
+	}
 
 	@Override
 	public void valid() {
