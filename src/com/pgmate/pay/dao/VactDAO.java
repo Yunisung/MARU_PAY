@@ -124,7 +124,6 @@ public class VactDAO extends DAO {
             pstmt	= conn.prepareStatement(query);
             pstmt.setString(1,trxDay + trxTime);
             pstmt.setString(2,mchtId);
-
             rset 	= pstmt.executeQuery();
 
             while(rset.next()){
@@ -138,5 +137,15 @@ public class VactDAO extends DAO {
         }
 
         return sumAmt;
+    }
+
+    public String getMaccount(String mchtId) {
+        super.setTable("PG_MCHT_MNG_VACT");
+        super.setColumns("mAccount");
+        super.addWhere("mchtId", mchtId, eq);
+
+        RecordSet rset = super.search();
+        super.initRecord();
+        return rset.getRowFirst().getString("mAccount");
     }
 }
