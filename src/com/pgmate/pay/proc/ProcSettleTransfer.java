@@ -197,7 +197,7 @@ public class ProcSettleTransfer extends Proc {
 		return;
 	}
 
-	long getNotDeposit(String mchtId) {
+	public long getNotDeposit(String mchtId) {
 		// 현재 시간 계산
 		String trxDay = CommonUtil.getCurrentDate("yyyyMMdd");
 		String trxTime = CommonUtil.getCurrentDate("HHmmss");
@@ -217,8 +217,8 @@ public class ProcSettleTransfer extends Proc {
 		long amount = 0;
 
 		// 모계좌에 따라 미수금 처리 분리
-		// 1시간 미수금 처리
-		if(mAccount.equals("1")) {
+		// 한시간 미수금 처리
+		if(mAccount.equals("131022424175")) {
 			// 6분 미만일 경우 이전 1시간 이전금액
 			if(Integer.parseInt(min) < 6) {
 				// hour - 1
@@ -227,30 +227,30 @@ public class ProcSettleTransfer extends Proc {
 				startTrxTime = prevHourDate.substring(8, 10) + "0000";
 			}
 
-			amount = vactDAO.getVactOneHourSum(startTrxDay, startTrxTime, mchtId);
+			amount = vactDAO.getVactAfterSum(startTrxDay, startTrxTime, mchtId);
 			logger.info("1시간이전 startTime: {}, 1시간이전 startTrxTime: {}", startTrxDay, startTrxTime);
 			logger.info("1시간이전 amount: {} ", amount);
 		}
 
 		// 하루 미수금 처리(07시 기준)
-		if(mAccount.equals("2")) {
-			String prevDayDate = "";
-			// 현재시간이 7시 전일 때 하루전 07시~ 기준 금액
+		if(mAccount.equals("131022424199")) {
+			// 현재시간이 7시 전일 때 하루전 0시~당일 24시
 			if(Integer.parseInt(hour) < 7) {
-				prevDayDate = getPrevDayDate(trxDate);
+				String prevDayDate = getPrevDayDate(trxDate);
 				startTrxDay = prevDayDate.substring(0, 8);
-				startTrxTime = "070000";
+				amount = vactDAO.getVactBetweenSum(startTrxDay, mchtId);
 
-				// 현재시간이 7시 이후일때 당일 07시~ 금액
+				// 현재시간이 7시 이후일때 당일 00시~ 금액
 			} else {
 				startTrxDay = trxDay;
-				startTrxTime = "070000";
+				startTrxTime = "000000";
+				amount = vactDAO.getVactAfterSum(startTrxDay, startTrxTime, mchtId);
 			}
 
-			amount = vactDAO.getVactOneHourSum(startTrxDay, startTrxTime, mchtId);
-			logger.info("기준시간 : {}", trxDate);
+			logger.info("계산 시점 시간 : {}", trxDate);
 			logger.info("1day이전 startTime: {}, 1day이전 startTrxTime: {}", startTrxDay, startTrxTime);
 			logger.info("1day이전 amount: {} ", amount);
+
 		}
 
 		return amount;
@@ -363,6 +363,15 @@ public class ProcSettleTransfer extends Proc {
 		if(vactBankCd.equals("007")) {
 			if(!request.transfer.bankCd.equals("007")) {
 				response.result = ResultUtil.getResult("9999", "타행이체오류","해당 계좌로 출금하실 수 없습니다. 관리자에 문의 바랍니다");
+			}
+		}
+
+		// 신협은행 지정 모계좌인지 확인
+		if("048".equals(vactBankCd)) {
+			String mAccount = vactDAO.getMaccount(mchtId);
+
+			if(!mAccount.equals("131022424175") && !mAccount.equals("131022424199")) {
+				response.result = ResultUtil.getResult("9999", "모계좌설정오류","해당 계좌로 출금하실 수 없습니다. 관리자에 문의 바랍니다");
 			}
 		}
 
