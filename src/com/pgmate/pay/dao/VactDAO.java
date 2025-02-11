@@ -106,12 +106,13 @@ public class VactDAO extends DAO {
         }
     }
 
-    public long getVactOneHourSum(String trxDay, String trxTime, String mchtId){
+    public long getVactAfterSum(String trxDay, String trxTime, String mchtId){
         long sumAmt = 0;
 
         String query = "SELECT SUM(amount) as sumAmt"
                 + "  FROM PG_VACT_TRX "
-                + " WHERE regDate >= ? and trxType = '입금' AND mchtId = ?";
+//                + " WHERE regDate >= ? and trxType = '입금' AND mchtId = ?";
+                + " WHERE trxDay = ? and trxTime >= ? and trxType = '입금' AND mchtId = ?";
 
         DBManager db 			= null;
         PreparedStatement pstmt	= null;
@@ -122,8 +123,9 @@ public class VactDAO extends DAO {
             db 		= DBFactory.getInstance();
             conn	= db.getConnection();
             pstmt	= conn.prepareStatement(query);
-            pstmt.setString(1,trxDay + trxTime);
-            pstmt.setString(2,mchtId);
+            pstmt.setString(1,trxDay);
+            pstmt.setString(2,trxTime);
+            pstmt.setString(3,mchtId);
             rset 	= pstmt.executeQuery();
 
             while(rset.next()){
@@ -132,6 +134,40 @@ public class VactDAO extends DAO {
         }catch(Exception e){
             e.printStackTrace();
             logger.error("getVactOneHourSum ERROR : {}, query : {}", e.getMessage(), query);
+        }finally{
+            db.close(conn,pstmt,rset);
+        }
+
+        return sumAmt;
+    }
+
+    public long getVactBetweenSum(String trxDay, String mchtId) {
+        long sumAmt = 0;
+
+        String query = "SELECT SUM(amount) as sumAmt"
+                + "  FROM PG_VACT_TRX "
+//                + " WHERE regDate >= ? and trxType = '입금' AND mchtId = ?";
+                + " WHERE trxDay = ? and trxTime BETWEEN '000000' AND '235959' and trxType = '입금' AND mchtId = ?";
+
+        DBManager db 			= null;
+        PreparedStatement pstmt	= null;
+        Connection conn			= null;
+        ResultSet rset			= null;
+
+        try{
+            db 		= DBFactory.getInstance();
+            conn	= db.getConnection();
+            pstmt	= conn.prepareStatement(query);
+            pstmt.setString(1,trxDay);
+            pstmt.setString(2,mchtId);
+            rset 	= pstmt.executeQuery();
+
+            while(rset.next()){
+                sumAmt = rset.getLong("sumAmt");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            logger.error("getVactBetweenSum ERROR : {}, query : {}", e.getMessage(), query);
         }finally{
             db.close(conn,pstmt,rset);
         }

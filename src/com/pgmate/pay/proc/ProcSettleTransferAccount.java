@@ -1,6 +1,5 @@
 package com.pgmate.pay.proc;
 
-import com.pgmate.lib.dao.RecordSet;
 import com.pgmate.lib.util.lang.CommonUtil;
 import com.pgmate.lib.util.map.SharedMap;
 import com.pgmate.lib.vertx.main.VertXUtil;
@@ -222,18 +221,45 @@ public class ProcSettleTransferAccount extends Proc {
 		String startTrxDay = trxDay;
 		String startTrxTime = hour + "0000";
 
+		VactDAO vactDAO = new VactDAO();
+
+		String mAccount = vactDAO.getMaccount(mchtId);
+		long amount = 0;
+
+		// 모계좌에 따라 미수금 처리 분리
 		// 6분 미만일 경우 모계좌입금 전
-		if(Integer.parseInt(min) < 6) {
-			// hour - 1
-			String prevHourDate = getPrevHourDate(trxDate);
-			startTrxDay = prevHourDate.substring(0, 8);
-			startTrxTime = prevHourDate.substring(8, 10) + "0000";
+		if(mAccount.equals("131022424175")) {
+			if (Integer.parseInt(min) < 6) {
+				// hour - 1
+				String prevHourDate = getPrevHourDate(trxDate);
+				startTrxDay = prevHourDate.substring(0, 8);
+				startTrxTime = prevHourDate.substring(8, 10) + "0000";
+			}
 		}
 
-		VactDAO vactDAO = new VactDAO();
-		long amount = vactDAO.getVactOneHourSum(startTrxDay, startTrxTime, mchtId);
+		amount = vactDAO.getVactAfterSum(startTrxDay, startTrxTime, mchtId);
 		logger.info("1시간이전 startTime: {}, 1시간이전 startTrxTime: {}", startTrxDay, startTrxTime);
 		logger.info("1시간이전 amount: {} ", amount);
+
+		// 하루 미수금 처리(07시 기준)
+		if(mAccount.equals("131022424199")) {
+			// 현재시간이 7시 전일 때 하루전 0시~당일 24시
+			if(Integer.parseInt(hour) < 7) {
+				String prevDayDate = getPrevDayDate(trxDate);
+				startTrxDay = prevDayDate.substring(0, 8);
+				amount = vactDAO.getVactBetweenSum(startTrxDay, mchtId);
+
+				// 현재시간이 7시 이후일때 당일 00시~ 금액
+			} else {
+				startTrxDay = trxDay;
+				startTrxTime = "000000";
+				amount = vactDAO.getVactAfterSum(startTrxDay, startTrxTime, mchtId);
+			}
+
+			logger.info("계산 시점 시간 : {}", trxDate);
+			logger.info("1day이전 startTime: {}, 1day이전 startTrxTime: {}", startTrxDay, startTrxTime);
+			logger.info("1day이전 amount: {} ", amount);
+		}
 		return amount;
 	}
 
@@ -243,6 +269,15 @@ public class ProcSettleTransferAccount extends Proc {
 		cal.add(Calendar.HOUR, -1);
 		SimpleDateFormat sdformat = new SimpleDateFormat("yyyyMMddHHmmss");
 		return sdformat.format(cal.getTime());
+	}
+
+	private String getPrevDayDate(Date calcDate) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(calcDate);
+		cal.add(Calendar.DATE, -1);
+		SimpleDateFormat sdformat = new SimpleDateFormat("yyyyMMddHHmmss");
+		return sdformat.format(cal.getTime());
+
 	}
 
 
@@ -373,6 +408,15 @@ public class ProcSettleTransferAccount extends Proc {
 		if(vactBankCd.equals("007")) {
 			if(!request.transfer.bankCd.equals("007")) {
 				response.result = ResultUtil.getResult("9999", "타행이체오류","해당 계좌로 출금하실 수 없습니다. 관리자에 문의 바랍니다");
+			}
+		}
+
+		// 신협은행 지정 모계좌인지 확인
+		if("048".equals(vactBankCd)) {
+			String mAccount = vactDAO.getMaccount(mchtId);
+
+			if(!mAccount.equals("131022424175") && !mAccount.equals("131022424199")) {
+				response.result = ResultUtil.getResult("9999", "모계좌설정오류","해당 계좌로 출금하실 수 없습니다. 관리자에 문의 바랍니다");
 			}
 		}
 
