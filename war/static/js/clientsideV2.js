@@ -348,7 +348,14 @@ var MARU = (function (win, doc) {
 
     /* IFRAME 으로부터 이벤트를 전달 받는 부분. */
     util.addEventListener(window, 'message', function (e) {
-      var recv = JSON.parse(e.data);
+
+      var recv;
+      try{
+        recv = JSON.parse(e.data);
+      } catch(error) {
+        util.log('Invalid JSON received:', e.data);
+        return;
+      }
 
       if (!recv.type) {
         util.log('undefined Type PostMessage');
