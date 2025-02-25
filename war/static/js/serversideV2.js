@@ -200,13 +200,8 @@ var ServerUtil = {
     layerHeigth: 610,
     resizeWindow: function(config) {
         var additionHeight = 0;
-        var additionWidth = 0;
         if (config.widget.semiAuth == 'Y') {
             additionHeight += 90;
-        }
-
-        if(c3Config.payRoute == 'simple' && c3Config.trxType == 'KAKAO') {
-            additionWidth = 100;
         }
 
         if (c3Config.mode == 'popup') {
@@ -224,7 +219,6 @@ var ServerUtil = {
                 }
             }else {
                 ServerUtil.layerHeigth += additionHeight;
-                ServerUtil.layerWidth += additionWidth;
             }
         }
     }
@@ -352,7 +346,7 @@ function openPayment(config) {
 /* MCHT 요청 및 기타 요청에 의해 결제 취소 */
 function closePayment(data) {
     /* 결제를 취소하고 창을 닫기위한 작업을 이곳에 추가. */
-    var delay = 10;
+    var delay = 100;
     if(data) {
       postMessages.payResult(data);
     }

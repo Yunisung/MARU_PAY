@@ -26,18 +26,18 @@
         left_ = left_/2 - (width_/2);
         top_ = top_/2 - (height_/2);
 
-        // op = window.open("",'AuthFrmUp',
-        //     'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
-        //
-        // if (op == null)
-        // {
-        //     alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
-        //     return false;
-        // }
+        op = window.open("",'AuthFrmUp',
+            'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+
+        if (op == null)
+        {
+            alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+            return false;
+        }
 
         var call_url = "https://kspay.ksnet.to/store/PAY_PROXY/lpay/lpayp.jsp";
 
-        // lpay_frm.target = 'AuthFrmUp';
+        lpay_frm.target = 'AuthFrmUp';
         lpay_frm.action = call_url;
         lpay_frm.submit();
     }

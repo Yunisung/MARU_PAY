@@ -250,7 +250,6 @@ var C3MOD = (function (win, doc) {
 
         var BankFrm = doc.createElement("form");
         BankFrm.setAttribute("name", "BankFrm");
-        BankFrm.setAttribute("action", config.targetUrl);
         BankFrm.setAttribute("method", "post");
         document.body.appendChild(BankFrm);
 
@@ -260,12 +259,11 @@ var C3MOD = (function (win, doc) {
             elem.setAttribute("type", "hidden");
             elem.setAttribute("name", key);
             elem.setAttribute("value", val);
+            console.log(key + ' : ' + val);
             BankFrm.appendChild(elem);
         }
 
-        BankFrm.submit();
-        //openToss();
-
+        openToss();
         // /* 할부 옵션 추가 */
         // for (i = 0; i <= config.apiMaxInstall; i++) {
         //     if (i == 1) continue;
@@ -313,7 +311,7 @@ var C3MOD = (function (win, doc) {
             } else {
                 window.close();
             }
-        }, 10);
+        }, 500);
     }
 
     function validation(config) {
@@ -357,7 +355,7 @@ var C3MOD = (function (win, doc) {
             /* loading hide */
             setTimeout(function () {
                 fadeOutEffect('c3-loading');
-            }, 10);
+            }, 800);
         }, function (err) {
             util.log('TOKEN ERROR  ', err);
             if (err.status == '401') {
@@ -367,7 +365,7 @@ var C3MOD = (function (win, doc) {
                 });
                 setTimeout(function () {
                     fadeOutEffect('c3-loading');
-                }, 10);
+                }, 500);
             }
         });
     });
@@ -399,6 +397,6 @@ function kspayToParent() {
             } else {
                 window.close();
             }
-        }, 10);
-    }, 10);
+        }, 500);
+    }, 500);
 }

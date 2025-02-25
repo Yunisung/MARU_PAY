@@ -305,25 +305,25 @@ var C3MOD = (function (win, doc) {
 
         var call_url = "https://kspay.ksnet.to/store/PAY_PROXY/payco/payco_p.jsp";
 
-        // var width_	= 500;
-        // var height_	= 518;
-        // var left_	= screen.width;
-        // var top_	= screen.height;
-        //
-        // left_ = left_/2 - (width_/2);
-        // top_ = top_/2 - (height_/2);
-        //
-        // op = window.open("",'AuthFrmUp',
-        //     'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
-        //
-        // if (op == null)
-        // {
-        //     alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
-        //     return false;
-        // }
-        //
-        // // document.getElementById("DIV_KAKAOFRAME").style.display="";
-        // payco_frm.target = 'AuthFrmUp';
+        var width_	= 500;
+        var height_	= 518;
+        var left_	= screen.width;
+        var top_	= screen.height;
+
+        left_ = left_/2 - (width_/2);
+        top_ = top_/2 - (height_/2);
+
+        op = window.open("",'AuthFrmUp',
+            'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+
+        if (op == null)
+        {
+            alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+            return false;
+        }
+
+        // document.getElementById("DIV_KAKAOFRAME").style.display="";
+        payco_frm.target = 'AuthFrmUp';
         payco_frm.action = call_url;
         payco_frm.submit();
 

@@ -251,7 +251,7 @@ var C3MOD = (function (win, doc) {
 
         var f = doc.createElement("form");
         f.setAttribute("name", "kfrm");
-        // f.setAttribute("target", "NAVER_IFRM");
+        f.setAttribute("target", "_blank");
         f.setAttribute("method", "post");
         document.body.appendChild(f);
 
@@ -265,10 +265,10 @@ var C3MOD = (function (win, doc) {
             f.appendChild(elem);
         }
 
-        // document.getElementById("goodname").innerHTML = config.form.goodname;
-        // document.getElementById("amount").innerHTML = config.form.amount;
-        f.submit();
-        // _submit();
+        document.getElementById("goodname").innerHTML = config.form.goodname;
+        document.getElementById("amount").innerHTML = config.form.amount;
+
+        _submit();
         // /* 할부 옵션 추가 */
         // for (i = 0; i <= config.apiMaxInstall; i++) {
         //     if (i == 1) continue;

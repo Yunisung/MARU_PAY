@@ -237,8 +237,6 @@ var C3MOD = (function (win, doc) {
         var kspayForm = doc.createElement("form");
         kspayForm.setAttribute("name", "kspayForm");
         kspayForm.setAttribute("method", "post");
-        kspayForm.setAttribute("action", config.targetUrl);
-        kspayForm.setAttribute("target", "form");
         document.body.appendChild(kspayForm);
 
         for(key in config.form) {
@@ -249,8 +247,8 @@ var C3MOD = (function (win, doc) {
             elem.setAttribute("value", val);
             kspayForm.appendChild(elem);
         }
-        kspayForm.submit();
-        // _submit();
+
+        _submit();
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
@@ -287,7 +285,7 @@ var C3MOD = (function (win, doc) {
             } else {
                 window.close();
             }
-        }, 10);
+        }, 500);
     }
 
     function validation(config) {
@@ -329,7 +327,7 @@ var C3MOD = (function (win, doc) {
             /* loading hide */
             setTimeout(function () {
                 fadeOutEffect('c3-loading');
-            }, 10);
+            }, 800);
         }, function (err) {
             util.log('TOKEN ERROR  ', err);
             if (err.status == '401') {
@@ -339,7 +337,7 @@ var C3MOD = (function (win, doc) {
                 });
                 setTimeout(function () {
                     fadeOutEffect('c3-loading');
-                }, 10);
+                }, 500);
             }
         });
     });
@@ -371,6 +369,6 @@ function kspayToParent() {
             } else {
                 window.close();
             }
-        }, 10);
-    }, 10);
+        }, 500);
+    }, 500);
 }

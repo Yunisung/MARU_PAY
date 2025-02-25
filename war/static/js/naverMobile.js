@@ -234,25 +234,24 @@ var C3MOD = (function (win, doc) {
     }
 
     function setForm(config) {
-        // var authform = doc.createElement("form");
-        // authform.setAttribute("name", "KSPayAuthForm");
-        // authform.setAttribute("method", "post");
-        //
-        // document.body.appendChild(authform);
-        // for(key in config.authForm) {
-        //     var val = config.authForm[key];
-        //     var elem = document.createElement("input");
-        //     elem.setAttribute("type", "hidden");
-        //     elem.setAttribute("name", key);
-        //     elem.setAttribute("value", val);
-        //
-        //     authform.appendChild(elem);
-        // }
+        var authform = doc.createElement("form");
+        authform.setAttribute("name", "KSPayAuthForm");
+        authform.setAttribute("method", "post");
+
+        document.body.appendChild(authform);
+        for(key in config.authForm) {
+            var val = config.authForm[key];
+            var elem = document.createElement("input");
+            elem.setAttribute("type", "hidden");
+            elem.setAttribute("name", key);
+            elem.setAttribute("value", val);
+
+            authform.appendChild(elem);
+        }
 
         var f = doc.createElement("form");
-        f.setAttribute("action", config.targetUrl);
         f.setAttribute("name", "kfrm");
-        f.setAttribute("target", "form");
+        f.setAttribute("target", "_blank");
         f.setAttribute("method", "post");
         document.body.appendChild(f);
 
@@ -266,7 +265,10 @@ var C3MOD = (function (win, doc) {
             f.appendChild(elem);
         }
 
-        f.submit();
+        document.getElementById("goodname").innerHTML = config.form.goodname;
+        document.getElementById("amount").innerHTML = config.form.amount;
+
+        _submit();
         // /* 할부 옵션 추가 */
         // for (i = 0; i <= config.apiMaxInstall; i++) {
         //     if (i == 1) continue;
@@ -320,7 +322,7 @@ var C3MOD = (function (win, doc) {
             } else {
                 window.close();
             }
-        }, 10);
+        }, 500);
     }
 
     function validation(config) {
@@ -364,7 +366,7 @@ var C3MOD = (function (win, doc) {
             /* loading hide */
             setTimeout(function () {
                 fadeOutEffect('c3-loading');
-            }, 10);
+            }, 800);
         }, function (err) {
             util.log('TOKEN ERROR  ', err);
             if (err.status == '401') {
@@ -374,7 +376,7 @@ var C3MOD = (function (win, doc) {
                 });
                 setTimeout(function () {
                     fadeOutEffect('c3-loading');
-                }, 10);
+                }, 500);
             }
         });
     });
@@ -406,6 +408,6 @@ function kspayToParent() {
             } else {
                 window.close();
             }
-        }, 10);
-    }, 10);
+        }, 500);
+    }, 500);
 }
