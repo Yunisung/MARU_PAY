@@ -7,14 +7,14 @@
     <script>
         function submitAuth() {
             var ssgfrm = document.ssgFrm;
-            var frm    = document.KSPayInputForm;
-            for(var i=0 ; i<frm.certitype.length ; i++)
-            {
-                if(frm.certitype[i].checked == true)
-                {
-                    ssgfrm.sndCertitype.value = frm.certitype[i].value ;
-                }
-            }
+            // var frm    = document.KSPayInputForm;
+            // for(var i=0 ; i<frm.certitype.length ; i++)
+            // {
+            //     if(frm.certitype[i].checked == true)
+            //     {
+            //         ssgfrm.sndCertitype.value = frm.certitype[i].value ;
+            //     }
+            // }
             //SSG신용만 사용하도록 변경
             //SSG머니는 결제취소가 안되는 이슈발생
             ssgfrm.sndCertitype.value = "2";
@@ -43,6 +43,7 @@
             {
                 alert("팝업실패("+(e.number & 0xFFFF)+":"+e.description+")");
             }
+            ssgfrm.target = 'SsgFrmUp';
             ssgfrm.action ='https://kspay.ksnet.to/store/PAY_PROXY/ssg/ssg_proxy.jsp';
             ssgfrm.submit();
         }

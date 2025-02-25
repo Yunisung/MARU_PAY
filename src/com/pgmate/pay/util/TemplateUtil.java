@@ -357,7 +357,7 @@ public class TemplateUtil {
 				"<textarea style=\"display:none;\" name=\"data\">"+resData+"</textarea>" +
 				"</form>" +
 				"<script src=\"/js/"+jsName+".js\"></script>"+
-				"<script>setTimeout(function() { kspayToParent(); },200);</script>"+
+				"<script>kspayToParent();</script>"+
 				"</body>\n" +
 				"</html>";
 

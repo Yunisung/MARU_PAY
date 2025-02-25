@@ -254,11 +254,12 @@ var MARU = (function (win, doc) {
     	doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
         doc.getElementById('c3_pop_overlay').style.display = '';
     }
+    doc.getElementById('c3pop_content_fixed').style.display = '';
 
     //간편결제는 fix제거
-    if(c3Config.payRoute !== 'simple') {
-      doc.getElementById('c3pop_content_fixed').style.display = '';
-    }
+    // if(c3Config.payRoute !== 'simple') {
+    //   doc.getElementById('c3pop_content_fixed').style.display = '';
+    // }
   }
 
 
@@ -311,7 +312,7 @@ var MARU = (function (win, doc) {
       if(resFnc && typeof resFnc == 'function') {
         resFnc(data);
       }
-    }, 500);
+    }, 10);
 
   }
 
@@ -387,7 +388,7 @@ var MARU = (function (win, doc) {
       /* 처음 실행 할 때도 Resize를 전송해서 사이즈 초기화 */
       setTimeout(function () {
         postMessages.ie8Resize();
-      }, 1000);
+      }, 10);
     }
   }
   /* 결제 실행 (Public) */
@@ -409,7 +410,7 @@ function requestPayOpen() {
     c3pop();
     setTimeout(function() {
       postMessages.payOpen();
-    }, 200);
+    }, 10);
   }
 
   function echoPop() {
@@ -427,7 +428,7 @@ function requestPayOpen() {
 
     setTimeout(function() {
       postMessages.echo();
-    }, 200);
+    }, 10);
   }
 
   function refundPop() {
@@ -450,7 +451,7 @@ function requestPayOpen() {
 
     setTimeout(function() {
       postMessages.refund();
-    }, 200);
+    }, 10);
   }
 
   function setDebug(bool) {

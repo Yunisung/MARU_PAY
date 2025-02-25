@@ -250,6 +250,7 @@ var C3MOD = (function (win, doc) {
 
         var f = doc.createElement("form");
         f.setAttribute("name", "ssgFrm");
+        f.setAttribute("action", config.targetUrl);
         f.setAttribute("method", "post");
         document.body.appendChild(f);
 
@@ -263,10 +264,11 @@ var C3MOD = (function (win, doc) {
             f.appendChild(elem);
         }
 
-        document.getElementById("goodname").innerHTML = config.form.sndGoodname;
-        document.getElementById("amount").innerHTML = config.form.sndAmount;
+        // document.getElementById("goodname").innerHTML = config.form.sndGoodname;
+        // document.getElementById("amount").innerHTML = config.form.sndAmount;
 
-        submitAuth();
+        //f.submit();
+         submitAuth();
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */

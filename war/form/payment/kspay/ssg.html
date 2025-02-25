@@ -7,14 +7,14 @@
     <script>
         function submitAuth() {
             var ssgfrm = document.ssgFrm;
-            var frm    = document.KSPayInputForm;
-            for(var i=0 ; i<frm.certitype.length ; i++)
-            {
-                if(frm.certitype[i].checked == true)
-                {
-                    ssgfrm.sndCertitype.value = frm.certitype[i].value ;
-                }
-            }
+            //var frm    = document.KSPayInputForm;
+            // for(var i=0 ; i<frm.certitype.length ; i++)
+            // {
+            //     if(frm.certitype[i].checked == true)
+            //     {
+            //         ssgfrm.sndCertitype.value = frm.certitype[i].value ;
+            //     }
+            // }
 
             //SSG신용만 사용하도록 변경
             //SSG머니는 결제취소가 안되는 이슈발생
@@ -29,23 +29,24 @@
             left_ = left_/2 - (width_/2);
             top_ = top_/2 - (height_/2);
 
-            try
-            {
-                op = window.open('about:blank','SsgFrmUp',
-                    'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+            // try
+            // {
+            //     op = window.open('about:blank','SsgFrmUp',
+            //         'height='+height_+',width='+width_+',status=yes,scrollbars=no,resizable=no,left='+left_+',top='+top_+'');
+            //
+            //     if (op == null)
+            //     {
+            //         alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
+            //         return false;
+            //     }
+            //     ssgfrm.target = 'SsgFrmUp';
+            //
+            // }catch(e)
+            // {
+            //     alert("팝업실패("+(e.number & 0xFFFF)+":"+e.description+")");
+            // }
 
-                if (op == null)
-                {
-                    alert("팝업이 차단되어 결제를 진행할 수 없습니다.");
-                    return false;
-                }
-                ssgfrm.target = 'SsgFrmUp';
-
-            }catch(e)
-            {
-                alert("팝업실패("+(e.number & 0xFFFF)+":"+e.description+")");
-            }
-
+            // ssgfrm.target = "form";
             ssgfrm.action ='https://kspay.ksnet.to/store/PAY_PROXY/ssg/ssg_proxy.jsp';
             ssgfrm.submit();
         }
@@ -61,66 +62,66 @@
 </head>
 
 <body topmargin=0 leftmargin=0 marginwidth=0 marginheight=0 onFocus="" >
-<form name="KSPayInputForm" style="display: none;">
-<table border=0 width=0>
-    <tr>
-        <td align=center>
-            <table width=280 cellspacing=0 cellpadding=0 border=0 bgcolor=#4F9AFF>
-                <tr>
-                    <td>
-                        <table width=100% cellspacing=1 cellpadding=2 border=0>
-                            <tr bgcolor=#4F9AFF height=25>
-                                <td align=left><font color="#FFFFFF">
-                                    SSG 인증 요청
-                                </font></td>
-                            </tr>
-                            <tr bgcolor=#FFFFFF>
-                                <td valign=top>
-                                    <table width=100% cellspacing=0 cellpadding=2 border=0>
-                                        <tr>
-                                            <td align=left>
-                                                <table>
-                                                    <tr>
-                                                        <td>상품명 :</td>
-                                                        <td id="goodname"><%=goodname%></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>금액 :</td>
-                                                        <td id="amount"><%=amount%></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan=3><hr noshade size=1></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>신용카드종류 :</td>
-                                                        <td>
-                                                            <INPUT TYPE="radio" NAME="certitype" value="2" checked>SSG 신용<br>
-                                                            <INPUT TYPE="radio" NAME="certitype" value="1">SSG 머니<br>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan=2 align=center>
-                                                            <input type=button onclick="javascript:submitAuth()" value="결제요청">
-                                                        </td>
-                                                    </tr>
+<!--<form name="KSPayInputForm" style="display: none;">-->
+<!--<table border=0 width=0>-->
+<!--    <tr>-->
+<!--        <td align=center>-->
+<!--            <table width=280 cellspacing=0 cellpadding=0 border=0 bgcolor=#4F9AFF>-->
+<!--                <tr>-->
+<!--                    <td>-->
+<!--                        <table width=100% cellspacing=1 cellpadding=2 border=0>-->
+<!--                            <tr bgcolor=#4F9AFF height=25>-->
+<!--                                <td align=left><font color="#FFFFFF">-->
+<!--                                    SSG 인증 요청-->
+<!--                                </font></td>-->
+<!--                            </tr>-->
+<!--                            <tr bgcolor=#FFFFFF>-->
+<!--                                <td valign=top>-->
+<!--                                    <table width=100% cellspacing=0 cellpadding=2 border=0>-->
+<!--                                        <tr>-->
+<!--                                            <td align=left>-->
+<!--                                                <table>-->
+<!--                                                    <tr>-->
+<!--                                                        <td>상품명 :</td>-->
+<!--                                                        <td id="goodname"><%=goodname%></td>-->
+<!--                                                    </tr>-->
+<!--                                                    <tr>-->
+<!--                                                        <td>금액 :</td>-->
+<!--                                                        <td id="amount"><%=amount%></td>-->
+<!--                                                    </tr>-->
+<!--                                                    <tr>-->
+<!--                                                        <td colspan=3><hr noshade size=1></td>-->
+<!--                                                    </tr>-->
+<!--                                                    <tr>-->
+<!--                                                        <td>신용카드종류 :</td>-->
+<!--                                                        <td>-->
+<!--                                                            <INPUT TYPE="radio" NAME="certitype" value="2" checked>SSG 신용<br>-->
+<!--                                                            <INPUT TYPE="radio" NAME="certitype" value="1">SSG 머니<br>-->
+<!--                                                        </td>-->
+<!--                                                    </tr>-->
+<!--                                                    <tr>-->
+<!--                                                        <td colspan=2 align=center>-->
+<!--                                                            <input type=button onclick="javascript:submitAuth()" value="결제요청">-->
+<!--                                                        </td>-->
+<!--                                                    </tr>-->
 
-                                                </table>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
-</td>
-</tr>
-</table>
-</table>
-</form>
+<!--                                                </table>-->
+<!--                                        </tr>-->
+<!--                                    </table>-->
+<!--                                </td>-->
+<!--                            </tr>-->
+<!--                        </table>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--            </table>-->
+<!--        </td>-->
+<!--    </tr>-->
+<!--</table>-->
+<!--</td>-->
+<!--</tr>-->
+<!--</table>-->
+<!--</table>-->
+<!--</form>-->
 <div id="DIV_SSGFRAME" style="border-width:0px;" >
     <IFRAME id="SSG_IFRM" name="SSG_IFRM" width=100% height="640px" scrolling=no frameborder="0" src="blank"></IFRAME>
 </div>

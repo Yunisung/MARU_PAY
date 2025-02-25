@@ -231,24 +231,10 @@ var C3MOD = (function (win, doc) {
     }
 
     function setForm(config) {
-        var authform = doc.createElement("form");
-        authform.setAttribute("name", "KSPayAuthForm");
-        authform.setAttribute("method", "post");
-
-        document.body.appendChild(authform);
-        for(key in config.authForm) {
-            var val = config.authForm[key];
-            var elem = document.createElement("input");
-            elem.setAttribute("type", "hidden");
-            elem.setAttribute("name", key);
-            elem.setAttribute("value", val);
-
-            authform.appendChild(elem);
-        }
-
         var f = doc.createElement("form");
+        f.setAttribute("action", config.targetUrl);
         f.setAttribute("name", "kfrm");
-        f.setAttribute("target", "_blank");
+        // f.setAttribute("target", "form");
         f.setAttribute("method", "post");
         document.body.appendChild(f);
 
@@ -260,29 +246,7 @@ var C3MOD = (function (win, doc) {
             elem.setAttribute("value", val);
             f.appendChild(elem);
         }
-
-        /* 할부 옵션 추가 */
-        for (i = 0; i <= config.apiMaxInstall; i++) {
-            if (i == 1) continue;
-            if (i > 1 && config.amount < 50000) break;
-
-            var opt = document.createElement('option');
-
-            if(i <= 10) {
-                opt.value = '0'+i;
-            } else {
-                opt.value = i;
-            }
-
-
-            opt.innerText = i == 0 ? '일시불' : i + ' 개월';
-            document.getElementById('installment').appendChild(opt);
-        }
-
-        document.getElementById("goodname").innerHTML = config.form.goodname;
-        document.getElementById("amount").innerHTML = config.form.amount;
-
-        _submit();
+        f.submit();
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
@@ -325,7 +289,6 @@ var C3MOD = (function (win, doc) {
     function validation(config) {
         c3_Config = JSON.parse(config).widget;
         c3_Config.form = JSON.parse(c3_Config.form);
-        c3_Config.authForm = JSON.parse(c3_Config.authForm);
 
         //간편결제 모바일때만 redirectURL 사용
         if(c3_Config.device == 'mobile' && !c3_Config.redirectUrl) {

@@ -231,6 +231,8 @@ var C3MOD = (function (win, doc) {
     }
 
     function setForm(config) {
+        document.getElementById("iframe-payment-containner").style.height = 450;
+
         var authform = doc.createElement("form");
         authform.setAttribute("name", "KSPayAuthForm");
         authform.setAttribute("method", "post");
@@ -248,7 +250,8 @@ var C3MOD = (function (win, doc) {
 
         var f = doc.createElement("form");
         f.setAttribute("name", "kfrm");
-        f.setAttribute("target", "_blank");
+        // f.setAttribute("target", "_blank");
+        f.setAttribute("action", config.targetUrl);
         f.setAttribute("method", "post");
         document.body.appendChild(f);
 
@@ -262,27 +265,28 @@ var C3MOD = (function (win, doc) {
         }
 
         /* 할부 옵션 추가 */
-        for (i = 0; i <= config.apiMaxInstall; i++) {
-            if (i == 1) continue;
-            if (i > 1 && config.amount < 50000) break;
+        // for (i = 0; i <= config.apiMaxInstall; i++) {
+        //     if (i == 1) continue;
+        //     if (i > 1 && config.amount < 50000) break;
+        //
+        //     var opt = document.createElement('option');
+        //
+        //     if(i <= 10) {
+        //         opt.value = '0'+i;
+        //     } else {
+        //         opt.value = i;
+        //     }
+        //
+        //
+        //     opt.innerText = i == 0 ? '일시불' : i + ' 개월';
+        //     document.getElementById('installment').appendChild(opt);
+        // }
+        //
+        // document.getElementById("goodname").innerHTML = config.form.goodname;
+        // document.getElementById("amount").innerHTML = config.form.amount;
 
-            var opt = document.createElement('option');
-
-            if(i <= 10) {
-                opt.value = '0'+i;
-            } else {
-                opt.value = i;
-            }
-
-
-            opt.innerText = i == 0 ? '일시불' : i + ' 개월';
-            document.getElementById('installment').appendChild(opt);
-        }
-
-        document.getElementById("goodname").innerHTML = config.form.goodname;
-        document.getElementById("amount").innerHTML = config.form.amount;
-
-        _submit();
+        f.submit();
+        //_submit();
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */

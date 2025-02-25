@@ -113,73 +113,73 @@
 <!--    <input type="hidden" name="cid"	            value="">-->
 <!--    <input type="hidden" name="pg_token"        value="">                   &lt;!&ndash; 카카오페이 결제승인 토큰 &ndash;&gt;-->
 <!--</form>-->
-<form name="KSPayInputForm" style="display: none;">
-    <table border=0 width=0>
-        <tr>
-            <td align=center>
-                <table width=640 cellspacing=0 cellpadding=0 border=0 bgcolor=#4F9AFF>
-                    <tr>
-                        <td>
-                            <table width=100% cellspacing=1 cellpadding=2 border=0>
-                                <tr bgcolor=#4F9AFF height=25>
-                                    <td align=left><font color="#FFFFFF">
-                                        카카오페이 기본 거래정보
-                                    </font></td>
-                                </tr>
-                                <tr bgcolor=#FFFFFF>
-                                    <td valign=top>
-                                        <table width=100% cellspacing=0 cellpadding=2 border=0>
-                                            <tr>
-                                                <td align=left>
-                                                    <table>
-                                                        <tr>
-                                                            <td>상품명 :</td>
-                                                            <td id="goodname"><%=goodname%></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>금액 :</td>
-                                                            <td id="amount"><%=amount%></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>결제수단</td>
-                                                            <td>
-                                                                <INPUT TYPE="radio" NAME="ptype" value="CARD" checked>카드<br>
-                                                                <INPUT TYPE="radio" NAME="ptype" value="MONEY">머니
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>할부 </td>
-                                                            <td>
-                                                                <select name="installment" id="installment">
-<!--                                                                    <option value='00' selected>일시불</option>-->
-<!--                                                                    <option value='01' >2개월  </option>-->
-<!--                                                                    <option value='03' >3개월  </option>-->
-<!--                                                                    <option value='04' >4개월  </option>-->
-<!--                                                                    <option value='05' >5개월  </option>-->
-<!--                                                                    <option value='06' >6개월  </option>-->
-<!--                                                                    <option value='07' >7개월  </option>-->
-<!--                                                                    <option value='08' >08개월 </option>-->
-<!--                                                                    <option value='09' >09개월 </option>-->
-<!--                                                                    <option value='10' >10개월 </option>-->
-<!--                                                                    <option value='11' >11개월 </option>-->
-<!--                                                                    <option value='12' >12개월 </option>-->
-                                                                </select>
-                                                            </td>
-                                                        </tr>
-                                                        <tr><td colspan=2 align=center><HR></td></tr>
+<!--<form name="KSPayInputForm" style="display: none;">-->
+<!--    <table border=0 width=0>-->
+<!--        <tr>-->
+<!--            <td align=center>-->
+<!--                <table width=640 cellspacing=0 cellpadding=0 border=0 bgcolor=#4F9AFF>-->
+<!--                    <tr>-->
+<!--                        <td>-->
+<!--                            <table width=100% cellspacing=1 cellpadding=2 border=0>-->
+<!--                                <tr bgcolor=#4F9AFF height=25>-->
+<!--                                    <td align=left><font color="#FFFFFF">-->
+<!--                                        카카오페이 기본 거래정보-->
+<!--                                    </font></td>-->
+<!--                                </tr>-->
+<!--                                <tr bgcolor=#FFFFFF>-->
+<!--                                    <td valign=top>-->
+<!--                                        <table width=100% cellspacing=0 cellpadding=2 border=0>-->
+<!--                                            <tr>-->
+<!--                                                <td align=left>-->
+<!--                                                    <table>-->
+<!--                                                        <tr>-->
+<!--                                                            <td>상품명 :</td>-->
+<!--                                                            <td id="goodname"><%=goodname%></td>-->
+<!--                                                        </tr>-->
+<!--                                                        <tr>-->
+<!--                                                            <td>금액 :</td>-->
+<!--                                                            <td id="amount"><%=amount%></td>-->
+<!--                                                        </tr>-->
+<!--                                                        <tr>-->
+<!--                                                            <td>결제수단</td>-->
+<!--                                                            <td>-->
+<!--                                                                <INPUT TYPE="radio" NAME="ptype" value="CARD" checked>카드<br>-->
+<!--                                                                <INPUT TYPE="radio" NAME="ptype" value="MONEY">머니-->
+<!--                                                            </td>-->
+<!--                                                        </tr>-->
+<!--                                                        <tr>-->
+<!--                                                            <td>할부 </td>-->
+<!--                                                            <td>-->
+<!--                                                                <select name="installment" id="installment">-->
+<!--&lt;!&ndash;                                                                    <option value='00' selected>일시불</option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='01' >2개월  </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='03' >3개월  </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='04' >4개월  </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='05' >5개월  </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='06' >6개월  </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='07' >7개월  </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='08' >08개월 </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='09' >09개월 </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='10' >10개월 </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='11' >11개월 </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <option value='12' >12개월 </option>&ndash;&gt;-->
+<!--                                                                </select>-->
+<!--                                                            </td>-->
+<!--                                                        </tr>-->
+<!--                                                        <tr><td colspan=2 align=center><HR></td></tr>-->
 
-                                                        <tr>
-                                                            <td colspan=2>"다음"버튼을 클릭하시고 팝업창의 안내에 따라 진행하세요.</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan=2 align=center>
-                                                                <input type=button onclick="javascript:_submit(this.form);" value="인증">
-                                                            </td>
-                                                        </tr>
+<!--                                                        <tr>-->
+<!--                                                            <td colspan=2>"다음"버튼을 클릭하시고 팝업창의 안내에 따라 진행하세요.</td>-->
+<!--                                                        </tr>-->
+<!--                                                        <tr>-->
+<!--                                                            <td colspan=2 align=center>-->
+<!--                                                                <input type=button onclick="javascript:_submit(this.form);" value="인증">-->
+<!--                                                            </td>-->
+<!--                                                        </tr>-->
 
-                                                    </table></tr></table></td></tr></table></td></tr>
-                </table></td></tr></table></td></tr></table></table>
-</form>
+<!--                                                    </table></tr></table></td></tr></table></td></tr>-->
+<!--                </table></td></tr></table></td></tr></table></table>-->
+<!--</form>-->
 <div id="DIV_KAKAOFRAME" style="border-width:0px;" >
     <IFRAME id="KAKAO_IFRM" name="KAKAO_IFRM" width=100% height="500px" scrolling=no frameborder="0" src="blank"></IFRAME>
 </div>

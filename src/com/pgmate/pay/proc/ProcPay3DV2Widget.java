@@ -975,8 +975,13 @@ public class ProcPay3DV2Widget extends Proc {
 				form.put("processtype", "1"); // 1: pc 2:mobile
 			}
 		}
-//		form.put("returnUrl", "http://127.0.0.1:10002/api/naver/return/"+sharedMap.getString(PAYUNIT.TRX_ID));
-//		form.put("returnUrl", "http://127.0.0.1:10002/api/naver/mobile/return/"+sharedMap.getString(PAYUNIT.TRX_ID));
+
+//		if(request.widget.isEquals("device", "mobile")) {
+//			form.put("returnUrl", "http://127.0.0.1:10002/api/naver/mobile/return/"+sharedMap.getString(PAYUNIT.TRX_ID));
+//		} else {
+//			form.put("returnUrl", "http://127.0.0.1:10002/api/naver/return/"+sharedMap.getString(PAYUNIT.TRX_ID));
+//		}
+
 //		form.put("storeid", "2999199999"); 									//테스트용 2999199999
 
 		form.put("storeid", vanMap.getString("vanId"));				// PG 상점아이디
@@ -1072,7 +1077,12 @@ public class ProcPay3DV2Widget extends Proc {
 			}
 		}
 		//로컬에서 테스트용
-//		 form.put("returnUrl", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+//		if(request.widget.isEquals("device", "mobile")) {
+//			form.put("returnUrl", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_KAKAO_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+//		} else {
+//			form.put("returnUrl", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_KAKAO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+//		}
+
 //		 form.put("storeid", "2999199999"); //테스트용 2999199999
 
 		form.put("storeid", vanMap.getString("vanId"));
@@ -1156,6 +1166,12 @@ public class ProcPay3DV2Widget extends Proc {
 			}
 		}
 
+//		if(request.widget.isEquals("device", "mobile")) {
+//			form.put("sndReply", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_PAYCO_MOBILE_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+//		} else {
+//			form.put("sndReply", String.format("http://%s%s/%s","127.0.0.1:10002",PAYUNIT.API_PAYCO_RETURN,sharedMap.getString(PAYUNIT.TRX_ID)));
+//		}
+
 		form.put("sndStoreid", vanMap.getString("vanId")); //상점 아이디
 		form.put("sndEmail", request.widget.getString("payerEmail")); //이메일
 		form.put("sndMobile", request.widget.getString("payerTel")); //휴대폰번호
@@ -1189,7 +1205,7 @@ public class ProcPay3DV2Widget extends Proc {
 		request.widget.put("targetMethod", "POPUP");
 
 		//안씀
-		request.widget.put("targetUrl", "https://kspay.ksnet.to/store/PAY_PROXY/kakao/kakao_rs_o1.jsp");
+		request.widget.put("targetUrl", "https://kspay.ksnet.to/store/PAY_PROXY/ssg/ssg_proxy.jsp");
 
 		request.widget.put("width", 1000);
 		request.widget.put("height", 1000);
@@ -1230,7 +1246,7 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("sndEmail", request.widget.getString("payerEmail"));
 		form.put("sndMobile", request.widget.getString("payerTel").replaceAll("[-]", ""));
 		form.put("sndCharSet", "euc-kr");
-		form.put("sndCertitype", "");
+		form.put("sndCertitype", "2");
 
 
 		//authForm 세팅
@@ -1871,7 +1887,7 @@ public class ProcPay3DV2Widget extends Proc {
 
 		request.widget.put("target", "KSPAY");
 		request.widget.put("targetMethod", "POPUP");
-		request.widget.put("targetUrl", "");
+		request.widget.put("targetUrl", "https://kspay.ksnet.to/store/PAY_PROXY/toss/toss_cert_rs.jsp");
 
 		request.widget.put("width", 750);
 		request.widget.put("height", 850);
@@ -1969,7 +1985,7 @@ public class ProcPay3DV2Widget extends Proc {
 
 		request.widget.put("target", "KSPAY");
 		request.widget.put("targetMethod", "POPUP");
-		request.widget.put("targetUrl", "");
+		request.widget.put("targetUrl", "https://kspay.ksnet.to/store/PAY_PROXY/npay/naver_rs_po1.jsp");
 
 		request.widget.put("width", 750);
 		request.widget.put("height", 850);
