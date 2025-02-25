@@ -843,6 +843,15 @@ public class ProcPay3DV2Widget extends Proc {
 			} else {
 				String cardType = convertKsnetCardType(request.widget.getString("cardType"));
 				form.put("sndShowcard", cardType);
+
+				//테스트용
+				if(request.widget.getString("cardType").equals("KAKAOPAY")) {
+					form.put("sndPaymethod", "0000000010");
+					form.put("sndStoreCeoName", "이득명");
+					form.put("sndStorePhoneNo", "1644-1109");
+					form.put("sndStoreAddress", "부산시 해운대구 센텀중앙로 97, 센텀스카이비즈2510호");
+
+				}
 			}
 		}
 
