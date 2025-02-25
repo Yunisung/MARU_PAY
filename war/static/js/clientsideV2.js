@@ -255,10 +255,8 @@ var MARU = (function (win, doc) {
         doc.getElementById('c3_pop_overlay').style.display = '';
     }
 
-    //간편결제는 fix제거
-    if(c3Config.payRoute !== 'simple') {
-      doc.getElementById('c3pop_content_fixed').style.display = '';
-    }
+    doc.getElementById('c3pop_content_fixed').style.display = '';
+
   }
 
 
