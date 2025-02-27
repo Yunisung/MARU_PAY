@@ -508,7 +508,7 @@ public class ProcPay3DV2Widget extends Proc {
 									setNaverPay(vanMap);
 
 								} else if (request.widget.getString("trxType").equals("PAYCO")) {
-									if (request.widget.isEquals("divice", "mobile")) {
+									if (request.widget.isEquals("device", "mobile")) {
 										response.widget.put("routeUrl", "/form/payment/kspay/paycoMobile.html?token=" + widgetKey);
 									} else {
 										response.widget.put("routeUrl", "/form/payment/kspay/payco.html?token=" + widgetKey);
@@ -533,10 +533,20 @@ public class ProcPay3DV2Widget extends Proc {
 									setLpay(vanMap);
 
 								} else if (request.widget.getString("trxType").equals("TOSS")) {
-									response.widget.put("routeUrl", "/form/payment/kspay/toss.html?token=" + widgetKey);
+									if (request.widget.isEquals("device", "mobile")) {
+										response.widget.put("routeUrl", "/form/payment/kspay/tossMobile.html?token=" + widgetKey);
+									} else {
+										response.widget.put("routeUrl", "/form/payment/kspay/toss.html?token=" + widgetKey);
+									}
+
 									setTossPay(vanMap);
 								} else if (request.widget.getString("trxType").equals("NAVERPOINT")) {
-									response.widget.put("routeUrl", "/form/payment/kspay/naverpoint.html?token=" + widgetKey);
+									if (request.widget.isEquals("device", "mobile")) {
+										response.widget.put("routeUrl", "/form/payment/kspay/naverpointMobile.html?token=" + widgetKey);
+									} else {
+										response.widget.put("routeUrl", "/form/payment/kspay/naverpoint.html?token=" + widgetKey);
+									}
+
 									setNaverPoint(vanMap);
 								}
 
@@ -1239,7 +1249,7 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("sndEmail", request.widget.getString("payerEmail"));
 		form.put("sndMobile", request.widget.getString("payerTel").replaceAll("[-]", ""));
 		form.put("sndCharSet", "euc-kr");
-		form.put("sndCertitype", "");
+		form.put("sndCertitype", "2");
 
 
 		//authForm 세팅

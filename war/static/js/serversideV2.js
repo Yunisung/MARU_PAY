@@ -197,7 +197,7 @@ var ServerUtil = {
     popupWidth: 350,
     popupHeigth: 650,
     layerWidth: 350,
-    layerHeigth: 610,
+    layerHeigth: 700,
     resizeWindow: function(config) {
         var additionHeight = 0;
         if (config.widget.semiAuth == 'Y') {
