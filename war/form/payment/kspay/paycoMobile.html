@@ -1,9 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <meta charset="UTF-8">
-    <title>CREDITOP PAYCO 간편결제</title>
+    <meta http-equiv="Content-Type" content="text/html">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" >
+    <meta charset="utf-8">
+    <title>CREDITOP NAVER 간편결제 </title>
+    <script language="javascript">
+
+        function _submit()
+        {
+            var vfrm = document.kfrm;
+            vfrm.action = "https://kspay.ksnet.to/store/PAY_PROXY/payco/payco_p.jsp" ;
+            vfrm.submit();
+        }
+
+        function submitAuth()
+        {
+            var frm = document.KSPayAuthForm;
+            frm.action = "KSPayCreditPostK";
+            frm.submit();
+        }
+    </script>
     <style type="text/css">
         TABLE{font-size:9pt; line-height:160%;}
         A {color:blueline-height:160% background-color:#E0EFFE}
@@ -12,31 +29,52 @@
         .emp{background-color:#FDEAFE}
         .white{background-color:#FFFFFF color:black border:1x solid white font-size: 9pt}
     </style>
-    <script language="javascript">
-
-    </script>
-
 </head>
 <body topmargin=0 leftmargin=0 marginwidth=0 marginheight=0 onFocus="" >
-<!------------------ 페이코 인증 FORM --------------->
-<form name="paycoForm"  method="post" id="paycoForm">
-    <input type="hidden" id="sndStoreid" name="sndStoreid">
-    <input type="hidden" id="sndEmail" name="sndEmail">
-    <input type="hidden" id="sndMobile" name="sndMobile">
-    <input type="hidden" id="sndOrdernumber" name="sndOrdernumber">
-    <input type="hidden" id="sndOrdername" name="sndOrdername">
-    <input type="hidden" id="sndGoodname" name="sndGoodname">
-    <input type="hidden" id="sndAmount" name="sndAmount">
-    <input type="hidden" id="sndReply" name="sndReply">                 <!-- returnUrl -->
-    <input type="hidden" id="sndStorename" name="sndStorename">       <!-- 가맹점명 -->
-    <input type="hidden" id="sndBizNo" name="sndBizNo" >       <!-- 가맹점 사업자번호 -->
-    <input type="hidden" id="sndCharSet" name="sndCharSet">
+<form name="KSPayForm" method="post">
+    <table border=0 width=0>
+        <tr>
+            <td align=center>
+                <table width=320 cellspacing=0 cellpadding=0 border=0 bgcolor=#4F9AFF>
+                    <tr>
+                        <td>
+                            <table width=100% cellspacing=1 cellpadding=2 border=0>
+                                <tr bgcolor=#4F9AFF height=25>
+                                    <td align=left><font color="#FFFFFF">
+                                        페이코 기본 거래정보
+                                    </font></td>
+                                </tr>
+                                <tr bgcolor=#FFFFFF>
+                                    <td valign=top>
+                                        <table width=100% cellspacing=0 cellpadding=2 border=0>
+                                            <tr>
+                                                <td align=left>
+                                                    <table>
+                                                        <tr>
+                                                            <td>상품명 :</td>
+                                                            <td id="goodname"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>금액 :</td>
+                                                            <td id="amount"></td>
+                                                        </tr>
+                                                        <tr><td colspan=2 align=center><HR></td></tr>
+
+                                                        <tr>
+                                                            <td colspan=2>"다음"버튼을 클릭하시고 팝업창의 안내에 따라 진행하세요.</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan=2 align=center>
+                                                                <input type=button onclick="javascript:_submit(this.form);" value="인증">
+                                                            </td>
+                                                        </tr>
+
+                                                    </table></tr></table></td></tr></table></td></tr>
+                </table></td></tr></table></td></tr></table></table>
 </form>
-
-<div id="DIV_KAKAOFRAME" style="border-width:0px;" >
-    <IFRAME id="KAKAO_IFRM" name="KAKAO_IFRM" width=100% height="500px" scrolling=no frameborder="0" src="blank"></IFRAME>
+<script src="/js/paycoMobile.js?v=1"></script>
+<div id="iframe-payment-containner">
+    <iframe id="iframe-payment" style="width:100%;height:100%;background-color:transparent;border-radius: 6px;display:none;" frameborder="0" allowtransparency="true" src=""></iframe>
 </div>
-
-<script src="/js/payco.js?v=1"></script>
 </body>
 </html>

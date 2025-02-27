@@ -309,7 +309,7 @@ var MARU = (function (win, doc) {
       if(resFnc && typeof resFnc == 'function') {
         resFnc(data);
       }
-    }, 500);
+    }, 10);
 
   }
 
