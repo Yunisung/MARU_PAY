@@ -11,11 +11,6 @@
         {
             var vfrm = document.kfrm;
 
-            if (parseInt(vfrm.amount.value,10) < 50000 && parseInt(vfrm.installment.value,10) > 0)
-            {
-                alert("5만원이상 할부가능");
-                return;
-            }
 
             vfrm.acceptCharset = "euc-kr";
             vfrm.action = "https://kspay.ksnet.to/store/PAY_PROXY/kakao/kakao_rs_o1.jsp" ;
@@ -60,30 +55,11 @@
                                                     <table>
                                                         <tr>
                                                             <td>상품명 :</td>
-                                                            <td id="goodname"><%=goodname%></td>
+                                                            <td id="goodname"></td>
                                                         </tr>
                                                         <tr>
                                                             <td>금액 :</td>
-                                                            <td id="amount"><%=amount%></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>할부 </td>
-                                                            <td>
-                                                                <select name="installment" id="installment">
-<!--                                                                    <option value='00' selected>일시불</option>-->
-<!--                                                                    <option value='01' >2개월  </option>-->
-<!--                                                                    <option value='03' >3개월  </option>-->
-<!--                                                                    <option value='04' >4개월  </option>-->
-<!--                                                                    <option value='05' >5개월  </option>-->
-<!--                                                                    <option value='06' >6개월  </option>-->
-<!--                                                                    <option value='07' >7개월  </option>-->
-<!--                                                                    <option value='08' >08개월 </option>-->
-<!--                                                                    <option value='09' >09개월 </option>-->
-<!--                                                                    <option value='10' >10개월 </option>-->
-<!--                                                                    <option value='11' >11개월 </option>-->
-<!--                                                                    <option value='12' >12개월 </option>-->
-                                                                </select>
-                                                            </td>
+                                                            <td id="amount"></td>
                                                         </tr>
                                                         <tr><td colspan=2 align=center><HR></td></tr>
 
@@ -99,26 +75,6 @@
                                                     </table></tr></table></td></tr></table></td></tr>
                 </table></td></tr></table></td></tr></table></table>
 </form>
-<!--<div id="DIV_KAKAOFRAME" style="border-width:0px;" >-->
-<!--    <IFRAME id="KAKAO_IFRM" name="KAKAO_IFRM" width=100% height="500px" scrolling=no frameborder="0" src="blank"></IFRAME>-->
-<!--</div>-->
-<!--<form name="kfrm" target="_blank" method="post">-->
-<!--    <INPUT type="hidden" name="returnUrl"      value="" >                 &lt;!&ndash; returnUrl &ndash;&gt;-->
-<!--    <INPUT type="hidden" id="storeid" name="storeid"        value="<%=storeid%>" >     &lt;!&ndash; PG 상점아이디 &ndash;&gt;-->
-<!--    <INPUT type="hidden" id="ordername" name="ordername"      value="<%=ordername%>" >   &lt;!&ndash; 주문자명 &ndash;&gt;-->
-<!--    <INPUT type="hidden" name="ordernumber"    value="<%=ordernumber%>" > &lt;!&ndash; 주문번호 &ndash;&gt;-->
-<!--    <INPUT type="hidden" name="amount"         value="<%=amount%>" >      &lt;!&ndash; 총승인금액 &ndash;&gt;-->
-<!--    <INPUT type="hidden" name="goodname"       value="<%=goodname%>" >    &lt;!&ndash; 상품명 &ndash;&gt;-->
-<!--    <INPUT type="hidden" name="email"          value="<%=email%>" >       &lt;!&ndash; email &ndash;&gt;-->
-<!--    <INPUT type="hidden" name="phoneno"        value="<%=phoneno%>" >     &lt;!&ndash; 휴대폰번호 &ndash;&gt;-->
-<!--    <INPUT type="hidden" name="paymenttype"    value="" >                 &lt;!&ndash; 결제수단 CARD,MONEY 없는경우 모두노출&ndash;&gt;-->
-<!--    <INPUT type="hidden" name="installment"    value="" >                 &lt;!&ndash; 카드할부개월수 0~12(개월)사이의 값 &ndash;&gt;-->
-<!--    <INPUT type="hidden" name="availcard"      value="11,06,04,14,12,03,34,41,43" > &lt;!&ndash; (없을경우 전체),   11: 비씨 , 06: 국민, 34:하나, 12:삼성, 14: 신한, 04:현대, 03: 롯데,41: 농협, 43: 씨티   &ndash;&gt;-->
-<!--    <INPUT type="hidden" name="processtype"    value="1" >                &lt;!&ndash; PC:1, mobile : 2 &ndash;&gt;-->
-<!--    <input type="hidden" name="store_ceo_name" value="KSNET" >            &lt;!&ndash; 가맹점 상호명 (필수)&ndash;&gt;-->
-<!--    <input type="hidden" name="store_phoneno"  value="01012341234" >      &lt;!&ndash; 가맹점 연락처 (필수)&ndash;&gt;-->
-<!--    <input type="hidden" name="store_address"  value="테헤란로 130길 9" >    &lt;!&ndash; 가맹점 주소  (필수)&ndash;&gt;-->
-<!--</form>-->
 <script src="/js/kakaoMobile.js?v=1"></script>
 <div id="iframe-payment-containner">
     <iframe id="iframe-payment" style="width:100%;height:100%;background-color:transparent;border-radius: 6px;display:none;" frameborder="0" allowtransparency="true" src=""></iframe>

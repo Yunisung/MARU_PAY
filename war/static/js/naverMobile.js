@@ -1,4 +1,4 @@
-console.log('IMPORT NAVERMOBILE.JS FILE!');
+console.log('IMPORT NAVERMobile.JS FILE!');
 var c3_Config = {
     debug: true
 };
@@ -173,15 +173,12 @@ var C3MOD = (function (win, doc) {
         },
         sendMessageToParent: function (obj) {
             if (window.opener) {
-                console.log('SEND POSTMESSAGE TO OPENER', obj);
                 util.log('SEND POSTMESSAGE TO OPENER', obj);
                 window.opener.postMessage(JSON.stringify(obj), "*");
             } else {
-                console.log('SEND POSTMESSAGE TO PARENT', obj);
                 util.log('SEND POSTMESSAGE TO PARENT', obj);
                 window.parent.postMessage(JSON.stringify(obj), "*");
             }
-            parent.close();
         },
         loadImg: function (id, URL, title) {
             var tester = document.getElementById(id);
@@ -251,7 +248,7 @@ var C3MOD = (function (win, doc) {
 
         var f = doc.createElement("form");
         f.setAttribute("name", "kfrm");
-        f.setAttribute("target", "_blank");
+        f.setAttribute("target", "form");
         f.setAttribute("method", "post");
         document.body.appendChild(f);
 
@@ -261,31 +258,11 @@ var C3MOD = (function (win, doc) {
             elem.setAttribute("type", "hidden");
             elem.setAttribute("name", key);
             elem.setAttribute("value", val);
-            console.log(key + ' : ' + val);
             f.appendChild(elem);
         }
 
         document.getElementById("goodname").innerHTML = config.form.goodname;
         document.getElementById("amount").innerHTML = config.form.amount;
-
-        _submit();
-        // /* 할부 옵션 추가 */
-        // for (i = 0; i <= config.apiMaxInstall; i++) {
-        //     if (i == 1) continue;
-        //     if (i > 1 && config.amount < 50000) break;
-        //
-        //     var opt = document.createElement('option');
-        //
-        //     if(i <= 10) {
-        //         opt.value = '0'+i;
-        //     } else {
-        //         opt.value = i;
-        //     }
-        //
-        //
-        //     opt.innerText = i == 0 ? '일시불' : i + ' 개월';
-        //     document.getElementById('installment').appendChild(opt);
-        // }
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
@@ -330,9 +307,7 @@ var C3MOD = (function (win, doc) {
         c3_Config.form = JSON.parse(c3_Config.form);
         c3_Config.authForm = JSON.parse(c3_Config.authForm);
 
-//       c3_Config.targetUrl = c3_Config.targetUrl.replace('\u003d', '=');
-//         console.log('c3_Config', c3_Config);
-
+        //간편결제 모바일때만 redirectURL 사용
         if(c3_Config.device == 'mobile' && !c3_Config.redirectUrl) {
             alert('결제 오류, 모바일 결제 필수값(redirectURL)이 존재하지 않습니다.');
             return false;
@@ -354,9 +329,7 @@ var C3MOD = (function (win, doc) {
         }, true);
 
         var search = window.location.search.split('&');
-        // console.log('search: ' + search);
         var token = search[0].split('=')[1];
-        // console.log('token : ' + token);
 
         getConfigByToken(token, function (res) {
             if(!validation(res)) {
@@ -386,7 +359,6 @@ var C3MOD = (function (win, doc) {
 /* 팝업창에서 부모창으로 데이터 보내는 로직 */
 function kspayToParent() {
     var resObj = document.forms.frm.data.value;
-    // console.log('kspayToParent: ', resObj, decodeURIComponent(resObj));
     //close(true);
     setTimeout(function () {
         var obj = {
@@ -395,10 +367,8 @@ function kspayToParent() {
 
         obj.data = decodeURIComponent(resObj);
         if (window.opener) {
-            // console.log('SEND POSTMESSAGE TO OPENER', obj);
             window.opener.postMessage(JSON.stringify(obj), "*");
         } else {
-            // console.log('SEND POSTMESSAGE TO PARENT', obj);
             window.parent.postMessage(JSON.stringify(obj), "*");
         }
         setTimeout(function () {
@@ -408,6 +378,6 @@ function kspayToParent() {
             } else {
                 window.close();
             }
-        }, 500);
-    }, 500);
+        }, 10);
+    }, 10);
 }

@@ -1,4 +1,4 @@
-console.log('IMPORT KAKAO.JS FILE!');
+console.log('IMPORT LPAYMobile.JS FILE!');
 var c3_Config = {
     debug: true
 };
@@ -173,11 +173,9 @@ var C3MOD = (function (win, doc) {
         },
         sendMessageToParent: function (obj) {
             if (window.opener) {
-                // console.log('SEND POSTMESSAGE TO OPENER', obj);
                 util.log('SEND POSTMESSAGE TO OPENER', obj);
                 window.opener.postMessage(JSON.stringify(obj), "*");
             } else {
-                // console.log('SEND POSTMESSAGE TO PARENT', obj);
                 util.log('SEND POSTMESSAGE TO PARENT', obj);
                 window.parent.postMessage(JSON.stringify(obj), "*");
             }
@@ -233,25 +231,9 @@ var C3MOD = (function (win, doc) {
     }
 
     function setForm(config) {
-        var authform = doc.createElement("form");
-        authform.setAttribute("name", "kspayForm");
-        authform.setAttribute("method", "post");
-        authform.setAttribute("id", "kspayAuth");
-
-        document.body.appendChild(authform);
-        for(key in config.authForm) {
-            var val = config.authForm[key];
-            var elem = document.createElement("input");
-            elem.setAttribute("type", "hidden");
-            elem.setAttribute("name", key);
-            elem.setAttribute("value", val);
-
-            authform.appendChild(elem);
-        }
-
         var f = doc.createElement("form");
-        f.setAttribute("name", "lpayForm");
-        f.setAttribute("id", "lpayForm");
+        f.setAttribute("name", "kfrm");
+        f.setAttribute("target", "_self");
         f.setAttribute("method", "post");
         document.body.appendChild(f);
 
@@ -261,11 +243,11 @@ var C3MOD = (function (win, doc) {
             elem.setAttribute("type", "hidden");
             elem.setAttribute("name", key);
             elem.setAttribute("value", val);
-            console.log(key + ' : ' + val);
             f.appendChild(elem);
         }
 
-        submitAuth();
+        document.getElementById("goodname").innerHTML = config.form.sndGoodname;
+        document.getElementById("amount").innerHTML = config.form.sndAmount;
     }
 
     /* 팝업창으로 부터 종료 메시지 받음 */
@@ -308,13 +290,10 @@ var C3MOD = (function (win, doc) {
     function validation(config) {
         c3_Config = JSON.parse(config).widget;
         c3_Config.form = JSON.parse(c3_Config.form);
-        c3_Config.authForm = JSON.parse(c3_Config.authForm);
 
-//       c3_Config.targetUrl = c3_Config.targetUrl.replace('\u003d', '=');
-//         console.log('c3_Config', c3_Config);
-
+        //간편결제 모바일때만 redirectURL 사용
         if(c3_Config.device == 'mobile' && !c3_Config.redirectUrl) {
-            alert('결제 오류, 모바일 결제 필수값이 존재하지 않습니다.');
+            alert('결제 오류, 모바일 결제 필수값(redirectURL)이 존재하지 않습니다.');
             return false;
         }
 
@@ -334,9 +313,7 @@ var C3MOD = (function (win, doc) {
         }, true);
 
         var search = window.location.search.split('&');
-        // console.log('search: ' + search);
         var token = search[0].split('=')[1];
-        // console.log('token : ' + token);
 
         getConfigByToken(token, function (res) {
             if(!validation(res)) {
@@ -366,7 +343,6 @@ var C3MOD = (function (win, doc) {
 /* 팝업창에서 부모창으로 데이터 보내는 로직 */
 function kspayToParent() {
     var resObj = document.forms.frm.data.value;
-    // console.log('kspayToParent: ', resObj, decodeURIComponent(resObj));
     //close(true);
     setTimeout(function () {
         var obj = {
@@ -375,22 +351,17 @@ function kspayToParent() {
 
         obj.data = decodeURIComponent(resObj);
         if (window.opener) {
-            // console.log('SEND POSTMESSAGE TO OPENER', obj);
             window.opener.postMessage(JSON.stringify(obj), "*");
         } else {
-            // console.log('SEND POSTMESSAGE TO PARENT', obj);
             window.parent.postMessage(JSON.stringify(obj), "*");
         }
-
         setTimeout(function () {
             if (self.opener) {
-                // console.log('self close');
                 self.opener = self;
                 self.close();
             } else {
                 window.close();
-                //self.close();
             }
-        }, 500);
-    }, 500);
+        }, 10);
+    }, 10);
 }
