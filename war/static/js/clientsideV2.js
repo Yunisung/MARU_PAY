@@ -255,7 +255,11 @@ var MARU = (function (win, doc) {
         doc.getElementById('c3_pop_overlay').style.display = '';
     }
 
-    doc.getElementById('c3pop_content_fixed').style.display = '';
+    if(c3Config.payRoute == 'simple') {
+      if(util.isMobile()) {
+        doc.getElementById('c3pop_content_fixed').style.display = '';
+      }
+    }
 
   }
 
