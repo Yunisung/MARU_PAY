@@ -14,6 +14,18 @@
             vfrm.submit();
         }
 
+        function _close() {
+            var obj = {
+                type: 'PAY_CLOSE'
+            };
+
+            if (window.opener) {
+                window.opener.postMessage(JSON.stringify(obj), "*");
+            } else {
+                window.parent.postMessage(JSON.stringify(obj), "*");
+            }
+
+        }
     </script>
     <style type="text/css">
         TABLE{font-size:9pt; line-height:160%;}
@@ -59,7 +71,8 @@
                                                         </tr>
                                                         <tr>
                                                             <td colspan=2 align=center>
-                                                                <input type=button onclick="javascript:_submit(this.form);" value="인증">
+                                                                <input type=button onclick="javascript:_submit(this.form);" value="다음">
+                                                                <input type=button onclick="javascript:_close();" value="닫기">
                                                             </td>
                                                         </tr>
 
