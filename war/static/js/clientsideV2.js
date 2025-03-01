@@ -259,6 +259,8 @@ var MARU = (function (win, doc) {
       if(util.isMobile()) {
         doc.getElementById('c3pop_content_fixed').style.display = '';
       }
+    } else {
+      doc.getElementById('c3pop_content_fixed').style.display = '';
     }
 
   }
