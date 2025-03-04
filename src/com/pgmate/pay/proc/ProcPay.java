@@ -244,6 +244,10 @@ public class ProcPay extends Proc {
 		if(request.pay == null || request.pay.card == null){
 			response.result = ResultUtil.getResult("9999", "필수값없음","결제정보 및 카드 정보가 없습니다.");return;
 		}
+
+		if(CommonUtil.isNullOrSpace(request.pay.trxType)) {
+			response.result = ResultUtil.getResult("9999", "필수값없음","결제타입(trxType)이 없습니다.");return;
+		}
 		
         request.pay.trxId = sharedMap.getString(PAYUNIT.TRX_ID);
         
