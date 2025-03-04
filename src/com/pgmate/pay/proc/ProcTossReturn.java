@@ -143,6 +143,7 @@ public class ProcTossReturn extends Proc {
         if(result.rStatus.equals("O")) {
             response.result = ResultUtil.getResult("0000", "정상", "정상승인");
 
+            ioMap.put("amount", CommonUtil.parseLong(result.rAmount));
             ioMap.put("vanTrxId", result.rTransactionNo);
             ioMap.put("vanResultCd","0000");
             ioMap.put("vanResultMsg","정상승인");
@@ -204,6 +205,7 @@ public class ProcTossReturn extends Proc {
         if(result.rACStatus.equals("O")) {
             response.result = ResultUtil.getResult("0000", "정상", "정상승인");
 
+            ioMap.put("amount", CommonUtil.parseLong(result.rACAmount));
             ioMap.put("vanTrxId", result.rACTransactionNo);
             ioMap.put("vanResultCd", result.rACBankRespCode);
             ioMap.put("vanResultMsg", result.rACMessage1 + " " + result.rACMessage2);
@@ -273,7 +275,11 @@ public class ProcTossReturn extends Proc {
 
         ioMap.put("cardId", GenKey.genKeys(CPKEY.CARD, sharedMap.getString(PAYUNIT.TRX_ID)));
         ioMap.put("prodId", GenKey.genKeys(CPKEY.PRODUCT, sharedMap.getString(PAYUNIT.TRX_ID)));
-        ioMap.put("amount", widgetMap.getString("amount"));
+
+        if(ioMap.isNullOrSpace("amount")) {
+            ioMap.put("amount", widgetMap.getString("amount"));
+        }
+
 
         //상품등록
         List<Product> products = new ArrayList<Product>();
