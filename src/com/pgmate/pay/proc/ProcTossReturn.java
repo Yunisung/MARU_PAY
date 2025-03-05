@@ -61,6 +61,16 @@ public class ProcTossReturn extends Proc {
         if(trxCheckMap != null) {
             logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
             response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
+            String res = GsonUtil.toJsonExcludeStrategies(response,true);
+
+            //실패시 IO_3D 테이블에 업데이트
+            ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
+            ioMap.put("vanResultCd", "X");
+            ioMap.put("vanResultMsg","거래번호 중복 TRX_ID : "+trxId);
+            ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
+            trxDAO.updateTrxIO3D(ioMap,res);
+
+
             TemplateUtil.simplePayResultPage(rc,"toss", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
             return;
         }

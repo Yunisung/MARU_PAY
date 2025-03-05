@@ -29,6 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.pgmate.lib.util.lang.CommonUtil.URLEncode;
+
 public class ProcSsgMobileReturn extends Proc{
     private static Logger logger = LoggerFactory.getLogger( com.pgmate.pay.proc.ProcSsgMobileReturn.class );
     private SharedMap<String,Object> ioMap =  null;
@@ -55,6 +57,25 @@ public class ProcSsgMobileReturn extends Proc{
 
         trxId = initial[0];
         String installment = initial[1]; //할부 입력 일단 받음 -> 사용은 안함.
+
+        //이중승인 방지
+        SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
+        if(trxCheckMap != null) {
+            logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
+            response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
+            String res = GsonUtil.toJsonExcludeStrategies(response,true);
+
+            //실패시 IO_3D 테이블에 업데이트
+            ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
+            ioMap.put("vanResultCd", "X");
+            ioMap.put("vanResultMsg","거래번호 중복 TRX_ID : "+trxId);
+            ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
+            trxDAO.updateTrxIO3D(ioMap,res);
+
+
+            TemplateUtil.simplePayResultPage(rc,"ssgMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            return;
+        }
 
         //DB에 저장된 reqJson 들고오기
         String strJson = trxDAO.getTrxIO3DByTrxId(trxId).getString("reqJson");
@@ -96,16 +117,6 @@ public class ProcSsgMobileReturn extends Proc{
             //통신후 처리
             //SSG는 카드넘버가 안들어옴
             ssgResult.rCardNo = ssg.getSSGPAY_CARD_NO();
-
-            //이중승인 방지
-            SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
-            if(trxCheckMap != null) {
-                logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
-                response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
-                TemplateUtil.simplePayResultPage(rc, "ssgMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-//                TemplateUtil.simplePayMobileResultPage(rc, ssgResult,"ssgMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-                return;
-            }
 
             setIOMap(ssgResult);
             setTrx(ioMap, ssg);
