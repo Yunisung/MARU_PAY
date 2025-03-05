@@ -29,6 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.pgmate.lib.util.lang.CommonUtil.URLEncode;
+
 public class ProcLpayReturn extends Proc{
     private static Logger logger = LoggerFactory.getLogger( com.pgmate.pay.proc.ProcLpayReturn.class );
     private SharedMap<String,Object> ioMap =  null;
@@ -57,6 +59,25 @@ public class ProcLpayReturn extends Proc{
 
         trxId = initial[0];
         String installment = initial[1]; //할부 입력 일단 받음 -> 사용은 안함.
+
+        //이중승인 방지
+        SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
+        if(trxCheckMap != null) {
+            logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
+            response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
+            String res = GsonUtil.toJsonExcludeStrategies(response,true);
+
+            //실패시 IO_3D 테이블에 업데이트
+            ioMap = trxDAO.getTrxIO3DByTrxId(trxId);
+            ioMap.put("vanResultCd", "X");
+            ioMap.put("vanResultMsg","거래번호 중복 TRX_ID : "+trxId);
+            ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
+            trxDAO.updateTrxIO3D(ioMap,res);
+
+
+            TemplateUtil.simplePayResultPage(rc,"lpay", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            return;
+        }
 
         //DB에 저장된 reqJson 들고오기
         String strJson = trxDAO.getTrxIO3DByTrxId(trxId).getString("reqJson");
@@ -93,15 +114,6 @@ public class ProcLpayReturn extends Proc{
             //통신
             ConnentKsnet(lpay, lpayResult);
             logger.info("[LPAY_Result] " + lpayResult.toString());
-
-            //이중승인 방지
-            SharedMap<String, Object> trxCheckMap = trxDAO.getTrxReqByTrxId(trxId);
-            if(trxCheckMap != null) {
-                logger.info("거래번호 중복 TRX_ID : [{}]", trxId);
-                response.result 	= ResultUtil.getResult("9999","승인실패", "거래번호 중복 TRX_ID : "+trxId);
-                TemplateUtil.simplePayResultPage(rc,"lpay", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-                return;
-            }
 
             setIOMap(lpayResult);
             setTrx(ioMap, lpay);
