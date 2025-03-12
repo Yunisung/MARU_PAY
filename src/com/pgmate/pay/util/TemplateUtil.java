@@ -370,7 +370,7 @@ public class TemplateUtil {
 		.write(returnPage.toString()).end();
 	}
 
-	public static void RedirectResultPage(RoutingContext rc, String url, String queryString, String resData) {
+	public static void redirectResultPage(RoutingContext rc, String url, String queryString, String resData) {
 		String sb = String.join("\n",
 				"<html><head>",
 				" <meta charset=\"UTF-8\">",
