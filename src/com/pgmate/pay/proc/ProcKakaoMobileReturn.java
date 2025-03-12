@@ -23,6 +23,7 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -87,8 +88,17 @@ public class ProcKakaoMobileReturn extends Proc{
         String formString = reqObj.get("authForm").toString();
         JSONObject formObj = (JSONObject) parser.parse(formString);
 
-        //redirecurl 사용
+        //redirectUrl 사용
         String redirectURL = reqObj.get("redirectUrl").toString();
+        //redirectUrl 쪼개기
+        URI uri = new URI(redirectURL);
+        String defaultURL = uri.getScheme() + "://" + uri.getHost() + uri.getPath();
+        String queryString = CommonUtil.toString(uri.getQuery());
+        if(!queryString.equals("")) {
+            queryString += "&";
+        }
+        logger.info("defaultURL : {}", defaultURL);
+        logger.info("queryString : {}", queryString);
 
         Kakao kakao = new Gson().fromJson(formObj.toJSONString(), Kakao.class);
         kakao.setCurrencytype("0"); //통화구분값 추가 (0:원화, 1:미화)
@@ -125,7 +135,9 @@ public class ProcKakaoMobileReturn extends Proc{
 
             //결과화면 처리
 //            TemplateUtil.simplePayMobileResultPage(rc, kakaoResult, "kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-            TemplateUtil.simplePayResultPage(rc, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+//            TemplateUtil.simplePayResultPage(rc, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.RedirectResultPage(rc, defaultURL, queryString, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+
         } else {
             SimplePayResult kakaoResult = new SimplePayResult();
             kakaoResult.rStatus = "X";
@@ -142,7 +154,8 @@ public class ProcKakaoMobileReturn extends Proc{
             ioMap.put("vanResultDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
             trxDAO.updateTrxIO3D(ioMap,res);
             //결과화면 처리
-            TemplateUtil.simplePayResultPage(rc, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+//            TemplateUtil.simplePayResultPage(rc, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.RedirectResultPage(rc, defaultURL, queryString, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 

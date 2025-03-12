@@ -370,6 +370,40 @@ public class TemplateUtil {
 		.write(returnPage.toString()).end();
 	}
 
+	public static void RedirectResultPage(RoutingContext rc, String url, String queryString, String resData) {
+		String sb = String.join("\n",
+				"<html><head>",
+				" <meta charset=\"UTF-8\">",
+				" <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+				" <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">",
+				" <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/index.css\">",
+				" <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/spinner.css\">",
+				"<head><body>",
+				" <form action=\""+url+"\" name=\"frm\" method=\"POST\" target=\"_self\">",
+				"   <textarea name=\"data\">"+resData+"</textarea>",
+				" </form>",
+				" <div id=\"c3-loading\" style=\"display: block;\">",
+				"   <div class=\"spinner\">",
+				"     <div class=\"rect1\"></div>",
+				"     <div class=\"rect2\"></div>",
+				"     <div class=\"rect3\"></div>",
+				"     <div class=\"rect4\"></div>",
+				"   </div>",
+				"   <div class=\"de-msg loading-tag\">결제가 완료되었습니다.</div>",
+				" </div>",
+				"<script src=\"/static/js/kspay.js\"></script>",
+				"<script>setTimeout(function() { location.href = \""+url+"?"+queryString+"result="+resData+"\" },200);</script>",
+				"</body></html>");
+
+		rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "text/html")
+				.putHeader(HttpHeaders.CONTENT_LENGTH, ""+sb.toString().getBytes().length)
+				.putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+				.putHeader(HttpHeaders.EXPIRES, "-1")
+				.putHeader(HttpHeaders.CONNECTION, "close")
+				.putHeader(HttpHeaders.SERVER, "CREDITOP")
+				.write(sb.toString()).end();
+	}
+
 	public static void phoneAuthResultPage(RoutingContext rc, String url, String widgetKey) {
 		String sb = String.join("\n",
 				"<html><head>",
