@@ -370,7 +370,7 @@ public class TemplateUtil {
 		.write(returnPage.toString()).end();
 	}
 
-	public static void RedirectResultPage(RoutingContext rc, String url, String queryString, String resData) {
+	public static void redirectResultPage(RoutingContext rc, String url, String resData) {
 		String sb = String.join("\n",
 				"<html><head>",
 				" <meta charset=\"UTF-8\">",
@@ -379,9 +379,6 @@ public class TemplateUtil {
 				" <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/index.css\">",
 				" <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/spinner.css\">",
 				"<head><body>",
-				" <form action=\""+url+"\" name=\"frm\" method=\"POST\" target=\"_self\">",
-				"   <textarea name=\"data\">"+resData+"</textarea>",
-				" </form>",
 				" <div id=\"c3-loading\" style=\"display: block;\">",
 				"   <div class=\"spinner\">",
 				"     <div class=\"rect1\"></div>",
@@ -391,8 +388,32 @@ public class TemplateUtil {
 				"   </div>",
 				"   <div class=\"de-msg loading-tag\">결제가 완료되었습니다.</div>",
 				" </div>",
-				"<script src=\"/static/js/kspay.js\"></script>",
-				"<script>setTimeout(function() { location.href = \""+url+"?"+queryString+"result="+resData+"\" },200);</script>",
+				"<script> ",
+				" var form = document.createElement('form'); ",
+				" form.method = 'GET';",
+				" form.action = \""+url+"\";",
+				" var elem = document.createElement('input');",
+				" var decodeJson = decodeURIComponent(\""+resData+"\"); ",
+				" var jsonString = JSON.stringify(decodeJson);",
+				" elem.value = jsonString;",
+				" elem.name = 'result';",
+				" form.appendChild(elem); ",
+				" try { ",
+				" const urlObject = new URL(\""+url+"\");",
+				" const params = new URLSearchParams(urlObject.search);",
+				" if(urlObject.search) { ",
+				" 	for (const [key, value] of params.entries()) { ",
+				"		const input = document.createElement('input'); ",
+				"		input.name = key; ",
+				"		input.value = value; ",
+				"		form.appendChild(input);",
+				" 	} ",
+				" }",
+				"} catch (error) {",
+				"}",
+				" document.body.appendChild(form); ",
+				" form.submit(); ",
+				"</script>",
 				"</body></html>");
 
 		rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "text/html")

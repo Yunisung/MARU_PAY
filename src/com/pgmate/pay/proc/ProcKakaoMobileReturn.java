@@ -136,7 +136,7 @@ public class ProcKakaoMobileReturn extends Proc{
             //결과화면 처리
 //            TemplateUtil.simplePayMobileResultPage(rc, kakaoResult, "kakaoMobile", redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 //            TemplateUtil.simplePayResultPage(rc, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-            TemplateUtil.RedirectResultPage(rc, defaultURL, queryString, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.redirectResultPage(rc, redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
 
         } else {
             SimplePayResult kakaoResult = new SimplePayResult();
@@ -155,7 +155,7 @@ public class ProcKakaoMobileReturn extends Proc{
             trxDAO.updateTrxIO3D(ioMap,res);
             //결과화면 처리
 //            TemplateUtil.simplePayResultPage(rc, "kakaoMobile", URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
-            TemplateUtil.RedirectResultPage(rc, defaultURL, queryString, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
+            TemplateUtil.redirectResultPage(rc, redirectURL, URLEncode(GsonUtil.toJsonExcludeStrategies(response)));
         }
 
 
