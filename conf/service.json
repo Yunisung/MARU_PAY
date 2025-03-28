@@ -6,7 +6,7 @@
     "jdbcUrl": "jdbc:mariadb://pgdbvip:3306/CP_MARU",
     "userName": "bkwinners",
     "passWord": "2021bk06&*(db2",
-    "maxConnection": 20,
+    "maxConnection": 50,
     "minConnection": 10,
     "partitionCount": 1
   },
