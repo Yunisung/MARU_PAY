@@ -9,7 +9,7 @@
 //    "jdbcUrl": "jdbc:mariadb://127.0.0.1:3306/CP_MARU",
 //    "userName": "root",
 //    "passWord": "1234",
-    "maxConnection": 20,
+    "maxConnection": 50,
     "minConnection": 10,
     "partitionCount": 1
   },
