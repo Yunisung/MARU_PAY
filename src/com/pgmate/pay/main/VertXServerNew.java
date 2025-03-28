@@ -59,7 +59,8 @@ public class VertXServerNew extends AbstractVerticle {
 			VertxOptions vertxOptions=new VertxOptions();
 			vertxOptions.setBlockedThreadCheckInterval(60*1000);
 //			vertxOptions.setBlockedThreadCheckInterval(1000);
-			vertxOptions.setWorkerPoolSize(40);
+			vertxOptions.setWorkerPoolSize(100);
+//			vertxOptions.setWorkerPoolSize(40);
 //			logger.info("vertxOptions.getBlockedThreadCheckInterval:" + vertxOptions.getBlockedThreadCheckInterval()); // 1000
 //			logger.info("vertxOptions.getWorkerPoolSize:" + vertxOptions.getWorkerPoolSize()); // 20
 			vertx=Vertx.vertx(vertxOptions);
