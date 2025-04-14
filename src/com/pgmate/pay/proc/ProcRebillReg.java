@@ -20,6 +20,7 @@ import com.pgmate.pay.util.SmsGw;
 import com.pgmate.pay.van.Galaxia;
 import com.pgmate.pay.van.KspayAuth;
 import com.pgmate.pay.van.Welcome;
+import com.pgmate.pay.van.WelcomeSub;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,8 @@ public class ProcRebillReg extends Proc {
             sharedMap = new Galaxia(tmnVanMap).autoBillCertify(trxDAO, sharedMap, response);
         } else if(mchtTmnMap.isEquals("van", "WELCOME")) {
             sharedMap = new Welcome(tmnVanMap).billKeyReg(trxDAO, sharedMap, response);
+        } else if(mchtTmnMap.isEquals("van", "WELCOMESUB")) {
+            //웰컴 서브는 위젯으로 함
         }
 
         //PG_REBILL_CARD 저장

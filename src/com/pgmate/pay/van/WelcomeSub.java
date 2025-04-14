@@ -1,18 +1,27 @@
 package com.pgmate.pay.van;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.lang.reflect.Executable;
+import java.net.*;
+import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
+import com.pgmate.lib.conf.ConfigLoader;
+import com.pgmate.lib.vertx.conf.VertXConfigBean;
+import com.pgmate.lib.vertx.main.VertXUtil;
+import com.pgmate.pay.bean.Result;
+import com.pgmate.pay.util.PAYUNIT;
 import com.pgmate.pay.util.WelcomeUtil;
+import kr.co.nicevan.pg.common.CodecUtils;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +49,9 @@ public class WelcomeSub implements Van{
 
 	private static final String cancel_uri		= "https://payapi.welcomepayments.co.kr/api/payment/cancel";
 	private static final String approval_uri	= "https://payapi.welcomepayments.co.kr/api/payment/approval";
+
+	private static final String rebillPay_uri = "https://approval.smartropay.co.kr/payment/approval/ssbbill.do"; // 운영
+	private static final String rebillRefund_uri = "https://pay.smilepay.co.kr/cancel/payCancelNVProcess.jsp";//운영
 
 	private String mid 					= "";
 	private String VAN					= "";
@@ -69,88 +81,163 @@ public class WelcomeSub implements Van{
 	@Override
 	public SharedMap<String, Object> sales(TrxDAO trxDAO, SharedMap<String, Object> sharedMap, Response response) {
 		SharedMap<String, Object> reqMap = new SharedMap<>();
-		reqMap.put("mid", mid);
-		reqMap.put("pay_type", "CREDIT_CARD");
-		reqMap.put("pay_method", "CREDIT_UNAUTH_API");
-
-		reqMap.put("card_no",AES256Cipher(response.pay.card.number));
-		reqMap.put("card_expiry_ym", response.pay.card.expiry);
-
-		// 구인증일때
-		if(sharedMap.isEquals("semiAuth", "Y")) {
-			if(response.pay.metadata != null) {
-				if(response.pay.metadata.isEquals("cardAuth", "true")) {
-					reqMap.put("pay_method", "CREDIT_OLDAUTH_API");
-					reqMap.put("card_pw", AES256Cipher(response.pay.metadata.getString("authPw")));
-					reqMap.put("card_holder_ymd", AES256Cipher(response.pay.metadata.getString("authDob")));
-				}
-				response.pay.metadata = null;
-			}
-		}
-
-		reqMap.put("order_no", response.pay.trxId);
-		reqMap.put("amount", String.valueOf(response.pay.amount));
-
-		if(!CommonUtil.isNullOrSpace(response.pay.payerName)) {
-			reqMap.put("user_name", response.pay.payerName);
-		} else {
-			reqMap.put("user_name", tmnId);
-		}
-
-		if(response.pay.products != null && response.pay.products.size() > 0) {
-			reqMap.put("product_name", response.pay.products.get(0).name);
-		}else {
-			reqMap.put("product_name", "product");
-		}
-
-		reqMap.put("card_sell_mm", CommonUtil.zerofill(response.pay.card.installment, 2));
-		String millis = String.valueOf(System.currentTimeMillis());
-		reqMap.put("millis", millis);
-
-		String hash_value = "";
-		try {
-			hash_value = EncryptUtil.sha256(mid + reqMap.getString("pay_type") + reqMap.getString("pay_method") + reqMap.getString("order_no")+ reqMap.getString("amount") + millis + KEY);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response.result = ResultUtil.getResult("9999","결제실패","결제 시스템 오류로 실패하였습니다.");
-			return sharedMap;
-		}
-
-		if(!CommonUtil.isNullOrSpace(response.pay.payerEmail)) {
-			reqMap.put("email", AES256Cipher(response.pay.payerEmail));
-			reqMap.put("email_send_yn", "Y");
-		}
-
-		reqMap.put("hash_value", hash_value);
-
 		SharedMap<String, Object> responseMap = new SharedMap<>();
-		responseMap = approvalRequest(approval_uri, reqMap.toJson());
 
-		//결과값 처리
-		if(responseMap.getString("result_code").equals("0000")) {
-			String authNumber = responseMap.getString("approval_no");
-			String authDate = responseMap.getString("approval_ymdhms");
-			String authAmount = responseMap.getString("amount");
-			String cardName = responseMap.getString("card_name");
-			String cardCode = responseMap.getString("card_code");
-			String transaction_no = responseMap.getString("transaction_no");
+		if(trxType.equals("REBILL")) {
+			JSONObject body = new JSONObject();
+			JSONObject paramData = new JSONObject();
 
-			response.result = ResultUtil.getResult("0000","정상","정상승인");
-			response.pay.authCd = authNumber;
-			response.pay.transactionDate = authDate;
-			sharedMap.put("van",VAN);
-			sharedMap.put("vanId",mid);
-			sharedMap.put("vanTrxId", transaction_no);
-			sharedMap.put("vanResultCd","0000");
-			sharedMap.put("vanResultMsg","정상승인");
-			sharedMap.put("authCd", authNumber);
-			sharedMap.put("vanDate", authDate);
-			sharedMap.put("cardAcquirer", cardName);
-			sharedMap.put("acquirerCode", cardCode);
-			sharedMap.put("issuerCode", cardCode);
+			SharedMap<String, Object> rebillMap = trxDAO.getRebillReg(response.pay.metadata.getString("rebillId"));
+
+			String merchantKey = KEY;
+			String reqDate = CommonUtil.getCurrentDate("yyyyMMddHHmmss");
+			String billTokenKey = sharedMap.getString("authKey");
+			String amount = String.valueOf(response.pay.amount);
+
+			String verifyValue = EncryptUtil.encodeSHA256Base64(billTokenKey + mid + amount);
+
+			String goodsName = "테스트상품";
+
+			if(response.pay.products != null && response.pay.products.size() > 0) {
+				goodsName = response.pay.products.get(0).name;
+			}
+
+			paramData.put("PayMethod", "CARD");
+			paramData.put("MallIp", ConfigLoader.getConfig().vertx.getHost());
+			paramData.put("UserIp", sharedMap.getString(PAYUNIT.REMOTEIP));
+			paramData.put("Mid", mid);
+			paramData.put("BillTokenKey", billTokenKey);
+			paramData.put("Moid", sharedMap.getString(PAYUNIT.TRX_ID));
+			paramData.put("EdiDate", reqDate);
+			paramData.put("BuyerName", response.pay.payerName);
+			paramData.put("BuyerTel", response.pay.payerTel);
+			paramData.put("BuyerEmail", response.pay.payerEmail);
+			paramData.put("CardQuota", "00");
+			paramData.put("GoodsCnt", "1");
+			paramData.put("GoodsName", goodsName);
+			paramData.put("Amt", amount);
+			paramData.put("MallUserId", rebillMap.getString("trxId"));
+			paramData.put("VerifyValue", verifyValue);
+
+			try {
+				body.put("EncData", EncryptUtil.AESEncode(paramData.toString(), merchantKey.substring(0,32)));
+				body.put("Mid", mid);
+			} catch (Exception e) {
+				logger.info(e.getMessage());
+			}
+
+			responseMap = rebillPayRequest(rebillPay_uri, body);
+
+			//결과값 처리
+			if(responseMap.getString("ResultCode").equals("0000")) {
+				String authNumber = responseMap.getString("AuthCode");
+				String authDate = responseMap.getString("AuthDate");
+				String authAmount = responseMap.getString("Amt");
+				String cardName = responseMap.getString("AppCardName");
+				String cardCode = responseMap.getString("AppCardCode");
+				String transaction_no = responseMap.getString("Tid");
+
+				response.result = ResultUtil.getResult("0000","정상","정상승인");
+				response.pay.authCd = authNumber;
+				response.pay.transactionDate = authDate;
+				sharedMap.put("van",VAN);
+				sharedMap.put("vanId",mid);
+				sharedMap.put("vanTrxId", transaction_no);
+				sharedMap.put("vanResultCd","0000");
+				sharedMap.put("vanResultMsg","정상승인");
+				sharedMap.put("authCd", authNumber);
+				sharedMap.put("vanDate", authDate);
+				sharedMap.put("cardAcquirer", cardName);
+				sharedMap.put("acquirerCode", cardCode);
+				sharedMap.put("issuerCode", cardCode);
+			} else {
+				//승인실패시
+				response.result 	= ResultUtil.getResult(responseMap.getString("ResultCode"), "승인실패" ,responseMap.getString("ResultMsg"));
+			}
+
 		} else {
-			//승인실패시
-			response.result 	= ResultUtil.getResult(responseMap.getString("result_code"), "승인실패" ,responseMap.getString("result_message"));
+			reqMap.put("mid", mid);
+			reqMap.put("pay_type", "CREDIT_CARD");
+			reqMap.put("pay_method", "CREDIT_UNAUTH_API");
+
+			reqMap.put("card_no",AES256Cipher(response.pay.card.number));
+			reqMap.put("card_expiry_ym", response.pay.card.expiry);
+
+			// 구인증일때
+			if(sharedMap.isEquals("semiAuth", "Y")) {
+				if(response.pay.metadata != null) {
+					if(response.pay.metadata.isEquals("cardAuth", "true")) {
+						reqMap.put("pay_method", "CREDIT_OLDAUTH_API");
+						reqMap.put("card_pw", AES256Cipher(response.pay.metadata.getString("authPw")));
+						reqMap.put("card_holder_ymd", AES256Cipher(response.pay.metadata.getString("authDob")));
+					}
+					response.pay.metadata = null;
+				}
+			}
+
+			reqMap.put("order_no", response.pay.trxId);
+			reqMap.put("amount", String.valueOf(response.pay.amount));
+
+			if(!CommonUtil.isNullOrSpace(response.pay.payerName)) {
+				reqMap.put("user_name", response.pay.payerName);
+			} else {
+				reqMap.put("user_name", tmnId);
+			}
+
+			if(response.pay.products != null && response.pay.products.size() > 0) {
+				reqMap.put("product_name", response.pay.products.get(0).name);
+			}else {
+				reqMap.put("product_name", "product");
+			}
+
+			reqMap.put("card_sell_mm", CommonUtil.zerofill(response.pay.card.installment, 2));
+			String millis = String.valueOf(System.currentTimeMillis());
+			reqMap.put("millis", millis);
+
+			String hash_value = "";
+			try {
+				hash_value = EncryptUtil.sha256(mid + reqMap.getString("pay_type") + reqMap.getString("pay_method") + reqMap.getString("order_no")+ reqMap.getString("amount") + millis + KEY);
+			} catch (Exception e) {
+				e.printStackTrace();
+				response.result = ResultUtil.getResult("9999","결제실패","결제 시스템 오류로 실패하였습니다.");
+				return sharedMap;
+			}
+
+			if(!CommonUtil.isNullOrSpace(response.pay.payerEmail)) {
+				reqMap.put("email", AES256Cipher(response.pay.payerEmail));
+				reqMap.put("email_send_yn", "Y");
+			}
+
+			reqMap.put("hash_value", hash_value);
+
+			responseMap = approvalRequest(approval_uri, reqMap.toJson());
+
+			//결과값 처리
+			if(responseMap.getString("result_code").equals("0000")) {
+				String authNumber = responseMap.getString("approval_no");
+				String authDate = responseMap.getString("approval_ymdhms");
+				String authAmount = responseMap.getString("amount");
+				String cardName = responseMap.getString("card_name");
+				String cardCode = responseMap.getString("card_code");
+				String transaction_no = responseMap.getString("transaction_no");
+
+				response.result = ResultUtil.getResult("0000","정상","정상승인");
+				response.pay.authCd = authNumber;
+				response.pay.transactionDate = authDate;
+				sharedMap.put("van",VAN);
+				sharedMap.put("vanId",mid);
+				sharedMap.put("vanTrxId", transaction_no);
+				sharedMap.put("vanResultCd","0000");
+				sharedMap.put("vanResultMsg","정상승인");
+				sharedMap.put("authCd", authNumber);
+				sharedMap.put("vanDate", authDate);
+				sharedMap.put("cardAcquirer", cardName);
+				sharedMap.put("acquirerCode", cardCode);
+				sharedMap.put("issuerCode", cardCode);
+			} else {
+				//승인실패시
+				response.result 	= ResultUtil.getResult(responseMap.getString("result_code"), "승인실패" ,responseMap.getString("result_message"));
+			}
 		}
 
 		return sharedMap;
@@ -221,7 +308,65 @@ public class WelcomeSub implements Van{
 			sharedMap.put("vanResultCd",sReplyCd);
 			sharedMap.put("vanResultMsg",sReplyMsg);
 
-		} else {
+		} else if(trxType.equals("REBILL")) {
+			//정기결제취소
+			HashMap<String, String> cancelRequest = new HashMap<>();
+			HashMap<String, String> result = new HashMap<>();
+
+			cancelRequest.put("TID", payMap.getString("vanTrxId"));
+			cancelRequest.put("CancelAmt", payMap.getString("amount"));
+			cancelRequest.put("Cancelpw", "556643");
+			cancelRequest.put("PartialCancelCode", "0");
+
+			String plainHashData = cancelRequest.get("TID") + KEY +  cancelRequest.get("CancelAmt") + cancelRequest.get("PartialCancelCode");
+			String hashData = encodeMD5HexBase64(plainHashData);
+
+			logger.info("plainHashData : {}", plainHashData);
+			logger.info("hashData : {}", hashData);
+			cancelRequest.put("hashData", hashData);
+
+			String res = "";
+
+			try {
+				res = sendByPost(cancelRequest,rebillRefund_uri).trim();
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+
+			result = parseMessage(res, "&", "=");
+			logger.info("result : {}", result);
+
+			String PayMethod = result.get("PayMethod");
+			String PayName = urlDecodeEuckr(result.get("PayName"));
+			String MID = result.get("MID");
+			String TID = result.get("TID");
+			String CancelAmt = result.get("CancelAmt");
+			String CancelMSG = urlDecodeEuckr(result.get("CancelMSG"));
+			String ResultCode = result.get("ResultCode");
+			String ResultMsg = urlDecodeEuckr(result.get("ResultMsg"));
+			String CancelDate = result.get("CancelDate");
+			String CancelTime = result.get("CancelTime");
+			String CancelNum = result.get("CancelNum");
+			String Moid = result.get("Moid");
+
+			if(ResultCode.equals("2001") || ResultCode.equals("2211")) {
+				//성공
+				response.refund.authCd = payMap.getString("authCd");
+				response.refund.transactionDate = CancelDate + CancelTime;
+				response.refund.trxType = trxType;
+				response.result 	= ResultUtil.getResult("0000","정상",ResultMsg);
+			} else {
+				//실패
+				response.result 	= ResultUtil.getResult(ResultCode,"취소실패", ResultMsg);
+			}
+
+			sharedMap.put("van",VAN);
+			sharedMap.put("vanId",mid);
+			sharedMap.put("vanTrxId",TID);
+			sharedMap.put("vanResultCd",ResultCode);
+			sharedMap.put("vanResultMsg",ResultMsg);
+
+		}else {
 			//수기결제 취소
 			reqMap.put("pay_type", "CREDIT_CARD");	// 결제구분 (신용카드: CREDIT_CARD, 계좌이체: ACCNT, 가상계좌: VACCNT)
 
@@ -287,6 +432,47 @@ public class WelcomeSub implements Van{
 		return sharedMap;
 	}
 
+	public final String encodeMD5HexBase64(String pw){
+		return new String(Base64.encodeBase64(DigestUtils.md5Hex(pw).getBytes()));
+	}
+
+	public HashMap<String,String> parseMessage(String plainText, String delim, String delim2)
+	{
+		HashMap<String,String> retData = new HashMap<String,String>();
+		ArrayList<String> tokened_array = tokenizerWithBlanks(plainText, delim);
+		String temp = "";
+		for (int i = 0; i < tokened_array.size(); i++) {
+			temp = tokened_array.get(i);
+			if (StringUtils.isNotEmpty(temp)) {
+				retData.put( temp.substring(0,temp.indexOf(delim2)),temp.substring(temp.indexOf(delim2)+1).trim() );
+			}
+		}
+		return retData;
+	}
+
+	ArrayList<String> tokenizerWithBlanks(String input, String delimiter)
+	{
+		ArrayList<String> array = new ArrayList<String>();
+		String token;
+		int pos;
+		int delimiterSize = delimiter.length();
+		do{
+			pos = input.indexOf(delimiter);
+			if (pos >= 0)
+			{
+				token = input.substring(0, pos);
+				input = input.substring(pos + delimiterSize);
+			}
+			else
+			{
+				token = input;
+				input = "";
+			}
+			array.add(token);
+		} while (pos >= 0);
+		return array;
+	}
+
 	private SharedMap<String, Object> approvalRequest(String uri, String json) {
 		String response = sendReq(json, uri);
 		SharedMap<String, Object>  resultMap = getApprovalValue(response);
@@ -296,6 +482,12 @@ public class WelcomeSub implements Van{
 	private SharedMap<String, Object> cancelRequest(String uri, String json) {
 		String response = sendReq(json, uri);
 		SharedMap<String, Object>  resultMap = getCancelValue(response);
+		return resultMap;
+	}
+
+	private SharedMap<String, Object> rebillPayRequest(String uri, JSONObject json) {
+		String response = sendRebillReq(json, uri);
+		SharedMap<String, Object> resultMap = getRebillValue(response);
 		return resultMap;
 	}
 
@@ -369,6 +561,128 @@ public class WelcomeSub implements Van{
 	    return result;
 	}
 
+	private String sendRebillReq(JSONObject sendMsg, String uri) {
+		String result = "";
+		StringBuilder responseBody = null;
+
+		int connectTimeout = 1000;
+		int readTimeout = 5000;
+
+		URL url = null;
+		HttpsURLConnection connection = null;
+
+		try {
+			SSLContext sslCtx = SSLContext.getInstance("TLSv1.2");
+			sslCtx.init(null, null, new SecureRandom());
+
+			url = new URL(uri);
+			logger.info(" url : {}", url);
+			connection = (HttpsURLConnection) url.openConnection();
+			connection.setSSLSocketFactory(sslCtx.getSocketFactory());
+
+			connection.addRequestProperty("Content-Type", "application/json");
+			connection.addRequestProperty("Accept", "application/json");
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+			connection.setConnectTimeout(connectTimeout);
+			connection.setReadTimeout(readTimeout);
+
+			OutputStreamWriter osw = new OutputStreamWriter(new BufferedOutputStream(connection.getOutputStream()), "utf-8");
+			char[] bytes = sendMsg.toString().toCharArray();
+			osw.write(bytes, 0, bytes.length);
+			osw.flush();
+			osw.close();
+
+			BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"));
+			String line = null;
+			responseBody = new StringBuilder();
+
+			while((line = br.readLine()) != null) {
+				responseBody.append(line);
+			}
+			br.close();
+
+			result = responseBody.toString();
+			logger.debug("result : [{}]",result);
+		} catch (MalformedURLException e) {
+			result = "{\"result_code\":\"E999\",\"result_message\":\"Exception:"+e.getMessage()+"\"}";
+		} catch (IOException e) {
+			result = "{\"result_code\":\"E999\",\"result_message\":\"Exception:"+e.getMessage()+"\"}";
+		} catch (Exception e) {
+			result = "{\"result_code\":\"E999\",\"result_message\":\"Exception:"+e.getMessage()+"\"}";
+		}
+
+		return result;
+	}
+
+	public String sendByPost(HashMap<String,String> requestMap, String requestURL) throws Exception
+	{
+		try
+		{
+			StringBuffer buffer = new StringBuffer();
+			Iterator<String> keys = requestMap.keySet().iterator();
+			int size = requestMap.size();
+			buffer.append("?");
+			int i = 0;
+			while (keys.hasNext()) {
+				String key = keys.next();
+				buffer.append(key).append("=").append(urlEncodeEuckr(requestMap.get(key)));
+				if (true == keys.hasNext()) {
+					buffer.append("&");
+				}
+			}
+
+			System.out.println("requestURL [ " + requestURL + buffer.toString() + " ]");
+
+			URL url = new URL(requestURL + buffer.toString());
+
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setDoOutput(true);
+			connection.setRequestProperty("Content-Type", "application/json");
+			OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream(), "euc-kr");
+			//wr.write(buffer.toString());
+			wr.flush();
+
+			BufferedReader rd = new BufferedReader(new InputStreamReader( connection.getInputStream()));  // 서버는  "EUC-KR" 입니다 필요시 UTF-8 형으로 변경하세요.
+			String result = "";
+			String line;
+			while ((line = rd.readLine()) != null)
+			{
+				result += line;
+			}
+			wr.close();
+			rd.close();
+
+			return result;
+		}
+		catch (Exception e)
+		{
+			logger.info(" UrlCall Exception :"+e.toString());
+			return "1";
+		}
+	}
+
+	public String urlEncodeEuckr(String str)
+	{
+		try {
+			str =  URLEncoder.encode(str, "euc-kr");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return str;
+	}
+
+	public String urlDecodeEuckr(String str)
+	{
+		try {
+			str =  URLDecoder.decode(str, "euc-kr");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return str;
+	}
+
 	private SharedMap<String, Object> getApprovalValue(String json) {
 		SharedMap<String, Object> response = new SharedMap<>();
 
@@ -416,6 +730,30 @@ public class WelcomeSub implements Van{
 			response.put("transaction_no", jsonObject.get("transaction_no").getAsString());
 		}
 
+		return response;
+	}
+
+	private SharedMap<String, Object> getRebillValue(String json) {
+		SharedMap<String, Object> response = new SharedMap<>();
+
+		JsonParser jsonParser = new JsonParser();
+		JsonObject jsonObject = (JsonObject) jsonParser.parse(json);
+
+		response.put("ResultCode", jsonObject.get("ResultCode").getAsString());
+		response.put("ResultMsg", jsonObject.get("ResultMsg").getAsString());
+
+		if(response.getString("ResultCode").equals("3001")) {
+			//성공
+			response.put("ResultCode", "0000");
+			response.put("Tid", jsonObject.get("Tid").getAsString());
+			response.put("AuthDate", jsonObject.get("AuthDate").getAsString());
+			response.put("AuthCode", jsonObject.get("AuthCode").getAsString());
+			response.put("Amt", jsonObject.get("Amt").getAsString());
+			response.put("AppCardCode", jsonObject.get("AppCardCode").getAsString());
+			response.put("AppCardName", jsonObject.get("AppCardName").getAsString());
+			response.put("CardNum", jsonObject.get("CardNum").getAsString());
+			response.put("CardNum", jsonObject.get("CardNum").getAsString());
+		}
 		return response;
 	}
 
