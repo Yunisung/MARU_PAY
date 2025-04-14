@@ -235,6 +235,10 @@ public class Api {
 				process = new ProcTossReturn();
 			} else if (uri.startsWith(PAYUNIT.API_NAVER_P_RETURN)) {
 				process = new ProcNaverPointReturn();
+			} else if (uri.startsWith(PAYUNIT.API_REBILL_WIDGET)) {
+				process = new ProcRebillWidget();
+			} else if (uri.startsWith(PAYUNIT.API_REBILL_RETURN)) {
+				process = new ProcRebillReturn();
 			}
 			else {
 				if (uri.startsWith(PAYUNIT.API_WEBHOOK_DANAL)) {
@@ -344,7 +348,8 @@ public class Api {
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_SUB_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WELCOME_SUB_MOBILE_RETURN) ||
 			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_TOSS_RETURN) ||
-			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_P_RETURN)) {
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_NAVER_P_RETURN) ||
+			sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_REBILL_RETURN)) {
 			return true;
 		}
 
@@ -354,7 +359,8 @@ public class Api {
 		////2018.03.16 WIGET GET  요청은 KEY 로 정보를 취득한다.
 		if(authorization.equals("") && (sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3D_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_W3D_WIDGET)
 				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3D_MOBILE_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_3DV2_WIDGET)
-				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTH_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTHV2_WIDGET))){
+				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTH_WIDGET) || sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_ONLY_AUTHV2_WIDGET)
+				|| sharedMap.startsWith(PAYUNIT.URI, PAYUNIT.API_REBILL_WIDGET))){
 			
 			String widgetType = PAYUNIT.API_WIDGET;
 			
@@ -372,6 +378,8 @@ public class Api {
 				widgetType = PAYUNIT.API_ONLY_AUTH_WIDGET;
 			}else if(sharedMap.startsWith(PAYUNIT.URI,PAYUNIT.API_ONLY_AUTHV2_WIDGET)) {
 				widgetType = PAYUNIT.API_ONLY_AUTHV2_WIDGET;
+			}else if(sharedMap.startsWith(PAYUNIT.URI,PAYUNIT.API_REBILL_WIDGET)) {
+				widgetType = PAYUNIT.API_REBILL_WIDGET;
 			}
 			
 			String key = sharedMap.getString(PAYUNIT.URI).replaceAll(widgetType+"/", "");

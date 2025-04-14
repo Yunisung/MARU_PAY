@@ -1,6 +1,6 @@
 var MARU = (function (win, doc) {
     var c3Config = {
-        payRoute: "regular",
+        payRoute: "rebill",
         publicKey: '',    // 필수값
         amount: 0,        // 필수값
         trackId: '',
@@ -10,11 +10,12 @@ var MARU = (function (win, doc) {
         widgetLogoUrl: '',
         mode: 'layer',
         debugMode: 'sandbox',
-        rebillProcess: 'REG',
-        rebillCycleType: '',
-        rebillCycle: '',
-        rebillExpire: '',
-        rebillSmsUse: 'N'
+        productName: '',
+        payerName: '',
+        payerEmail: '',
+        payerTel: '',
+        rebillDays: '',
+        expireDate: '',
     }
 
     /* GLOBAL */
@@ -98,54 +99,43 @@ var MARU = (function (win, doc) {
             // CASE 2: 키 && 필수값을 가지고 있는 경우 값들이 유효한 값이면 통과.
             // PS. 코드 및 메시지를 서버와 동기화 하여 가져올 것 + 따로 오브젝트로 관리할 것.
             if (config.publicKey === '' || config.publicKey == 'undefined') {
-                error.code = '4001'; error.message = 'publicKey 필수값이 없습니다.';
+                error.code = '4000'; error.message = 'publicKey 필수값이 없습니다.';
                 return false;
             }
             if(!config.amount) {
-                error.code = '4002'; error.message = 'amount 필수값이 없습니다.';
+                error.code = '4000'; error.message = 'amount 필수값이 없습니다.';
                 return false;
             }
 
-            if(!config.rebillCycleType) {
-                error.code = '4003'; error.message = 'rebillCycleType 필수값이 없습니다.';
-                return false;
-            } else {
-                if(config.rebillCycleType === 'M' || config.rebillCycleType === 'W' || config.rebillCycleType === 'D') {
-
-                } else {
-                    error.code = '4003'; error.message = '[rebillCycleType 입력오류] M/W/D 셋중 하나만 입력가능합니다.';
-                    return false;
-                }
-            }
-
-            if(!config.rebillCycle) {
-                error.code = '4004'; error.message = 'rebillCycle 필수값이 없습니다.';
-                return false;
-            } else {
-                if(config.rebillCycleType === 'M') {
-                    if(config.rebillCycle > 31 || config.rebillCycle < 1) {
-                        error.code = '4005'; error.message = '[rebillCycle 입력오류] 1~31까지만 입력가능합니다.';
-                        return false;
-                    }
-                        
-                } else if(config.rebillCycleType === 'W') {
-                    if(config.rebillCycle > 7 || config.rebillCycle < 1) {
-                        error.code = '4005'; error.message = '[rebillCycle 입력오류] 1~7까지만 입력가능합니다.';
-                        return false;
-                    }
-                } else if(config.rebillCycleType === 'D') {
-                    if(config.rebillCycle != 1) {
-                        error.code = '4005'; error.message = '[rebillCycle 입력오류] 1만 입력가능합니다.';
-                        return false;
-                    }
-                }
-            }
-
-            if(!config.rebillExpire || config.rebillExpire.length != 8) {
-                error.code = '4006'; error.message = 'rebillExpire 필수값이 없습니다.';
+            if(config.trackId === '' || config.trackId == 'undefined') {
+                error.code = '4000'; error.message = 'trackId 필수값이 없습니다.';
                 return false;
             }
 
+            if(config.rebillDays === '' || config.rebillDays == 'undefined') {
+                error.code = '4000'; error.message = 'rebillDays 필수값이 없습니다.';
+                return false;
+            }
+
+            if(config.expireDate === '' || config.expireDate == 'undefined') {
+                error.code = '4000'; error.message = 'expireDate 필수값이 없습니다.';
+                return false;
+            }
+
+            if(config.payerName === '' || config.payerName == 'undefined') {
+                error.code = '4000'; error.message = 'payerName 필수값이 없습니다.';
+                return false;
+            }
+
+            if(config.payerEmail === '' || config.payerEmail == 'undefined') {
+                error.code = '4000'; error.message = 'payerEmail 필수값이 없습니다.';
+                return false;
+            }
+
+            if(config.payerTel === '' || config.payerTel == 'undefined') {
+                error.code = '4000'; error.message = 'payerTel 필수값이 없습니다.';
+                return false;
+            }
 
             return true;
         },
@@ -280,8 +270,8 @@ var MARU = (function (win, doc) {
     }
     /* 레이어 팝업 실행 (Private) */
     function c3pop() {
-        console.log('c3pop', routeDomain + '/form/payment/layout');
-        doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layout'; // 정해지면 변경...
+        console.log('c3pop', routeDomain + '/form/payment/layoutV2');
+        doc.getElementById('c3_pop_iframe').src = routeDomain + '/form/payment/layoutV2'; // 정해지면 변경...
 
         doc.getElementById('c3pop_pop_overlay_wrap').style.display = '';
         doc.getElementById('c3_pop_overlay').style.display = '';
