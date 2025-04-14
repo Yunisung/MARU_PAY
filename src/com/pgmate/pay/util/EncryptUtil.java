@@ -14,6 +14,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.AlgorithmParameterSpec;
+import java.util.Arrays;
 import java.util.Base64;
 
 public class EncryptUtil {
@@ -127,6 +129,70 @@ public class EncryptUtil {
         return sbuilder.toString();
     }
 
+    /**
+     * 웰컴 서브 정기결제용 암호화 함수
+     */
+    public static final synchronized String encodeSHA256Base64 (String strPW) {
+        String passACL = null;
+        MessageDigest md = null;
+
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        md.update(strPW.getBytes());
+        byte[] raw = md.digest();
+        byte[] encodedBytes = org.apache.commons.codec.binary.Base64.encodeBase64(raw);
+        passACL = new String(encodedBytes);
+
+        return passACL;
+    }
+
+    public static final synchronized String decodeSHA256Base64 (String strPW) {
+        String passACL = null;
+        MessageDigest md = null;
+
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        md.update(strPW.getBytes());
+        byte[] raw = md.digest();
+        byte[] encodedBytes = org.apache.commons.codec.binary.Base64.decodeBase64(raw);
+        passACL = new String(encodedBytes);
+
+        return passACL;
+    }
+
+    /**
+     * 웰컴 서브 정기결제용 Decode 함수
+     */
+    public static String AESDecode(String str, String key) throws Exception {
+        byte[] ivBytes = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        String result = null;
+        byte[] textBytes = org.apache.commons.codec.binary.Base64.decodeBase64(str);
+        AlgorithmParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        SecretKeySpec newKey = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, newKey, ivSpec);
+        result = new String(cipher.doFinal(textBytes), "UTF-8");
+        return result;
+    }
+
+    public static String AESEncode(String str, String key) throws Exception {
+        byte[] ivBytes = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        byte[] textBytes = str.getBytes("UTF-8");
+        AlgorithmParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        SecretKeySpec newKey = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, newKey, ivSpec);
+        byte[] encodedBytes = org.apache.commons.codec.binary.Base64.encodeBase64(cipher.doFinal(textBytes));
+        return new String(encodedBytes);
+    }
 
 
 }

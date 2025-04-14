@@ -206,11 +206,22 @@ var ServerUtil = {
 
         if (c3Config.mode == 'popup') {
             ServerUtil.popupHeigth += additionHeight;
+
+            if(c3Config.payRoute == 'rebill') {
+                ServerUtil.popupWidth = 770;
+
+                if(util.isMobile()){
+                    ServerUtil.popupHeigth = window.innerHeight;
+                }else{
+                    ServerUtil.popupHeigth = 770;
+                }
+            }
+
         } else {
             var innerWidth = window.innerWidth;
             if(c3Config.payRoute == 'w3d'){
                 ServerUtil.layerHeigth += additionHeight -180;
-            }else if(c3Config.payRoute == 'phone' || c3Config.payRoute == '3d' || c3Config.payRoute == '3dPay'){
+            }else if(c3Config.payRoute == 'phone' || c3Config.payRoute == '3d' || c3Config.payRoute == '3dPay' || c3Config.payRoute == 'rebill'){
                 ServerUtil.layerWidth = window.innerWidth;
                 if(util.isMobile()){
                     ServerUtil.layerHeigth = window.innerHeight;
@@ -309,7 +320,10 @@ function openPayment(config) {
         widgetUri = '/api/widget';
     }else if(c3Config.payRoute == '3d' || c3Config.payRoute == 'simple'){
         widgetUri = '/api/3dV2/widget';
-    }else{
+    }else if(c3Config.payRoute == 'rebill') {
+        widgetUri = '/api/rebill/widget';
+    }
+    else{
         widgetUri = '/api/w3d/widget';
     }
 

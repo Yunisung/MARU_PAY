@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <meta charSet="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content="Smartro"/>
+    <title>SmartroPAY 연동가이드</title>
+
+    <script>
+        var today = new Date();
+        var formattedDate = today.getFullYear() +
+            ("0" + (today.getMonth() + 1)).slice(-2) +
+            ("0" + today.getDate()).slice(-2);
+
+        var script = document.createElement("script");
+        script.src = "https://mpay.smartropay.co.kr/asset/js/SmartroPAY-1.0.min.js?version=" + formattedDate;
+        document.head.appendChild(script);
+    </script>
+
+    <!-- PC 연동 시 script. 캐시방지를 위해 ?version=today를 추가 -->
+    <!-- 운영 전환 시 "https://pay.smartropay.co.kr/asset/js/SmartroPAY-1.0.min.js?version=현재일자" 로 변경 -->
+    <!--    <script src="https://tpay.smartropay.co.kr/asset/js/SmartroPAY-1.0.min.js?version=현재일자"></script>-->
+
+    <!-- 모바일 연동 시 script. 캐시방지를 위해 ?version=today를 추가 -->
+    <!-- 운영 전환 시 "https://mpay.smartropay.co.kr/asset/js/SmartroPAY-1.0.min.js?version=현재일자" 로 변경 -->
+    <!--    <script src="https://tmpay.smartropay.co.kr/asset/js/SmartroPAY-1.0.min.js?version=현재일자"></script>-->
+
+    <script type="text/javascript">
+
+        function goPay() {
+
+            // 스마트로페이 초기화
+            smartropay.init({
+                mode: 'STG', // STG: 테스트, REAL: 운영
+                actionUri: '/ssb/interface.do'
+            });
+            // 스마트로페이 빌링키 발급요청
+            smartropay.payment({
+                FormId: 'rebillForm' // 폼ID
+            });
+        }
+    </script>
+</head>
+<body>
+<!--<form id="tranMgr" name="tranMgr" method="post">-->
+<!--    &lt;!&ndash; 각 값들을 가맹점에 맞게 설정해 주세요. &ndash;&gt;-->
+<!--    <input type="text" name="PayMethod" value="CARD" placeholder=""/>-->
+<!--    <input type="text" name="Mid" maxLength="10" value="설정한 Mid" placeholder=""/>-->
+<!--    <input type="text" name="Moid" maxLength="40" value="설정한 Moid" placeholder="특수문자포함불가"/>-->
+<!--    <input type="text" name="MallUserId" maxLength="20" value="MallUserId" placeholder=""/>-->
+<!--    <input type="text" name="MallIp" maxLength="20" value="10.0.0.1" placeholder=""/>-->
+<!--    <input type="text" name="UserIp" maxLength="20" value="10.0.0.1" placeholder=""/>-->
+<!--    <input type="text" name="ReturnUrl" size="100" className="input" value="가맹점 ReturnUrl">-->
+<!--    <input type="text" name="VerifyValue" maxLength="100" className="input"-->
+<!--           value="생성된 EncryptData" placeholder="위/변조방지 HASH 데이터">-->
+<!--    <input type="text" name="EncodingType" maxLength="14" value="" placeholder="utf-8 or euc-kr"/>-->
+<!--    <input type="text" name="SspMallId" maxLength="20" value="SMTSSPAY0p"-->
+<!--           placeholder="테스트용 SspMallId"/>-->
+<!--    <input type="text" name="EdiDate" maxLength="14" value="설정한 EdiDate" placeholder=""/>-->
+<!--    <button type="button" className="btn btn-primary" onClick="goPay();">결제하기</button>-->
+<!--</form>-->
+<script src="/js/rebillScriptLoader.js?v=1"></script>
+</body>
+</html>

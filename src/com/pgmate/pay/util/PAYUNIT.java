@@ -111,6 +111,8 @@ public class PAYUNIT {
 	public static String API_REBILL_PAY				= "/api/rebill/pay";			//정기결제 결제요청
 	public static String API_REBILL_REG				= "/api/rebill/reg";			//정기결제 등록
 	public static String API_REBILL_UPDATE			= "/api/rebill/update";			//정기결제 수정
+	public static String API_REBILL_WIDGET			= "/api/rebill/widget";			//정기결제 위젯
+	public static String API_REBILL_RETURN			= "/api/rebill/return";
 
 	public static String API_GALAXIA_RETURN  		= "/api/galaxia/return";
 
