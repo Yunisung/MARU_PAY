@@ -302,12 +302,6 @@ var MARU = (function(win, doc) {
         pay.metadata.cardAuth = MARUConfig.semiAuth == 'Y' ? "true" : "false";
         pay.metadata.authPw = document.getElementById('authPw').value;
         pay.metadata.authDob = document.getElementById('authDob').value;
-
-        pay.metadata.rebillProcess = MARUConfig.rebillProcess;
-        pay.metadata.rebillCycleType = MARUConfig.rebillCycleType;
-        pay.metadata.rebillCycle = MARUConfig.rebillCycle;
-        pay.metadata.rebillExpire = MARUConfig.rebillExpire;
-        pay.metadata.rebillSmsUse = MARUConfig.rebillSmsUse;
         //console.log('>>>>>>>>>>>>>>>>>>> ', pay);
         return {
             pay: pay
