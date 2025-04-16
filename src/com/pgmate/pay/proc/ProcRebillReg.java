@@ -66,6 +66,8 @@ public class ProcRebillReg extends Proc {
             sharedMap = new Welcome(tmnVanMap).billKeyReg(trxDAO, sharedMap, response);
         } else if(mchtTmnMap.isEquals("van", "WELCOMESUB")) {
             //웰컴 서브는 위젯으로 함
+            response.result = ResultUtil.getResult("9999", "실패", "지원하지않는 VAN입니다.");
+            return false;
         }
 
         //PG_REBILL_CARD 저장
