@@ -134,8 +134,14 @@ public class ProcRebillWidget extends Proc{
         form.put("EdiDate", CommonUtil.getCurrentDate("yyyyMMddHHmmss"));
         form.put("IsPwdPass", "Y");
 
-        String url = String.format("http://%s%s/%s/%s","127.0.0.1:10002",PAYUNIT.API_REBILL_RETURN,sharedMap.getString(PAYUNIT.TRX_ID), vanMap.getString("idx"));
+        String url = "";
         String verifyValue = "";
+        if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)) {
+            url = String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_REBILL_RETURN,sharedMap.getString(PAYUNIT.TRX_ID), vanMap.getString("idx"));
+        }else {
+            url = String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_DEV,PAYUNIT.API_REBILL_RETURN,sharedMap.getString(PAYUNIT.TRX_ID), vanMap.getString("idx"));
+        }
+
 
         try {
             verifyValue = EncryptUtil.encodeSHA256Base64(form.getString("EdiDate") + form.getString("Mid") + form.getString("Moid") + "SMARTRO!@#");
