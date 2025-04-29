@@ -1,5 +1,8 @@
 package com.pgmate.pay.proc;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.pgmate.pay.bean.Rent;
 import com.pgmate.pay.van.*;
 import org.slf4j.Logger;
@@ -298,6 +301,20 @@ public class ProcPay extends Proc {
 		}
 		
 		request.pay.trxId = sharedMap.getString(PAYUNIT.TRX_ID);
+
+		//카드번호 마스킹 처리
+		Gson gson = new Gson();
+		JsonParser parse = new JsonParser();
+		JsonObject root = parse.parse(sharedMap.getString(PAYUNIT.PAYLOAD)).getAsJsonObject();
+		JsonObject pay = root.getAsJsonObject("pay");
+		JsonObject card = pay.getAsJsonObject("card");
+		String originCardNumber = card.get("number").getAsString();
+		String maskedCardNumber = cardMask(originCardNumber);
+		card.addProperty("number", maskedCardNumber);
+		String updatedJson = gson.toJson(root);
+		sharedMap.put(PAYUNIT.PAYLOAD, updatedJson);
+
+
 		
 		//KJM : 거래서버통신이력 추가
 		trxDAO.insertTrxIO(sharedMap, request.pay);
@@ -731,7 +748,7 @@ public class ProcPay extends Proc {
 	
 	private String cardMask(String number) {
 		String bin = number.substring(0,6);
-		String last4 = number.substring(number.length()-3, number.length());
+		String last4 = number.substring(number.length()-4, number.length());
 		if(number.length() == 14) {
 			return bin+"*****"+last4;
 		}else if(number.length() == 15) {
