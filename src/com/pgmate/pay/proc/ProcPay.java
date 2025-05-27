@@ -303,16 +303,19 @@ public class ProcPay extends Proc {
 		request.pay.trxId = sharedMap.getString(PAYUNIT.TRX_ID);
 
 		//카드번호 마스킹 처리
-		Gson gson = new Gson();
-		JsonParser parse = new JsonParser();
-		JsonObject root = parse.parse(sharedMap.getString(PAYUNIT.PAYLOAD)).getAsJsonObject();
-		JsonObject pay = root.getAsJsonObject("pay");
-		JsonObject card = pay.getAsJsonObject("card");
-		String originCardNumber = card.get("number").getAsString();
-		String maskedCardNumber = cardMask(originCardNumber);
-		card.addProperty("number", maskedCardNumber);
-		String updatedJson = gson.toJson(root);
-		sharedMap.put(PAYUNIT.PAYLOAD, updatedJson);
+		if(request.pay.trxType.equals("ONTR")) {
+			Gson gson = new Gson();
+			JsonParser parse = new JsonParser();
+			JsonObject root = parse.parse(sharedMap.getString(PAYUNIT.PAYLOAD)).getAsJsonObject();
+			JsonObject pay = root.getAsJsonObject("pay");
+			JsonObject card = pay.getAsJsonObject("card");
+			String originCardNumber = card.get("number").getAsString();
+			String maskedCardNumber = cardMask(originCardNumber);
+			card.addProperty("number", maskedCardNumber);
+			String updatedJson = gson.toJson(root);
+			sharedMap.put(PAYUNIT.PAYLOAD, updatedJson);
+		}
+
 
 
 		
