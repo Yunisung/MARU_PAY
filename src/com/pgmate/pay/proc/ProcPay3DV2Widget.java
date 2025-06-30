@@ -1695,7 +1695,7 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("allat_product_cd", "product");
 		form.put("allat_product_nm", request.widget.getString("itemName"));
 		form.put("allat_buyer_nm", request.widget.getString("userName"));
-		form.put("allat_recp_nm", "(주)부국위너스");
+		form.put("allat_recp_nm", "(주)건흥페이먼츠");
 		form.put("allat_recp_addr", "부산시 해운대구 센텀중앙로 97 스카이비즈");
 		form.put("allat_enc_data", "");
 
