@@ -87,7 +87,7 @@ public class ProcPhoneAuth extends Proc{
             reqJson.put("RETURN_URL", String.format("http://%s%s/%s","localhost:10002",PAYUNIT.API_PHONE_AUTH_RETURN,widgetKey));
         }
         reqJson.put("SITE_NAME", "CREDITOP");
-        reqJson.put("SITE_URL", "api.bkwinners.kr");
+        reqJson.put("SITE_URL", "api.ghpayments.kr");
         reqJson.put("RQST_CAUS_CD", "01");
 
         String reqStr = reqJson.toString();

@@ -15,7 +15,7 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script> 
     
 	<!-- Mtouch 결제 스크립트 [필수] -->
-	<script type="text/javascript" src="https://devapi.bkwinners.kr/js/clientside.js"></script>
+	<script type="text/javascript" src="https://devapi.ghpayments.kr/js/clientside.js"></script>
 
 	<style>
 		form { margin: 0 auto; width:250px; }
@@ -188,7 +188,7 @@
 			trackId: $('#trackId').val(),			// 가맹점 주문번호
 
 			responseFunction : eventFnc,        	// 결제 결과 리턴 function
-			redirectUrl : 'https://devapi.bkwinners.kr/form/payment/UnionRedirect.html',
+			redirectUrl : 'https://devapi.ghpayments.kr/form/payment/UnionRedirect.html',
 			webhookUrl : $('#webhook').val(),   	// 결제결과 리턴 url
 			payerName : $('#payerName').val(),
 			payerEmail : $('#payerEmail').val(),
