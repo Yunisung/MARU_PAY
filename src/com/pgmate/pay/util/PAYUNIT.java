@@ -9,8 +9,8 @@ import com.pgmate.lib.util.map.SharedCacheMap;
 public class PAYUNIT {
 
 
-	public static final String PAY_HOST_LIVE 		= "devapi.bkwinners.kr";
-	public static final String PAY_HOST_DEV 		= "devapi.bkwinners.kr";
+	public static final String PAY_HOST_LIVE 		= "devapi.ghpayments.kr";
+	public static final String PAY_HOST_DEV 		= "devapi.ghpayments.kr";
 //	public static final String PAY_HOST_DEV 		= "127.0.0.1:10002";
 
 	public static final String PAY_DATE 			= "yyyyMMddHHmmss";

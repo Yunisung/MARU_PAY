@@ -63,8 +63,8 @@ var KWON = (function (win, doc) {
 
     /* GLOBAL */
     var routeUrls = {
-        test: 'https://devapi.bkwinners.kr',
-        live: 'https://api.bkwinners.kr',
+        test: 'https://devapi.ghpayments.kr',
+        live: 'https://api.ghpayments.kr',
         local: 'http://127.0.0.1:10002',
     }
 

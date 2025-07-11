@@ -60,8 +60,8 @@ var KWON = (function (win, doc) {
   	}
 
 	var maruUrls = {
-		test: 'https://devapi.bkwinners.kr',
-		live: 'https://api.bkwinners.kr'
+		test: 'https://devapi.ghpayments.kr',
+		live: 'https://api.ghpayments.kr'
 	}
 
 
