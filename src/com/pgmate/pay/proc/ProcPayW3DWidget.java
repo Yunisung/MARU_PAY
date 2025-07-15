@@ -240,7 +240,7 @@ public class ProcPayW3DWidget extends Proc {
 //			mchtName = mchtName.substring(0, 20);
 //		}
 		form.put("name", "CREDITOP"); // 광원 사업자 영문명으로 고정한다.
-		form.put("url", "http://www.bkwinners.com");	// 광원 사업자 url로 고정한다.
+		form.put("url", "http://www.ghpayments.co.kr");	// 광원 사업자 url로 고정한다.
 		
 		if(sharedMap.isEquals(PAYUNIT.RUNTIME_ENV, PAYUNIT.RUNTIME_ENV_LIVE)){
 			form.put("returnUrl", String.format("https://%s%s/%s/%s",PAYUNIT.PAY_HOST_LIVE,PAYUNIT.API_W3D_HOOK,vanMap.getString("van"),sharedMap.getString(PAYUNIT.TRX_ID)));

@@ -70,7 +70,7 @@ var KWON = (function (win, doc) {
     //부국위너스 URL주소
     // var maruUrl = 'http://127.0.0.1:10002'; //local
     // var maruUrl = 'https://devapi.bkwinners.kr'; //dev
-    var maruUrl = 'https://api.bkwinners.kr'; //live
+    var maruUrl = 'https://api.ghpayments.kr'; //live
 
     var routeDomain = routeUrls[c3Config.debugMode];
     var layerInited = false;

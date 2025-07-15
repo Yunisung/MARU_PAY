@@ -19,8 +19,8 @@ var MARU = (function (win, doc) {
   /* GLOBAL */
   var routeUrls = {
     // sandbox: 'http://127.0.0.1:10002',
-    sandbox: 'https://devapi.bkwinners.kr',
-    live: 'https://api.bkwinners.kr'
+    sandbox: 'https://devapi.ghpayments.kr',
+    live: 'https://api.ghpayments.kr'
   }
   var paykey = '';
   var echoSuccess;
