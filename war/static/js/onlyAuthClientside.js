@@ -26,8 +26,8 @@ var KWON = (function (win, doc) {
 
     var routeUrls = {
         local: 'http://127.0.0.1:10002',
-        sandbox: 'https://devapi.bkwinners.kr',
-        live: 'https://api.bkwinners.kr'
+        sandbox: 'https://devapi.ghpayments.kr',
+        live: 'https://api.ghpayments.kr'
     }
 
     var routeDomain = routeUrls[c3Config.debugMode];

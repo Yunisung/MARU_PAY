@@ -1926,7 +1926,7 @@ public class ProcPay3DV2Widget extends Proc {
 		form.put("mobileno", request.widget.getString("payerTel").replaceAll("[-]", ""));	// 휴대폰번호
 		form.put("charset", "UTF-8"); 										// 가맹점 Char Set
 		form.put("printmsg", storeName);
-		form.put("store_url", "https://www.bkwinners.com");
+		form.put("store_url", "https://www.ghpayments.co.kr");
 		//form.put("installment", mchtTmnMap.getString("apiMaxInstall")); 	// 2개중 택 1 할부개월수 범위 지정 변수 ex)01:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
 		// 할부개월수 범위 지정 변수 ex)00:02:03:04:05:06:07:08:09:10:11:12 (일시불~12개월까지 네이버 결제창 할부개월수 선택 가능)
 
