@@ -87,7 +87,7 @@ public class Allat implements Van{
 	    reqHm.put("allat_recp_name"         , CommonUtil.nToB(response.pay.payerName,"수취인"));						//수취인성명(최대 20자)
 	    reqHm.put("allat_recp_addr"         , ""     );																//수취인주소(최대 120자)
 	    reqHm.put("allat_user_ip"           , "Unknown"      );														//결제자 IP(최대15자):BuyerIp를 넣을수 없다면 "Unknown"으로 세팅
-	    reqHm.put("allat_email_addr"        , CommonUtil.nToB(response.pay.payerEmail,"bukook@ghpayments.co.kr"));		//결제자 이메일 주소(50자)
+	    reqHm.put("allat_email_addr"        , CommonUtil.nToB(response.pay.payerEmail,"ghpay@ghpayments.co.kr"));		//결제자 이메일 주소(50자)
 	   
 	    reqHm.put("allat_pay_type"          , "NOR"          );  //수정금지(결제방식 정의)
 //	    reqHm.put("allat_test_yn"           , "Y"            );  //테스트 :Y, 서비스 :N
