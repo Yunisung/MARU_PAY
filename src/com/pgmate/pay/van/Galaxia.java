@@ -319,7 +319,7 @@ public class Galaxia implements Van{
 		String quota = CommonUtil.zerofill(response.pay.card.installment,2);				//할부개월수(무인증)
 		String vat="";																		//부가세
 		String serviceCharge = "";															//봉사료
-		String userEmail = CommonUtil.nToB(response.pay.payerEmail,"bukook@ghpayments.co.kr"); //고객 이메일
+		String userEmail = CommonUtil.nToB(response.pay.payerEmail,"ghpay@ghpayments.co.kr"); //고객 이메일
 		String taxAmount = "";																//과세금액
 		String taxFreeAmount ="";															//면세금액
 		//-----------고정 값 수정 불가------------
